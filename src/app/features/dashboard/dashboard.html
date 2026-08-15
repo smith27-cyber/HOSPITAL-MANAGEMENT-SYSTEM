@@ -1,0 +1,328 @@
+<div class="dashboard">
+
+  <!-- Dashboard Header -->
+  <div class="dashboard-header">
+
+    <div>
+      <h1>Dashboard</h1>
+      <p>Overview of your hospital activities</p>
+    </div>
+
+    <div class="date-display">
+      <span class="material-symbols-outlined">
+        calendar_today
+      </span>
+
+      <span>August 15, 2026</span>
+    </div>
+
+  </div>
+
+
+  <!-- Statistics -->
+  <div class="stats-grid">
+
+    <div class="stat-card">
+
+      <div class="stat-icon patients">
+        <span class="material-symbols-outlined">
+          group
+        </span>
+      </div>
+
+      <div class="stat-content">
+        <span class="stat-label">Total Patients</span>
+        <h2>1,245</h2>
+        <span class="stat-change positive">
+          +12% from last month
+        </span>
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-icon appointments">
+        <span class="material-symbols-outlined">
+          calendar_month
+        </span>
+      </div>
+
+      <div class="stat-content">
+        <span class="stat-label">Today's Appointments</span>
+        <h2>48</h2>
+        <span class="stat-change positive">
+          +8% from yesterday
+        </span>
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-icon admissions">
+        <span class="material-symbols-outlined">
+          local_hotel
+        </span>
+      </div>
+
+      <div class="stat-content">
+        <span class="stat-label">Current Admissions</span>
+        <h2>32</h2>
+        <span class="stat-change">
+          4 discharged today
+        </span>
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-icon revenue">
+        <span class="material-symbols-outlined">
+          payments
+        </span>
+      </div>
+
+      <div class="stat-content">
+        <span class="stat-label">Today's Revenue</span>
+        <h2>UGX 4.8M</h2>
+        <span class="stat-change positive">
+          +15% from yesterday
+        </span>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- Main Dashboard Grid -->
+  <div class="dashboard-grid">
+
+
+    <!-- Appointments -->
+    <section class="dashboard-card appointments-card">
+
+      <div class="card-header">
+
+        <div>
+          <h3>Today's Appointments</h3>
+          <span>Upcoming patient appointments</span>
+        </div>
+
+        <button class="view-button">
+          View All
+        </button>
+
+      </div>
+
+
+      <div class="table-wrapper">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Doctor</th>
+              <th>Time</th>
+              <th>Department</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            <tr>
+              <td>
+                <div class="patient-cell">
+                  <div class="patient-avatar">JD</div>
+
+                  <div>
+                    <strong>John Doe</strong>
+                    <span>PT-000124</span>
+                  </div>
+                </div>
+              </td>
+
+              <td>Dr. Sarah Smith</td>
+
+              <td>09:00 AM</td>
+
+              <td>General Medicine</td>
+
+              <td>
+                <span class="status confirmed">
+                  Confirmed
+                </span>
+              </td>
+            </tr>
+
+
+            <tr>
+              <td>
+                <div class="patient-cell">
+                  <div class="patient-avatar">MJ</div>
+
+                  <div>
+                    <strong>Mary Jane</strong>
+                    <span>PT-000125</span>
+                  </div>
+                </div>
+              </td>
+
+              <td>Dr. Robert James</td>
+
+              <td>10:30 AM</td>
+
+              <td>Cardiology</td>
+
+              <td>
+                <span class="status pending">
+                  Pending
+                </span>
+              </td>
+            </tr>
+
+
+            <tr>
+              <td>
+                <div class="patient-cell">
+                  <div class="patient-avatar">PK</div>
+
+                  <div>
+                    <strong>Peter Kamau</strong>
+                    <span>PT-000126</span>
+                  </div>
+                </div>
+              </td>
+
+              <td>Dr. Michael Brown</td>
+
+              <td>11:15 AM</td>
+
+              <td>Dental</td>
+
+              <td>
+                <span class="status confirmed">
+                  Confirmed
+                </span>
+              </td>
+            </tr>
+
+
+            <tr>
+              <td>
+                <div class="patient-cell">
+                  <div class="patient-avatar">AN</div>
+
+                  <div>
+                    <strong>Ann Nakato</strong>
+                    <span>PT-000127</span>
+                  </div>
+                </div>
+              </td>
+
+              <td>Dr. Sarah Smith</td>
+
+              <td>01:00 PM</td>
+
+              <td>General Medicine</td>
+
+              <td>
+                <span class="status completed">
+                  Completed
+                </span>
+              </td>
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+
+    <!-- Quick Actions -->
+    <section class="dashboard-card quick-actions-card">
+
+      <div class="card-header">
+
+        <div>
+          <h3>Quick Actions</h3>
+          <span>Common tasks</span>
+        </div>
+
+      </div>
+
+
+      <div class="quick-actions">
+
+        <button class="quick-action">
+
+          <span class="material-symbols-outlined">
+            person_add
+          </span>
+
+          <div>
+            <strong>Register Patient</strong>
+            <span>Add a new patient</span>
+          </div>
+
+        </button>
+
+
+        <button class="quick-action">
+
+          <span class="material-symbols-outlined">
+            event
+          </span>
+
+          <div>
+            <strong>New Appointment</strong>
+            <span>Schedule appointment</span>
+          </div>
+
+        </button>
+
+
+        <button class="quick-action">
+
+          <span class="material-symbols-outlined">
+            medication
+          </span>
+
+          <div>
+            <strong>Prescription</strong>
+            <span>Create prescription</span>
+          </div>
+
+        </button>
+
+
+        <button class="quick-action">
+
+          <span class="material-symbols-outlined">
+            receipt_long
+          </span>
+
+          <div>
+            <strong>Create Invoice</strong>
+            <span>Generate new invoice</span>
+          </div>
+
+        </button>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</div>
