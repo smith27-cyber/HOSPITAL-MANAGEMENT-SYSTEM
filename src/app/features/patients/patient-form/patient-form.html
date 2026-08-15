@@ -1,0 +1,377 @@
+<div class="patient-form-page">
+
+  <!-- Header -->
+
+  <div class="page-header">
+
+    <div>
+      <h1>Register Patient</h1>
+
+      <p>
+        Create a new patient record
+      </p>
+    </div>
+
+    <button
+      class="secondary-button"
+      type="button"
+      (click)="cancel()"
+    >
+      <span class="material-symbols-outlined">
+        arrow_back
+      </span>
+
+      Back to Patients
+    </button>
+
+  </div>
+
+
+  <form
+    class="patient-form"
+    (ngSubmit)="savePatient()"
+  >
+
+    <!-- Personal Information -->
+
+    <section class="form-card">
+
+      <div class="section-header">
+
+        <div class="section-icon">
+          <span class="material-symbols-outlined">
+            person
+          </span>
+        </div>
+
+        <div>
+          <h2>Personal Information</h2>
+          <p>Basic information about the patient</p>
+        </div>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label>
+            First Name <span>*</span>
+          </label>
+
+          <input
+            type="text"
+            name="firstName"
+            [(ngModel)]="patient.firstName"
+            placeholder="Enter first name"
+            required
+          />
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Last Name <span>*</span>
+          </label>
+
+          <input
+            type="text"
+            name="lastName"
+            [(ngModel)]="patient.lastName"
+            placeholder="Enter last name"
+            required
+          />
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Date of Birth <span>*</span>
+          </label>
+
+          <input
+            type="date"
+            name="dateOfBirth"
+            [(ngModel)]="patient.dateOfBirth"
+            required
+          />
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Gender <span>*</span>
+          </label>
+
+          <select
+            name="gender"
+            [(ngModel)]="patient.gender"
+            required
+          >
+            <option value="">Select gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Phone Number <span>*</span>
+          </label>
+
+          <input
+            type="tel"
+            name="phone"
+            [(ngModel)]="patient.phone"
+            placeholder="07XX XXX XXX"
+            required
+          />
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Email
+          </label>
+
+          <input
+            type="email"
+            name="email"
+            [(ngModel)]="patient.email"
+            placeholder="patient@example.com"
+          />
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            National ID
+          </label>
+
+          <input
+            type="text"
+            name="nationalId"
+            [(ngModel)]="patient.nationalId"
+            placeholder="Enter national ID"
+          />
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Blood Group
+          </label>
+
+          <select
+            name="bloodGroup"
+            [(ngModel)]="patient.bloodGroup"
+          >
+            <option value="">Select blood group</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+          </select>
+
+        </div>
+
+
+        <div class="form-group full-width">
+
+          <label>
+            Address
+          </label>
+
+          <textarea
+            name="address"
+            [(ngModel)]="patient.address"
+            placeholder="Patient residential address"
+            rows="3"
+          ></textarea>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- Emergency Contact -->
+
+    <section class="form-card">
+
+      <div class="section-header">
+
+        <div class="section-icon">
+          <span class="material-symbols-outlined">
+            contact_emergency
+          </span>
+        </div>
+
+        <div>
+          <h2>Emergency Contact</h2>
+          <p>Person to contact in case of emergency</p>
+        </div>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label>
+            Contact Name
+          </label>
+
+          <input
+            type="text"
+            name="emergencyContactName"
+            [(ngModel)]="patient.emergencyContactName"
+            placeholder="Full name"
+          />
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Contact Phone
+          </label>
+
+          <input
+            type="tel"
+            name="emergencyContactPhone"
+            [(ngModel)]="patient.emergencyContactPhone"
+            placeholder="07XX XXX XXX"
+          />
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- Hospital Information -->
+
+    <section class="form-card">
+
+      <div class="section-header">
+
+        <div class="section-icon">
+          <span class="material-symbols-outlined">
+            local_hospital
+          </span>
+        </div>
+
+        <div>
+          <h2>Hospital Information</h2>
+          <p>Initial patient department</p>
+        </div>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label>
+            Department
+          </label>
+
+          <select
+            name="department"
+            [(ngModel)]="patient.department"
+          >
+
+            <option value="">
+              Select department
+            </option>
+
+            <option>
+              General Medicine
+            </option>
+
+            <option>
+              Cardiology
+            </option>
+
+            <option>
+              Dental
+            </option>
+
+            <option>
+              Pediatrics
+            </option>
+
+            <option>
+              Orthopedics
+            </option>
+
+            <option>
+              Laboratory
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- Form Actions -->
+
+    <div class="form-actions">
+
+      <button
+        type="button"
+        class="cancel-button"
+        (click)="cancel()"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="submit"
+        class="save-button"
+      >
+
+        <span class="material-symbols-outlined">
+          save
+        </span>
+
+        Register Patient
+
+      </button>
+
+    </div>
+
+  </form>
+
+</div>

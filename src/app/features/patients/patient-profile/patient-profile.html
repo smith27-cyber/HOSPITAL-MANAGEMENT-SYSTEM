@@ -1,0 +1,364 @@
+@if (patient) {
+
+  <div class="profile-page">
+
+    <!-- Header -->
+
+    <div class="page-header">
+
+      <div>
+        <button
+          class="back-button"
+          routerLink="/patients"
+        >
+          <span class="material-symbols-outlined">
+            arrow_back
+          </span>
+
+          Back to Patients
+        </button>
+      </div>
+
+      <div class="header-actions">
+
+        <button class="secondary-button">
+          <span class="material-symbols-outlined">
+            edit
+          </span>
+          Edit Patient
+        </button>
+
+        <button class="primary-button">
+          <span class="material-symbols-outlined">
+            print
+          </span>
+          Print Record
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- Patient Header -->
+
+    <section class="patient-header-card">
+
+      <div class="large-avatar">
+        {{ patient.firstName.charAt(0) }}
+      </div>
+
+      <div class="patient-main-info">
+
+        <div class="name-row">
+
+          <h1>
+            {{ patient.firstName }}
+            {{ patient.lastName }}
+          </h1>
+
+          <span
+            class="status"
+            [class.active]="patient.status === 'Active'"
+          >
+            {{ patient.status }}
+          </span>
+
+        </div>
+
+        <p class="patient-id">
+          Patient ID: {{ patient.id }}
+        </p>
+
+        <div class="quick-info">
+
+          <span>
+            <span class="material-symbols-outlined">
+              person
+            </span>
+
+            {{ patient.gender }}
+          </span>
+
+          <span>
+            <span class="material-symbols-outlined">
+              cake
+            </span>
+
+            {{ calculateAge(patient.dateOfBirth) }} years
+          </span>
+
+          <span>
+            <span class="material-symbols-outlined">
+              bloodtype
+            </span>
+
+            {{ patient.bloodGroup || 'Not recorded' }}
+          </span>
+
+          <span>
+            <span class="material-symbols-outlined">
+              phone
+            </span>
+
+            {{ patient.phone }}
+          </span>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- Profile Content -->
+
+    <div class="profile-grid">
+
+      <!-- Personal Information -->
+
+      <section class="profile-card">
+
+        <div class="card-header">
+
+          <div>
+            <h2>Personal Information</h2>
+            <p>Patient demographic information</p>
+          </div>
+
+          <span class="material-symbols-outlined">
+            person
+          </span>
+
+        </div>
+
+
+        <div class="information-grid">
+
+          <div>
+            <label>First Name</label>
+            <strong>{{ patient.firstName }}</strong>
+          </div>
+
+          <div>
+            <label>Last Name</label>
+            <strong>{{ patient.lastName }}</strong>
+          </div>
+
+          <div>
+            <label>Date of Birth</label>
+            <strong>{{ patient.dateOfBirth }}</strong>
+          </div>
+
+          <div>
+            <label>Gender</label>
+            <strong>{{ patient.gender }}</strong>
+          </div>
+
+          <div>
+            <label>Phone</label>
+            <strong>{{ patient.phone }}</strong>
+          </div>
+
+          <div>
+            <label>Email</label>
+            <strong>{{ patient.email || 'Not provided' }}</strong>
+          </div>
+
+          <div>
+            <label>National ID</label>
+            <strong>{{ patient.nationalId || 'Not provided' }}</strong>
+          </div>
+
+          <div>
+            <label>Blood Group</label>
+            <strong>{{ patient.bloodGroup || 'Not recorded' }}</strong>
+          </div>
+
+          <div class="full-width">
+            <label>Address</label>
+            <strong>{{ patient.address || 'Not provided' }}</strong>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- Emergency Contact -->
+
+      <section class="profile-card">
+
+        <div class="card-header">
+
+          <div>
+            <h2>Emergency Contact</h2>
+            <p>Emergency contact information</p>
+          </div>
+
+          <span class="material-symbols-outlined">
+            contact_emergency
+          </span>
+
+        </div>
+
+
+        <div class="information-grid">
+
+          <div>
+            <label>Contact Name</label>
+
+            <strong>
+              {{ patient.emergencyContactName || 'Not provided' }}
+            </strong>
+          </div>
+
+          <div>
+            <label>Contact Phone</label>
+
+            <strong>
+              {{ patient.emergencyContactPhone || 'Not provided' }}
+            </strong>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- Hospital Information -->
+
+      <section class="profile-card">
+
+        <div class="card-header">
+
+          <div>
+            <h2>Hospital Information</h2>
+            <p>Current hospital information</p>
+          </div>
+
+          <span class="material-symbols-outlined">
+            local_hospital
+          </span>
+
+        </div>
+
+
+        <div class="information-grid">
+
+          <div>
+            <label>Department</label>
+
+            <strong>
+              {{ patient.department || 'Not assigned' }}
+            </strong>
+          </div>
+
+          <div>
+            <label>Patient Status</label>
+
+            <strong>
+              {{ patient.status }}
+            </strong>
+          </div>
+
+          <div>
+            <label>Registration Date</label>
+
+            <strong>
+              {{ patient.createdAt | date:'mediumDate' }}
+            </strong>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- Medical Record Placeholder -->
+
+      <section class="profile-card medical-card">
+
+        <div class="card-header">
+
+          <div>
+            <h2>Clinical Record</h2>
+            <p>Patient's medical information</p>
+          </div>
+
+          <span class="material-symbols-outlined">
+            medical_information
+          </span>
+
+        </div>
+
+
+        <div class="clinical-items">
+
+          <div class="clinical-item">
+            <span class="material-symbols-outlined">
+              history
+            </span>
+
+            <div>
+              <strong>Medical History</strong>
+              <p>No medical history recorded yet.</p>
+            </div>
+          </div>
+
+
+          <div class="clinical-item">
+            <span class="material-symbols-outlined">
+              medication
+            </span>
+
+            <div>
+              <strong>Medications</strong>
+              <p>No current medications recorded.</p>
+            </div>
+          </div>
+
+
+          <div class="clinical-item">
+            <span class="material-symbols-outlined">
+              science
+            </span>
+
+            <div>
+              <strong>Laboratory Results</strong>
+              <p>No laboratory results available.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </div>
+
+} @else {
+
+  <div class="not-found">
+
+    <span class="material-symbols-outlined">
+      person_off
+    </span>
+
+    <h2>Patient not found</h2>
+
+    <p>
+      The patient record could not be found.
+    </p>
+
+    <button
+      class="primary-button"
+      routerLink="/patients"
+    >
+      Back to Patients
+    </button>
+
+  </div>
+
+}

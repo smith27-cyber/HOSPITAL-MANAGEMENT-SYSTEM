@@ -33,11 +33,30 @@ export const routes: Routes = [
       }
     ]
   },
-
+ {
+  path: 'patients',
+  loadComponent: () =>
+    import('./features/patients/patient-list/patient-list')
+      .then(m => m.PatientList)
+},
+{
+  path: 'patients/register',
+  loadComponent: () =>
+    import('./features/patients/patient-form/patient-form')
+      .then(m => m.PatientForm)
+},
+{
+  path: 'patients/:id',
+  loadComponent: () =>
+    import('./features/patients/patient-profile/patient-profile')
+      .then(m => m.PatientProfile)
+},
   // Unknown routes
   {
     path: '**',
     redirectTo: 'login'
-  }
+  },
+
+
 
 ];
