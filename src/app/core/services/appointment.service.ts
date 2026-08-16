@@ -10,8 +10,15 @@ export class AppointmentService {
 
   private appointments: Appointment[] = [];
 
+
+  // =========================
+  // Constructor
+  // =========================
+
   constructor() {
+
     this.loadAppointments();
+
   }
 
 
@@ -20,7 +27,9 @@ export class AppointmentService {
   // =========================
 
   getAppointments(): Appointment[] {
+
     return [...this.appointments];
+
   }
 
 
@@ -33,7 +42,8 @@ export class AppointmentService {
   ): Appointment | undefined {
 
     return this.appointments.find(
-      appointment => appointment.id === id
+      appointment =>
+        appointment.id === id
     );
 
   }
@@ -47,9 +57,9 @@ export class AppointmentService {
     appointment: Appointment
   ): void {
 
-    this.appointments.push(
-      appointment
-    );
+    this.appointments.push({
+      ...appointment
+    });
 
     this.saveAppointments();
 
@@ -75,8 +85,44 @@ export class AppointmentService {
       return;
     }
 
-    this.appointments[index] =
-      updatedAppointment;
+    this.appointments[index] = {
+      ...updatedAppointment
+    };
+
+    this.saveAppointments();
+
+  }
+
+
+  // =========================
+  // Confirm Appointment
+  // =========================
+
+  confirmAppointment(
+    id: string
+  ): void {
+
+    const appointment =
+      this.getAppointmentById(id);
+
+    if (!appointment) {
+      return;
+    }
+
+    /*
+     * Only Scheduled appointments
+     * can be confirmed.
+     */
+
+    if (
+      appointment.status !==
+      'Scheduled'
+    ) {
+      return;
+    }
+
+    appointment.status =
+      'Confirmed';
 
     this.saveAppointments();
 
@@ -95,6 +141,18 @@ export class AppointmentService {
       this.getAppointmentById(id);
 
     if (!appointment) {
+      return;
+    }
+
+    /*
+     * Prevent cancelling an
+     * already cancelled appointment.
+     */
+
+    if (
+      appointment.status ===
+      'Cancelled'
+    ) {
       return;
     }
 
@@ -128,6 +186,70 @@ export class AppointmentService {
     this.saveAppointments();
 
   }
+
+  // =========================
+// SAVE CONSULTATION
+// =========================
+
+saveConsultation(
+  id: string,
+  diagnosis: string,
+  consultationNotes: string,
+  treatmentPlan: string,
+  prescription: string
+): boolean {
+
+  const appointment =
+    this.getAppointmentById(id);
+
+  if (!appointment) {
+    return false;
+  }
+
+
+  // Only appointments currently
+  // in consultation can be completed.
+
+  if (
+    appointment.status !==
+    'In Consultation'
+  ) {
+    return false;
+  }
+
+
+  // Save consultation information
+
+  appointment.diagnosis =
+    diagnosis.trim();
+
+  appointment.consultationNotes =
+    consultationNotes.trim();
+
+  appointment.treatmentPlan =
+    treatmentPlan.trim();
+
+  appointment.prescription =
+    prescription.trim();
+
+  appointment.consultationDate =
+    new Date().toISOString();
+
+
+  // Complete appointment
+
+  appointment.status =
+    'Completed';
+
+
+  // IMPORTANT:
+  // Persist changes to localStorage
+
+  this.saveAppointments();
+
+
+  return true;
+}
 
 
   // =========================
@@ -173,6 +295,11 @@ export class AppointmentService {
         this.storageKey
       );
 
+
+    /*
+     * No saved appointments.
+     */
+
     if (!stored) {
 
       this.appointments = [];
@@ -181,10 +308,28 @@ export class AppointmentService {
 
     }
 
+
     try {
 
-      this.appointments =
+      const parsed =
         JSON.parse(stored);
+
+
+      /*
+       * Make sure the stored
+       * value is actually an array.
+       */
+
+      if (Array.isArray(parsed)) {
+
+        this.appointments =
+          parsed;
+
+      } else {
+
+        this.appointments = [];
+
+      }
 
     } catch (error) {
 

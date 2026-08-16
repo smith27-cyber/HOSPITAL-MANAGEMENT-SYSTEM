@@ -1,10 +1,11 @@
 export type AppointmentStatus =
   | 'Scheduled'
   | 'Confirmed'
+  | 'Checked-In'
+  | 'In Consultation'
   | 'Completed'
   | 'Cancelled'
   | 'No Show';
-
 export type AppointmentType =
   | 'Consultation'
   | 'Follow-up'
@@ -35,5 +36,19 @@ export interface Appointment {
   notes?: string;
 
   createdAt: Date;
+
+  // =========================
+  // CONSULTATION
+  // =========================
+
+  diagnosis?: string;
+
+  consultationNotes?: string;
+
+  treatmentPlan?: string;
+
+  prescription?: string;
+
+  consultationDate?: string;
 
 }

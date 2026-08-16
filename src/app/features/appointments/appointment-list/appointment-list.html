@@ -19,22 +19,46 @@
     </div>
 
 
-    <button
-      class="primary-button"
-      type="button"
-      routerLink="/appointments/register"
-    >
+    <!-- Header Actions -->
 
-      <span class="material-symbols-outlined">
-        add
-      </span>
+    <div class="header-actions">
 
-      New Appointment
+      <!-- Waiting Queue -->
 
-    </button>
+      <button
+        class="secondary-button"
+        type="button"
+        routerLink="/appointments/queue"
+      >
+
+        <span class="material-symbols-outlined">
+          groups
+        </span>
+
+        Waiting Queue
+
+      </button>
+
+
+      <!-- New Appointment -->
+
+      <button
+        class="primary-button"
+        type="button"
+        routerLink="/appointments/register"
+      >
+
+        <span class="material-symbols-outlined">
+          add
+        </span>
+
+        New Appointment
+
+      </button>
+
+    </div>
 
   </div>
-
 
 
   <!-- ========================= -->
@@ -71,7 +95,6 @@
     </div>
 
 
-
     <!-- Scheduled -->
 
     <div class="stat-card">
@@ -97,7 +120,6 @@
       </div>
 
     </div>
-
 
 
     <!-- Confirmed -->
@@ -127,6 +149,32 @@
     </div>
 
 
+    <!-- Checked In -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        <span class="material-symbols-outlined">
+          how_to_reg
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Checked-In
+        </span>
+
+        <strong>
+          {{ checkedInAppointments }}
+        </strong>
+
+      </div>
+
+    </div>
+
 
     <!-- Completed -->
 
@@ -153,7 +201,6 @@
       </div>
 
     </div>
-
 
 
     <!-- Cancelled -->
@@ -185,7 +232,6 @@
   </div>
 
 
-
   <!-- ========================= -->
   <!-- APPOINTMENTS CARD -->
   <!-- ========================= -->
@@ -210,12 +256,12 @@
 
         <input
           type="text"
+          name="search"
           placeholder="Search patient, doctor or appointment ID..."
           [(ngModel)]="searchTerm"
         />
 
       </div>
-
 
 
       <!-- Filters -->
@@ -226,6 +272,7 @@
         <!-- Department -->
 
         <select
+          name="departmentFilter"
           [(ngModel)]="selectedDepartment"
         >
 
@@ -256,10 +303,10 @@
         </select>
 
 
-
         <!-- Status -->
 
         <select
+          name="statusFilter"
           [(ngModel)]="selectedStatus"
         >
 
@@ -275,6 +322,14 @@
             Confirmed
           </option>
 
+          <option value="Checked-In">
+            Checked-In
+          </option>
+
+          <option value="In Consultation">
+            In Consultation
+          </option>
+
           <option value="Completed">
             Completed
           </option>
@@ -288,7 +343,6 @@
           </option>
 
         </select>
-
 
 
         <!-- Clear -->
@@ -310,7 +364,6 @@
       </div>
 
     </div>
-
 
 
     <!-- ========================= -->
@@ -366,7 +419,6 @@
         </thead>
 
 
-
         <tbody>
 
           @for (
@@ -390,6 +442,7 @@
                     '/appointments',
                     appointment.id
                   ]"
+                  title="View appointment"
                 >
 
                   {{ appointment.id }}
@@ -397,7 +450,6 @@
                 </button>
 
               </td>
-
 
 
               <!-- ========================= -->
@@ -408,12 +460,15 @@
 
                 <div class="patient-cell">
 
-
                   <div class="patient-avatar">
 
-                    {{ appointment.patientName
-                      ? appointment.patientName.charAt(0)
-                      : '?' }}
+                    {{
+                      appointment.patientName
+                        ? appointment.patientName
+                            .charAt(0)
+                            .toUpperCase()
+                        : '?'
+                    }}
 
                   </div>
 
@@ -435,7 +490,6 @@
               </td>
 
 
-
               <!-- ========================= -->
               <!-- DOCTOR -->
               <!-- ========================= -->
@@ -451,7 +505,6 @@
               </td>
 
 
-
               <!-- ========================= -->
               <!-- DEPARTMENT -->
               <!-- ========================= -->
@@ -461,7 +514,6 @@
                 {{ appointment.department }}
 
               </td>
-
 
 
               <!-- ========================= -->
@@ -475,7 +527,6 @@
               </td>
 
 
-
               <!-- ========================= -->
               <!-- TIME -->
               <!-- ========================= -->
@@ -487,7 +538,6 @@
               </td>
 
 
-
               <!-- ========================= -->
               <!-- TYPE -->
               <!-- ========================= -->
@@ -497,7 +547,6 @@
                 {{ appointment.type }}
 
               </td>
-
 
 
               <!-- ========================= -->
@@ -515,6 +564,14 @@
 
                   [class.confirmed]="
                     appointment.status === 'Confirmed'
+                  "
+
+                  [class.checked-in]="
+                    appointment.status === 'Checked-In'
+                  "
+
+                  [class.in-consultation]="
+                    appointment.status === 'In Consultation'
                   "
 
                   [class.completed]="
@@ -535,7 +592,6 @@
                 </span>
 
               </td>
-
 
 
               <!-- ========================= -->
@@ -566,7 +622,6 @@
                   </button>
 
 
-
                   <!-- EDIT -->
 
                   <button
@@ -587,6 +642,85 @@
                   </button>
 
 
+                  <!-- CONFIRM -->
+
+                  @if (
+                    appointment.status === 'Scheduled'
+                  ) {
+
+                    <button
+                      class="action-button confirm-action"
+                      type="button"
+                      title="Confirm appointment"
+                      (click)="
+                        confirmAppointment(
+                          appointment.id
+                        )
+                      "
+                    >
+
+                      <span class="material-symbols-outlined">
+                        event_available
+                      </span>
+
+                    </button>
+
+                  }
+
+
+                  <!-- CHECK IN -->
+
+                  @if (
+                    appointment.status === 'Confirmed'
+                  ) {
+
+                    <button
+                      class="action-button check-in-action"
+                      type="button"
+                      title="Check in patient"
+                      (click)="
+                        checkInAppointment(
+                          appointment.id
+                        )
+                      "
+                    >
+
+                      <span class="material-symbols-outlined">
+                        how_to_reg
+                      </span>
+
+                    </button>
+
+                  }
+
+
+                  <!-- ========================= -->
+                  <!-- OPEN CONSULTATION -->
+                  <!-- ========================= -->
+
+                  @if (
+                    appointment.status === 'In Consultation'
+                  ) {
+
+                    <button
+                      class="action-button consultation-action"
+                      type="button"
+                      title="Open consultation"
+                      [routerLink]="[
+                        '/appointments',
+                        appointment.id,
+                        'consultation'
+                      ]"
+                    >
+
+                      <span class="material-symbols-outlined">
+                        clinical_notes
+                      </span>
+
+                    </button>
+
+                  }
+
 
                   <!-- CANCEL -->
 
@@ -602,7 +736,8 @@
                     "
 
                     [disabled]="
-                      appointment.status === 'Cancelled'
+                      appointment.status === 'Cancelled' ||
+                      appointment.status === 'Completed'
                     "
                   >
 
@@ -625,7 +760,6 @@
       </table>
 
     </div>
-
 
 
     <!-- ========================= -->
@@ -656,6 +790,10 @@
           (click)="clearFilters()"
         >
 
+          <span class="material-symbols-outlined">
+            filter_alt_off
+          </span>
+
           Clear Filters
 
         </button>
@@ -663,6 +801,7 @@
       </div>
 
     }
+
 
   </section>
 

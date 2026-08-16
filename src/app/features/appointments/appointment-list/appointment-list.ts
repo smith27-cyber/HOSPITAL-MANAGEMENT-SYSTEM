@@ -1,44 +1,80 @@
+
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { AppointmentService } from '../../../core/services/appointment.service';
+
 import {
   Appointment,
   AppointmentStatus
 } from '../../../shared/models/appointment.model';
 
+
 @Component({
   selector: 'app-appointment-list',
+
   standalone: true,
+
   imports: [
     FormsModule,
     RouterLink
   ],
+
   templateUrl: './appointment-list.html',
+
   styleUrl: './appointment-list.css'
 })
+
+
 export class AppointmentList implements OnInit {
+
+
+  // =========================
+  // APPOINTMENTS
+  // =========================
 
   appointments: Appointment[] = [];
 
+
+  // =========================
+  // SEARCH
+  // =========================
+
   searchTerm = '';
+
+
+  // =========================
+  // FILTERS
+  // =========================
 
   selectedDepartment = '';
 
   selectedStatus: AppointmentStatus | '' = '';
 
+
+  // =========================
+  // CONSTRUCTOR
+  // =========================
+
   constructor(
     private appointmentService: AppointmentService
   ) {}
 
+
+  // =========================
+  // INITIALIZE
+  // =========================
+
   ngOnInit(): void {
+
     this.loadAppointments();
+
   }
 
 
   // =========================
-  // Load Appointments
+  // LOAD APPOINTMENTS
   // =========================
 
   loadAppointments(): void {
@@ -50,7 +86,7 @@ export class AppointmentList implements OnInit {
 
 
   // =========================
-  // Filtered Appointments
+  // FILTERED APPOINTMENTS
   // =========================
 
   get filteredAppointments(): Appointment[] {
@@ -60,8 +96,10 @@ export class AppointmentList implements OnInit {
         .toLowerCase()
         .trim();
 
+
     return this.appointments.filter(
       appointment => {
+
 
         const matchesSearch =
           !term ||
@@ -93,14 +131,16 @@ export class AppointmentList implements OnInit {
 
         const matchesDepartment =
           !this.selectedDepartment ||
+
           appointment.department ===
-            this.selectedDepartment;
+          this.selectedDepartment;
 
 
         const matchesStatus =
           !this.selectedStatus ||
+
           appointment.status ===
-            this.selectedStatus;
+          this.selectedStatus;
 
 
         return (
@@ -116,8 +156,9 @@ export class AppointmentList implements OnInit {
 
 
   // =========================
-  // Statistics
+  // STATISTICS
   // =========================
+
 
   get totalAppointments(): number {
 
@@ -146,6 +187,16 @@ export class AppointmentList implements OnInit {
   }
 
 
+  get checkedInAppointments(): number {
+
+    return this.appointments.filter(
+      appointment =>
+        appointment.status === 'Checked-In'
+    ).length;
+
+  }
+
+
   get completedAppointments(): number {
 
     return this.appointments.filter(
@@ -166,8 +217,18 @@ export class AppointmentList implements OnInit {
   }
 
 
+  get noShowAppointments(): number {
+
+    return this.appointments.filter(
+      appointment =>
+        appointment.status === 'No Show'
+    ).length;
+
+  }
+
+
   // =========================
-  // Clear Filters
+  // CLEAR FILTERS
   // =========================
 
   clearFilters(): void {
@@ -182,7 +243,211 @@ export class AppointmentList implements OnInit {
 
 
   // =========================
-  // Cancel Appointment
+  // CONFIRM APPOINTMENT
+  // =========================
+
+  confirmAppointment(id: string): void {
+
+    const appointment =
+      this.appointments.find(
+        appointment =>
+          appointment.id === id
+      );
+
+
+    if (!appointment) {
+      return;
+    }
+
+
+    // Only Scheduled appointments
+    // can be confirmed.
+
+    if (
+      appointment.status !==
+      'Scheduled'
+    ) {
+      return;
+    }
+
+
+    const confirmed =
+      window.confirm(
+        `Confirm appointment ${appointment.id} for ${appointment.patientName}?`
+      );
+
+
+    if (!confirmed) {
+      return;
+    }
+
+
+    this.appointmentService.updateStatus(
+      id,
+      'Confirmed'
+    );
+
+
+    this.loadAppointments();
+
+  }
+
+
+  // =========================
+  // CHECK IN PATIENT
+  // =========================
+
+  checkInAppointment(id: string): void {
+
+    const appointment =
+      this.appointments.find(
+        appointment =>
+          appointment.id === id
+      );
+
+
+    if (!appointment) {
+      return;
+    }
+
+
+    // Only Confirmed appointments
+    // can be checked in.
+
+    if (
+      appointment.status !==
+      'Confirmed'
+    ) {
+      return;
+    }
+
+
+    const confirmed =
+      window.confirm(
+        `Check in ${appointment.patientName} for appointment ${appointment.id}?`
+      );
+
+
+    if (!confirmed) {
+      return;
+    }
+
+
+    this.appointmentService.updateStatus(
+      id,
+      'Checked-In'
+    );
+
+
+    this.loadAppointments();
+
+  }
+
+
+  // =========================
+// COMPLETE APPOINTMENT
+// =========================
+
+completeAppointment(id: string): void {
+
+  const appointment =
+    this.appointments.find(
+      appointment =>
+        appointment.id === id
+    );
+
+
+  if (!appointment) {
+    return;
+  }
+
+
+  // Only appointments currently
+  // in consultation can be completed.
+
+  if (
+    appointment.status !==
+    'In Consultation'
+  ) {
+    return;
+  }
+
+
+  const confirmed =
+    window.confirm(
+      `Mark appointment ${appointment.id} for ${appointment.patientName} as completed?`
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  this.appointmentService.updateStatus(
+    id,
+    'Completed'
+  );
+
+
+  this.loadAppointments();
+
+}
+
+
+  // =========================
+  // MARK NO SHOW
+  // =========================
+
+  markNoShow(id: string): void {
+
+    const appointment =
+      this.appointments.find(
+        appointment =>
+          appointment.id === id
+      );
+
+
+    if (!appointment) {
+      return;
+    }
+
+
+    // No-show applies to
+    // Scheduled or Confirmed.
+
+    if (
+      appointment.status !== 'Scheduled' &&
+      appointment.status !== 'Confirmed'
+    ) {
+      return;
+    }
+
+
+    const confirmed =
+      window.confirm(
+        `Mark appointment ${appointment.id} as No Show?`
+      );
+
+
+    if (!confirmed) {
+      return;
+    }
+
+
+    this.appointmentService.updateStatus(
+      id,
+      'No Show'
+    );
+
+
+    this.loadAppointments();
+
+  }
+
+
+  // =========================
+  // CANCEL APPOINTMENT
   // =========================
 
   cancelAppointment(id: string): void {
@@ -193,29 +458,52 @@ export class AppointmentList implements OnInit {
           appointment.id === id
       );
 
+
     if (!appointment) {
       return;
     }
 
 
-    if (appointment.status === 'Cancelled') {
+    // Don't cancel an already
+    // cancelled appointment.
+
+    if (
+      appointment.status ===
+      'Cancelled'
+    ) {
       return;
     }
 
 
-    const confirmed = window.confirm(
-      `Are you sure you want to cancel appointment ${appointment.id}?`
-    );
+    // Don't cancel completed
+    // appointments.
+
+    if (
+      appointment.status ===
+      'Completed'
+    ) {
+      return;
+    }
+
+
+    const confirmed =
+      window.confirm(
+        `Are you sure you want to cancel appointment ${appointment.id}?`
+      );
+
 
     if (!confirmed) {
       return;
     }
 
 
-    this.appointmentService.cancelAppointment(id);
+    this.appointmentService
+      .cancelAppointment(id);
+
 
     this.loadAppointments();
 
   }
+
 
 }

@@ -1,16 +1,19 @@
-
 import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { PatientService } from '../../../core/services/patient.service';
 import { Patient } from '../../../shared/models/patient.model';
 
-
-
 @Component({
   selector: 'app-patient-profile',
-  imports: [RouterLink,DatePipe],
+
+  standalone: true,
+
+  imports: [
+    DatePipe
+  ],
+
   templateUrl: './patient-profile.html',
   styleUrl: './patient-profile.css'
 })
@@ -18,26 +21,38 @@ export class PatientProfile implements OnInit {
 
   patient?: Patient;
 
+
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private patientService: PatientService
   ) {}
 
+
   ngOnInit(): void {
 
-    const id = this.route.snapshot.paramMap.get('id');
+    const id =
+      this.route.snapshot.paramMap.get('id');
 
-    if (id) {
-      this.patient =
-        this.patientService.getPatientById(id);
+    if (!id) {
+      return;
     }
+
+    this.patient =
+      this.patientService.getPatientById(id);
 
   }
 
-  calculateAge(dateOfBirth: string): number {
 
-    const birthDate = new Date(dateOfBirth);
-    const today = new Date();
+  calculateAge(
+    dateOfBirth: string
+  ): number {
+
+    const birthDate =
+      new Date(dateOfBirth);
+
+    const today =
+      new Date();
 
     let age =
       today.getFullYear() -
@@ -51,40 +66,84 @@ export class PatientProfile implements OnInit {
       monthDifference < 0 ||
       (
         monthDifference === 0 &&
-        today.getDate() < birthDate.getDate()
+        today.getDate() <
+          birthDate.getDate()
       )
     ) {
       age--;
     }
 
     return age;
+
   }
+
+
+  backToPatients(): void {
+
+    this.router.navigate([
+      '/patients'
+    ]);
+
+  }
+
+
+  editPatient(): void {
+
+    if (!this.patient) {
+      return;
+    }
+
+    this.router.navigate([
+      '/patients',
+      this.patient.id,
+      'edit'
+    ]);
+
+  }
+
 
   deactivatePatient(): void {
 
-  if (!this.patient) {
-    return;
-  }
+    if (!this.patient) {
+      return;
+    }
 
-  const confirmed = confirm(
-    `Are you sure you want to deactivate ${this.patient.firstName} ${this.patient.lastName}?`
-  );
+    if (
+      this.patient.status ===
+      'Inactive'
+    ) {
+      return;
+    }
 
-  if (!confirmed) {
-    return;
-  }
+    const confirmed =
+      window.confirm(
+        `Are you sure you want to deactivate ${this.patient.firstName} ${this.patient.lastName}?`
+      );
 
-  this.patientService.deactivatePatient(
-    this.patient.id
-  );
+    if (!confirmed) {
+      return;
+    }
 
-  this.patient =
-    this.patientService.getPatientById(
+    this.patientService.deactivatePatient(
       this.patient.id
     );
 
-  alert('Patient has been deactivated.');
+    this.patient =
+      this.patientService.getPatientById(
+        this.patient.id
+      );
 
-}
+    window.alert(
+      'Patient has been deactivated.'
+    );
+
+  }
+
+
+  printRecord(): void {
+
+    window.print();
+
+  }
 
 }

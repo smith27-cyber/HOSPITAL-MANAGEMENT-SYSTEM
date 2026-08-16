@@ -47,12 +47,14 @@ export class AppointmentEdit implements OnInit {
   ];
 
   appointmentStatuses: Appointment['status'][] = [
-    'Scheduled',
-    'Confirmed',
-    'Completed',
-    'Cancelled',
-    'No Show'
-  ];
+  'Scheduled',
+  'Confirmed',
+  'Checked-In',
+  'In Consultation',
+  'Completed',
+  'Cancelled',
+  'No Show'
+];
 
   appointmentTypes: Appointment['type'][] = [
     'Consultation',

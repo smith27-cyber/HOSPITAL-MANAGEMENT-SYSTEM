@@ -32,13 +32,24 @@
 
 
 /* =========================
+   Header Actions
+========================= */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+
+/* =========================
    Buttons
 ========================= */
 
 .primary-button,
 .secondary-button,
 .clear-button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 
@@ -52,7 +63,15 @@
   font-weight: 600;
 
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
 }
+
+
+/* Primary */
 
 .primary-button {
   border: none;
@@ -65,6 +84,9 @@
   background: #115e59;
 }
 
+
+/* Secondary */
+
 .secondary-button {
   border: 1px solid #d1d5db;
 
@@ -74,7 +96,12 @@
 
 .secondary-button:hover {
   background: #f9fafb;
+
+  border-color: #9ca3af;
 }
+
+
+/* Clear */
 
 .clear-button {
   border: 1px solid #d1d5db;
@@ -86,6 +113,9 @@
 .clear-button:hover {
   background: #f9fafb;
 }
+
+
+/* Button Icons */
 
 .primary-button .material-symbols-outlined,
 .secondary-button .material-symbols-outlined,
@@ -266,7 +296,7 @@ table {
 
   border-collapse: collapse;
 
-  min-width: 1100px;
+  min-width: 1150px;
 }
 
 thead {
@@ -356,19 +386,28 @@ tbody tr:hover {
   font-size: 9px;
 }
 
+
+/* =========================
+   Appointment ID
+========================= */
+
 .appointment-id {
   color: #0f766e;
 
   font-weight: 700;
 }
+
 .appointment-id-button {
   border: none;
+
   background: transparent;
 
   padding: 0;
 
   color: #0f766e;
+
   font-size: 12px;
+
   font-weight: 700;
 
   cursor: pointer;
@@ -376,8 +415,14 @@ tbody tr:hover {
 
 .appointment-id-button:hover {
   color: #115e59;
+
   text-decoration: underline;
 }
+
+
+/* =========================
+   Doctor
+========================= */
 
 .doctor-name {
   color: #374151;
@@ -402,35 +447,81 @@ tbody tr:hover {
   font-weight: 700;
 }
 
+
+/* Scheduled */
+
 .status.scheduled {
   background: #dbeafe;
+
   color: #1d4ed8;
 }
 
+
+/* Confirmed */
+
 .status.confirmed {
   background: #dcfce7;
+
   color: #15803d;
 }
 
+
+/* Checked In */
+
+.status.checked-in {
+  background: #fef3c7;
+
+  color: #b45309;
+}
+
+
+/* In Consultation */
+
+.status.in-consultation {
+  background: #ede9fe;
+
+  color: #6d28d9;
+}
+
+
+/* Completed */
+
 .status.completed {
   background: #ccfbf1;
+
   color: #0f766e;
 }
 
+
+/* Cancelled */
+
 .status.cancelled {
   background: #fee2e2;
+
   color: #b91c1c;
 }
 
+
+/* No Show */
+
 .status.no-show {
   background: #fef3c7;
+
   color: #b45309;
 }
 
 
 /* =========================
-   Action
+   Action Buttons
 ========================= */
+
+.action-buttons {
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+}
 
 .action-button {
   width: 32px;
@@ -449,10 +540,16 @@ tbody tr:hover {
   color: #6b7280;
 
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .action-button:hover {
   background: #f3f4f6;
+
+  color: #374151;
 }
 
 .action-button:disabled {
@@ -461,8 +558,67 @@ tbody tr:hover {
   cursor: not-allowed;
 }
 
+
+/* Icons */
+
 .action-button .material-symbols-outlined {
   font-size: 19px;
+}
+
+
+/* =========================
+   Queue Button
+========================= */
+
+.queue-button {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 10px 14px;
+
+  border: 1px solid #0f766e;
+
+  border-radius: 8px;
+
+  background: white;
+
+  color: #0f766e;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.queue-button:hover {
+  background: #f0fdfa;
+
+  border-color: #115e59;
+
+  color: #115e59;
+}
+
+.queue-button .material-symbols-outlined {
+  font-size: 18px;
+}
+
+
+/* =========================
+   Cancel Action
+========================= */
+
+.cancel-action:hover {
+  background: #fee2e2;
+
+  color: #b91c1c;
 }
 
 
@@ -531,7 +687,11 @@ tbody tr:hover {
 }
 
 
-@media (max-width: 650px) {
+/* =========================
+   Tablet / Mobile
+========================= */
+
+@media (max-width: 768px) {
 
   .page-header {
     align-items: flex-start;
@@ -540,6 +700,29 @@ tbody tr:hover {
 
     gap: 15px;
   }
+
+  .header-actions {
+    width: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+  }
+
+  .header-actions button {
+    width: 100%;
+  }
+
+}
+
+
+/* =========================
+   Small Mobile
+========================= */
+
+@media (max-width: 650px) {
 
   .appointment-stats {
     grid-template-columns:
@@ -562,10 +745,26 @@ tbody tr:hover {
 }
 
 
+/* =========================
+   Very Small Mobile
+========================= */
+
 @media (max-width: 400px) {
 
   .appointment-stats {
     grid-template-columns: 1fr;
   }
 
+}
+.consultation-action {
+  color: #7c3aed;
+}
+
+.consultation-action:hover {
+  background: #f5f3ff;
+  border-color: #8b5cf6;
+}
+.status.in-consultation {
+  background: #dbeafe;
+  color: #1d4ed8;
 }

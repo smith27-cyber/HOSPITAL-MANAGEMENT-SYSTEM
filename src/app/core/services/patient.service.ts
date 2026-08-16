@@ -315,5 +315,29 @@ export class PatientService {
     );
 
   }
+    // =========================
+  // UPDATE PATIENT STATUS
+  // =========================
+
+  updatePatientStatus(
+    id: string,
+    status: Patient['status']
+  ): void {
+
+    const patient =
+      this.patients.find(
+        patient =>
+          patient.id === id
+      );
+
+    if (!patient) {
+      return;
+    }
+
+    patient.status = status;
+
+    this.savePatients();
+
+  }
 
 }
