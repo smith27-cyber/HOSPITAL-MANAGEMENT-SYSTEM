@@ -5,11 +5,17 @@
   <div class="page-header">
 
     <div>
-      <h1>Register Patient</h1>
+      <h1>
+  {{ isEditMode ? 'Edit Patient' : 'Register Patient' }}
+</h1>
 
-      <p>
-        Create a new patient record
-      </p>
+<p>
+  {{
+    isEditMode
+      ? 'Update patient information'
+      : 'Create a new patient record'
+  }}
+</p>
     </div>
 
     <button
@@ -363,11 +369,10 @@
       >
 
         <span class="material-symbols-outlined">
-          save
+            {{ isEditMode ? 'save' : 'person_add' }}
         </span>
 
-        Register Patient
-
+{{ isEditMode ? 'Update Patient' : 'Register Patient' }}
       </button>
 
     </div>

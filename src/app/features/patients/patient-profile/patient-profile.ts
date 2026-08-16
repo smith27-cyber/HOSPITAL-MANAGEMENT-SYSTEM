@@ -1,10 +1,12 @@
+
+import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { PatientService } from '../../../core/services/patient.service';
 import { Patient } from '../../../shared/models/patient.model';
 
-import { DatePipe } from '@angular/common';
+
 
 @Component({
   selector: 'app-patient-profile',
@@ -57,5 +59,32 @@ export class PatientProfile implements OnInit {
 
     return age;
   }
+
+  deactivatePatient(): void {
+
+  if (!this.patient) {
+    return;
+  }
+
+  const confirmed = confirm(
+    `Are you sure you want to deactivate ${this.patient.firstName} ${this.patient.lastName}?`
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  this.patientService.deactivatePatient(
+    this.patient.id
+  );
+
+  this.patient =
+    this.patientService.getPatientById(
+      this.patient.id
+    );
+
+  alert('Patient has been deactivated.');
+
+}
 
 }

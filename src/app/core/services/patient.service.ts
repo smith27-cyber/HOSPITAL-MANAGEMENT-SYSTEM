@@ -6,6 +6,8 @@ import { Patient } from '../../shared/models/patient.model';
 })
 export class PatientService {
 
+  private readonly storageKey = 'hms_patients';
+
   private patients: Patient[] = [
     {
       id: 'PT-000124',
@@ -43,50 +45,275 @@ export class PatientService {
     }
   ];
 
+
+  // =========================
+  // CONSTRUCTOR
+  // =========================
+
+  constructor() {
+
+    this.loadPatients();
+
+  }
+
+
+  // =========================
+  // GET ALL PATIENTS
+  // =========================
+
   getPatients(): Patient[] {
-    return this.patients;
+
+    return [...this.patients];
+
   }
 
-  getPatientById(id: string): Patient | undefined {
-    return this.patients.find(patient => patient.id === id);
+
+  // =========================
+  // GET PATIENT BY ID
+  // =========================
+
+  getPatientById(
+    id: string
+  ): Patient | undefined {
+
+    return this.patients.find(
+      patient =>
+        patient.id === id
+    );
+
   }
 
-  addPatient(patientData: Omit<Patient, 'id' | 'status' | 'createdAt'>): Patient {
+
+  // =========================
+  // ADD PATIENT
+  // =========================
+
+  addPatient(
+    patientData: Omit<
+      Patient,
+      'id' | 'status' | 'createdAt'
+    >
+  ): Patient {
 
     const patient: Patient = {
+
       ...patientData,
+
       id: this.generatePatientId(),
+
       status: 'Active',
-      createdAt: new Date().toISOString()
+
+      createdAt:
+        new Date().toISOString()
+
     };
 
-    this.patients.push(patient);
+
+    this.patients.push(
+      patient
+    );
+
+
+    this.savePatients();
+
 
     return patient;
+
   }
 
-  updatePatient(updatedPatient: Patient): void {
 
-    const index = this.patients.findIndex(
-      patient => patient.id === updatedPatient.id
-    );
+  // =========================
+  // UPDATE PATIENT
+  // =========================
 
-    if (index !== -1) {
-      this.patients[index] = updatedPatient;
+  updatePatient(
+    updatedPatient: Patient
+  ): void {
+
+    const index =
+      this.patients.findIndex(
+        patient =>
+          patient.id ===
+          updatedPatient.id
+      );
+
+
+    if (index === -1) {
+      return;
     }
+
+
+    this.patients[index] = {
+      ...updatedPatient
+    };
+
+
+    this.savePatients();
+
   }
 
-  deletePatient(id: string): void {
-    this.patients = this.patients.filter(
-      patient => patient.id !== id
-    );
+
+  // =========================
+  // DELETE PATIENT
+  // =========================
+
+  deletePatient(
+    id: string
+  ): void {
+
+    this.patients =
+      this.patients.filter(
+        patient =>
+          patient.id !== id
+      );
+
+
+    this.savePatients();
+
   }
+
+
+  // =========================
+  // DEACTIVATE PATIENT
+  // =========================
+
+  deactivatePatient(
+    id: string
+  ): void {
+
+    const patient =
+      this.patients.find(
+        patient =>
+          patient.id === id
+      );
+
+
+    if (!patient) {
+      return;
+    }
+
+
+    patient.status =
+      'Inactive';
+
+
+    this.savePatients();
+
+  }
+
+
+  // =========================
+  // GENERATE PATIENT ID
+  // =========================
 
   private generatePatientId(): string {
 
-    const nextNumber = this.patients.length + 124;
+    /*
+     * Find the highest existing
+     * patient number instead of
+     * relying on array length.
+     */
+
+    let highestNumber = 123;
+
+
+    for (const patient of this.patients) {
+
+      const number =
+        parseInt(
+          patient.id.replace(
+            'PT-',
+            ''
+          ),
+          10
+        );
+
+
+      if (
+        !isNaN(number) &&
+        number > highestNumber
+      ) {
+
+        highestNumber = number;
+
+      }
+
+    }
+
+
+    const nextNumber =
+      highestNumber + 1;
+
 
     return `PT-${String(nextNumber).padStart(6, '0')}`;
+
+  }
+
+
+  // =========================
+  // LOAD PATIENTS
+  // =========================
+
+  private loadPatients(): void {
+
+    const stored =
+      localStorage.getItem(
+        this.storageKey
+      );
+
+
+    /*
+     * If there is no saved data,
+     * keep the default patients.
+     */
+
+    if (!stored) {
+
+      this.savePatients();
+
+      return;
+
+    }
+
+
+    try {
+
+      const parsed =
+        JSON.parse(stored);
+
+
+      if (Array.isArray(parsed)) {
+
+        this.patients =
+          parsed;
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        'Failed to load patients from localStorage:',
+        error
+      );
+
+    }
+
+  }
+
+
+  // =========================
+  // SAVE PATIENTS
+  // =========================
+
+  private savePatients(): void {
+
+    localStorage.setItem(
+      this.storageKey,
+      JSON.stringify(
+        this.patients
+      )
+    );
+
   }
 
 }

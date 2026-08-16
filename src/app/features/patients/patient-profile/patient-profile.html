@@ -4,41 +4,71 @@
 
     <!-- Header -->
 
-    <div class="page-header">
+   <div class="page-header">
 
-      <div>
-        <button
-          class="back-button"
-          routerLink="/patients"
-        >
-          <span class="material-symbols-outlined">
-            arrow_back
-          </span>
+  <button
+    class="back-button"
+    routerLink="/patients"
+  >
+    <span class="material-symbols-outlined">
+      arrow_back
+    </span>
 
-          Back to Patients
-        </button>
-      </div>
+    Back to Patients
+  </button>
 
-      <div class="header-actions">
 
-        <button class="secondary-button">
-          <span class="material-symbols-outlined">
-            edit
-          </span>
-          Edit Patient
-        </button>
+  <div class="header-actions">
 
-        <button class="primary-button">
-          <span class="material-symbols-outlined">
-            print
-          </span>
-          Print Record
-        </button>
+    <!-- Edit -->
 
-      </div>
+    <button
+      class="secondary-button"
+      [routerLink]="['/patients', patient.id, 'edit']"
+    >
+      <span class="material-symbols-outlined">
+        edit
+      </span>
 
-    </div>
+      Edit Patient
+    </button>
 
+
+    <!-- Deactivate -->
+
+    <button
+      class="danger-button"
+      (click)="deactivatePatient()"
+      [disabled]="patient.status === 'Inactive'"
+    >
+      <span class="material-symbols-outlined">
+        person_off
+      </span>
+
+      {{
+        patient.status === 'Inactive'
+          ? 'Deactivated'
+          : 'Deactivate'
+      }}
+    </button>
+
+
+    <!-- Print -->
+
+    <button
+      class="primary-button"
+      type="button"
+    >
+      <span class="material-symbols-outlined">
+        print
+      </span>
+
+      Print Record
+    </button>
+
+  </div>
+
+</div>
 
     <!-- Patient Header -->
 
@@ -58,11 +88,12 @@
           </h1>
 
           <span
-            class="status"
-            [class.active]="patient.status === 'Active'"
-          >
-            {{ patient.status }}
-          </span>
+  class="status"
+  [class.active]="patient.status === 'Active'"
+  [class.inactive]="patient.status === 'Inactive'"
+>
+  {{ patient.status }}
+</span>
 
         </div>
 

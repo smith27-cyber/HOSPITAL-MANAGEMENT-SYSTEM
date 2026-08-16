@@ -1,0 +1,669 @@
+<div class="appointments-page">
+
+  <!-- ========================= -->
+  <!-- PAGE HEADER -->
+  <!-- ========================= -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Appointments
+      </h1>
+
+      <p>
+        Manage and view hospital appointments
+      </p>
+
+    </div>
+
+
+    <button
+      class="primary-button"
+      type="button"
+      routerLink="/appointments/register"
+    >
+
+      <span class="material-symbols-outlined">
+        add
+      </span>
+
+      New Appointment
+
+    </button>
+
+  </div>
+
+
+
+  <!-- ========================= -->
+  <!-- STATISTICS -->
+  <!-- ========================= -->
+
+  <div class="appointment-stats">
+
+
+    <!-- Total -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        <span class="material-symbols-outlined">
+          calendar_month
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Total Appointments
+        </span>
+
+        <strong>
+          {{ totalAppointments }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- Scheduled -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        <span class="material-symbols-outlined">
+          schedule
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Scheduled
+        </span>
+
+        <strong>
+          {{ scheduledAppointments }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- Confirmed -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        <span class="material-symbols-outlined">
+          event_available
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Confirmed
+        </span>
+
+        <strong>
+          {{ confirmedAppointments }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- Completed -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        <span class="material-symbols-outlined">
+          task_alt
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Completed
+        </span>
+
+        <strong>
+          {{ completedAppointments }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- Cancelled -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        <span class="material-symbols-outlined">
+          event_busy
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Cancelled
+        </span>
+
+        <strong>
+          {{ cancelledAppointments }}
+        </strong>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ========================= -->
+  <!-- APPOINTMENTS CARD -->
+  <!-- ========================= -->
+
+  <section class="appointments-card">
+
+
+    <!-- ========================= -->
+    <!-- TOOLBAR -->
+    <!-- ========================= -->
+
+    <div class="table-toolbar">
+
+
+      <!-- Search -->
+
+      <div class="search-box">
+
+        <span class="material-symbols-outlined">
+          search
+        </span>
+
+        <input
+          type="text"
+          placeholder="Search patient, doctor or appointment ID..."
+          [(ngModel)]="searchTerm"
+        />
+
+      </div>
+
+
+
+      <!-- Filters -->
+
+      <div class="filters">
+
+
+        <!-- Department -->
+
+        <select
+          [(ngModel)]="selectedDepartment"
+        >
+
+          <option value="">
+            All Departments
+          </option>
+
+          <option value="General Medicine">
+            General Medicine
+          </option>
+
+          <option value="Cardiology">
+            Cardiology
+          </option>
+
+          <option value="Emergency">
+            Emergency
+          </option>
+
+          <option value="Dental">
+            Dental
+          </option>
+
+          <option value="Orthopedics">
+            Orthopedics
+          </option>
+
+        </select>
+
+
+
+        <!-- Status -->
+
+        <select
+          [(ngModel)]="selectedStatus"
+        >
+
+          <option value="">
+            All Status
+          </option>
+
+          <option value="Scheduled">
+            Scheduled
+          </option>
+
+          <option value="Confirmed">
+            Confirmed
+          </option>
+
+          <option value="Completed">
+            Completed
+          </option>
+
+          <option value="Cancelled">
+            Cancelled
+          </option>
+
+          <option value="No Show">
+            No Show
+          </option>
+
+        </select>
+
+
+
+        <!-- Clear -->
+
+        <button
+          class="clear-button"
+          type="button"
+          (click)="clearFilters()"
+        >
+
+          <span class="material-symbols-outlined">
+            filter_alt_off
+          </span>
+
+          Clear
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- ========================= -->
+    <!-- TABLE -->
+    <!-- ========================= -->
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>
+              Appointment
+            </th>
+
+            <th>
+              Patient
+            </th>
+
+            <th>
+              Doctor
+            </th>
+
+            <th>
+              Department
+            </th>
+
+            <th>
+              Date
+            </th>
+
+            <th>
+              Time
+            </th>
+
+            <th>
+              Type
+            </th>
+
+            <th>
+              Status
+            </th>
+
+            <th>
+              Actions
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+
+        <tbody>
+
+          @for (
+            appointment of filteredAppointments;
+            track appointment.id
+          ) {
+
+            <tr>
+
+
+              <!-- ========================= -->
+              <!-- APPOINTMENT ID -->
+              <!-- ========================= -->
+
+              <td>
+
+                <button
+                  class="appointment-id-button"
+                  type="button"
+                  [routerLink]="[
+                    '/appointments',
+                    appointment.id
+                  ]"
+                >
+
+                  {{ appointment.id }}
+
+                </button>
+
+              </td>
+
+
+
+              <!-- ========================= -->
+              <!-- PATIENT -->
+              <!-- ========================= -->
+
+              <td>
+
+                <div class="patient-cell">
+
+
+                  <div class="patient-avatar">
+
+                    {{ appointment.patientName
+                      ? appointment.patientName.charAt(0)
+                      : '?' }}
+
+                  </div>
+
+
+                  <div>
+
+                    <strong>
+                      {{ appointment.patientName }}
+                    </strong>
+
+                    <span>
+                      {{ appointment.patientId }}
+                    </span>
+
+                  </div>
+
+                </div>
+
+              </td>
+
+
+
+              <!-- ========================= -->
+              <!-- DOCTOR -->
+              <!-- ========================= -->
+
+              <td>
+
+                <strong class="doctor-name">
+
+                  {{ appointment.doctorName }}
+
+                </strong>
+
+              </td>
+
+
+
+              <!-- ========================= -->
+              <!-- DEPARTMENT -->
+              <!-- ========================= -->
+
+              <td>
+
+                {{ appointment.department }}
+
+              </td>
+
+
+
+              <!-- ========================= -->
+              <!-- DATE -->
+              <!-- ========================= -->
+
+              <td>
+
+                {{ appointment.appointmentDate }}
+
+              </td>
+
+
+
+              <!-- ========================= -->
+              <!-- TIME -->
+              <!-- ========================= -->
+
+              <td>
+
+                {{ appointment.appointmentTime }}
+
+              </td>
+
+
+
+              <!-- ========================= -->
+              <!-- TYPE -->
+              <!-- ========================= -->
+
+              <td>
+
+                {{ appointment.type }}
+
+              </td>
+
+
+
+              <!-- ========================= -->
+              <!-- STATUS -->
+              <!-- ========================= -->
+
+              <td>
+
+                <span
+                  class="status"
+
+                  [class.scheduled]="
+                    appointment.status === 'Scheduled'
+                  "
+
+                  [class.confirmed]="
+                    appointment.status === 'Confirmed'
+                  "
+
+                  [class.completed]="
+                    appointment.status === 'Completed'
+                  "
+
+                  [class.cancelled]="
+                    appointment.status === 'Cancelled'
+                  "
+
+                  [class.no-show]="
+                    appointment.status === 'No Show'
+                  "
+                >
+
+                  {{ appointment.status }}
+
+                </span>
+
+              </td>
+
+
+
+              <!-- ========================= -->
+              <!-- ACTIONS -->
+              <!-- ========================= -->
+
+              <td>
+
+                <div class="action-buttons">
+
+
+                  <!-- VIEW -->
+
+                  <button
+                    class="action-button"
+                    type="button"
+                    title="View appointment"
+                    [routerLink]="[
+                      '/appointments',
+                      appointment.id
+                    ]"
+                  >
+
+                    <span class="material-symbols-outlined">
+                      visibility
+                    </span>
+
+                  </button>
+
+
+
+                  <!-- EDIT -->
+
+                  <button
+                    class="action-button"
+                    type="button"
+                    title="Edit appointment"
+                    [routerLink]="[
+                      '/appointments',
+                      appointment.id,
+                      'edit'
+                    ]"
+                  >
+
+                    <span class="material-symbols-outlined">
+                      edit
+                    </span>
+
+                  </button>
+
+
+
+                  <!-- CANCEL -->
+
+                  <button
+                    class="action-button cancel-action"
+                    type="button"
+                    title="Cancel appointment"
+
+                    (click)="
+                      cancelAppointment(
+                        appointment.id
+                      )
+                    "
+
+                    [disabled]="
+                      appointment.status === 'Cancelled'
+                    "
+                  >
+
+                    <span class="material-symbols-outlined">
+                      cancel
+                    </span>
+
+                  </button>
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+
+
+    <!-- ========================= -->
+    <!-- EMPTY STATE -->
+    <!-- ========================= -->
+
+    @if (
+      filteredAppointments.length === 0
+    ) {
+
+      <div class="empty-state">
+
+        <span class="material-symbols-outlined">
+          event_busy
+        </span>
+
+        <h3>
+          No appointments found
+        </h3>
+
+        <p>
+          Try changing your search or filters.
+        </p>
+
+        <button
+          class="secondary-button"
+          type="button"
+          (click)="clearFilters()"
+        >
+
+          Clear Filters
+
+        </button>
+
+      </div>
+
+    }
+
+  </section>
+
+</div>

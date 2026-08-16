@@ -1,0 +1,366 @@
+@if (appointment) {
+
+  <div class="appointment-details-page">
+
+    <!-- Header -->
+
+    < class="page-header">
+
+      <button
+        class="back-button"
+        routerLink="/appointments"
+      >
+        <span class="material-symbols-outlined">
+          arrow_back
+        </span>
+
+        Back to Appointments
+      </button>
+
+      <div class="header-actions">
+
+  <!-- Edit -->
+
+  <button
+    class="secondary-button"
+    [routerLink]="[
+      '/appointments',
+      appointment.id,
+      'edit'
+    ]"
+  >
+    <span class="material-symbols-outlined">
+      edit
+    </span>
+
+    Edit Appointment
+  </button>
+
+
+  <!-- Confirm -->
+
+  @if (appointment.status === 'Scheduled') {
+
+    <button
+      class="confirm-button"
+      type="button"
+      (click)="updateStatus('Confirmed')"
+    >
+      <span class="material-symbols-outlined">
+        check_circle
+      </span>
+
+      Confirm
+    </button>
+
+  }
+
+
+  <!-- Complete -->
+
+  @if (appointment.status === 'Confirmed') {
+
+    <button
+      class="complete-button"
+      type="button"
+      (click)="updateStatus('Completed')"
+    >
+      <span class="material-symbols-outlined">
+        task_alt
+      </span>
+
+      Complete
+    </button>
+
+  }
+
+
+  <!-- Cancel -->
+
+  @if (
+    appointment.status !== 'Cancelled' &&
+    appointment.status !== 'Completed'
+  ) {
+
+    <button
+      class="danger-button"
+      type="button"
+      (click)="cancelAppointment()"
+    >
+      <span class="material-symbols-outlined">
+        cancel
+      </span>
+
+      Cancel
+    </button>
+
+  }
+
+
+  <!-- Print -->
+
+  <button
+    class="primary-button"
+    type="button"
+    onclick="window.print()"
+  >
+    <span class="material-symbols-outlined">
+      print
+    </span>
+
+    Print
+  </button>
+
+</div>
+
+
+
+    <!-- Appointment Header -->
+
+    <section class="appointment-header-card">
+
+      <div class="appointment-icon">
+
+        <span class="material-symbols-outlined">
+          calendar_month
+        </span>
+
+      </div>
+
+      <div class="appointment-main-info">
+
+        <div class="title-row">
+
+          <h1>
+            Appointment {{ appointment.id }}
+          </h1>
+
+          <span
+            class="status"
+            [class.scheduled]="appointment.status === 'Scheduled'"
+            [class.confirmed]="appointment.status === 'Confirmed'"
+            [class.completed]="appointment.status === 'Completed'"
+            [class.cancelled]="appointment.status === 'Cancelled'"
+            [class.no-show]="appointment.status === 'No Show'"
+          >
+            {{ appointment.status }}
+          </span>
+
+        </div>
+
+        <p>
+          {{ appointment.type }} appointment
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <!-- Information -->
+
+    <div class="details-grid">
+
+      <!-- Patient -->
+
+      <section class="details-card">
+
+        <div class="card-header">
+
+          <div>
+            <h2>Patient Information</h2>
+            <p>Patient assigned to this appointment</p>
+          </div>
+
+          <span class="material-symbols-outlined">
+            person
+          </span>
+
+        </div>
+
+        <div class="information-grid">
+
+          <div>
+            <label>Patient Name</label>
+            <strong>
+              {{ appointment.patientName }}
+            </strong>
+          </div>
+
+          <div>
+            <label>Patient ID</label>
+            <strong>
+              {{ appointment.patientId }}
+            </strong>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- Doctor -->
+
+      <section class="details-card">
+
+        <div class="card-header">
+
+          <div>
+            <h2>Doctor Information</h2>
+            <p>Doctor responsible for the appointment</p>
+          </div>
+
+          <span class="material-symbols-outlined">
+            medical_services
+          </span>
+
+        </div>
+
+        <div class="information-grid">
+
+          <div>
+            <label>Doctor</label>
+            <strong>
+              {{ appointment.doctorName }}
+            </strong>
+          </div>
+
+          <div>
+            <label>Department</label>
+            <strong>
+              {{ appointment.department }}
+            </strong>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- Schedule -->
+
+      <section class="details-card">
+
+        <div class="card-header">
+
+          <div>
+            <h2>Schedule</h2>
+            <p>Appointment date and time</p>
+          </div>
+
+          <span class="material-symbols-outlined">
+            schedule
+          </span>
+
+        </div>
+
+        <div class="information-grid">
+
+          <div>
+            <label>Date</label>
+            <strong>
+              {{ appointment.appointmentDate }}
+            </strong>
+          </div>
+
+          <div>
+            <label>Time</label>
+            <strong>
+              {{ appointment.appointmentTime }}
+            </strong>
+          </div>
+
+          <div>
+            <label>Type</label>
+            <strong>
+              {{ appointment.type }}
+            </strong>
+          </div>
+
+          <div>
+            <label>Status</label>
+            <strong>
+              {{ appointment.status }}
+            </strong>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- Reason -->
+
+      <section class="details-card">
+
+        <div class="card-header">
+
+          <div>
+            <h2>Reason for Visit</h2>
+            <p>Purpose of the appointment</p>
+          </div>
+
+          <span class="material-symbols-outlined">
+            description
+          </span>
+
+        </div>
+
+        <p class="text-content">
+          {{ appointment.reason }}
+        </p>
+
+      </section>
+
+
+      <!-- Notes -->
+
+      <section class="details-card full-width">
+
+        <div class="card-header">
+
+          <div>
+            <h2>Additional Notes</h2>
+            <p>Additional appointment information</p>
+          </div>
+
+          <span class="material-symbols-outlined">
+            notes
+          </span>
+
+        </div>
+
+        <p class="text-content">
+          {{ appointment.notes || 'No additional notes.' }}
+        </p>
+
+      </section>
+
+    </div>
+
+  </div>
+
+} @else {
+
+  <div class="not-found">
+
+    <span class="material-symbols-outlined">
+      event_busy
+    </span>
+
+    <h2>Appointment not found</h2>
+
+    <p>
+      The appointment record could not be found.
+    </p>
+
+    <button
+      class="primary-button"
+      routerLink="/appointments"
+    >
+      Back to Appointments
+    </button>
+
+  </div>
+
+}
