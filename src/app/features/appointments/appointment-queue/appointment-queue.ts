@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 
 import { AppointmentService } from '../../../core/services/appointment.service';
+
 import { Appointment } from '../../../shared/models/appointment.model';
 
 @Component({
@@ -17,19 +18,29 @@ export class AppointmentQueue implements OnInit {
 
   appointments: Appointment[] = [];
 
+
   constructor(
-    private appointmentService: AppointmentService,
+    private appointmentService:
+      AppointmentService,
+
     private router: Router
   ) {}
 
+
+  // =====================================================
+  // INITIALIZE
+  // =====================================================
+
   ngOnInit(): void {
+
     this.loadQueue();
+
   }
 
 
-  // =========================
+  // =====================================================
   // LOAD WAITING QUEUE
-  // =========================
+  // =====================================================
 
   loadQueue(): void {
 
@@ -38,15 +49,16 @@ export class AppointmentQueue implements OnInit {
         .getAppointments()
         .filter(
           appointment =>
-            appointment.status === 'Checked-In'
+            appointment.status ===
+            'Checked-In'
         );
 
   }
 
 
-  // =========================
+  // =====================================================
   // QUEUE COUNT
-  // =========================
+  // =====================================================
 
   get queueCount(): number {
 
@@ -55,9 +67,9 @@ export class AppointmentQueue implements OnInit {
   }
 
 
-  // =========================
+  // =====================================================
   // START CONSULTATION
-  // =========================
+  // =====================================================
 
   startConsultation(id: string): void {
 
@@ -82,30 +94,42 @@ export class AppointmentQueue implements OnInit {
     }
 
 
-    // Change status
+    // ===================================================
+    // CHANGE APPOINTMENT STATUS
+    // ===================================================
+
     this.appointmentService.updateStatus(
       id,
       'In Consultation'
     );
 
 
-    // Remove patient from waiting queue
+    // ===================================================
+    // REMOVE FROM WAITING QUEUE
+    // ===================================================
+
     this.loadQueue();
 
 
-    // Open consultation screen
-    this.router.navigate([
-      '/appointments',
-      id,
-      'consultation'
-    ]);
+    // ===================================================
+    // OPEN MAIN CONSULTATION FORM
+    // ===================================================
+
+    this.router.navigate(
+      ['/consultations/register'],
+      {
+        queryParams: {
+          appointmentId: id
+        }
+      }
+    );
 
   }
 
 
-  // =========================
+  // =====================================================
   // REFRESH QUEUE
-  // =========================
+  // =====================================================
 
   refreshQueue(): void {
 

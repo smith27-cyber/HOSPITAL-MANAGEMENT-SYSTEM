@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
 
   // =====================================================
-  // DEFAULT ROUTE
+  // DEFAULT
   // =====================================================
 
   {
@@ -14,7 +14,7 @@ export const routes: Routes = [
 
 
   // =====================================================
-  // AUTHENTICATION
+  // LOGIN
   // =====================================================
 
   {
@@ -57,7 +57,6 @@ export const routes: Routes = [
       // PATIENTS
       // =================================================
 
-      // Patient List
       {
         path: 'patients',
 
@@ -67,8 +66,6 @@ export const routes: Routes = [
           ).then(m => m.PatientList)
       },
 
-
-      // Register Patient
       {
         path: 'patients/register',
 
@@ -78,8 +75,6 @@ export const routes: Routes = [
           ).then(m => m.PatientForm)
       },
 
-
-      // Edit Patient
       {
         path: 'patients/:id/edit',
 
@@ -89,8 +84,6 @@ export const routes: Routes = [
           ).then(m => m.PatientForm)
       },
 
-
-      // Patient Profile
       {
         path: 'patients/:id',
 
@@ -105,7 +98,6 @@ export const routes: Routes = [
       // DOCTORS
       // =================================================
 
-      // Doctor List
       {
         path: 'doctors',
 
@@ -115,8 +107,6 @@ export const routes: Routes = [
           ).then(m => m.DoctorList)
       },
 
-
-      // Register Doctor
       {
         path: 'doctors/register',
 
@@ -126,8 +116,6 @@ export const routes: Routes = [
           ).then(m => m.DoctorForm)
       },
 
-
-      // Edit Doctor
       {
         path: 'doctors/:id/edit',
 
@@ -137,12 +125,61 @@ export const routes: Routes = [
           ).then(m => m.DoctorForm)
       },
 
+      {
+        path: 'doctors/:id',
+
+        loadComponent: () =>
+          import(
+            './features/doctors/doctor-profile/doctor-profile'
+          ).then(m => m.DoctorProfile)
+      },
+
+
+      // =================================================
+      // DEPARTMENTS
+      // =================================================
+
+      {
+        path: 'departments',
+
+        loadComponent: () =>
+          import(
+            './features/departments/department-list/department-list'
+          ).then(m => m.DepartmentList)
+      },
+
+      {
+        path: 'departments/register',
+
+        loadComponent: () =>
+          import(
+            './features/departments/department-form/department-form'
+          ).then(m => m.DepartmentForm)
+      },
+
+      {
+        path: 'departments/:id/edit',
+
+        loadComponent: () =>
+          import(
+            './features/departments/department-form/department-form'
+          ).then(m => m.DepartmentForm)
+      },
+
+      {
+        path: 'departments/:id',
+
+        loadComponent: () =>
+          import(
+            './features/departments/department-profile/department-profile'
+          ).then(m => m.DepartmentProfile)
+      },
+
 
       // =================================================
       // APPOINTMENTS
       // =================================================
 
-      // Appointment List
       {
         path: 'appointments',
 
@@ -152,8 +189,6 @@ export const routes: Routes = [
           ).then(m => m.AppointmentList)
       },
 
-
-      // Register Appointment
       {
         path: 'appointments/register',
 
@@ -162,11 +197,6 @@ export const routes: Routes = [
             './features/appointments/appointment-register/appointment-register'
           ).then(m => m.AppointmentRegister)
       },
-
-
-      // Appointment Waiting Queue
-      // IMPORTANT:
-      // Must come before appointments/:id
 
       {
         path: 'appointments/queue',
@@ -177,8 +207,6 @@ export const routes: Routes = [
           ).then(m => m.AppointmentQueue)
       },
 
-
-      // Appointment Edit
       {
         path: 'appointments/:id/edit',
 
@@ -189,18 +217,6 @@ export const routes: Routes = [
       },
 
 
-      // Appointment Consultation
-      {
-        path: 'appointments/:id/consultation',
-
-        loadComponent: () =>
-          import(
-            './features/appointments/appointment-consultation/appointment-consultation'
-          ).then(m => m.AppointmentConsultation)
-      },
-
-
-      // Appointment Details
       {
         path: 'appointments/:id',
 
@@ -208,7 +224,51 @@ export const routes: Routes = [
           import(
             './features/appointments/appointment-details/appointment-details'
           ).then(m => m.AppointmentDetails)
-      }
+      },
+
+
+     // =================================================
+// CONSULTATIONS
+// =================================================
+
+// Consultation List
+{
+  path: 'consultations',
+
+  loadComponent: () =>
+    import(
+      './features/consultations/consultation-list/consultation-list'
+    ).then(m => m.ConsultationList)
+},
+
+{
+  path: 'consultations/register',
+
+  loadComponent: () =>
+    import(
+      './features/consultations/consultation-form/consultation-form'
+    ).then(m => m.ConsultationForm)
+},
+
+// Consultation Edit / Form
+{
+  path: 'consultations/:id/edit',
+
+  loadComponent: () =>
+    import(
+      './features/consultations/consultation-form/consultation-form'
+    ).then(m => m.ConsultationForm)
+},
+
+// Consultation Profile
+{
+  path: 'consultations/:id',
+
+  loadComponent: () =>
+    import(
+      './features/consultations/consultation-profile/consultation-profile'
+    ).then(m => m.ConsultationProfile)
+},
 
     ]
   },

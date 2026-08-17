@@ -1,0 +1,569 @@
+<div class="consultation-profile-page">
+
+  @if (consultation) {
+
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+
+    <div class="page-header">
+
+      <div>
+
+        <h1>
+          Consultation
+        </h1>
+
+        <p>
+          {{ consultation.id }}
+        </p>
+
+      </div>
+
+
+      <div class="header-actions">
+
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="backToConsultations()"
+        >
+
+          <span class="material-symbols-outlined">
+            arrow_back
+          </span>
+
+          Back
+
+        </button>
+
+
+        <button
+          type="button"
+          class="edit-button"
+          (click)="editConsultation()"
+        >
+
+          <span class="material-symbols-outlined">
+            edit
+          </span>
+
+          Edit
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- ================================================= -->
+    <!-- STATUS -->
+    <!-- ================================================= -->
+
+    <section class="status-card">
+
+      <div class="status-info">
+
+        <div class="status-icon">
+
+          <span class="material-symbols-outlined">
+            stethoscope
+          </span>
+
+        </div>
+
+        <div>
+
+          <span>
+            Consultation Status
+          </span>
+
+          <strong
+            [class.status-open]="
+              consultation.status === 'Open'
+            "
+            [class.status-completed]="
+              consultation.status === 'Completed'
+            "
+            [class.status-cancelled]="
+              consultation.status === 'Cancelled'
+            "
+          >
+
+            {{ consultation.status }}
+
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="status-actions">
+
+        @if (
+          consultation.status === 'Open'
+        ) {
+
+          <button
+            type="button"
+            class="complete-button"
+            (click)="completeConsultation()"
+          >
+
+            <span class="material-symbols-outlined">
+              check_circle
+            </span>
+
+            Complete
+
+          </button>
+
+
+          <button
+            type="button"
+            class="cancel-status-button"
+            (click)="cancelConsultation()"
+          >
+
+            <span class="material-symbols-outlined">
+              cancel
+            </span>
+
+            Cancel
+
+          </button>
+
+        }
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- PATIENT & DOCTOR -->
+    <!-- ================================================= -->
+
+    <section class="profile-card">
+
+      <div class="card-header">
+
+        <div>
+
+          <h2>
+            Consultation Details
+          </h2>
+
+          <p>
+            Patient and attending doctor
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="details-grid">
+
+
+        <!-- PATIENT -->
+
+        <div class="detail-item">
+
+          <span class="detail-label">
+            Patient
+          </span>
+
+          <strong>
+            {{ patientName }}
+          </strong>
+
+          @if (patient) {
+
+            <span>
+              Patient ID: {{ patient.id }}
+            </span>
+
+          }
+
+        </div>
+
+
+        <!-- DOCTOR -->
+
+        <div class="detail-item">
+
+          <span class="detail-label">
+            Doctor
+          </span>
+
+          <strong>
+            {{ doctorName }}
+          </strong>
+
+          @if (doctor) {
+
+            <span>
+              {{ doctor.specialization }}
+            </span>
+
+          }
+
+        </div>
+
+
+        <!-- DATE -->
+
+        <div class="detail-item">
+
+          <span class="detail-label">
+            Date
+          </span>
+
+          <strong>
+            {{ consultation.consultationDate | date:'mediumDate' }}
+          </strong>
+
+        </div>
+
+
+        <!-- TIME -->
+
+        <div class="detail-item">
+
+          <span class="detail-label">
+            Time
+          </span>
+
+          <strong>
+            {{ consultation.consultationTime }}
+          </strong>
+
+        </div>
+
+
+        <!-- APPOINTMENT -->
+
+        @if (consultation.appointmentId) {
+
+          <div class="detail-item">
+
+            <span class="detail-label">
+              Appointment
+            </span>
+
+            <strong>
+              {{ consultation.appointmentId }}
+            </strong>
+
+          </div>
+
+        }
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- CHIEF COMPLAINT -->
+    <!-- ================================================= -->
+
+    <section class="profile-card">
+
+      <div class="card-header">
+
+        <h2>
+          Chief Complaint
+        </h2>
+
+      </div>
+
+
+      <div class="clinical-text">
+
+        {{ consultation.chiefComplaint }}
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- SYMPTOMS -->
+    <!-- ================================================= -->
+
+    @if (consultation.symptoms) {
+
+      <section class="profile-card">
+
+        <div class="card-header">
+
+          <h2>
+            Symptoms
+          </h2>
+
+        </div>
+
+
+        <div class="clinical-text">
+
+          {{ consultation.symptoms }}
+
+        </div>
+
+      </section>
+
+    }
+
+
+
+    <!-- ================================================= -->
+    <!-- DIAGNOSIS -->
+    <!-- ================================================= -->
+
+    @if (consultation.diagnosis) {
+
+      <section class="profile-card diagnosis-card">
+
+        <div class="card-header">
+
+          <h2>
+            Diagnosis
+          </h2>
+
+        </div>
+
+
+        <div class="clinical-text">
+
+          {{ consultation.diagnosis }}
+
+        </div>
+
+      </section>
+
+    }
+
+
+
+    <!-- ================================================= -->
+    <!-- CLINICAL NOTES -->
+    <!-- ================================================= -->
+
+    @if (consultation.clinicalNotes) {
+
+      <section class="profile-card">
+
+        <div class="card-header">
+
+          <h2>
+            Clinical Notes
+          </h2>
+
+        </div>
+
+
+        <div class="clinical-text">
+
+          {{ consultation.clinicalNotes }}
+
+        </div>
+
+      </section>
+
+    }
+
+
+
+    <!-- ================================================= -->
+    <!-- TREATMENT PLAN -->
+    <!-- ================================================= -->
+
+    @if (consultation.treatmentPlan) {
+
+      <section class="profile-card treatment-card">
+
+        <div class="card-header">
+
+          <h2>
+            Treatment Plan
+          </h2>
+
+        </div>
+
+
+        <div class="clinical-text">
+
+          {{ consultation.treatmentPlan }}
+
+        </div>
+
+      </section>
+
+    }
+
+
+
+    <!-- ================================================= -->
+    <!-- FOLLOW-UP -->
+    <!-- ================================================= -->
+
+    @if (consultation.followUpDate) {
+
+      <section class="profile-card">
+
+        <div class="card-header">
+
+          <h2>
+            Follow-up
+          </h2>
+
+        </div>
+
+
+        <div class="follow-up">
+
+          <span class="material-symbols-outlined">
+            event
+          </span>
+
+          <div>
+
+            <span>
+              Next follow-up date
+            </span>
+
+            <strong>
+              {{
+                consultation.followUpDate
+                  | date:'fullDate'
+              }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    }
+
+
+
+    <!-- ================================================= -->
+    <!-- RECORD INFORMATION -->
+    <!-- ================================================= -->
+
+    <section class="profile-card record-card">
+
+      <div class="card-header">
+
+        <h2>
+          Record Information
+        </h2>
+
+      </div>
+
+
+      <div class="details-grid">
+
+        <div class="detail-item">
+
+          <span class="detail-label">
+            Consultation ID
+          </span>
+
+          <strong>
+            {{ consultation.id }}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span class="detail-label">
+            Created
+          </span>
+
+          <strong>
+            {{
+              consultation.createdAt
+                | date:'medium'
+            }}
+          </strong>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- DELETE -->
+    <!-- ================================================= -->
+
+    <div class="danger-zone">
+
+      <button
+        type="button"
+        class="delete-button"
+        (click)="deleteConsultation()"
+      >
+
+        <span class="material-symbols-outlined">
+          delete
+        </span>
+
+        Delete Consultation
+
+      </button>
+
+    </div>
+
+  }
+
+
+  @else {
+
+    <!-- ================================================= -->
+    <!-- NOT FOUND -->
+    <!-- ================================================= -->
+
+    <div class="empty-state">
+
+      <span class="material-symbols-outlined">
+        search_off
+      </span>
+
+      <h2>
+        Consultation not found
+      </h2>
+
+      <p>
+        The consultation you are looking for does not exist.
+      </p>
+
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="backToConsultations()"
+      >
+        Back to Consultations
+      </button>
+
+    </div>
+
+  }
+
+</div>

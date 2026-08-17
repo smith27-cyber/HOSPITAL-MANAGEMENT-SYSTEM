@@ -1,0 +1,462 @@
+<div class="departments-page">
+
+  <!-- HEADER -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Departments
+      </h1>
+
+      <p>
+        Manage hospital departments
+      </p>
+
+    </div>
+
+
+    <button
+      class="primary-button"
+      type="button"
+      routerLink="/departments/register"
+    >
+
+      <span class="material-symbols-outlined">
+        add_business
+      </span>
+
+      Add Department
+
+    </button>
+
+  </div>
+
+
+
+  <!-- STATISTICS -->
+
+  <div class="department-stats">
+
+    <div class="mini-stat">
+
+      <div class="mini-stat-icon">
+
+        <span class="material-symbols-outlined">
+          business
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Total Departments
+        </span>
+
+        <strong>
+          {{ totalDepartments }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div class="mini-stat">
+
+      <div class="mini-stat-icon active-icon">
+
+        <span class="material-symbols-outlined">
+          check_circle
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Active
+        </span>
+
+        <strong>
+          {{ activeDepartments }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div class="mini-stat">
+
+      <div class="mini-stat-icon inactive-icon">
+
+        <span class="material-symbols-outlined">
+          cancel
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Inactive
+        </span>
+
+        <strong>
+          {{ inactiveDepartments }}
+        </strong>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- DEPARTMENT CARD -->
+
+  <section class="departments-card">
+
+
+    <!-- TOOLBAR -->
+
+    <div class="table-toolbar">
+
+      <div class="search-box">
+
+        <span class="material-symbols-outlined">
+          search
+        </span>
+
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Search departments..."
+        />
+
+      </div>
+
+
+      <div class="filters">
+
+        <select
+          [(ngModel)]="selectedStatus"
+        >
+
+          <option value="">
+            All Status
+          </option>
+
+          <option value="Active">
+            Active
+          </option>
+
+          <option value="Inactive">
+            Inactive
+          </option>
+
+        </select>
+
+
+        <button
+          class="clear-button"
+          type="button"
+          (click)="clearFilters()"
+        >
+
+          <span class="material-symbols-outlined">
+            filter_alt_off
+          </span>
+
+          Clear
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- TABLE -->
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>
+              Department
+            </th>
+
+            <th>
+              Code
+            </th>
+
+            <th>
+              Head of Department
+            </th>
+
+            <th>
+              Phone
+            </th>
+
+            <th>
+              Location
+            </th>
+
+            <th>
+              Status
+            </th>
+
+            <th>
+              Actions
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          @for (
+            department of filteredDepartments;
+            track department.id
+          ) {
+
+            <tr>
+
+              <!-- DEPARTMENT -->
+
+              <td>
+
+                <div class="department-cell">
+
+                  <div class="department-icon">
+
+                    <span class="material-symbols-outlined">
+                      business
+                    </span>
+
+                  </div>
+
+                  <div>
+
+                    <strong>
+                      {{ department.name }}
+                    </strong>
+
+                    <span>
+                      {{ department.description || 'No description' }}
+                    </span>
+
+                  </div>
+
+                </div>
+
+              </td>
+
+
+              <!-- CODE -->
+
+              <td>
+
+                <span class="department-code">
+                  {{ department.code }}
+                </span>
+
+              </td>
+
+
+              <!-- HEAD -->
+
+              <td>
+
+                {{ department.headOfDepartment || 'Not assigned' }}
+
+              </td>
+
+
+              <!-- PHONE -->
+
+              <td>
+
+                {{ department.phone || 'Not provided' }}
+
+              </td>
+
+
+              <!-- LOCATION -->
+
+              <td>
+
+                {{ department.location || 'Not specified' }}
+
+              </td>
+
+
+              <!-- STATUS -->
+
+              <td>
+
+                <span
+                  class="status"
+                  [class.active]="
+                    department.status === 'Active'
+                  "
+                  [class.inactive]="
+                    department.status === 'Inactive'
+                  "
+                >
+
+                  {{ department.status }}
+
+                </span>
+
+              </td>
+
+
+              <!-- ACTIONS -->
+
+              <td>
+
+                <div class="action-buttons">
+
+                  <!-- VIEW -->
+
+                  <button
+                    class="action-button"
+                    type="button"
+                    [routerLink]="[
+                      '/departments',
+                      department.id
+                    ]"
+                    title="View Department"
+                  >
+
+                    <span class="material-symbols-outlined">
+                      visibility
+                    </span>
+
+                  </button>
+
+
+                  <!-- EDIT -->
+
+                  <button
+                    class="action-button"
+                    type="button"
+                    [routerLink]="[
+                      '/departments',
+                      department.id,
+                      'edit'
+                    ]"
+                    title="Edit Department"
+                  >
+
+                    <span class="material-symbols-outlined">
+                      edit
+                    </span>
+
+                  </button>
+
+
+                  <!-- DEACTIVATE -->
+
+                  <button
+                    class="action-button danger-action"
+                    type="button"
+                    (click)="
+                      deactivateDepartment(
+                        department.id
+                      )
+                    "
+                    [disabled]="
+                      department.status === 'Inactive'
+                    "
+                    title="Deactivate Department"
+                  >
+
+                    <span class="material-symbols-outlined">
+                      business
+                    </span>
+
+                  </button>
+
+
+                  <!-- DELETE -->
+
+                  <button
+                    class="action-button delete-action"
+                    type="button"
+                    (click)="
+                      deleteDepartment(
+                        department.id
+                      )
+                    "
+                    title="Delete Department"
+                  >
+
+                    <span class="material-symbols-outlined">
+                      delete
+                    </span>
+
+                  </button>
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          }
+
+
+          @if (filteredDepartments.length === 0) {
+
+            <tr>
+
+              <td
+                colspan="7"
+                class="empty-cell"
+              >
+
+                <div class="empty-state">
+
+                  <span class="material-symbols-outlined">
+                    business
+                  </span>
+
+                  <h3>
+                    No departments found
+                  </h3>
+
+                  <p>
+                    Try changing your search or filters.
+                  </p>
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</div>

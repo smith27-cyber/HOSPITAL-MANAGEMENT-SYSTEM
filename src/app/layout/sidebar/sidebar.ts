@@ -6,6 +6,7 @@ import {
 
 @Component({
   selector: 'app-sidebar',
+  standalone: true,
   imports: [
     RouterLink,
     RouterLinkActive
@@ -13,6 +14,4 @@ import {
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css'
 })
-export class Sidebar {
-
-}
+export class Sidebar {}

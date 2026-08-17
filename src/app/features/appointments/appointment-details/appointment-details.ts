@@ -2,13 +2,18 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { AppointmentService } from '../../../core/services/appointment.service';
+import { ConsultationService } from '../../../core/services/consultation.service';
+
 import {
   Appointment,
   AppointmentStatus
 } from '../../../shared/models/appointment.model';
 
+import { Consultation } from '../../../shared/models/consultation.model';
+
 @Component({
   selector: 'app-appointment-details',
+  standalone: true,
   imports: [
     RouterLink
   ],
@@ -17,28 +22,109 @@ import {
 })
 export class AppointmentDetails implements OnInit {
 
+  // =====================================================
+  // APPOINTMENT
+  // =====================================================
+
   appointment?: Appointment;
+
+
+  // =====================================================
+  // CONSULTATION
+  // =====================================================
+
+  consultation?: Consultation;
+
+
+  // =====================================================
+  // CONSTRUCTOR
+  // =====================================================
 
   constructor(
     private route: ActivatedRoute,
-    private appointmentService: AppointmentService
+
+    private appointmentService:
+      AppointmentService,
+
+    private consultationService:
+      ConsultationService
   ) {}
+
+
+  // =====================================================
+  // INITIALIZE
+  // =====================================================
 
   ngOnInit(): void {
 
     const id =
       this.route.snapshot.paramMap.get('id');
 
-    if (id) {
 
-      this.appointment =
-        this.appointmentService
-          .getAppointmentById(id);
-
+    if (!id) {
+      return;
     }
+
+
+    this.loadAppointment(id);
 
   }
 
+
+  // =====================================================
+  // LOAD APPOINTMENT
+  // =====================================================
+
+  private loadAppointment(
+    id: string
+  ): void {
+
+    this.appointment =
+      this.appointmentService
+        .getAppointmentById(id);
+
+
+    if (!this.appointment) {
+
+      return;
+
+    }
+
+
+    this.loadConsultation();
+
+  }
+
+
+  // =====================================================
+  // LOAD CONSULTATION
+  // =====================================================
+
+  private loadConsultation(): void {
+
+    if (!this.appointment) {
+      return;
+    }
+
+
+    const consultations =
+      this.consultationService
+        .getConsultations();
+
+
+    this.consultation =
+      consultations.find(
+        consultation =>
+          consultation.appointmentId ===
+          this.appointment!.id
+      );
+
+  }
+
+
+  // =====================================================
+  // UPDATE STATUS
+  // =====================================================
 
   updateStatus(
     status: AppointmentStatus
@@ -48,10 +134,12 @@ export class AppointmentDetails implements OnInit {
       return;
     }
 
+
     this.appointmentService.updateStatus(
       this.appointment.id,
       status
     );
+
 
     this.appointment =
       this.appointmentService
@@ -59,8 +147,15 @@ export class AppointmentDetails implements OnInit {
           this.appointment.id
         );
 
+
+    this.loadConsultation();
+
   }
 
+
+  // =====================================================
+  // CANCEL APPOINTMENT
+  // =====================================================
 
   cancelAppointment(): void {
 
@@ -68,31 +163,42 @@ export class AppointmentDetails implements OnInit {
       return;
     }
 
+
     if (
       this.appointment.status ===
       'Cancelled'
     ) {
+
       return;
+
     }
 
-    const confirmed = confirm(
-      `Are you sure you want to cancel appointment ${this.appointment.id}?`
-    );
+
+    const confirmed =
+      window.confirm(
+        `Are you sure you want to cancel appointment ${this.appointment.id}?`
+      );
+
 
     if (!confirmed) {
       return;
     }
+
 
     this.appointmentService
       .cancelAppointment(
         this.appointment.id
       );
 
+
     this.appointment =
       this.appointmentService
         .getAppointmentById(
           this.appointment.id
         );
+
+
+    this.loadConsultation();
 
   }
 

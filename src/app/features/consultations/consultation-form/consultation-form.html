@@ -1,0 +1,806 @@
+
+<div class="consultation-form-page">
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        {{
+          isEditMode
+            ? 'Edit Consultation'
+            : 'Patient Consultation'
+        }}
+      </h1>
+
+      <p>
+        {{
+          isEditMode
+            ? 'Update the clinical consultation record'
+            : 'Document the patient consultation'
+        }}
+      </p>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="cancel()"
+    >
+
+      <span class="material-symbols-outlined">
+        arrow_back
+      </span>
+
+      Back
+
+    </button>
+
+  </div>
+
+
+
+  <!-- ================================================= -->
+  <!-- APPOINTMENT / PATIENT SUMMARY -->
+  <!-- ================================================= -->
+
+  @if (appointment) {
+
+    <section class="form-card patient-summary-card">
+
+      <div class="section-header">
+
+        <div class="section-icon">
+
+          <span class="material-symbols-outlined">
+            person
+          </span>
+
+        </div>
+
+        <div>
+
+          <h2>
+            Patient Information
+          </h2>
+
+          <p>
+            Patient information from the current appointment
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="patient-summary-grid">
+
+
+        <!-- PATIENT -->
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Patient
+          </span>
+
+          <strong>
+            {{ appointment.patientName }}
+          </strong>
+
+        </div>
+
+
+        <!-- PATIENT ID -->
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Patient ID
+          </span>
+
+          <strong>
+            {{ appointment.patientId }}
+          </strong>
+
+        </div>
+
+
+        <!-- DOCTOR -->
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Doctor
+          </span>
+
+          <strong>
+            {{ appointment.doctorName }}
+          </strong>
+
+        </div>
+
+
+        <!-- DOCTOR ID -->
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Doctor ID
+          </span>
+
+          <strong>
+            {{ appointment.doctorId }}
+          </strong>
+
+        </div>
+
+
+        <!-- DEPARTMENT -->
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Department
+          </span>
+
+          <strong>
+            {{ appointment.department }}
+          </strong>
+
+        </div>
+
+
+        <!-- APPOINTMENT ID -->
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Appointment ID
+          </span>
+
+          <strong>
+            {{ appointment.id }}
+          </strong>
+
+        </div>
+
+
+        <!-- APPOINTMENT DATE -->
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Appointment Date
+          </span>
+
+          <strong>
+            {{ appointment.appointmentDate }}
+          </strong>
+
+        </div>
+
+
+        <!-- APPOINTMENT TIME -->
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Appointment Time
+          </span>
+
+          <strong>
+            {{ appointment.appointmentTime }}
+          </strong>
+
+        </div>
+
+
+        <!-- APPOINTMENT TYPE -->
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Appointment Type
+          </span>
+
+          <strong>
+            {{ appointment.type }}
+          </strong>
+
+        </div>
+
+
+        <!-- REASON -->
+
+        <div class="summary-item summary-item-wide">
+
+          <span class="summary-label">
+            Reason for Visit
+          </span>
+
+          <strong>
+            {{ appointment.reason }}
+          </strong>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  }
+
+
+
+  <!-- ================================================= -->
+  <!-- FORM -->
+  <!-- ================================================= -->
+
+  <form
+    class="consultation-form"
+    (ngSubmit)="saveConsultation()"
+  >
+
+
+    <!-- ================================================= -->
+    <!-- CONSULTATION DETAILS -->
+    <!-- ================================================= -->
+
+    <section class="form-card">
+
+      <div class="section-header">
+
+        <div class="section-icon">
+
+          <span class="material-symbols-outlined">
+            medical_information
+          </span>
+
+        </div>
+
+        <div>
+
+          <h2>
+            Consultation Details
+          </h2>
+
+          <p>
+            {{
+              appointment
+                ? 'Patient and doctor information has been loaded from the appointment'
+                : 'Select the patient and attending doctor'
+            }}
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="form-grid">
+
+
+        <!-- ================================================= -->
+        <!-- PATIENT -->
+        <!-- ================================================= -->
+
+        <div class="form-group">
+
+          <label>
+            Patient <span>*</span>
+          </label>
+
+
+          @if (appointment) {
+
+            <input
+              type="text"
+              [value]="appointment.patientName"
+              readonly
+            />
+
+          } @else {
+
+            <select
+              name="patientId"
+              [(ngModel)]="consultation.patientId"
+              required
+            >
+
+              <option value="">
+                Select patient
+              </option>
+
+              @for (
+                patient of patients;
+                track patient.id
+              ) {
+
+                <option
+                  [value]="patient.id"
+                >
+
+                  {{ patient.firstName }}
+                  {{ patient.lastName }}
+
+                  —
+                  {{ patient.id }}
+
+                </option>
+
+              }
+
+            </select>
+
+          }
+
+        </div>
+
+
+
+        <!-- ================================================= -->
+        <!-- PATIENT ID -->
+        <!-- ================================================= -->
+
+        <div class="form-group">
+
+          <label>
+            Patient ID
+          </label>
+
+          <input
+            type="text"
+            [value]="consultation.patientId"
+            readonly
+          />
+
+        </div>
+
+
+
+        <!-- ================================================= -->
+        <!-- DOCTOR -->
+        <!-- ================================================= -->
+
+        <div class="form-group">
+
+          <label>
+            Doctor <span>*</span>
+          </label>
+
+
+          @if (appointment) {
+
+            <input
+              type="text"
+              [value]="appointment.doctorName"
+              readonly
+            />
+
+          } @else {
+
+            <select
+              name="doctorId"
+              [(ngModel)]="consultation.doctorId"
+              required
+            >
+
+              <option value="">
+                Select doctor
+              </option>
+
+              @for (
+                doctor of doctors;
+                track doctor.id
+              ) {
+
+                <option
+                  [value]="doctor.id"
+                >
+
+                  Dr.
+                  {{ doctor.firstName }}
+                  {{ doctor.lastName }}
+
+                  —
+                  {{ doctor.specialization }}
+
+                </option>
+
+              }
+
+            </select>
+
+          }
+
+        </div>
+
+
+
+        <!-- ================================================= -->
+        <!-- DOCTOR ID -->
+        <!-- ================================================= -->
+
+        <div class="form-group">
+
+          <label>
+            Doctor ID
+          </label>
+
+          <input
+            type="text"
+            [value]="consultation.doctorId"
+            readonly
+          />
+
+        </div>
+
+
+
+        <!-- ================================================= -->
+        <!-- APPOINTMENT ID -->
+        <!-- ================================================= -->
+
+        <div class="form-group">
+
+          <label>
+            Appointment ID
+          </label>
+
+          <input
+            type="text"
+            [value]="consultation.appointmentId"
+            readonly
+          />
+
+        </div>
+
+
+
+        <!-- ================================================= -->
+        <!-- CONSULTATION DATE -->
+        <!-- ================================================= -->
+
+        <div class="form-group">
+
+          <label>
+            Consultation Date <span>*</span>
+          </label>
+
+          <input
+            type="date"
+            name="consultationDate"
+            [(ngModel)]="consultation.consultationDate"
+            required
+          />
+
+        </div>
+
+
+
+        <!-- ================================================= -->
+        <!-- CONSULTATION TIME -->
+        <!-- ================================================= -->
+
+        <div class="form-group">
+
+          <label>
+            Consultation Time <span>*</span>
+          </label>
+
+          <input
+            type="time"
+            name="consultationTime"
+            [(ngModel)]="consultation.consultationTime"
+            required
+          />
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- CLINICAL INFORMATION -->
+    <!-- ================================================= -->
+
+    <section class="form-card">
+
+      <div class="section-header">
+
+        <div class="section-icon">
+
+          <span class="material-symbols-outlined">
+            stethoscope
+          </span>
+
+        </div>
+
+        <div>
+
+          <h2>
+            Clinical Information
+          </h2>
+
+          <p>
+            Record the patient's clinical presentation
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="form-grid single-column">
+
+
+        <!-- ================================================= -->
+        <!-- CHIEF COMPLAINT -->
+        <!-- ================================================= -->
+
+        <div class="form-group">
+
+          <label>
+            Chief Complaint <span>*</span>
+          </label>
+
+          <textarea
+            name="chiefComplaint"
+            [(ngModel)]="consultation.chiefComplaint"
+            placeholder="Describe the main reason for the visit..."
+            rows="3"
+            required
+          ></textarea>
+
+        </div>
+
+
+
+        <!-- ================================================= -->
+        <!-- SYMPTOMS -->
+        <!-- ================================================= -->
+
+        <div class="form-group">
+
+          <label>
+            Symptoms
+          </label>
+
+          <textarea
+            name="symptoms"
+            [(ngModel)]="consultation.symptoms"
+            placeholder="Describe symptoms reported by the patient..."
+            rows="4"
+          ></textarea>
+
+        </div>
+
+
+
+        <!-- ================================================= -->
+        <!-- DIAGNOSIS -->
+        <!-- ================================================= -->
+
+        <div class="form-group">
+
+          <label>
+            Diagnosis
+          </label>
+
+          <textarea
+            name="diagnosis"
+            [(ngModel)]="consultation.diagnosis"
+            placeholder="Enter clinical diagnosis..."
+            rows="3"
+          ></textarea>
+
+        </div>
+
+
+
+        <!-- ================================================= -->
+        <!-- CLINICAL NOTES -->
+        <!-- ================================================= -->
+
+        <div class="form-group">
+
+          <label>
+            Clinical Notes
+          </label>
+
+          <textarea
+            name="clinicalNotes"
+            [(ngModel)]="consultation.clinicalNotes"
+            placeholder="Enter examination findings and clinical notes..."
+            rows="5"
+          ></textarea>
+
+        </div>
+
+
+
+        <!-- ================================================= -->
+        <!-- TREATMENT PLAN -->
+        <!-- ================================================= -->
+
+        <div class="form-group">
+
+          <label>
+            Treatment Plan
+          </label>
+
+          <textarea
+            name="treatmentPlan"
+            [(ngModel)]="consultation.treatmentPlan"
+            placeholder="Enter recommended treatment or management plan..."
+            rows="4"
+          ></textarea>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- FOLLOW-UP -->
+    <!-- ================================================= -->
+
+    <section class="form-card">
+
+      <div class="section-header">
+
+        <div class="section-icon">
+
+          <span class="material-symbols-outlined">
+            event
+          </span>
+
+        </div>
+
+        <div>
+
+          <h2>
+            Follow-up
+          </h2>
+
+          <p>
+            Schedule the patient's next visit
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="form-grid">
+
+
+        <!-- ================================================= -->
+        <!-- FOLLOW-UP DATE -->
+        <!-- ================================================= -->
+
+        <div class="form-group">
+
+          <label>
+            Follow-up Date
+          </label>
+
+          <input
+            type="date"
+            name="followUpDate"
+            [(ngModel)]="consultation.followUpDate"
+          />
+
+        </div>
+
+
+
+        <!-- ================================================= -->
+        <!-- STATUS -->
+        <!-- ================================================= -->
+
+        @if (isEditMode) {
+
+          <div class="form-group">
+
+            <label>
+              Status
+            </label>
+
+            <select
+              name="status"
+              [(ngModel)]="consultation.status"
+            >
+
+              <option value="Open">
+                Open
+              </option>
+
+              <option value="Completed">
+                Completed
+              </option>
+
+              <option value="Cancelled">
+                Cancelled
+              </option>
+
+            </select>
+
+          </div>
+
+        }
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- ACTIONS -->
+    <!-- ================================================= -->
+
+    <div class="form-actions">
+
+
+      <!-- CANCEL -->
+
+      <button
+        type="button"
+        class="cancel-button"
+        (click)="cancel()"
+      >
+
+        <span class="material-symbols-outlined">
+          close
+        </span>
+
+        Cancel
+
+      </button>
+
+
+
+      <!-- SAVE -->
+
+      <button
+        type="submit"
+        class="save-button"
+      >
+
+        <span class="material-symbols-outlined">
+
+          {{
+            isEditMode
+              ? 'save'
+              : 'check_circle'
+          }}
+
+        </span>
+
+        {{
+          isEditMode
+            ? 'Update Consultation'
+            : 'Complete Consultation'
+        }}
+
+      </button>
+
+    </div>
+
+  </form>
+
+</div>

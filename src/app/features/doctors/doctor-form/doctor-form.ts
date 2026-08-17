@@ -1,237 +1,212 @@
-import { Injectable } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+
+import { DoctorService } from '../../../core/services/doctor.service';
 import { Doctor } from '../../../shared/models/doctor.model';
 
-@Injectable({
-  providedIn: 'root'
+@Component({
+  selector: 'app-doctor-form',
+  standalone: true,
+  imports: [FormsModule],
+  templateUrl: './doctor-form.html',
+  styleUrl: './doctor-form.css'
 })
-export class DoctorService {
+export class DoctorForm implements OnInit {
 
-  private readonly STORAGE_KEY = 'hms_doctors';
+  isEditMode = false;
 
-  private doctors: Doctor[] = [];
+  doctorId: string | null = null;
 
+  doctor = {
+    firstName: '',
+    lastName: '',
+    gender: '',
+    dateOfBirth: '',
+    phone: '',
+    email: '',
+    nationalId: '',
+    specialization: '',
+    department: '',
+    licenseNumber: '',
+    consultationFee: null as number | null,
+    status: 'Active' as 'Active' | 'Inactive'
+  };
 
-  constructor() {
-    this.loadDoctorsFromStorage();
-  }
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private doctorService: DoctorService
+  ) {}
 
+  ngOnInit(): void {
 
-  // =====================================================
-  // LOAD FROM LOCAL STORAGE
-  // =====================================================
+    this.doctorId =
+      this.route.snapshot.paramMap.get('id');
 
-  private loadDoctorsFromStorage(): void {
+    if (!this.doctorId) {
+      return;
+    }
 
-    const storedDoctors =
-      localStorage.getItem(this.STORAGE_KEY);
+    this.isEditMode = true;
 
-    if (!storedDoctors) {
+    const existingDoctor =
+      this.doctorService.getDoctorById(this.doctorId);
 
-      this.doctors = [];
+    if (!existingDoctor) {
+
+      this.router.navigate(['/doctors']);
 
       return;
     }
 
-    try {
+    this.doctor = {
 
-      this.doctors =
-        JSON.parse(storedDoctors) as Doctor[];
-
-    } catch (error) {
-
-      console.error(
-        'Failed to load doctors from localStorage:',
-        error
-      );
-
-      this.doctors = [];
-
-    }
-  }
-
-
-  // =====================================================
-  // SAVE TO LOCAL STORAGE
-  // =====================================================
-
-  private saveDoctorsToStorage(): void {
-
-    localStorage.setItem(
-      this.STORAGE_KEY,
-      JSON.stringify(this.doctors)
-    );
-
-  }
-
-
-  // =====================================================
-  // GET ALL DOCTORS
-  // =====================================================
-
-  getDoctors(): Doctor[] {
-
-    return [...this.doctors];
-
-  }
-
-
-  // =====================================================
-  // GET DOCTOR BY ID
-  // =====================================================
-
-  getDoctorById(id: string): Doctor | undefined {
-
-    return this.doctors.find(
-      doctor => doctor.id === id
-    );
-
-  }
-
-
-  // =====================================================
-  // ADD DOCTOR
-  // =====================================================
-
-  addDoctor(
-    doctorData: Omit<
-      Doctor,
-      'id' | 'createdAt' | 'status'
-    >
-  ): Doctor {
-
-    const newDoctor: Doctor = {
-
-      id: this.generateDoctorId(),
-
-      firstName: doctorData.firstName,
-
-      lastName: doctorData.lastName,
-
-      gender: doctorData.gender,
-
-      dateOfBirth: doctorData.dateOfBirth,
-
-      phone: doctorData.phone,
-
-      email: doctorData.email,
-
-      nationalId:
-        doctorData.nationalId,
-
-      specialization:
-        doctorData.specialization,
-
-      department:
-        doctorData.department,
-
-      licenseNumber:
-        doctorData.licenseNumber,
-
-      consultationFee:
-        doctorData.consultationFee,
-
-      status: 'Active',
-
-      createdAt:
-        new Date().toISOString()
+      firstName: existingDoctor.firstName,
+      lastName: existingDoctor.lastName,
+      gender: existingDoctor.gender,
+      dateOfBirth: existingDoctor.dateOfBirth,
+      phone: existingDoctor.phone,
+      email: existingDoctor.email,
+      nationalId: existingDoctor.nationalId || '',
+      specialization: existingDoctor.specialization,
+      department: existingDoctor.department,
+      licenseNumber: existingDoctor.licenseNumber,
+      consultationFee: existingDoctor.consultationFee ?? null,
+      status: existingDoctor.status
 
     };
-
-
-    this.doctors.push(newDoctor);
-
-    this.saveDoctorsToStorage();
-
-
-    return newDoctor;
-
   }
 
+  saveDoctor(): void {
 
-  // =====================================================
-  // UPDATE DOCTOR
-  // =====================================================
+    // =====================================================
+    // EDIT DOCTOR
+    // =====================================================
 
-  updateDoctor(updatedDoctor: Doctor): void {
+    if (this.isEditMode && this.doctorId) {
 
-    const index =
-      this.doctors.findIndex(
-        doctor =>
-          doctor.id === updatedDoctor.id
-      );
+      const existingDoctor =
+        this.doctorService.getDoctorById(this.doctorId);
 
+      if (!existingDoctor) {
+        return;
+      }
 
-    if (index === -1) {
+      const updatedDoctor: Doctor = {
+
+        id: existingDoctor.id,
+
+        firstName: this.doctor.firstName,
+
+        lastName: this.doctor.lastName,
+
+        gender:
+          this.doctor.gender as
+          'Male' | 'Female' | 'Other',
+
+        dateOfBirth: this.doctor.dateOfBirth,
+
+        phone: this.doctor.phone,
+
+        email: this.doctor.email,
+
+        nationalId:
+          this.doctor.nationalId || undefined,
+
+        specialization:
+          this.doctor.specialization,
+
+        department:
+          this.doctor.department,
+
+        licenseNumber:
+          this.doctor.licenseNumber,
+
+        consultationFee:
+          this.doctor.consultationFee ?? undefined,
+
+        status:
+          this.doctor.status,
+
+        createdAt:
+          existingDoctor.createdAt
+
+      };
+
+      this.doctorService.updateDoctor(updatedDoctor);
+
+      alert('Doctor updated successfully');
+
+      this.router.navigate([
+        '/doctors',
+        this.doctorId
+      ]);
 
       return;
-
     }
 
+    // =====================================================
+    // NEW DOCTOR
+    // =====================================================
 
-    this.doctors[index] =
-      updatedDoctor;
+    const newDoctor =
+      this.doctorService.addDoctor({
 
+        firstName: this.doctor.firstName,
 
-    this.saveDoctorsToStorage();
+        lastName: this.doctor.lastName,
 
+        gender:
+          this.doctor.gender as
+          'Male' | 'Female' | 'Other',
+
+        dateOfBirth:
+          this.doctor.dateOfBirth,
+
+        phone:
+          this.doctor.phone,
+
+        email:
+          this.doctor.email,
+
+        nationalId:
+          this.doctor.nationalId || undefined,
+
+        specialization:
+          this.doctor.specialization,
+
+        department:
+          this.doctor.department,
+
+        licenseNumber:
+          this.doctor.licenseNumber,
+
+        consultationFee:
+          this.doctor.consultationFee ?? undefined
+
+      });
+
+    alert(
+      `Dr. ${newDoctor.firstName} ${newDoctor.lastName} registered successfully`
+    );
+
+    this.router.navigate(['/doctors']);
   }
 
+  cancel(): void {
 
-  // =====================================================
-  // DEACTIVATE DOCTOR
-  // =====================================================
+    if (this.isEditMode && this.doctorId) {
 
-  deactivateDoctor(id: string): void {
-
-    const doctor =
-      this.getDoctorById(id);
-
-
-    if (!doctor) {
+      this.router.navigate([
+        '/doctors',
+        this.doctorId
+      ]);
 
       return;
-
     }
 
-
-    doctor.status = 'Inactive';
-
-
-    this.saveDoctorsToStorage();
-
-  }
-
-
-  // =====================================================
-  // DELETE DOCTOR
-  // =====================================================
-
-  deleteDoctor(id: string): void {
-
-    this.doctors =
-      this.doctors.filter(
-        doctor =>
-          doctor.id !== id
-      );
-
-
-    this.saveDoctorsToStorage();
-
-  }
-
-
-  // =====================================================
-  // GENERATE DOCTOR ID
-  // =====================================================
-
-  private generateDoctorId(): string {
-
-    const timestamp =
-      Date.now().toString().slice(-6);
-
-
-    return `DOC-${timestamp}`;
-
+    this.router.navigate(['/doctors']);
   }
 
 }

@@ -1,0 +1,306 @@
+<div class="department-form-page">
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        {{
+          isEditMode
+            ? 'Edit Department'
+            : 'Register Department'
+        }}
+      </h1>
+
+      <p>
+        {{
+          isEditMode
+            ? 'Update department information'
+            : 'Create a new hospital department'
+        }}
+      </p>
+
+    </div>
+
+
+    <button
+      class="secondary-button"
+      type="button"
+      (click)="cancel()"
+    >
+
+      <span class="material-symbols-outlined">
+        arrow_back
+      </span>
+
+      Back to Departments
+
+    </button>
+
+  </div>
+
+
+
+  <form
+    class="department-form"
+    (ngSubmit)="saveDepartment()"
+  >
+
+
+    <!-- BASIC INFORMATION -->
+
+    <section class="form-card">
+
+      <div class="section-header">
+
+        <div class="section-icon">
+
+          <span class="material-symbols-outlined">
+            business
+          </span>
+
+        </div>
+
+        <div>
+
+          <h2>
+            Department Information
+          </h2>
+
+          <p>
+            Basic information about the department
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="form-grid">
+
+
+        <div class="form-group">
+
+          <label>
+            Department Name <span>*</span>
+          </label>
+
+          <input
+            type="text"
+            name="name"
+            [(ngModel)]="department.name"
+            placeholder="e.g. Cardiology"
+            required
+          />
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Department Code <span>*</span>
+          </label>
+
+          <input
+            type="text"
+            name="code"
+            [(ngModel)]="department.code"
+            placeholder="e.g. CARD"
+            required
+          />
+
+        </div>
+
+
+        <div class="form-group full-width">
+
+          <label>
+            Description
+          </label>
+
+          <textarea
+            name="description"
+            [(ngModel)]="department.description"
+            placeholder="Enter department description"
+            rows="4"
+          ></textarea>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- CONTACT INFORMATION -->
+
+    <section class="form-card">
+
+      <div class="section-header">
+
+        <div class="section-icon">
+
+          <span class="material-symbols-outlined">
+            contact_phone
+          </span>
+
+        </div>
+
+        <div>
+
+          <h2>
+            Contact Information
+          </h2>
+
+          <p>
+            Department contact and location details
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="form-grid">
+
+
+        <div class="form-group">
+
+          <label>
+            Head of Department
+          </label>
+
+          <input
+            type="text"
+            name="headOfDepartment"
+            [(ngModel)]="department.headOfDepartment"
+            placeholder="Enter department head"
+          />
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Phone
+          </label>
+
+          <input
+            type="tel"
+            name="phone"
+            [(ngModel)]="department.phone"
+            placeholder="07XX XXX XXX"
+          />
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Email
+          </label>
+
+          <input
+            type="email"
+            name="email"
+            [(ngModel)]="department.email"
+            placeholder="department@hospital.com"
+          />
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Location
+          </label>
+
+          <input
+            type="text"
+            name="location"
+            [(ngModel)]="department.location"
+            placeholder="e.g. Block A, First Floor"
+          />
+
+        </div>
+
+
+        @if (isEditMode) {
+
+          <div class="form-group">
+
+            <label>
+              Status
+            </label>
+
+            <select
+              name="status"
+              [(ngModel)]="department.status"
+            >
+
+              <option value="Active">
+                Active
+              </option>
+
+              <option value="Inactive">
+                Inactive
+              </option>
+
+            </select>
+
+          </div>
+
+        }
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ACTIONS -->
+
+    <div class="form-actions">
+
+      <button
+        type="button"
+        class="cancel-button"
+        (click)="cancel()"
+      >
+        Cancel
+      </button>
+
+
+      <button
+        type="submit"
+        class="save-button"
+      >
+
+        <span class="material-symbols-outlined">
+
+          {{
+            isEditMode
+              ? 'save'
+              : 'add_business'
+          }}
+
+        </span>
+
+        {{
+          isEditMode
+            ? 'Update Department'
+            : 'Register Department'
+        }}
+
+      </button>
+
+    </div>
+
+  </form>
+
+</div>

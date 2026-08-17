@@ -2,120 +2,195 @@
 
   <div class="appointment-details-page">
 
-    <!-- Header -->
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
 
-    < class="page-header">
+    <div class="page-header">
 
       <button
+        type="button"
         class="back-button"
         routerLink="/appointments"
       >
+
         <span class="material-symbols-outlined">
           arrow_back
         </span>
 
         Back to Appointments
+
       </button>
+
 
       <div class="header-actions">
 
-  <!-- Edit -->
+        <!-- EDIT -->
 
-  <button
-    class="secondary-button"
-    [routerLink]="[
-      '/appointments',
-      appointment.id,
-      'edit'
-    ]"
-  >
-    <span class="material-symbols-outlined">
-      edit
-    </span>
+        <button
+          type="button"
+          class="secondary-button"
+          [routerLink]="[
+            '/appointments',
+            appointment.id,
+            'edit'
+          ]"
+        >
 
-    Edit Appointment
-  </button>
+          <span class="material-symbols-outlined">
+            edit
+          </span>
 
+          Edit Appointment
 
-  <!-- Confirm -->
-
-  @if (appointment.status === 'Scheduled') {
-
-    <button
-      class="confirm-button"
-      type="button"
-      (click)="updateStatus('Confirmed')"
-    >
-      <span class="material-symbols-outlined">
-        check_circle
-      </span>
-
-      Confirm
-    </button>
-
-  }
+        </button>
 
 
-  <!-- Complete -->
+        <!-- CONFIRM -->
 
-  @if (appointment.status === 'Confirmed') {
+        @if (
+          appointment.status === 'Scheduled'
+        ) {
 
-    <button
-      class="complete-button"
-      type="button"
-      (click)="updateStatus('Completed')"
-    >
-      <span class="material-symbols-outlined">
-        task_alt
-      </span>
+          <button
+            type="button"
+            class="confirm-button"
+            (click)="updateStatus('Confirmed')"
+          >
 
-      Complete
-    </button>
+            <span class="material-symbols-outlined">
+              check_circle
+            </span>
 
-  }
+            Confirm
 
+          </button>
 
-  <!-- Cancel -->
-
-  @if (
-    appointment.status !== 'Cancelled' &&
-    appointment.status !== 'Completed'
-  ) {
-
-    <button
-      class="danger-button"
-      type="button"
-      (click)="cancelAppointment()"
-    >
-      <span class="material-symbols-outlined">
-        cancel
-      </span>
-
-      Cancel
-    </button>
-
-  }
+        }
 
 
-  <!-- Print -->
+        <!-- CHECK IN -->
 
-  <button
-    class="primary-button"
-    type="button"
-    onclick="window.print()"
-  >
-    <span class="material-symbols-outlined">
-      print
-    </span>
+        @if (
+          appointment.status === 'Confirmed'
+        ) {
 
-    Print
-  </button>
+          <button
+            type="button"
+            class="primary-button"
+            (click)="updateStatus('Checked-In')"
+          >
 
-</div>
+            <span class="material-symbols-outlined">
+              how_to_reg
+            </span>
+
+            Check In
+
+          </button>
+
+        }
+
+
+        <!-- START CONSULTATION -->
+
+        @if (
+          appointment.status === 'Checked-In'
+        ) {
+
+          <button
+            type="button"
+            class="consultation-button"
+            [routerLink]="[
+              '/appointments',
+              appointment.id,
+              'consultation'
+            ]"
+          >
+
+            <span class="material-symbols-outlined">
+              stethoscope
+            </span>
+
+            Start Consultation
+
+          </button>
+
+        }
+
+
+        <!-- COMPLETE -->
+
+        @if (
+          appointment.status === 'Confirmed'
+        ) {
+
+          <button
+            type="button"
+            class="complete-button"
+            (click)="updateStatus('Completed')"
+          >
+
+            <span class="material-symbols-outlined">
+              task_alt
+            </span>
+
+            Complete
+
+          </button>
+
+        }
+
+
+        <!-- CANCEL -->
+
+        @if (
+          appointment.status !== 'Cancelled' &&
+          appointment.status !== 'Completed'
+        ) {
+
+          <button
+            type="button"
+            class="danger-button"
+            (click)="cancelAppointment()"
+          >
+
+            <span class="material-symbols-outlined">
+              cancel
+            </span>
+
+            Cancel
+
+          </button>
+
+        }
+
+
+        <!-- PRINT -->
+
+        <button
+          type="button"
+          class="primary-button"
+          onclick="window.print()"
+        >
+
+          <span class="material-symbols-outlined">
+            print
+          </span>
+
+          Print
+
+        </button>
+
+      </div>
+
+    </div>
 
 
 
-    <!-- Appointment Header -->
+    <!-- ================================================= -->
+    <!-- APPOINTMENT HEADER -->
+    <!-- ================================================= -->
 
     <section class="appointment-header-card">
 
@@ -127,6 +202,7 @@
 
       </div>
 
+
       <div class="appointment-main-info">
 
         <div class="title-row">
@@ -135,18 +211,38 @@
             Appointment {{ appointment.id }}
           </h1>
 
+
           <span
             class="status"
-            [class.scheduled]="appointment.status === 'Scheduled'"
-            [class.confirmed]="appointment.status === 'Confirmed'"
-            [class.completed]="appointment.status === 'Completed'"
-            [class.cancelled]="appointment.status === 'Cancelled'"
-            [class.no-show]="appointment.status === 'No Show'"
+            [class.scheduled]="
+              appointment.status === 'Scheduled'
+            "
+            [class.confirmed]="
+              appointment.status === 'Confirmed'
+            "
+            [class.checked-in]="
+              appointment.status === 'Checked-In'
+            "
+            [class.in-consultation]="
+              appointment.status === 'In Consultation'
+            "
+            [class.completed]="
+              appointment.status === 'Completed'
+            "
+            [class.cancelled]="
+              appointment.status === 'Cancelled'
+            "
+            [class.no-show]="
+              appointment.status === 'No Show'
+            "
           >
+
             {{ appointment.status }}
+
           </span>
 
         </div>
+
 
         <p>
           {{ appointment.type }} appointment
@@ -157,19 +253,32 @@
     </section>
 
 
-    <!-- Information -->
+
+    <!-- ================================================= -->
+    <!-- INFORMATION -->
+    <!-- ================================================= -->
 
     <div class="details-grid">
 
-      <!-- Patient -->
+
+      <!-- ================================================= -->
+      <!-- PATIENT -->
+      <!-- ================================================= -->
 
       <section class="details-card">
 
         <div class="card-header">
 
           <div>
-            <h2>Patient Information</h2>
-            <p>Patient assigned to this appointment</p>
+
+            <h2>
+              Patient Information
+            </h2>
+
+            <p>
+              Patient assigned to this appointment
+            </p>
+
           </div>
 
           <span class="material-symbols-outlined">
@@ -178,20 +287,32 @@
 
         </div>
 
+
         <div class="information-grid">
 
           <div>
-            <label>Patient Name</label>
+
+            <label>
+              Patient Name
+            </label>
+
             <strong>
               {{ appointment.patientName }}
             </strong>
+
           </div>
 
+
           <div>
-            <label>Patient ID</label>
+
+            <label>
+              Patient ID
+            </label>
+
             <strong>
               {{ appointment.patientId }}
             </strong>
+
           </div>
 
         </div>
@@ -199,15 +320,25 @@
       </section>
 
 
-      <!-- Doctor -->
+
+      <!-- ================================================= -->
+      <!-- DOCTOR -->
+      <!-- ================================================= -->
 
       <section class="details-card">
 
         <div class="card-header">
 
           <div>
-            <h2>Doctor Information</h2>
-            <p>Doctor responsible for the appointment</p>
+
+            <h2>
+              Doctor Information
+            </h2>
+
+            <p>
+              Doctor responsible for the appointment
+            </p>
+
           </div>
 
           <span class="material-symbols-outlined">
@@ -216,20 +347,32 @@
 
         </div>
 
+
         <div class="information-grid">
 
           <div>
-            <label>Doctor</label>
+
+            <label>
+              Doctor
+            </label>
+
             <strong>
               {{ appointment.doctorName }}
             </strong>
+
           </div>
 
+
           <div>
-            <label>Department</label>
+
+            <label>
+              Department
+            </label>
+
             <strong>
               {{ appointment.department }}
             </strong>
+
           </div>
 
         </div>
@@ -237,15 +380,25 @@
       </section>
 
 
-      <!-- Schedule -->
+
+      <!-- ================================================= -->
+      <!-- SCHEDULE -->
+      <!-- ================================================= -->
 
       <section class="details-card">
 
         <div class="card-header">
 
           <div>
-            <h2>Schedule</h2>
-            <p>Appointment date and time</p>
+
+            <h2>
+              Schedule
+            </h2>
+
+            <p>
+              Appointment date and time
+            </p>
+
           </div>
 
           <span class="material-symbols-outlined">
@@ -254,34 +407,58 @@
 
         </div>
 
+
         <div class="information-grid">
 
           <div>
-            <label>Date</label>
+
+            <label>
+              Date
+            </label>
+
             <strong>
               {{ appointment.appointmentDate }}
             </strong>
+
           </div>
 
+
           <div>
-            <label>Time</label>
+
+            <label>
+              Time
+            </label>
+
             <strong>
               {{ appointment.appointmentTime }}
             </strong>
+
           </div>
 
+
           <div>
-            <label>Type</label>
+
+            <label>
+              Type
+            </label>
+
             <strong>
               {{ appointment.type }}
             </strong>
+
           </div>
 
+
           <div>
-            <label>Status</label>
+
+            <label>
+              Status
+            </label>
+
             <strong>
               {{ appointment.status }}
             </strong>
+
           </div>
 
         </div>
@@ -289,15 +466,25 @@
       </section>
 
 
-      <!-- Reason -->
+
+      <!-- ================================================= -->
+      <!-- REASON -->
+      <!-- ================================================= -->
 
       <section class="details-card">
 
         <div class="card-header">
 
           <div>
-            <h2>Reason for Visit</h2>
-            <p>Purpose of the appointment</p>
+
+            <h2>
+              Reason for Visit
+            </h2>
+
+            <p>
+              Purpose of the appointment
+            </p>
+
           </div>
 
           <span class="material-symbols-outlined">
@@ -306,22 +493,35 @@
 
         </div>
 
+
         <p class="text-content">
+
           {{ appointment.reason }}
+
         </p>
 
       </section>
 
 
-      <!-- Notes -->
+
+      <!-- ================================================= -->
+      <!-- NOTES -->
+      <!-- ================================================= -->
 
       <section class="details-card full-width">
 
         <div class="card-header">
 
           <div>
-            <h2>Additional Notes</h2>
-            <p>Additional appointment information</p>
+
+            <h2>
+              Additional Notes
+            </h2>
+
+            <p>
+              Additional appointment information
+            </p>
+
           </div>
 
           <span class="material-symbols-outlined">
@@ -330,17 +530,330 @@
 
         </div>
 
+
         <p class="text-content">
-          {{ appointment.notes || 'No additional notes.' }}
+
+          {{
+            appointment.notes ||
+            'No additional notes.'
+          }}
+
         </p>
 
       </section>
+
+
+
+      <!-- ================================================= -->
+      <!-- CONSULTATION -->
+      <!-- ================================================= -->
+
+      @if (consultation) {
+
+        <section class="details-card consultation-card full-width">
+
+          <div class="card-header">
+
+            <div>
+
+              <h2>
+                Consultation
+              </h2>
+
+              <p>
+                Clinical consultation associated with this appointment
+              </p>
+
+            </div>
+
+
+            <span class="material-symbols-outlined">
+              stethoscope
+            </span>
+
+          </div>
+
+
+
+          <!-- CONSULTATION SUMMARY -->
+
+          <div class="consultation-summary">
+
+
+            <!-- CONSULTATION ID -->
+
+            <div>
+
+              <label>
+                Consultation ID
+              </label>
+
+              <strong>
+                {{ consultation.id }}
+              </strong>
+
+            </div>
+
+
+            <!-- DATE -->
+
+            <div>
+
+              <label>
+                Consultation Date
+              </label>
+
+              <strong>
+                {{ consultation.consultationDate }}
+              </strong>
+
+            </div>
+
+
+            <!-- TIME -->
+
+            <div>
+
+              <label>
+                Consultation Time
+              </label>
+
+              <strong>
+                {{ consultation.consultationTime }}
+              </strong>
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div>
+
+              <label>
+                Status
+              </label>
+
+              <span
+                class="consultation-status"
+                [class.open]="
+                  consultation.status === 'Open'
+                "
+                [class.completed]="
+                  consultation.status === 'Completed'
+                "
+                [class.cancelled]="
+                  consultation.status === 'Cancelled'
+                "
+              >
+
+                {{ consultation.status }}
+
+              </span>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- CHIEF COMPLAINT -->
+
+          <div class="consultation-section">
+
+            <label>
+              Chief Complaint
+            </label>
+
+            <p>
+              {{ consultation.chiefComplaint }}
+            </p>
+
+          </div>
+
+
+
+          <!-- SYMPTOMS -->
+
+          @if (consultation.symptoms) {
+
+            <div class="consultation-section">
+
+              <label>
+                Symptoms
+              </label>
+
+              <p>
+                {{ consultation.symptoms }}
+              </p>
+
+            </div>
+
+          }
+
+
+
+          <!-- DIAGNOSIS -->
+
+          @if (consultation.diagnosis) {
+
+            <div class="consultation-section">
+
+              <label>
+                Diagnosis
+              </label>
+
+              <p>
+                {{ consultation.diagnosis }}
+              </p>
+
+            </div>
+
+          }
+
+
+
+          <!-- CLINICAL NOTES -->
+
+          @if (consultation.clinicalNotes) {
+
+            <div class="consultation-section">
+
+              <label>
+                Clinical Notes
+              </label>
+
+              <p>
+                {{ consultation.clinicalNotes }}
+              </p>
+
+            </div>
+
+          }
+
+
+
+          <!-- TREATMENT PLAN -->
+
+          @if (consultation.treatmentPlan) {
+
+            <div class="consultation-section">
+
+              <label>
+                Treatment Plan
+              </label>
+
+              <p>
+                {{ consultation.treatmentPlan }}
+              </p>
+
+            </div>
+
+          }
+
+
+
+          <!-- VIEW CONSULTATION -->
+
+          <div class="consultation-actions">
+
+            <button
+              type="button"
+              class="primary-button"
+              [routerLink]="[
+                '/consultations',
+                consultation.id
+              ]"
+            >
+
+              <span class="material-symbols-outlined">
+                visibility
+              </span>
+
+              View Full Consultation
+
+            </button>
+
+          </div>
+
+        </section>
+
+      }
+
+
+      <!-- ================================================= -->
+      <!-- NO CONSULTATION -->
+      <!-- ================================================= -->
+
+      @else {
+
+        @if (
+          appointment.status === 'In Consultation' ||
+          appointment.status === 'Completed'
+        ) {
+
+          <section class="details-card consultation-pending-card full-width">
+
+            <div class="card-header">
+
+              <div>
+
+                <h2>
+                  Consultation
+                </h2>
+
+                <p>
+                  No consultation record has been linked to this appointment yet.
+                </p>
+
+              </div>
+
+
+              <span class="material-symbols-outlined">
+                stethoscope
+              </span>
+
+            </div>
+
+
+            <div class="pending-consultation">
+
+              <span class="material-symbols-outlined">
+                pending
+              </span>
+
+              <div>
+
+                <strong>
+                  Consultation record pending
+                </strong>
+
+                <p>
+                  The appointment has entered the consultation workflow,
+                  but no consultation record is currently linked.
+                </p>
+
+              </div>
+
+            </div>
+
+          </section>
+
+        }
+
+      }
 
     </div>
 
   </div>
 
-} @else {
+}
+
+
+<!-- ===================================================== -->
+<!-- APPOINTMENT NOT FOUND -->
+<!-- ===================================================== -->
+
+@else {
 
   <div class="not-found">
 
@@ -348,17 +861,23 @@
       event_busy
     </span>
 
-    <h2>Appointment not found</h2>
+    <h2>
+      Appointment not found
+    </h2>
 
     <p>
       The appointment record could not be found.
     </p>
 
+
     <button
+      type="button"
       class="primary-button"
       routerLink="/appointments"
     >
+
       Back to Appointments
+
     </button>
 
   </div>
