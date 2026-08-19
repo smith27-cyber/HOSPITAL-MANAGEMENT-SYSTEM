@@ -8,47 +8,49 @@ import {
 } from '../../../shared/models/appointment.model';
 
 import { Patient } from '../../../shared/models/patient.model';
+import { Doctor } from '../../../shared/models/doctor.model';
+import { Department } from '../../../shared/models/department.model';
 
 import { AppointmentService } from '../../../core/services/appointment.service';
 import { PatientService } from '../../../core/services/patient.service';
+import { DoctorService } from '../../../core/services/doctor.service';
+import { DepartmentService } from '../../../core/services/department.service';
 
 @Component({
   selector: 'app-appointment-register',
-  imports: [FormsModule],
+  standalone: true,
+  imports: [
+    FormsModule
+  ],
   templateUrl: './appointment-register.html',
   styleUrl: './appointment-register.css'
 })
 export class AppointmentRegister implements OnInit {
 
+  // =====================================================
+  // PATIENTS
+  // =====================================================
+
   patients: Patient[] = [];
 
 
-  doctors = [
-    {
-      id: 'DOC001',
-      name: 'Dr. John Smith',
-      department: 'General Medicine'
-    },
-    {
-      id: 'DOC002',
-      name: 'Dr. Sarah Williams',
-      department: 'Cardiology'
-    },
-    {
-      id: 'DOC003',
-      name: 'Dr. Michael Brown',
-      department: 'Dental'
-    }
-  ];
+  // =====================================================
+  // DOCTORS
+  // =====================================================
+
+  doctors: Doctor[] = [];
 
 
-  departments = [
-    'General Medicine',
-    'Cardiology',
-    'Dental',
-    'Orthopedics'
-  ];
+  // =====================================================
+  // DEPARTMENTS
+  // =====================================================
 
+  departments: Department[] = [];
+
+
+  // =====================================================
+  // APPOINTMENT TYPES
+  // =====================================================
 
   appointmentTypes: AppointmentType[] = [
     'Consultation',
@@ -57,6 +59,10 @@ export class AppointmentRegister implements OnInit {
     'Check-up'
   ];
 
+
+  // =====================================================
+  // APPOINTMENT
+  // =====================================================
 
   appointment: Appointment = {
 
@@ -86,14 +92,39 @@ export class AppointmentRegister implements OnInit {
   };
 
 
+  // =====================================================
+  // CONSTRUCTOR
+  // =====================================================
+
   constructor(
     private appointmentService: AppointmentService,
     private patientService: PatientService,
+    private doctorService: DoctorService,
+    private departmentService: DepartmentService,
     private router: Router
   ) {}
 
 
+  // =====================================================
+  // INITIALIZE
+  // =====================================================
+
   ngOnInit(): void {
+
+    this.loadPatients();
+
+    this.loadDoctors();
+
+    this.loadDepartments();
+
+  }
+
+
+  // =====================================================
+  // LOAD PATIENTS
+  // =====================================================
+
+  private loadPatients(): void {
 
     this.patients =
       this.patientService.getPatients();
@@ -101,9 +132,39 @@ export class AppointmentRegister implements OnInit {
   }
 
 
-  // =========================
-  // Patient Selection
-  // =========================
+  // =====================================================
+  // LOAD ACTIVE DOCTORS
+  // =====================================================
+
+  private loadDoctors(): void {
+
+    this.doctors =
+      this.doctorService
+        .getDoctors()
+        .filter(
+          doctor =>
+            doctor.status === 'Active'
+        );
+
+  }
+
+
+  // =====================================================
+  // LOAD ACTIVE DEPARTMENTS
+  // =====================================================
+
+  private loadDepartments(): void {
+
+    this.departments =
+      this.departmentService
+        .getActiveDepartments();
+
+  }
+
+
+  // =====================================================
+  // PATIENT SELECTION
+  // =====================================================
 
   onPatientChange(): void {
 
@@ -114,6 +175,7 @@ export class AppointmentRegister implements OnInit {
           this.appointment.patientId
       );
 
+
     if (!patient) {
 
       this.appointment.patientName = '';
@@ -122,15 +184,16 @@ export class AppointmentRegister implements OnInit {
 
     }
 
+
     this.appointment.patientName =
       `${patient.firstName} ${patient.lastName}`;
 
   }
 
 
-  // =========================
-  // Doctor Selection
-  // =========================
+  // =====================================================
+  // DOCTOR SELECTION
+  // =====================================================
 
   onDoctorChange(): void {
 
@@ -141,6 +204,7 @@ export class AppointmentRegister implements OnInit {
           this.appointment.doctorId
       );
 
+
     if (!doctor) {
 
       this.appointment.doctorName = '';
@@ -149,8 +213,14 @@ export class AppointmentRegister implements OnInit {
 
     }
 
+
+    // Save doctor's full name
+
     this.appointment.doctorName =
-      doctor.name;
+      `Dr. ${doctor.firstName} ${doctor.lastName}`;
+
+
+    // Automatically use doctor's department
 
     this.appointment.department =
       doctor.department;
@@ -158,9 +228,9 @@ export class AppointmentRegister implements OnInit {
   }
 
 
-  // =========================
-  // Save Appointment
-  // =========================
+  // =====================================================
+  // SAVE APPOINTMENT
+  // =====================================================
 
   saveAppointment(): void {
 
@@ -182,6 +252,56 @@ export class AppointmentRegister implements OnInit {
     }
 
 
+    // -----------------------------------------------------
+    // MAKE SURE DOCTOR STILL EXISTS
+    // -----------------------------------------------------
+
+    const doctor =
+      this.doctors.find(
+        d =>
+          d.id ===
+          this.appointment.doctorId
+      );
+
+
+    if (!doctor) {
+
+      alert(
+        'Please select a valid active doctor.'
+      );
+
+      return;
+
+    }
+
+
+    // -----------------------------------------------------
+    // MAKE SURE DEPARTMENT STILL EXISTS
+    // -----------------------------------------------------
+
+    const department =
+      this.departments.find(
+        d =>
+          d.name ===
+          this.appointment.department
+      );
+
+
+    if (!department) {
+
+      alert(
+        'Please select a valid active department.'
+      );
+
+      return;
+
+    }
+
+
+    // -----------------------------------------------------
+    // GENERATE APPOINTMENT ID
+    // -----------------------------------------------------
+
     this.appointment.id =
       this.generateAppointmentId();
 
@@ -193,6 +313,10 @@ export class AppointmentRegister implements OnInit {
     this.appointment.status =
       'Scheduled';
 
+
+    // -----------------------------------------------------
+    // SAVE
+    // -----------------------------------------------------
 
     this.appointmentService.addAppointment(
       this.appointment
@@ -211,9 +335,9 @@ export class AppointmentRegister implements OnInit {
   }
 
 
-  // =========================
-  // Cancel
-  // =========================
+  // =====================================================
+  // CANCEL
+  // =====================================================
 
   cancel(): void {
 
@@ -224,9 +348,9 @@ export class AppointmentRegister implements OnInit {
   }
 
 
-  // =========================
-  // Generate ID
-  // =========================
+  // =====================================================
+  // GENERATE APPOINTMENT ID
+  // =====================================================
 
   private generateAppointmentId(): string {
 
@@ -234,6 +358,7 @@ export class AppointmentRegister implements OnInit {
       Date.now()
         .toString()
         .slice(-6);
+
 
     return `APT-${timestamp}`;
 

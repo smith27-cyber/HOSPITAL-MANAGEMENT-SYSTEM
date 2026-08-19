@@ -16,9 +16,18 @@ import { Department } from '../../../shared/models/department.model';
 })
 export class DepartmentForm implements OnInit {
 
+  // =====================================================
+  // MODE
+  // =====================================================
+
   isEditMode = false;
 
   departmentId: string | null = null;
+
+
+  // =====================================================
+  // DEPARTMENT FORM
+  // =====================================================
 
   department = {
 
@@ -41,6 +50,10 @@ export class DepartmentForm implements OnInit {
   };
 
 
+  // =====================================================
+  // CONSTRUCTOR
+  // =====================================================
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -58,10 +71,20 @@ export class DepartmentForm implements OnInit {
       this.route.snapshot.paramMap.get('id');
 
 
+    // -----------------------------------------------------
+    // NEW DEPARTMENT
+    // -----------------------------------------------------
+
     if (!this.departmentId) {
+
       return;
+
     }
 
+
+    // -----------------------------------------------------
+    // EDIT DEPARTMENT
+    // -----------------------------------------------------
 
     this.isEditMode = true;
 
@@ -74,14 +97,24 @@ export class DepartmentForm implements OnInit {
 
     if (!existingDepartment) {
 
+      alert(
+        'Department could not be found.'
+      );
+
+
       this.router.navigate([
         '/departments'
       ]);
+
 
       return;
 
     }
 
+
+    // -----------------------------------------------------
+    // LOAD EXISTING DEPARTMENT
+    // -----------------------------------------------------
 
     this.department = {
 
@@ -125,35 +158,60 @@ export class DepartmentForm implements OnInit {
     // -----------------------------------------------------
 
     const name =
-      this.department.name.trim();
+      this.department.name
+        .trim();
+
 
     const code =
-      this.department.code.trim().toUpperCase();
+      this.department.code
+        .trim()
+        .toUpperCase();
+
 
     const description =
-      this.department.description.trim();
+      this.department.description
+        .trim();
+
 
     const headOfDepartment =
-      this.department.headOfDepartment.trim();
+      this.department.headOfDepartment
+        .trim();
+
 
     const phone =
-      this.department.phone.trim();
+      this.department.phone
+        .trim();
+
 
     const email =
-      this.department.email.trim();
+      this.department.email
+        .trim();
+
 
     const location =
-      this.department.location.trim();
+      this.department.location
+        .trim();
 
 
     // -----------------------------------------------------
     // BASIC VALIDATION
     // -----------------------------------------------------
 
-    if (!name || !code) {
+    if (!name) {
 
       alert(
-        'Department name and code are required.'
+        'Department name is required.'
+      );
+
+      return;
+
+    }
+
+
+    if (!code) {
+
+      alert(
+        'Department code is required.'
       );
 
       return;
@@ -162,19 +220,84 @@ export class DepartmentForm implements OnInit {
 
 
     // -----------------------------------------------------
-    // CHECK DUPLICATE CODE
+    // DEPARTMENT CODE VALIDATION
     // -----------------------------------------------------
 
-    const duplicate =
-      this.departmentService
-        .getDepartments()
-        .find(department =>
-          department.code.toUpperCase() === code &&
-          department.id !== this.departmentId
-        );
+    const validCode =
+      /^[A-Z0-9&-]+$/;
 
 
-    if (duplicate) {
+    if (!validCode.test(code)) {
+
+      alert(
+        'Department code can only contain letters, numbers, hyphens and &.'
+      );
+
+      return;
+
+    }
+
+
+    // -----------------------------------------------------
+    // GET EXISTING DEPARTMENTS
+    // -----------------------------------------------------
+
+    const departments =
+      this.departmentService.getDepartments();
+
+
+    // =====================================================
+    // CHECK DUPLICATE DEPARTMENT NAME
+    // =====================================================
+
+    const duplicateName =
+      departments.find(
+        department =>
+
+          department.name
+            .trim()
+            .toLowerCase() ===
+          name.toLowerCase()
+
+          &&
+
+          department.id !==
+          this.departmentId
+      );
+
+
+    if (duplicateName) {
+
+      alert(
+        `Department "${name}" already exists.`
+      );
+
+      return;
+
+    }
+
+
+    // =====================================================
+    // CHECK DUPLICATE DEPARTMENT CODE
+    // =====================================================
+
+    const duplicateCode =
+      departments.find(
+        department =>
+
+          department.code
+            .trim()
+            .toUpperCase() ===
+          code
+
+          &&
+
+          department.id !==
+          this.departmentId
+      );
+
+
+    if (duplicateCode) {
 
       alert(
         `Department code "${code}" is already in use.`
@@ -186,7 +309,7 @@ export class DepartmentForm implements OnInit {
 
 
     // =====================================================
-    // EDIT DEPARTMENT
+    // EDIT EXISTING DEPARTMENT
     // =====================================================
 
     if (
@@ -206,9 +329,11 @@ export class DepartmentForm implements OnInit {
           'Department could not be found.'
         );
 
+
         this.router.navigate([
           '/departments'
         ]);
+
 
         return;
 
@@ -263,13 +388,14 @@ export class DepartmentForm implements OnInit {
         this.departmentId
       ]);
 
+
       return;
 
     }
 
 
     // =====================================================
-    // NEW DEPARTMENT
+    // REGISTER NEW DEPARTMENT
     // =====================================================
 
     const newDepartment =
@@ -297,12 +423,19 @@ export class DepartmentForm implements OnInit {
       });
 
 
+    // =====================================================
+    // SUCCESS MESSAGE
+    // =====================================================
+
     alert(
       `${newDepartment.name} department registered successfully.`
     );
 
 
-    // Go back to department list
+    // =====================================================
+    // RETURN TO DEPARTMENT LIST
+    // =====================================================
+
     this.router.navigate([
       '/departments'
     ]);

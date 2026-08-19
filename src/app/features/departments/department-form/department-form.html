@@ -1,23 +1,32 @@
 <div class="department-form-page">
 
+  <!-- =====================================================
+       HEADER
+  ====================================================== -->
+
   <div class="page-header">
 
     <div>
 
       <h1>
+
         {{
           isEditMode
             ? 'Edit Department'
             : 'Register Department'
         }}
+
       </h1>
 
+
       <p>
+
         {{
           isEditMode
             ? 'Update department information'
             : 'Create a new hospital department'
         }}
+
       </p>
 
     </div>
@@ -41,15 +50,24 @@
 
 
 
+  <!-- =====================================================
+       FORM
+  ====================================================== -->
+
   <form
     class="department-form"
     (ngSubmit)="saveDepartment()"
   >
 
 
-    <!-- BASIC INFORMATION -->
+    <!-- ===================================================
+         BASIC INFORMATION
+    ==================================================== -->
 
     <section class="form-card">
+
+
+      <!-- SECTION HEADER -->
 
       <div class="section-header">
 
@@ -60,6 +78,7 @@
           </span>
 
         </div>
+
 
         <div>
 
@@ -76,8 +95,13 @@
       </div>
 
 
+
+      <!-- FORM GRID -->
+
       <div class="form-grid">
 
+
+        <!-- DEPARTMENT NAME -->
 
         <div class="form-group">
 
@@ -85,16 +109,27 @@
             Department Name <span>*</span>
           </label>
 
+
           <input
             type="text"
             name="name"
             [(ngModel)]="department.name"
             placeholder="e.g. Cardiology"
+            maxlength="100"
+            autocomplete="off"
             required
           />
 
+
+          <small class="field-hint">
+            Enter the official hospital department name.
+          </small>
+
         </div>
 
+
+
+        <!-- DEPARTMENT CODE -->
 
         <div class="form-group">
 
@@ -102,16 +137,28 @@
             Department Code <span>*</span>
           </label>
 
+
           <input
             type="text"
             name="code"
             [(ngModel)]="department.code"
             placeholder="e.g. CARD"
+            maxlength="10"
+            autocomplete="off"
+            style="text-transform: uppercase;"
             required
           />
 
+
+          <small class="field-hint">
+            Use a short unique code such as CARD or PED.
+          </small>
+
         </div>
 
+
+
+        <!-- DESCRIPTION -->
 
         <div class="form-group full-width">
 
@@ -119,12 +166,19 @@
             Description
           </label>
 
+
           <textarea
             name="description"
             [(ngModel)]="department.description"
             placeholder="Enter department description"
             rows="4"
+            maxlength="500"
           ></textarea>
+
+
+          <small class="field-hint">
+            Briefly describe the services provided by this department.
+          </small>
 
         </div>
 
@@ -134,9 +188,14 @@
 
 
 
-    <!-- CONTACT INFORMATION -->
+    <!-- ===================================================
+         CONTACT INFORMATION
+    ==================================================== -->
 
     <section class="form-card">
+
+
+      <!-- SECTION HEADER -->
 
       <div class="section-header">
 
@@ -147,6 +206,7 @@
           </span>
 
         </div>
+
 
         <div>
 
@@ -163,8 +223,13 @@
       </div>
 
 
+
+      <!-- FORM GRID -->
+
       <div class="form-grid">
 
+
+        <!-- HEAD OF DEPARTMENT -->
 
         <div class="form-group">
 
@@ -172,15 +237,21 @@
             Head of Department
           </label>
 
+
           <input
             type="text"
             name="headOfDepartment"
             [(ngModel)]="department.headOfDepartment"
             placeholder="Enter department head"
+            maxlength="100"
+            autocomplete="off"
           />
 
         </div>
 
+
+
+        <!-- PHONE -->
 
         <div class="form-group">
 
@@ -188,15 +259,21 @@
             Phone
           </label>
 
+
           <input
             type="tel"
             name="phone"
             [(ngModel)]="department.phone"
             placeholder="07XX XXX XXX"
+            maxlength="20"
+            autocomplete="off"
           />
 
         </div>
 
+
+
+        <!-- EMAIL -->
 
         <div class="form-group">
 
@@ -204,15 +281,21 @@
             Email
           </label>
 
+
           <input
             type="email"
             name="email"
             [(ngModel)]="department.email"
             placeholder="department@hospital.com"
+            maxlength="150"
+            autocomplete="off"
           />
 
         </div>
 
+
+
+        <!-- LOCATION -->
 
         <div class="form-group">
 
@@ -220,15 +303,21 @@
             Location
           </label>
 
+
           <input
             type="text"
             name="location"
             [(ngModel)]="department.location"
             placeholder="e.g. Block A, First Floor"
+            maxlength="150"
+            autocomplete="off"
           />
 
         </div>
 
+
+
+        <!-- STATUS -->
 
         @if (isEditMode) {
 
@@ -238,6 +327,7 @@
               Status
             </label>
 
+
             <select
               name="status"
               [(ngModel)]="department.status"
@@ -246,6 +336,7 @@
               <option value="Active">
                 Active
               </option>
+
 
               <option value="Inactive">
                 Inactive
@@ -263,18 +354,32 @@
 
 
 
-    <!-- ACTIONS -->
+    <!-- ===================================================
+         ACTIONS
+    ==================================================== -->
 
     <div class="form-actions">
+
+
+      <!-- CANCEL -->
 
       <button
         type="button"
         class="cancel-button"
         (click)="cancel()"
       >
+
+        <span class="material-symbols-outlined">
+          close
+        </span>
+
         Cancel
+
       </button>
 
+
+
+      <!-- SAVE -->
 
       <button
         type="submit"
@@ -290,6 +395,7 @@
           }}
 
         </span>
+
 
         {{
           isEditMode

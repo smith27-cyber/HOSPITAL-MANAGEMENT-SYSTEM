@@ -1,0 +1,574 @@
+<div class="billing-page">
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Billing
+      </h1>
+
+      <p>
+        Manage patient invoices, payments and outstanding balances
+      </p>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="primary-button"
+      (click)="registerBill()"
+    >
+
+      <span class="material-symbols-outlined">
+        add
+      </span>
+
+      Create Bill
+
+    </button>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- STATISTICS -->
+  <!-- ================================================= -->
+
+  <div class="stats-grid">
+
+
+    <!-- TOTAL BILLS -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon total">
+
+        <span class="material-symbols-outlined">
+          receipt_long
+        </span>
+
+      </div>
+
+      <div>
+
+        <span class="stat-label">
+          Total Bills
+        </span>
+
+        <h2>
+          {{ totalBills }}
+        </h2>
+
+      </div>
+
+    </div>
+
+
+    <!-- TOTAL AMOUNT -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon amount">
+
+        <span class="material-symbols-outlined">
+          payments
+        </span>
+
+      </div>
+
+      <div>
+
+        <span class="stat-label">
+          Total Amount
+        </span>
+
+        <h2>
+          {{ formatCurrency(totalAmount) }}
+        </h2>
+
+      </div>
+
+    </div>
+
+
+    <!-- TOTAL PAID -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon paid">
+
+        <span class="material-symbols-outlined">
+          check_circle
+        </span>
+
+      </div>
+
+      <div>
+
+        <span class="stat-label">
+          Total Paid
+        </span>
+
+        <h2>
+          {{ formatCurrency(totalPaid) }}
+        </h2>
+
+      </div>
+
+    </div>
+
+
+    <!-- OUTSTANDING -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon balance">
+
+        <span class="material-symbols-outlined">
+          account_balance_wallet
+        </span>
+
+      </div>
+
+      <div>
+
+        <span class="stat-label">
+          Outstanding
+        </span>
+
+        <h2>
+          {{ formatCurrency(totalBalance) }}
+        </h2>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- BILLING CARD -->
+  <!-- ================================================= -->
+
+  <section class="billing-card">
+
+
+    <!-- ================================================= -->
+    <!-- TOOLBAR -->
+    <!-- ================================================= -->
+
+    <div class="toolbar">
+
+
+      <!-- SEARCH -->
+
+      <div class="search-box">
+
+        <span class="material-symbols-outlined">
+          search
+        </span>
+
+        <input
+          type="text"
+          placeholder="Search invoices, patients..."
+          [(ngModel)]="searchTerm"
+          (input)="applyFilters()"
+        />
+
+      </div>
+
+
+      <!-- STATUS -->
+
+      <select
+        [(ngModel)]="selectedStatus"
+        (change)="applyFilters()"
+      >
+
+        <option value="All">
+          All Statuses
+        </option>
+
+
+        @for (
+          status of statuses;
+          track status
+        ) {
+
+          <option
+            [value]="status"
+          >
+
+            {{ status }}
+
+          </option>
+
+        }
+
+      </select>
+
+
+      <!-- CLEAR -->
+
+      @if (
+        searchTerm ||
+        selectedStatus !== 'All'
+      ) {
+
+        <button
+          type="button"
+          class="clear-button"
+          (click)="clearFilters()"
+        >
+
+          Clear
+
+        </button>
+
+      }
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- TABLE -->
+    <!-- ================================================= -->
+
+    <div class="table-wrapper">
+
+      @if (
+        filteredBills.length > 0
+      ) {
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Invoice
+              </th>
+
+              <th>
+                Patient
+              </th>
+
+              <th>
+                Type
+              </th>
+
+              <th>
+                Amount
+              </th>
+
+              <th>
+                Paid
+              </th>
+
+              <th>
+                Balance
+              </th>
+
+              <th>
+                Status
+              </th>
+
+              <th>
+                Date
+              </th>
+
+              <th>
+                Actions
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            @for (
+              bill of filteredBills;
+              track bill.id
+            ) {
+
+              <tr>
+
+
+                <!-- INVOICE -->
+
+                <td>
+
+                  <div class="invoice-info">
+
+                    <strong>
+                      {{ bill.invoiceNumber }}
+                    </strong>
+
+                    <span>
+                      {{ bill.id }}
+                    </span>
+
+                  </div>
+
+                </td>
+
+
+                <!-- PATIENT -->
+
+                <td>
+
+                  <div class="patient-info">
+
+                    <strong>
+                      {{ bill.patientName }}
+                    </strong>
+
+                    @if (
+                      bill.patientNumber
+                    ) {
+
+                      <span>
+                        {{ bill.patientNumber }}
+                      </span>
+
+                    }
+
+                  </div>
+
+                </td>
+
+
+                <!-- TYPE -->
+
+                <td>
+
+                  <span class="type-badge">
+                    {{ bill.billingType }}
+                  </span>
+
+                </td>
+
+
+                <!-- AMOUNT -->
+
+                <td>
+
+                  <strong>
+                    {{ formatCurrency(bill.amount) }}
+                  </strong>
+
+                </td>
+
+
+                <!-- PAID -->
+
+                <td>
+
+                  <span class="paid-amount">
+                    {{ formatCurrency(bill.amountPaid) }}
+                  </span>
+
+                </td>
+
+
+                <!-- BALANCE -->
+
+                <td>
+
+                  <span
+                    [class.balance-due]="bill.balance > 0"
+                    [class.balance-clear]="bill.balance === 0"
+                  >
+
+                    {{ formatCurrency(bill.balance) }}
+
+                  </span>
+
+                </td>
+
+
+                <!-- STATUS -->
+
+                <td>
+
+                  <span
+                    class="status"
+                    [ngClass]="getStatusClass(bill.status)"
+                  >
+
+                    {{ bill.status }}
+
+                  </span>
+
+                </td>
+
+
+                <!-- DATE -->
+
+                <td>
+
+                  {{ formatDate(bill.billingDate) }}
+
+                </td>
+
+
+                <!-- ACTIONS -->
+
+                <td>
+
+                  <div class="actions">
+
+
+                    <!-- VIEW -->
+
+                    <button
+                      type="button"
+                      class="action-button view"
+                      title="View"
+                      (click)="viewBill(bill)"
+                    >
+
+                      <span class="material-symbols-outlined">
+                        visibility
+                      </span>
+
+                    </button>
+
+
+                    <!-- EDIT -->
+
+                    <button
+                      type="button"
+                      class="action-button edit"
+                      title="Edit"
+                      (click)="editBill(bill)"
+                    >
+
+                      <span class="material-symbols-outlined">
+                        edit
+                      </span>
+
+                    </button>
+
+
+                    <!-- DELETE -->
+
+                    <button
+                      type="button"
+                      class="action-button delete"
+                      title="Delete"
+                      (click)="deleteBill(bill)"
+                    >
+
+                      <span class="material-symbols-outlined">
+                        delete
+                      </span>
+
+                    </button>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      }
+
+
+      <!-- ================================================= -->
+      <!-- EMPTY STATE -->
+      <!-- ================================================= -->
+
+      @else {
+
+        <div class="empty-state">
+
+          <div class="empty-icon">
+
+            <span class="material-symbols-outlined">
+              receipt_long
+            </span>
+
+          </div>
+
+
+          @if (
+            searchTerm ||
+            selectedStatus !== 'All'
+          ) {
+
+            <h3>
+              No billing records found
+            </h3>
+
+            <p>
+              No invoices match your current
+              search or status filter.
+            </p>
+
+
+            <button
+              type="button"
+              class="secondary-button"
+              (click)="clearFilters()"
+            >
+
+              Clear Filters
+
+            </button>
+
+          }
+
+          @else {
+
+            <h3>
+              No billing records
+            </h3>
+
+            <p>
+              Start by creating the first
+              patient bill.
+            </p>
+
+
+            <button
+              type="button"
+              class="primary-button"
+              (click)="registerBill()"
+            >
+
+              <span class="material-symbols-outlined">
+                add
+              </span>
+
+              Create Bill
+
+            </button>
+
+          }
+
+        </div>
+
+      }
+
+    </div>
+
+  </section>
+
+</div>

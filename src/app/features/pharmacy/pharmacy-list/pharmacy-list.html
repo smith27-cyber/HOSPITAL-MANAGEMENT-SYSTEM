@@ -1,0 +1,636 @@
+<div class="pharmacy-page">
+
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Pharmacy
+      </h1>
+
+      <p>
+        Manage medicines, stock and inventory
+      </p>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="primary-button"
+      (click)="registerMedicine()">
+
+      <span class="material-symbols-outlined">
+        add
+      </span>
+
+      Register Medicine
+
+    </button>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- STATISTICS -->
+  <!-- ================================================= -->
+
+  <div class="stats-grid">
+
+
+    <!-- TOTAL -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon total">
+
+        <span class="material-symbols-outlined">
+          medication
+        </span>
+
+      </div>
+
+      <div>
+
+        <span class="stat-label">
+          Total Medicines
+        </span>
+
+        <h2>
+          {{ totalMedicines }}
+        </h2>
+
+      </div>
+
+    </div>
+
+
+    <!-- AVAILABLE -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon available">
+
+        <span class="material-symbols-outlined">
+          check_circle
+        </span>
+
+      </div>
+
+      <div>
+
+        <span class="stat-label">
+          Available
+        </span>
+
+        <h2>
+          {{ availableMedicines }}
+        </h2>
+
+      </div>
+
+    </div>
+
+
+    <!-- LOW STOCK -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon low-stock">
+
+        <span class="material-symbols-outlined">
+          warning
+        </span>
+
+      </div>
+
+      <div>
+
+        <span class="stat-label">
+          Low Stock
+        </span>
+
+        <h2>
+          {{ lowStockMedicines }}
+        </h2>
+
+      </div>
+
+    </div>
+
+
+    <!-- OUT OF STOCK -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon out-of-stock">
+
+        <span class="material-symbols-outlined">
+          inventory_2
+        </span>
+
+      </div>
+
+      <div>
+
+        <span class="stat-label">
+          Out of Stock
+        </span>
+
+        <h2>
+          {{ outOfStockMedicines }}
+        </h2>
+
+      </div>
+
+    </div>
+
+
+    <!-- EXPIRED -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon expired">
+
+        <span class="material-symbols-outlined">
+          event_busy
+        </span>
+
+      </div>
+
+      <div>
+
+        <span class="stat-label">
+          Expired
+        </span>
+
+        <h2>
+          {{ expiredMedicines }}
+        </h2>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- MEDICINE LIST CARD -->
+  <!-- ================================================= -->
+
+  <section class="medicine-card">
+
+
+    <!-- ================================================= -->
+    <!-- TOOLBAR -->
+    <!-- ================================================= -->
+
+    <div class="toolbar">
+
+
+      <!-- SEARCH -->
+
+      <div class="search-box">
+
+        <span class="material-symbols-outlined">
+          search
+        </span>
+
+        <input
+          type="text"
+          placeholder="Search medicines..."
+          [(ngModel)]="searchTerm"
+          (input)="applyFilters()"
+        />
+
+      </div>
+
+
+      <!-- CATEGORY -->
+
+      <select
+        [(ngModel)]="selectedCategory"
+        (change)="applyFilters()">
+
+        <option value="All">
+          All Categories
+        </option>
+
+        @for (
+          category of categories;
+          track category
+        ) {
+
+          <option
+            [value]="category">
+
+            {{ category }}
+
+          </option>
+
+        }
+
+      </select>
+
+
+      <!-- STATUS -->
+
+      <select
+        [(ngModel)]="selectedStatus"
+        (change)="applyFilters()">
+
+        <option value="All">
+          All Status
+        </option>
+
+        <option value="Available">
+          Available
+        </option>
+
+        <option value="Low Stock">
+          Low Stock
+        </option>
+
+        <option value="Out of Stock">
+          Out of Stock
+        </option>
+
+        <option value="Expired">
+          Expired
+        </option>
+
+      </select>
+
+
+      <!-- CLEAR -->
+
+      @if (
+        searchTerm ||
+        selectedCategory !== 'All' ||
+        selectedStatus !== 'All'
+      ) {
+
+        <button
+          type="button"
+          class="clear-button"
+          (click)="clearFilters()">
+
+          Clear
+
+        </button>
+
+      }
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- TABLE -->
+    <!-- ================================================= -->
+
+    <div class="table-wrapper">
+
+      @if (
+        filteredMedicines.length > 0
+      ) {
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Medicine
+              </th>
+
+              <th>
+                Generic Name
+              </th>
+
+              <th>
+                Category
+              </th>
+
+              <th>
+                Form
+              </th>
+
+              <th>
+                Strength
+              </th>
+
+              <th>
+                Stock
+              </th>
+
+              <th>
+                Unit Price
+              </th>
+
+              <th>
+                Expiry
+              </th>
+
+              <th>
+                Status
+              </th>
+
+              <th>
+                Actions
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            @for (
+              medicine of filteredMedicines;
+              track medicine.id
+            ) {
+
+              <tr>
+
+
+                <!-- MEDICINE -->
+
+                <td>
+
+                  <div class="medicine-name">
+
+                    <div class="medicine-icon">
+
+                      <span
+                        class="material-symbols-outlined">
+
+                        medication
+
+                      </span>
+
+                    </div>
+
+
+                    <div>
+
+                      <strong>
+                        {{ medicine.name }}
+                      </strong>
+
+                      <span>
+                        {{ medicine.batchNumber }}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                </td>
+
+
+                <!-- GENERIC NAME -->
+
+                <td>
+                  {{ medicine.genericName }}
+                </td>
+
+
+                <!-- CATEGORY -->
+
+                <td>
+                  {{ medicine.category }}
+                </td>
+
+
+                <!-- FORM -->
+
+                <td>
+                  {{ medicine.form }}
+                </td>
+
+
+                <!-- STRENGTH -->
+
+                <td>
+                  {{ medicine.strength }}
+                </td>
+
+
+                <!-- STOCK -->
+
+                <td>
+
+                  <span
+                    class="stock-number"
+                    [class.stock-warning]="
+                      medicine.quantity <=
+                      medicine.reorderLevel
+                    ">
+
+                    {{ medicine.quantity }}
+
+                  </span>
+
+                </td>
+
+
+                <!-- PRICE -->
+
+                <td>
+
+                  {{ formatCurrency(
+                    medicine.unitPrice
+                  ) }}
+
+                </td>
+
+
+                <!-- EXPIRY -->
+
+                <td
+                  [class.expired-date]="
+                    isExpired(medicine)
+                  ">
+
+                  {{ medicine.expiryDate }}
+
+                </td>
+
+
+                <!-- STATUS -->
+
+                <td>
+
+                  <span
+                    class="status"
+                    [class]="
+                      getStatusClass(
+                        medicine
+                      )
+                    ">
+
+                    {{ getMedicineStatus(
+                      medicine
+                    ) }}
+
+                  </span>
+
+                </td>
+
+
+                <!-- ACTIONS -->
+
+                <td>
+
+                  <div class="actions">
+
+                    <button
+                      type="button"
+                      class="action-button edit"
+                      title="Edit"
+                      (click)="
+                        editMedicine(medicine)
+                      ">
+
+                      <span
+                        class="material-symbols-outlined">
+
+                        edit
+
+                      </span>
+
+                    </button>
+
+
+                    <button
+                      type="button"
+                      class="action-button delete"
+                      title="Delete"
+                      (click)="
+                        deleteMedicine(medicine)
+                      ">
+
+                      <span
+                        class="material-symbols-outlined">
+
+                        delete
+
+                      </span>
+
+                    </button>
+
+                    <button
+  type="button"
+  class="action-button view"
+  title="View"
+  (click)="viewMedicine(medicine)">
+
+  <span class="material-symbols-outlined">
+    visibility
+  </span>
+
+</button>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      }
+
+
+      <!-- ================================================= -->
+      <!-- EMPTY STATE -->
+      <!-- ================================================= -->
+
+      @else {
+
+        <div class="empty-state">
+
+          <div class="empty-icon">
+
+            <span class="material-symbols-outlined">
+              medication
+            </span>
+
+          </div>
+
+
+          @if (
+            searchTerm ||
+            selectedCategory !== 'All' ||
+            selectedStatus !== 'All'
+          ) {
+
+            <h3>
+              No medicines found
+            </h3>
+
+            <p>
+              No medicines match your current
+              search or filters.
+            </p>
+
+
+            <button
+              type="button"
+              class="secondary-button"
+              (click)="clearFilters()">
+
+              Clear Filters
+
+            </button>
+
+          }
+
+          @else {
+
+            <h3>
+              No medicines registered
+            </h3>
+
+            <p>
+              Start by registering your first
+              medicine in the pharmacy.
+            </p>
+
+
+            <button
+              type="button"
+              class="primary-button"
+              (click)="registerMedicine()">
+
+              <span class="material-symbols-outlined">
+                add
+              </span>
+
+              Register Medicine
+
+            </button>
+
+          }
+
+        </div>
+
+      }
+
+    </div>
+
+  </section>
+
+</div>

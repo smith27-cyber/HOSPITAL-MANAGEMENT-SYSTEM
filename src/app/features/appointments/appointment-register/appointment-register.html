@@ -1,6 +1,8 @@
 <div class="appointment-register-page">
 
-  <!-- Header -->
+  <!-- =====================================================
+       HEADER
+  ====================================================== -->
 
   <div class="page-header">
 
@@ -33,14 +35,19 @@
   </div>
 
 
-  <!-- Form -->
+  <!-- =====================================================
+       FORM
+  ====================================================== -->
 
   <form
     class="appointment-form"
     (ngSubmit)="saveAppointment()"
   >
 
-    <!-- Patient Information -->
+
+    <!-- =================================================
+         PATIENT INFORMATION
+    ================================================== -->
 
     <section class="form-card">
 
@@ -67,7 +74,10 @@
 
       <div class="form-grid">
 
-        <!-- Patient -->
+
+        <!-- =============================================
+             PATIENT
+        ============================================== -->
 
         <div class="form-group full-width">
 
@@ -85,6 +95,7 @@
             <option value="">
               Select patient
             </option>
+
 
             @for (
               patient of patients;
@@ -110,7 +121,9 @@
         </div>
 
 
-        <!-- Selected Patient -->
+        <!-- =============================================
+             SELECTED PATIENT
+        ============================================== -->
 
         @if (appointment.patientName) {
 
@@ -141,7 +154,10 @@
     </section>
 
 
-    <!-- Appointment Details -->
+
+    <!-- =================================================
+         APPOINTMENT DETAILS
+    ================================================== -->
 
     <section class="form-card">
 
@@ -168,7 +184,10 @@
 
       <div class="form-grid">
 
-        <!-- Doctor -->
+
+        <!-- =============================================
+             DOCTOR
+        ============================================== -->
 
         <div class="form-group">
 
@@ -187,6 +206,7 @@
               Select doctor
             </option>
 
+
             @for (
               doctor of doctors;
               track doctor.id
@@ -196,7 +216,10 @@
                 [value]="doctor.id"
               >
 
-                {{ doctor.name }}
+                Dr.
+                {{ doctor.firstName }}
+                {{ doctor.lastName }}
+
                 —
                 {{ doctor.department }}
 
@@ -204,40 +227,14 @@
 
             }
 
-          </select>
 
-        </div>
-
-
-        <!-- Department -->
-
-        <div class="form-group">
-
-          <label>
-            Department <span>*</span>
-          </label>
-
-          <select
-            name="department"
-            [(ngModel)]="appointment.department"
-            required
-          >
-
-            <option value="">
-              Select department
-            </option>
-
-            @for (
-              department of departments;
-              track department
-            ) {
+            @if (doctors.length === 0) {
 
               <option
-                [value]="department"
+                value=""
+                disabled
               >
-
-                {{ department }}
-
+                No active doctors available
               </option>
 
             }
@@ -247,7 +244,69 @@
         </div>
 
 
-        <!-- Date -->
+
+        <!-- =============================================
+             DEPARTMENT
+        ============================================== -->
+
+       <!-- =============================================
+     DEPARTMENT
+============================================== -->
+
+<div class="form-group">
+
+  <label>
+    Department <span>*</span>
+  </label>
+
+  <select
+    name="department"
+    [(ngModel)]="appointment.department"
+    required
+  >
+
+    <option value="">
+      Select department
+    </option>
+
+    @for (
+      department of departments;
+      track department.id
+    ) {
+
+      <option
+        [value]="department.name"
+      >
+
+        {{ department.name }}
+        —
+        {{ department.code }}
+
+      </option>
+
+    }
+
+
+    @if (departments.length === 0) {
+
+      <option
+        value=""
+        disabled
+      >
+        No active departments available
+      </option>
+
+    }
+
+  </select>
+
+</div>
+
+
+
+        <!-- =============================================
+             APPOINTMENT DATE
+        ============================================== -->
 
         <div class="form-group">
 
@@ -265,7 +324,10 @@
         </div>
 
 
-        <!-- Time -->
+
+        <!-- =============================================
+             APPOINTMENT TIME
+        ============================================== -->
 
         <div class="form-group">
 
@@ -283,13 +345,17 @@
         </div>
 
 
-        <!-- Type -->
+
+        <!-- =============================================
+             APPOINTMENT TYPE
+        ============================================== -->
 
         <div class="form-group full-width">
 
           <label>
             Appointment Type <span>*</span>
           </label>
+
 
           <div class="type-options">
 
@@ -325,7 +391,10 @@
         </div>
 
 
-        <!-- Reason -->
+
+        <!-- =============================================
+             REASON
+        ============================================== -->
 
         <div class="form-group full-width">
 
@@ -344,7 +413,10 @@
         </div>
 
 
-        <!-- Notes -->
+
+        <!-- =============================================
+             NOTES
+        ============================================== -->
 
         <div class="form-group full-width">
 
@@ -366,7 +438,10 @@
     </section>
 
 
-    <!-- Actions -->
+
+    <!-- =================================================
+         ACTIONS
+    ================================================== -->
 
     <div class="form-actions">
 
@@ -384,6 +459,7 @@
       <button
         class="primary-button"
         type="submit"
+        [disabled]="doctors.length === 0"
       >
 
         <span class="material-symbols-outlined">

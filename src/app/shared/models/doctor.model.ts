@@ -5,7 +5,7 @@ export interface Doctor {
   firstName: string;
   lastName: string;
 
-  gender: 'Male' | 'Female' | 'Other';
+  gender: 'Male' | 'Female' | 'Other'|'';
 
   dateOfBirth: string;
 

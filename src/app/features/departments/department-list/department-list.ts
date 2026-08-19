@@ -29,12 +29,20 @@ export class DepartmentList implements OnInit {
   ) {}
 
 
+  // =====================================================
+  // INITIALIZE
+  // =====================================================
+
   ngOnInit(): void {
 
     this.loadDepartments();
 
   }
 
+
+  // =====================================================
+  // LOAD DEPARTMENTS
+  // =====================================================
 
   loadDepartments(): void {
 
@@ -43,6 +51,10 @@ export class DepartmentList implements OnInit {
 
   }
 
+
+  // =====================================================
+  // FILTERED DEPARTMENTS
+  // =====================================================
 
   get filteredDepartments(): Department[] {
 
@@ -66,17 +78,22 @@ export class DepartmentList implements OnInit {
             .toLowerCase()
             .includes(term) ||
 
-          (department.headOfDepartment || '')
+          (
+            department.headOfDepartment || ''
+          )
             .toLowerCase()
             .includes(term) ||
 
-          (department.location || '')
+          (
+            department.location || ''
+          )
             .toLowerCase()
             .includes(term);
 
 
         const matchesStatus =
           !this.selectedStatus ||
+
           department.status ===
             this.selectedStatus;
 
@@ -91,6 +108,10 @@ export class DepartmentList implements OnInit {
 
   }
 
+
+  // =====================================================
+  // STATISTICS
+  // =====================================================
 
   get totalDepartments(): number {
 
@@ -119,6 +140,10 @@ export class DepartmentList implements OnInit {
   }
 
 
+  // =====================================================
+  // CLEAR FILTERS
+  // =====================================================
+
   clearFilters(): void {
 
     this.searchTerm = '';
@@ -128,15 +153,16 @@ export class DepartmentList implements OnInit {
   }
 
 
+  // =====================================================
+  // DEACTIVATE
+  // =====================================================
+
   deactivateDepartment(
     id: string
   ): void {
 
     const department =
-      this.departments.find(
-        department =>
-          department.id === id
-      );
+      this.departmentService.getDepartmentById(id);
 
 
     if (!department) {
@@ -144,8 +170,12 @@ export class DepartmentList implements OnInit {
     }
 
 
-    if (department.status === 'Inactive') {
+    if (
+      department.status === 'Inactive'
+    ) {
+
       return;
+
     }
 
 
@@ -169,15 +199,51 @@ export class DepartmentList implements OnInit {
   }
 
 
+  // =====================================================
+  // ACTIVATE
+  // =====================================================
+
+  activateDepartment(
+    id: string
+  ): void {
+
+    const department =
+      this.departmentService.getDepartmentById(id);
+
+
+    if (!department) {
+      return;
+    }
+
+
+    if (
+      department.status === 'Active'
+    ) {
+
+      return;
+
+    }
+
+
+    this.departmentService
+      .activateDepartment(id);
+
+
+    this.loadDepartments();
+
+  }
+
+
+  // =====================================================
+  // DELETE
+  // =====================================================
+
   deleteDepartment(
     id: string
   ): void {
 
     const department =
-      this.departments.find(
-        department =>
-          department.id === id
-      );
+      this.departmentService.getDepartmentById(id);
 
 
     if (!department) {
@@ -204,6 +270,10 @@ export class DepartmentList implements OnInit {
 
   }
 
+
+  // =====================================================
+  // REFRESH
+  // =====================================================
 
   refreshDepartments(): void {
 

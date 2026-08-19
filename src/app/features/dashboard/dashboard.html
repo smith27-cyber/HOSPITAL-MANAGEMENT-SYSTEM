@@ -1,98 +1,175 @@
 <div class="dashboard">
 
-  <!-- Dashboard Header -->
+  <!-- ================================================= -->
+  <!-- DASHBOARD HEADER -->
+  <!-- ================================================= -->
+
   <div class="dashboard-header">
 
     <div>
+
       <h1>Dashboard</h1>
-      <p>Overview of your hospital activities</p>
+
+      <p>
+        Overview of your hospital activities
+      </p>
+
     </div>
 
+
     <div class="date-display">
+
       <span class="material-symbols-outlined">
         calendar_today
       </span>
 
-      <span>August 15, 2026</span>
+      <span>
+        {{ formattedDate }}
+      </span>
+
     </div>
 
   </div>
 
 
-  <!-- Statistics -->
+  <!-- ================================================= -->
+  <!-- STATISTICS -->
+  <!-- ================================================= -->
+
   <div class="stats-grid">
+
+
+    <!-- ================================================= -->
+    <!-- TOTAL PATIENTS -->
+    <!-- ================================================= -->
 
     <div class="stat-card">
 
       <div class="stat-icon patients">
+
         <span class="material-symbols-outlined">
           group
         </span>
+
       </div>
 
+
       <div class="stat-content">
-        <span class="stat-label">Total Patients</span>
-        <h2>1,245</h2>
-        <span class="stat-change positive">
-          +12% from last month
+
+        <span class="stat-label">
+          Total Patients
         </span>
+
+        <h2>
+          {{ totalPatients }}
+        </h2>
+
+        <span class="stat-change">
+          Registered patients
+        </span>
+
       </div>
 
     </div>
 
+
+    <!-- ================================================= -->
+    <!-- ACTIVE DOCTORS -->
+    <!-- ================================================= -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon doctors">
+
+        <span class="material-symbols-outlined">
+          medical_services
+        </span>
+
+      </div>
+
+
+      <div class="stat-content">
+
+        <span class="stat-label">
+          Active Doctors
+        </span>
+
+        <h2>
+          {{ activeDoctors }}
+        </h2>
+
+        <span class="stat-change">
+          Currently active
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- DEPARTMENTS -->
+    <!-- ================================================= -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon departments">
+
+        <span class="material-symbols-outlined">
+          apartment
+        </span>
+
+      </div>
+
+
+      <div class="stat-content">
+
+        <span class="stat-label">
+          Departments
+        </span>
+
+        <h2>
+          {{ totalDepartments }}
+        </h2>
+
+        <span class="stat-change">
+          Active departments
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- TOTAL APPOINTMENTS -->
+    <!-- ================================================= -->
 
     <div class="stat-card">
 
       <div class="stat-icon appointments">
+
         <span class="material-symbols-outlined">
           calendar_month
         </span>
+
       </div>
+
 
       <div class="stat-content">
-        <span class="stat-label">Today's Appointments</span>
-        <h2>48</h2>
-        <span class="stat-change positive">
-          +8% from yesterday
+
+        <span class="stat-label">
+          Total Appointments
         </span>
-      </div>
 
-    </div>
+        <h2>
+          {{ totalAppointments }}
+        </h2>
 
-
-    <div class="stat-card">
-
-      <div class="stat-icon admissions">
-        <span class="material-symbols-outlined">
-          local_hotel
-        </span>
-      </div>
-
-      <div class="stat-content">
-        <span class="stat-label">Current Admissions</span>
-        <h2>32</h2>
         <span class="stat-change">
-          4 discharged today
+          {{ todaysAppointments }} scheduled today
         </span>
-      </div>
 
-    </div>
-
-
-    <div class="stat-card">
-
-      <div class="stat-icon revenue">
-        <span class="material-symbols-outlined">
-          payments
-        </span>
-      </div>
-
-      <div class="stat-content">
-        <span class="stat-label">Today's Revenue</span>
-        <h2>UGX 4.8M</h2>
-        <span class="stat-change positive">
-          +15% from yesterday
-        </span>
       </div>
 
     </div>
@@ -100,163 +177,305 @@
   </div>
 
 
-  <!-- Main Dashboard Grid -->
+  <!-- ================================================= -->
+  <!-- MAIN DASHBOARD -->
+  <!-- ================================================= -->
+
   <div class="dashboard-grid">
 
 
-    <!-- Appointments -->
+    <!-- ================================================= -->
+    <!-- TODAY'S APPOINTMENTS -->
+    <!-- ================================================= -->
+
     <section class="dashboard-card appointments-card">
+
+
+      <!-- CARD HEADER -->
 
       <div class="card-header">
 
         <div>
-          <h3>Today's Appointments</h3>
-          <span>Upcoming patient appointments</span>
+
+          <h3>
+            Today's Appointments
+          </h3>
+
+          <span>
+            {{ todaysAppointments }}
+            appointment{{ todaysAppointments === 1 ? '' : 's' }}
+            scheduled for today
+          </span>
+
         </div>
 
-        <button class="view-button">
+
+        <button
+          type="button"
+          class="view-button"
+          (click)="viewAppointments()">
+
           View All
+
         </button>
 
       </div>
 
 
+      <!-- ================================================= -->
+      <!-- TABLE -->
+      <!-- ================================================= -->
+
       <div class="table-wrapper">
 
-        <table>
+        @if (todayAppointments.length > 0) {
 
-          <thead>
-            <tr>
-              <th>Patient</th>
-              <th>Doctor</th>
-              <th>Time</th>
-              <th>Department</th>
-              <th>Status</th>
-            </tr>
-          </thead>
+          <table>
 
-          <tbody>
+            <thead>
 
-            <tr>
-              <td>
-                <div class="patient-cell">
-                  <div class="patient-avatar">JD</div>
+              <tr>
 
-                  <div>
-                    <strong>John Doe</strong>
-                    <span>PT-000124</span>
-                  </div>
-                </div>
-              </td>
+                <th>
+                  Patient
+                </th>
 
-              <td>Dr. Sarah Smith</td>
+                <th>
+                  Doctor
+                </th>
 
-              <td>09:00 AM</td>
+                <th>
+                  Time
+                </th>
 
-              <td>General Medicine</td>
+                <th>
+                  Department
+                </th>
 
-              <td>
-                <span class="status confirmed">
-                  Confirmed
-                </span>
-              </td>
-            </tr>
+                <th>
+                  Type
+                </th>
+
+                <th>
+                  Status
+                </th>
+
+              </tr>
+
+            </thead>
 
 
-            <tr>
-              <td>
-                <div class="patient-cell">
-                  <div class="patient-avatar">MJ</div>
+            <tbody>
 
-                  <div>
-                    <strong>Mary Jane</strong>
-                    <span>PT-000125</span>
-                  </div>
-                </div>
-              </td>
+              @for (
+                appointment of todayAppointments;
+                track appointment.id
+              ) {
 
-              <td>Dr. Robert James</td>
+                <tr>
 
-              <td>10:30 AM</td>
+                  <!-- ================================= -->
+                  <!-- PATIENT -->
+                  <!-- ================================= -->
 
-              <td>Cardiology</td>
+                  <td>
 
-              <td>
-                <span class="status pending">
-                  Pending
-                </span>
-              </td>
-            </tr>
+                    <div class="patient-cell">
 
+                      <div class="patient-avatar">
 
-            <tr>
-              <td>
-                <div class="patient-cell">
-                  <div class="patient-avatar">PK</div>
+                        {{
+                          getPatientInitials(
+                            appointment
+                          )
+                        }}
 
-                  <div>
-                    <strong>Peter Kamau</strong>
-                    <span>PT-000126</span>
-                  </div>
-                </div>
-              </td>
-
-              <td>Dr. Michael Brown</td>
-
-              <td>11:15 AM</td>
-
-              <td>Dental</td>
-
-              <td>
-                <span class="status confirmed">
-                  Confirmed
-                </span>
-              </td>
-            </tr>
+                      </div>
 
 
-            <tr>
-              <td>
-                <div class="patient-cell">
-                  <div class="patient-avatar">AN</div>
+                      <div>
 
-                  <div>
-                    <strong>Ann Nakato</strong>
-                    <span>PT-000127</span>
-                  </div>
-                </div>
-              </td>
+                        <strong>
 
-              <td>Dr. Sarah Smith</td>
+                          {{
+                            getPatientName(
+                              appointment
+                            )
+                          }}
 
-              <td>01:00 PM</td>
+                        </strong>
 
-              <td>General Medicine</td>
+                        <span>
 
-              <td>
-                <span class="status completed">
-                  Completed
-                </span>
-              </td>
-            </tr>
+                          {{
+                            getPatientId(
+                              appointment
+                            )
+                          }}
 
-          </tbody>
+                        </span>
 
-        </table>
+                      </div>
+
+                    </div>
+
+                  </td>
+
+
+                  <!-- ================================= -->
+                  <!-- DOCTOR -->
+                  <!-- ================================= -->
+
+                  <td>
+
+                    {{
+                      getDoctorName(
+                        appointment
+                      )
+                    }}
+
+                  </td>
+
+
+                  <!-- ================================= -->
+                  <!-- TIME -->
+                  <!-- ================================= -->
+
+                  <td>
+
+                    {{ appointment.appointmentTime }}
+
+                  </td>
+
+
+                  <!-- ================================= -->
+                  <!-- DEPARTMENT -->
+                  <!-- ================================= -->
+
+                  <td>
+
+                    {{ appointment.department }}
+
+                  </td>
+
+
+                  <!-- ================================= -->
+                  <!-- TYPE -->
+                  <!-- ================================= -->
+
+                  <td>
+
+                    {{ appointment.type }}
+
+                  </td>
+
+
+                  <!-- ================================= -->
+                  <!-- STATUS -->
+                  <!-- ================================= -->
+
+                  <td>
+
+                    <span
+                      class="status"
+                      [class]="
+                        getStatusClass(
+                          appointment.status
+                        )
+                      ">
+
+                      {{ appointment.status }}
+
+                    </span>
+
+                  </td>
+
+                </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+        }
+
+
+        <!-- ================================================= -->
+        <!-- NO APPOINTMENTS TODAY -->
+        <!-- ================================================= -->
+
+        @else {
+
+          <div class="empty-state">
+
+            <span class="material-symbols-outlined">
+              event_busy
+            </span>
+
+            <h4>
+              No appointments today
+            </h4>
+
+            <p>
+              You have
+              {{ totalAppointments }}
+              total appointment{{ totalAppointments === 1 ? '' : 's' }}
+              in the system, but none are scheduled for today.
+            </p>
+
+
+            <div class="empty-actions">
+
+              <button
+                type="button"
+                class="empty-action"
+                (click)="viewAppointments()">
+
+                View Appointments
+
+              </button>
+
+
+              <button
+                type="button"
+                class="empty-action secondary"
+                (click)="newAppointment()">
+
+                Schedule Appointment
+
+              </button>
+
+            </div>
+
+          </div>
+
+        }
 
       </div>
 
     </section>
 
 
-    <!-- Quick Actions -->
+    <!-- ================================================= -->
+    <!-- QUICK ACTIONS -->
+    <!-- ================================================= -->
+
     <section class="dashboard-card quick-actions-card">
+
 
       <div class="card-header">
 
         <div>
-          <h3>Quick Actions</h3>
-          <span>Common tasks</span>
+
+          <h3>
+            Quick Actions
+          </h3>
+
+          <span>
+            Common hospital tasks
+          </span>
+
         </div>
 
       </div>
@@ -264,57 +483,118 @@
 
       <div class="quick-actions">
 
-        <button class="quick-action">
+
+        <!-- ============================================= -->
+        <!-- REGISTER PATIENT -->
+        <!-- ============================================= -->
+
+        <button
+          type="button"
+          class="quick-action"
+          (click)="registerPatient()">
 
           <span class="material-symbols-outlined">
             person_add
           </span>
 
+
           <div>
-            <strong>Register Patient</strong>
-            <span>Add a new patient</span>
+
+            <strong>
+              Register Patient
+            </strong>
+
+            <span>
+              Add a new patient
+            </span>
+
           </div>
 
         </button>
 
 
-        <button class="quick-action">
+        <!-- ============================================= -->
+        <!-- NEW APPOINTMENT -->
+        <!-- ============================================= -->
+
+        <button
+          type="button"
+          class="quick-action"
+          (click)="newAppointment()">
 
           <span class="material-symbols-outlined">
             event
           </span>
 
+
           <div>
-            <strong>New Appointment</strong>
-            <span>Schedule appointment</span>
+
+            <strong>
+              New Appointment
+            </strong>
+
+            <span>
+              Schedule appointment
+            </span>
+
           </div>
 
         </button>
 
 
-        <button class="quick-action">
+        <!-- ============================================= -->
+        <!-- PRESCRIPTION -->
+        <!-- ============================================= -->
+
+        <button
+          type="button"
+          class="quick-action"
+          (click)="createPrescription()">
 
           <span class="material-symbols-outlined">
             medication
           </span>
 
+
           <div>
-            <strong>Prescription</strong>
-            <span>Create prescription</span>
+
+            <strong>
+              Prescription
+            </strong>
+
+            <span>
+              Create prescription
+            </span>
+
           </div>
 
         </button>
 
 
-        <button class="quick-action">
+        <!-- ============================================= -->
+        <!-- INVOICE -->
+        <!-- ============================================= -->
+
+        <button
+          type="button"
+          class="quick-action"
+          (click)="createInvoice()">
 
           <span class="material-symbols-outlined">
             receipt_long
           </span>
 
+
           <div>
-            <strong>Create Invoice</strong>
-            <span>Generate new invoice</span>
+
+            <strong>
+              Create Invoice
+            </strong>
+
+            <span>
+              Generate new invoice
+            </span>
+
           </div>
 
         </button>

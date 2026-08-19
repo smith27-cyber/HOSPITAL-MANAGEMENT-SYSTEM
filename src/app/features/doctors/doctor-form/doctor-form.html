@@ -9,15 +9,24 @@
     <div>
 
       <h1>
-        {{ isEditMode ? 'Edit Doctor' : 'Register Doctor' }}
+
+        {{
+          isEditMode
+            ? 'Edit Doctor'
+            : 'Register Doctor'
+        }}
+
       </h1>
 
+
       <p>
+
         {{
           isEditMode
             ? 'Update doctor information'
             : 'Create a new doctor record'
         }}
+
       </p>
 
     </div>
@@ -57,6 +66,7 @@
 
     <section class="form-card">
 
+
       <div class="section-header">
 
         <div class="section-icon">
@@ -66,6 +76,7 @@
           </span>
 
         </div>
+
 
         <div>
 
@@ -82,6 +93,7 @@
       </div>
 
 
+
       <div class="form-grid">
 
 
@@ -93,15 +105,19 @@
             First Name <span>*</span>
           </label>
 
+
           <input
             type="text"
             name="firstName"
             [(ngModel)]="doctor.firstName"
             placeholder="Enter first name"
+            maxlength="50"
+            autocomplete="off"
             required
           />
 
         </div>
+
 
 
         <!-- LAST NAME -->
@@ -112,15 +128,19 @@
             Last Name <span>*</span>
           </label>
 
+
           <input
             type="text"
             name="lastName"
             [(ngModel)]="doctor.lastName"
             placeholder="Enter last name"
+            maxlength="50"
+            autocomplete="off"
             required
           />
 
         </div>
+
 
 
         <!-- DATE OF BIRTH -->
@@ -130,6 +150,7 @@
           <label>
             Date of Birth <span>*</span>
           </label>
+
 
           <input
             type="date"
@@ -141,6 +162,7 @@
         </div>
 
 
+
         <!-- GENDER -->
 
         <div class="form-group">
@@ -148,6 +170,7 @@
           <label>
             Gender <span>*</span>
           </label>
+
 
           <select
             name="gender"
@@ -159,13 +182,16 @@
               Select gender
             </option>
 
+
             <option value="Male">
               Male
             </option>
 
+
             <option value="Female">
               Female
             </option>
+
 
             <option value="Other">
               Other
@@ -176,6 +202,7 @@
         </div>
 
 
+
         <!-- PHONE -->
 
         <div class="form-group">
@@ -184,15 +211,19 @@
             Phone Number <span>*</span>
           </label>
 
+
           <input
             type="tel"
             name="phone"
             [(ngModel)]="doctor.phone"
             placeholder="07XX XXX XXX"
+            maxlength="20"
+            autocomplete="off"
             required
           />
 
         </div>
+
 
 
         <!-- EMAIL -->
@@ -203,15 +234,19 @@
             Email <span>*</span>
           </label>
 
+
           <input
             type="email"
             name="email"
             [(ngModel)]="doctor.email"
             placeholder="doctor@example.com"
+            maxlength="150"
+            autocomplete="off"
             required
           />
 
         </div>
+
 
 
         <!-- NATIONAL ID -->
@@ -222,11 +257,14 @@
             National ID
           </label>
 
+
           <input
             type="text"
             name="nationalId"
             [(ngModel)]="doctor.nationalId"
             placeholder="Enter national ID"
+            maxlength="30"
+            autocomplete="off"
           />
 
         </div>
@@ -243,6 +281,7 @@
 
     <section class="form-card">
 
+
       <div class="section-header">
 
         <div class="section-icon">
@@ -252,6 +291,7 @@
           </span>
 
         </div>
+
 
         <div>
 
@@ -268,16 +308,20 @@
       </div>
 
 
+
       <div class="form-grid">
 
 
-        <!-- SPECIALIZATION -->
+        <!-- =================================================
+             SPECIALIZATION
+        ================================================== -->
 
         <div class="form-group">
 
           <label>
             Specialization <span>*</span>
           </label>
+
 
           <select
             name="specialization"
@@ -289,54 +333,38 @@
               Select specialization
             </option>
 
-            <option value="General Practitioner">
-              General Practitioner
-            </option>
 
-            <option value="Cardiologist">
-              Cardiologist
-            </option>
+            @for (
+              specialization of specializations;
+              track specialization
+            ) {
 
-            <option value="Dentist">
-              Dentist
-            </option>
+              <option
+                [value]="specialization"
+              >
 
-            <option value="Pediatrician">
-              Pediatrician
-            </option>
+                {{ specialization }}
 
-            <option value="Orthopedic Surgeon">
-              Orthopedic Surgeon
-            </option>
+              </option>
 
-            <option value="Surgeon">
-              Surgeon
-            </option>
-
-            <option value="Dermatologist">
-              Dermatologist
-            </option>
-
-            <option value="Radiologist">
-              Radiologist
-            </option>
-
-            <option value="Laboratory Specialist">
-              Laboratory Specialist
-            </option>
+            }
 
           </select>
 
         </div>
 
 
-        <!-- DEPARTMENT -->
+
+        <!-- =================================================
+             DEPARTMENT
+        ================================================== -->
 
         <div class="form-group">
 
           <label>
             Department <span>*</span>
           </label>
+
 
           <select
             name="department"
@@ -348,36 +376,47 @@
               Select department
             </option>
 
-            <option value="General Medicine">
-              General Medicine
-            </option>
 
-            <option value="Cardiology">
-              Cardiology
-            </option>
+            @for (
+              department of departments;
+              track department.id
+            ) {
 
-            <option value="Dental">
-              Dental
-            </option>
+              <option
+                [value]="department.name"
+              >
 
-            <option value="Pediatrics">
-              Pediatrics
-            </option>
+                {{ department.name }}
 
-            <option value="Orthopedics">
-              Orthopedics
-            </option>
+                —
+                {{ department.code }}
 
-            <option value="Laboratory">
-              Laboratory
-            </option>
+              </option>
+
+            }
 
           </select>
+
+
+          @if (departments.length === 0) {
+
+            <small class="field-warning">
+
+              No active departments are registered.
+              Please register a department first.
+
+            </small>
+
+          }
+
 
         </div>
 
 
-        <!-- LICENSE -->
+
+        <!-- =================================================
+             LICENSE
+        ================================================== -->
 
         <div class="form-group">
 
@@ -385,18 +424,24 @@
             Medical License Number <span>*</span>
           </label>
 
+
           <input
             type="text"
             name="licenseNumber"
             [(ngModel)]="doctor.licenseNumber"
             placeholder="Enter license number"
+            maxlength="50"
+            autocomplete="off"
             required
           />
 
         </div>
 
 
-        <!-- CONSULTATION FEE -->
+
+        <!-- =================================================
+             CONSULTATION FEE
+        ================================================== -->
 
         <div class="form-group">
 
@@ -404,18 +449,23 @@
             Consultation Fee
           </label>
 
+
           <input
             type="number"
             name="consultationFee"
             [(ngModel)]="doctor.consultationFee"
             placeholder="Enter consultation fee"
             min="0"
+            step="1000"
           />
 
         </div>
 
 
-        <!-- STATUS -->
+
+        <!-- =================================================
+             STATUS
+        ================================================== -->
 
         @if (isEditMode) {
 
@@ -425,6 +475,7 @@
               Status
             </label>
 
+
             <select
               name="status"
               [(ngModel)]="doctor.status"
@@ -433,6 +484,7 @@
               <option value="Active">
                 Active
               </option>
+
 
               <option value="Inactive">
                 Inactive
@@ -456,18 +508,31 @@
 
     <div class="form-actions">
 
+
+      <!-- CANCEL -->
+
       <button
         type="button"
         class="cancel-button"
         (click)="cancel()"
       >
+
+        <span class="material-symbols-outlined">
+          close
+        </span>
+
         Cancel
+
       </button>
 
+
+
+      <!-- SAVE -->
 
       <button
         type="submit"
         class="save-button"
+        [disabled]="departments.length === 0"
       >
 
         <span class="material-symbols-outlined">
@@ -479,6 +544,7 @@
           }}
 
         </span>
+
 
         {{
           isEditMode

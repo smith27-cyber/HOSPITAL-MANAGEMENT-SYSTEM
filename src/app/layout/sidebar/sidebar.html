@@ -180,60 +180,87 @@
 
 
 
-      <!-- Pharmacy - Coming Soon -->
+   <!-- ================================================= -->
+<!-- PHARMACY -->
+<!-- ================================================= -->
 
-      <a
-        class="nav-item disabled-nav-item"
-        href="javascript:void(0)"
-      >
+<a
+  class="nav-item"
+  routerLink="/pharmacy"
+  routerLinkActive="active"
+  [routerLinkActiveOptions]="{ exact: true }"
+>
 
-        <span class="material-symbols-outlined">
-          medication
-        </span>
+  <span class="material-symbols-outlined">
+    medication
+  </span>
 
-        <span>
-          Pharmacy
-        </span>
+  <span>
+    Pharmacy
+  </span>
 
-      </a>
-
-
-
-      <!-- Laboratory - Coming Soon -->
-
-      <a
-        class="nav-item disabled-nav-item"
-        href="javascript:void(0)"
-      >
-
-        <span class="material-symbols-outlined">
-          science
-        </span>
-
-        <span>
-          Laboratory
-        </span>
-
-      </a>
+</a>
 
 
 
-      <!-- Admissions - Coming Soon -->
+ <!-- ================================================= -->
+<!-- LABORATORY -->
+<!-- ================================================= -->
 
-      <a
-        class="nav-item disabled-nav-item"
-        href="javascript:void(0)"
-      >
+<a
+  class="nav-item"
+  routerLink="/laboratory"
+  routerLinkActive="active"
+  [routerLinkActiveOptions]="{ exact: true }"
+>
 
-        <span class="material-symbols-outlined">
-          bed
-        </span>
+  <span class="material-symbols-outlined">
+    science
+  </span>
 
-        <span>
-          Admissions
-        </span>
+  <span>
+    Laboratory
+  </span>
 
-      </a>
+</a>
+
+
+<!-- Laboratory Requests -->
+
+<a
+  class="nav-item"
+  routerLink="/laboratory/requests"
+  routerLinkActive="active"
+>
+
+  <span class="material-symbols-outlined">
+    assignment
+  </span>
+
+  <span>
+    Lab Requests
+  </span>
+
+</a>
+
+
+
+ <a
+  class="nav-item"
+  routerLink="/admissions"
+  routerLinkActive="active"
+  [routerLinkActiveOptions]="{ exact: true }"
+>
+
+  <span class="material-symbols-outlined">
+    bed
+  </span>
+
+  <span>
+    Admissions
+  </span>
+
+</a>
 
     </div>
 
@@ -254,19 +281,19 @@
       <!-- Billing -->
 
       <a
-        class="nav-item disabled-nav-item"
-        href="javascript:void(0)"
-      >
+  class="nav-item"
+  routerLink="/billing"
+  routerLinkActive="active"
+  [routerLinkActiveOptions]="{ exact: true }"
+>
+  <span class="material-symbols-outlined">
+    payments
+  </span>
 
-        <span class="material-symbols-outlined">
-          payments
-        </span>
-
-        <span>
-          Billing
-        </span>
-
-      </a>
+  <span>
+    Billing
+  </span>
+</a>
 
 
 

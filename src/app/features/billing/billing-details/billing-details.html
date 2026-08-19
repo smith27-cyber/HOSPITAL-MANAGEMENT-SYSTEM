@@ -1,0 +1,651 @@
+```html
+<div class="billing-details-page">
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div>
+
+      <div class="breadcrumb">
+        Billing
+        <span class="material-symbols-outlined">
+          chevron_right
+        </span>
+        Details
+      </div>
+
+      <h1>
+        Billing Details
+      </h1>
+
+      <p>
+        View complete information about this billing record.
+      </p>
+
+    </div>
+
+
+    <div class="header-actions">
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="backToBilling()"
+      >
+
+        <span class="material-symbols-outlined">
+          arrow_back
+        </span>
+
+        Back to Billing
+
+      </button>
+
+
+      @if (bill) {
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="editBill()"
+        >
+
+          <span class="material-symbols-outlined">
+            edit
+          </span>
+
+          Edit Bill
+
+        </button>
+
+      }
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ================================================= -->
+  <!-- CONTENT -->
+  <!-- ================================================= -->
+
+  @if (bill) {
+
+    <div class="details-grid">
+
+
+      <!-- ================================================= -->
+      <!-- INVOICE SUMMARY -->
+      <!-- ================================================= -->
+
+      <section class="details-card invoice-card">
+
+        <div class="card-header">
+
+          <div>
+
+            <span class="card-label">
+              INVOICE
+            </span>
+
+            <h2>
+              {{ bill.invoiceNumber }}
+            </h2>
+
+          </div>
+
+
+          <span
+            class="status-badge"
+            [ngClass]="getStatusClass(bill.status)"
+          >
+            {{ bill.status }}
+          </span>
+
+        </div>
+
+
+        <div class="invoice-summary">
+
+          <div class="summary-item">
+
+            <span>
+              Total Amount
+            </span>
+
+            <strong>
+              {{ formatCurrency(bill.amount) }}
+            </strong>
+
+          </div>
+
+
+          <div class="summary-item">
+
+            <span>
+              Amount Paid
+            </span>
+
+            <strong class="paid-amount">
+              {{ formatCurrency(bill.amountPaid) }}
+            </strong>
+
+          </div>
+
+
+          <div class="summary-item">
+
+            <span>
+              Balance
+            </span>
+
+            <strong class="balance-amount">
+              {{ formatCurrency(bill.balance) }}
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <!-- PAYMENT PROGRESS -->
+
+        <div class="payment-progress">
+
+          <div class="progress-header">
+
+            <span>
+              Payment Progress
+            </span>
+
+            <strong>
+              {{ getPaymentPercentage() }}%
+            </strong>
+
+          </div>
+
+
+          <div class="progress-bar">
+
+            <div
+              class="progress-fill"
+              [style.width.%]="getPaymentPercentage()"
+            ></div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- ================================================= -->
+      <!-- PATIENT INFORMATION -->
+      <!-- ================================================= -->
+
+      <section class="details-card">
+
+        <div class="card-title">
+
+          <span class="material-symbols-outlined">
+            person
+          </span>
+
+          <div>
+
+            <h2>
+              Patient Information
+            </h2>
+
+            <p>
+              Patient associated with this bill.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="info-grid">
+
+          <div class="info-item">
+
+            <span>
+              Patient Name
+            </span>
+
+            <strong>
+              {{ bill.patientName }}
+            </strong>
+
+          </div>
+
+
+          <div class="info-item">
+
+            <span>
+              Patient ID
+            </span>
+
+            <strong>
+              {{ bill.patientId }}
+            </strong>
+
+          </div>
+
+
+          <div class="info-item">
+
+            <span>
+              Patient Number
+            </span>
+
+            <strong>
+              {{ bill.patientNumber || '—' }}
+            </strong>
+
+          </div>
+
+
+          <div class="info-item">
+
+            <span>
+              Doctor
+            </span>
+
+            <strong>
+              {{ bill.doctorName || '—' }}
+            </strong>
+
+          </div>
+
+
+          <div class="info-item">
+
+            <span>
+              Department
+            </span>
+
+            <strong>
+              {{ bill.departmentName || '—' }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- ================================================= -->
+      <!-- BILLING INFORMATION -->
+      <!-- ================================================= -->
+
+      <section class="details-card">
+
+        <div class="card-title">
+
+          <span class="material-symbols-outlined">
+            receipt_long
+          </span>
+
+          <div>
+
+            <h2>
+              Billing Information
+            </h2>
+
+            <p>
+              Details about the service and invoice.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="info-grid">
+
+          <div class="info-item">
+
+            <span>
+              Billing Type
+            </span>
+
+            <strong>
+              {{ bill.billingType }}
+            </strong>
+
+          </div>
+
+
+          <div class="info-item">
+
+            <span>
+              Invoice Number
+            </span>
+
+            <strong>
+              {{ bill.invoiceNumber }}
+            </strong>
+
+          </div>
+
+
+          <div class="info-item full-width">
+
+            <span>
+              Description
+            </span>
+
+            <strong>
+              {{ bill.description }}
+            </strong>
+
+          </div>
+
+
+          <div class="info-item">
+
+            <span>
+              Billing Date
+            </span>
+
+            <strong>
+              {{ formatDate(bill.billingDate) }}
+            </strong>
+
+          </div>
+
+
+          <div class="info-item">
+
+            <span>
+              Due Date
+            </span>
+
+            <strong>
+              {{ formatDate(bill.dueDate) }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- ================================================= -->
+      <!-- PAYMENT INFORMATION -->
+      <!-- ================================================= -->
+
+      <section class="details-card">
+
+        <div class="card-title">
+
+          <span class="material-symbols-outlined">
+            payments
+          </span>
+
+          <div>
+
+            <h2>
+              Payment Information
+            </h2>
+
+            <p>
+              Payment and outstanding balance information.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="payment-grid">
+
+          <div class="payment-box">
+
+            <span>
+              Total
+            </span>
+
+            <strong>
+              {{ formatCurrency(bill.amount) }}
+            </strong>
+
+          </div>
+
+
+          <div class="payment-box">
+
+            <span>
+              Paid
+            </span>
+
+            <strong>
+              {{ formatCurrency(bill.amountPaid) }}
+            </strong>
+
+          </div>
+
+
+          <div class="payment-box">
+
+            <span>
+              Outstanding
+            </span>
+
+            <strong>
+              {{ formatCurrency(bill.balance) }}
+            </strong>
+
+          </div>
+
+
+          <div class="payment-box">
+
+            <span>
+              Payment Method
+            </span>
+
+            <strong>
+              {{ bill.paymentMethod || 'Not recorded' }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- ================================================= -->
+      <!-- NOTES -->
+      <!-- ================================================= -->
+
+      @if (bill.notes) {
+
+        <section class="details-card">
+
+          <div class="card-title">
+
+            <span class="material-symbols-outlined">
+              notes
+            </span>
+
+            <div>
+
+              <h2>
+                Notes
+              </h2>
+
+            </div>
+
+          </div>
+
+
+          <div class="notes-content">
+
+            {{ bill.notes }}
+
+          </div>
+
+        </section>
+
+      }
+
+
+
+      <!-- ================================================= -->
+      <!-- RECORD INFORMATION -->
+      <!-- ================================================= -->
+
+      <section class="details-card">
+
+        <div class="card-title">
+
+          <span class="material-symbols-outlined">
+            history
+          </span>
+
+          <div>
+
+            <h2>
+              Record Information
+            </h2>
+
+          </div>
+
+        </div>
+
+
+        <div class="info-grid">
+
+          <div class="info-item">
+
+            <span>
+              Created
+            </span>
+
+            <strong>
+              {{ formatDateTime(bill.createdAt) }}
+            </strong>
+
+          </div>
+
+
+          <div class="info-item">
+
+            <span>
+              Last Updated
+            </span>
+
+            <strong>
+              {{ formatDateTime(bill.updatedAt) }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- ================================================= -->
+      <!-- ACTIONS -->
+      <!-- ================================================= -->
+
+      <section class="details-card danger-card">
+
+        <div>
+
+          <h2>
+            Billing Actions
+          </h2>
+
+          <p>
+            Edit or remove this billing record.
+          </p>
+
+        </div>
+
+
+        <div class="danger-actions">
+
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="editBill()"
+          >
+
+            <span class="material-symbols-outlined">
+              edit
+            </span>
+
+            Edit Billing
+
+          </button>
+
+
+          <button
+            type="button"
+            class="danger-button"
+            (click)="deleteBill()"
+          >
+
+            <span class="material-symbols-outlined">
+              delete
+            </span>
+
+            Delete Billing
+
+          </button>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  }
+
+  @else {
+
+    <div class="empty-state">
+
+      <span class="material-symbols-outlined">
+        receipt_long
+      </span>
+
+      <h2>
+        Billing record not found
+      </h2>
+
+      <p>
+        The billing record you are looking for does not exist.
+      </p>
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="backToBilling()"
+      >
+        Back to Billing
+      </button>
+
+    </div>
+
+  }
+
+</div>
+```

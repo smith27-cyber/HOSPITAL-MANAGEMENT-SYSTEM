@@ -1,0 +1,516 @@
+.laboratory-request-details-page {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 26px;
+
+  font-weight: 700;
+}
+
+.page-header p {
+  margin: 5px 0 0;
+
+  color: #6b7280;
+
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   CARDS
+   ===================================================== */
+
+.summary-card,
+.details-card {
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 12px;
+
+  margin-bottom: 20px;
+}
+
+.summary-card {
+  padding: 22px;
+}
+
+
+/* =====================================================
+   SUMMARY
+   ===================================================== */
+
+.summary {
+  display: flex;
+
+  align-items: center;
+
+  gap: 16px;
+}
+
+.summary-icon {
+  width: 58px;
+  height: 58px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  background: #f0fdfa;
+
+  color: #0f766e;
+}
+
+.summary-icon .material-symbols-outlined {
+  font-size: 30px;
+}
+
+.summary-info {
+  flex: 1;
+}
+
+.summary-info h2 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 20px;
+}
+
+.summary-info p {
+  margin: 5px 0;
+
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+.summary-info span {
+  color: #9ca3af;
+
+  font-size: 11px;
+}
+
+
+/* =====================================================
+   CARD HEADER
+   ===================================================== */
+
+.card-header {
+  padding: 18px 20px;
+
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.card-header h3 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 16px;
+}
+
+.card-header span {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #9ca3af;
+
+  font-size: 12px;
+}
+
+
+/* =====================================================
+   DETAILS GRID
+   ===================================================== */
+
+.details-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  padding: 6px 20px 20px;
+}
+
+.detail-item {
+  padding: 16px 10px;
+
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.detail-item > span {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #9ca3af;
+
+  font-size: 11px;
+}
+
+.detail-item strong {
+  display: block;
+
+  color: #374151;
+
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   CONTENT
+   ===================================================== */
+
+.content-section {
+  padding: 20px;
+}
+
+.content-section p {
+  margin: 0;
+
+  color: #4b5563;
+
+  font-size: 13px;
+
+  line-height: 1.7;
+
+  white-space: pre-line;
+}
+
+.not-available {
+  color: #9ca3af !important;
+
+  font-style: italic;
+}
+
+
+/* =====================================================
+   STATUS
+   ===================================================== */
+
+.status {
+  display: inline-block;
+
+  padding: 6px 11px;
+
+  border-radius: 20px;
+
+  font-size: 10px;
+
+  font-weight: 600;
+}
+
+.status.pending {
+  background: #fef3c7;
+
+  color: #b45309;
+}
+
+.status.in-progress {
+  background: #dbeafe;
+
+  color: #1d4ed8;
+}
+
+.status.completed {
+  background: #dcfce7;
+
+  color: #15803d;
+}
+
+.status.cancelled {
+  background: #fee2e2;
+
+  color: #b91c1c;
+}
+
+
+/* =====================================================
+   STATUS ACTIONS
+   ===================================================== */
+
+.status-actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 20px;
+}
+
+.progress-button,
+.complete-button,
+.cancel-button {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 40px;
+
+  padding: 0 15px;
+
+  border-radius: 7px;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.progress-button {
+  border: 1px solid #2563eb;
+
+  background: #2563eb;
+
+  color: #ffffff;
+}
+
+.complete-button {
+  border: 1px solid #15803d;
+
+  background: #15803d;
+
+  color: #ffffff;
+}
+
+.cancel-button {
+  border: 1px solid #fecaca;
+
+  background: #ffffff;
+
+  color: #dc2626;
+}
+
+.progress-button .material-symbols-outlined,
+.complete-button .material-symbols-outlined,
+.cancel-button .material-symbols-outlined {
+  font-size: 18px;
+}
+
+
+/* =====================================================
+   STATUS MESSAGE
+   ===================================================== */
+
+.status-message {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 12px 15px;
+
+  border-radius: 8px;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+.completed-message {
+  background: #dcfce7;
+
+  color: #15803d;
+}
+
+.cancelled-message {
+  background: #fee2e2;
+
+  color: #b91c1c;
+}
+
+
+/* =====================================================
+   PAGE ACTIONS
+   ===================================================== */
+
+.page-actions {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding-bottom: 24px;
+}
+
+.page-actions > div {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+
+/* =====================================================
+   BUTTONS
+   ===================================================== */
+
+.primary-button,
+.secondary-button,
+.danger-button {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 40px;
+
+  padding: 0 16px;
+
+  border-radius: 7px;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.primary-button {
+  border: 1px solid #0f766e;
+
+  background: #0f766e;
+
+  color: #ffffff;
+}
+
+.secondary-button {
+  border: 1px solid #d1d5db;
+
+  background: #ffffff;
+
+  color: #374151;
+}
+
+.danger-button {
+  border: 1px solid #fecaca;
+
+  background: #ffffff;
+
+  color: #dc2626;
+
+  margin-left: 10px;
+}
+
+.primary-button .material-symbols-outlined,
+.secondary-button .material-symbols-outlined,
+.danger-button .material-symbols-outlined {
+  font-size: 18px;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 800px) {
+
+  .details-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .page-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 14px;
+  }
+
+  .page-header .secondary-button {
+    width: 100%;
+  }
+
+  .summary {
+    align-items: flex-start;
+
+    flex-wrap: wrap;
+  }
+
+  .summary .status {
+    width: 100%;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .status-actions {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .status-actions button {
+    width: 100%;
+  }
+
+  .page-actions {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    gap: 10px;
+  }
+
+  .page-actions > div {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .page-actions button {
+    width: 100%;
+  }
+
+  .danger-button {
+    margin-left: 0;
+  }
+
+}

@@ -186,43 +186,59 @@
           <!-- DOCTOR -->
           <!-- ========================= -->
 
-          <div class="form-group">
+           <div class="form-group">
 
-            <label>
-              Doctor <span>*</span>
-            </label>
+          <label>
+            Doctor <span>*</span>
+          </label>
 
-            <select
-              name="doctorId"
-              [(ngModel)]="appointment.doctorId"
-              (ngModelChange)="onDoctorChange()"
-              required
-            >
+          <select
+            name="doctorId"
+            [(ngModel)]="appointment.doctorId"
+            (ngModelChange)="onDoctorChange()"
+            required
+          >
 
-              <option value="">
-                Select doctor
+            <option value="">
+              Select doctor
+            </option>
+
+
+            @for (
+              doctor of doctors;
+              track doctor.id
+            ) {
+
+              <option
+                [value]="doctor.id"
+              >
+
+                Dr.
+                {{ doctor.firstName }}
+                {{ doctor.lastName }}
+
+                —
+                {{ doctor.department }}
+
               </option>
 
-              @for (
-                doctor of doctors;
-                track doctor.id
-              ) {
+            }
 
-                <option
-                  [value]="doctor.id"
-                >
 
-                  {{ doctor.name }}
-                  —
-                  {{ doctor.department }}
+            @if (doctors.length === 0) {
 
-                </option>
+              <option
+                value=""
+                disabled
+              >
+                No active doctors available
+              </option>
 
-              }
+            }
 
-            </select>
+          </select>
 
-          </div>
+        </div>
 
 
 
@@ -232,38 +248,52 @@
 
           <div class="form-group">
 
-            <label>
-              Department <span>*</span>
-            </label>
+  <label>
+    Department <span>*</span>
+  </label>
 
-            <select
-              name="department"
-              [(ngModel)]="appointment.department"
-              required
-            >
+  <select
+    name="department"
+    [(ngModel)]="appointment.department"
+    required
+  >
 
-              <option value="">
-                Select department
-              </option>
+    <option value="">
+      Select department
+    </option>
 
-              @for (
-                department of departments;
-                track department
-              ) {
+    @for (
+      department of departments;
+      track department.id
+    ) {
 
-                <option
-                  [value]="department"
-                >
+      <option
+        [value]="department.name"
+      >
 
-                  {{ department }}
+        {{ department.name }}
+        —
+        {{ department.code }}
 
-                </option>
+      </option>
 
-              }
+    }
 
-            </select>
 
-          </div>
+    @if (departments.length === 0) {
+
+      <option
+        value=""
+        disabled
+      >
+        No active departments available
+      </option>
+
+    }
+
+  </select>
+
+</div>
 
 
 

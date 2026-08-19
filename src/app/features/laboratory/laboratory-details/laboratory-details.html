@@ -1,0 +1,401 @@
+<div class="laboratory-details-page">
+
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Laboratory Test Details
+      </h1>
+
+      <p>
+        View laboratory test information and configuration
+      </p>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="backToLaboratory()"
+    >
+
+      <span class="material-symbols-outlined">
+        arrow_back
+      </span>
+
+      Back to Laboratory
+
+    </button>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- TEST CONTENT -->
+  <!-- ================================================= -->
+
+  @if (test) {
+
+
+    <!-- ================================================= -->
+    <!-- SUMMARY CARD -->
+    <!-- ================================================= -->
+
+    <section class="summary-card">
+
+      <div class="test-summary">
+
+        <div class="test-icon">
+
+          <span class="material-symbols-outlined">
+            science
+          </span>
+
+        </div>
+
+
+        <div class="test-summary-info">
+
+          <h2>
+            {{ test.testName }}
+          </h2>
+
+          <p>
+            {{ test.category }}
+            &nbsp;•&nbsp;
+            {{ test.sampleType }}
+          </p>
+
+          <span>
+            Test ID: {{ test.id }}
+          </span>
+
+        </div>
+
+
+        <div class="summary-price">
+
+          <span>
+            Test Price
+          </span>
+
+          <strong>
+            {{ formatCurrency(test.price) }}
+          </strong>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- TEST INFORMATION -->
+    <!-- ================================================= -->
+
+    <section class="details-card">
+
+      <div class="card-header">
+
+        <h3>
+          Test Information
+        </h3>
+
+        <span>
+          Basic information about this laboratory test
+        </span>
+
+      </div>
+
+
+      <div class="details-grid">
+
+
+        <!-- TEST NAME -->
+
+        <div class="detail-item">
+
+          <span class="detail-label">
+            Test Name
+          </span>
+
+          <strong>
+            {{ test.testName }}
+          </strong>
+
+        </div>
+
+
+        <!-- CATEGORY -->
+
+        <div class="detail-item">
+
+          <span class="detail-label">
+            Category
+          </span>
+
+          <strong>
+            {{ test.category }}
+          </strong>
+
+        </div>
+
+
+        <!-- SAMPLE -->
+
+        <div class="detail-item">
+
+          <span class="detail-label">
+            Sample Type
+          </span>
+
+          <strong>
+            {{ test.sampleType }}
+          </strong>
+
+        </div>
+
+
+        <!-- PRICE -->
+
+        <div class="detail-item">
+
+          <span class="detail-label">
+            Price
+          </span>
+
+          <strong>
+            {{ formatCurrency(test.price) }}
+          </strong>
+
+        </div>
+
+
+        <!-- NORMAL RANGE -->
+
+        <div class="detail-item">
+
+          <span class="detail-label">
+            Normal / Reference Range
+          </span>
+
+          @if (test.normalRange) {
+
+            <strong>
+              {{ test.normalRange }}
+            </strong>
+
+          }
+
+          @else {
+
+            <span class="not-available">
+              Not specified
+            </span>
+
+          }
+
+        </div>
+
+
+        <!-- CREATED -->
+
+        <div class="detail-item">
+
+          <span class="detail-label">
+            Date Registered
+          </span>
+
+          <strong>
+            {{ test.createdAt | date:'medium' }}
+          </strong>
+
+        </div>
+
+
+        <!-- UPDATED -->
+
+        <div class="detail-item">
+
+          <span class="detail-label">
+            Last Updated
+          </span>
+
+          @if (test.updatedAt) {
+
+            <strong>
+              {{ test.updatedAt | date:'medium' }}
+            </strong>
+
+          }
+
+          @else {
+
+            <span class="not-available">
+              Not updated
+            </span>
+
+          }
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- PREPARATION -->
+    <!-- ================================================= -->
+
+    <section class="details-card">
+
+      <div class="card-header">
+
+        <h3>
+          Preparation Instructions
+        </h3>
+
+        <span>
+          Instructions that may be required before sample collection
+        </span>
+
+      </div>
+
+
+      <div class="content-section">
+
+        @if (test.preparationInstructions) {
+
+          <p>
+            {{ test.preparationInstructions }}
+          </p>
+
+        }
+
+        @else {
+
+          <p class="not-available">
+            No preparation instructions specified.
+          </p>
+
+        }
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- DESCRIPTION -->
+    <!-- ================================================= -->
+
+    <section class="details-card">
+
+      <div class="card-header">
+
+        <h3>
+          Description
+        </h3>
+
+        <span>
+          Purpose and information about this laboratory test
+        </span>
+
+      </div>
+
+
+      <div class="content-section">
+
+        @if (test.description) {
+
+          <p>
+            {{ test.description }}
+          </p>
+
+        }
+
+        @else {
+
+          <p class="not-available">
+            No description provided.
+          </p>
+
+        }
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- ACTIONS -->
+    <!-- ================================================= -->
+
+    <div class="page-actions">
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="backToLaboratory()"
+      >
+
+        <span class="material-symbols-outlined">
+          arrow_back
+        </span>
+
+        Back
+
+      </button>
+
+
+      <div class="right-actions">
+
+        <button
+          type="button"
+          class="danger-button"
+          (click)="deleteTest()"
+        >
+
+          <span class="material-symbols-outlined">
+            delete
+          </span>
+
+          Delete
+
+        </button>
+
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="editTest()"
+        >
+
+          <span class="material-symbols-outlined">
+            edit
+          </span>
+
+          Edit Test
+
+        </button>
+
+      </div>
+
+    </div>
+
+  }
+
+</div>

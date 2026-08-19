@@ -1,0 +1,561 @@
+<div class="laboratory-request-details-page">
+
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Laboratory Request
+      </h1>
+
+      <p>
+        View and manage laboratory request
+      </p>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="backToRequests()"
+    >
+
+      <span class="material-symbols-outlined">
+        arrow_back
+      </span>
+
+      Back to Requests
+
+    </button>
+
+  </div>
+
+
+  @if (request) {
+
+
+    <!-- ================================================= -->
+    <!-- SUMMARY -->
+    <!-- ================================================= -->
+
+    <section class="summary-card">
+
+      <div class="summary">
+
+        <div class="summary-icon">
+
+          <span class="material-symbols-outlined">
+            science
+          </span>
+
+        </div>
+
+
+        <div class="summary-info">
+
+          <h2>
+            {{ request.testName }}
+          </h2>
+
+          <p>
+            {{ request.patientName }}
+            &nbsp;•&nbsp;
+            {{ request.sampleType }}
+          </p>
+
+          <span>
+            Request ID: {{ request.id }}
+          </span>
+
+        </div>
+
+
+        <span
+          class="status"
+          [class]="getStatusClass()"
+        >
+          {{ request.status }}
+        </span>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- PATIENT -->
+    <!-- ================================================= -->
+
+    <section class="details-card">
+
+      <div class="card-header">
+
+        <h3>
+          Patient Information
+        </h3>
+
+      </div>
+
+
+      <div class="details-grid">
+
+        <div class="detail-item">
+
+          <span>
+            Patient Name
+          </span>
+
+          <strong>
+            {{ request.patientName }}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span>
+            Patient ID
+          </span>
+
+          <strong>
+            {{ request.patientId }}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span>
+            Doctor
+          </span>
+
+          @if (request.doctorName) {
+
+            <strong>
+              {{ request.doctorName }}
+            </strong>
+
+          }
+
+          @else {
+
+            <span class="not-available">
+              Not specified
+            </span>
+
+          }
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span>
+            Doctor ID
+          </span>
+
+          @if (request.doctorId) {
+
+            <strong>
+              {{ request.doctorId }}
+            </strong>
+
+          }
+
+          @else {
+
+            <span class="not-available">
+              Not specified
+            </span>
+
+          }
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- TEST -->
+    <!-- ================================================= -->
+
+    <section class="details-card">
+
+      <div class="card-header">
+
+        <h3>
+          Laboratory Test
+        </h3>
+
+      </div>
+
+
+      <div class="details-grid">
+
+        <div class="detail-item">
+
+          <span>
+            Test Name
+          </span>
+
+          <strong>
+            {{ request.testName }}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span>
+            Test ID
+          </span>
+
+          <strong>
+            {{ request.testId }}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span>
+            Category
+          </span>
+
+          <strong>
+            {{ request.category }}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span>
+            Sample Type
+          </span>
+
+          <strong>
+            {{ request.sampleType }}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span>
+            Price
+          </span>
+
+          <strong>
+            {{ formatCurrency(request.price) }}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span>
+            Requested At
+          </span>
+
+          <strong>
+            {{ request.requestedAt | date:'medium' }}
+          </strong>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- RESULT -->
+    <!-- ================================================= -->
+
+    <section class="details-card">
+
+      <div class="card-header">
+
+        <h3>
+          Laboratory Result
+        </h3>
+
+      </div>
+
+
+      <div class="content-section">
+
+        @if (request.result) {
+
+          <p>
+            {{ request.result }}
+          </p>
+
+        }
+
+        @else {
+
+          <p class="not-available">
+            No laboratory result recorded yet.
+          </p>
+
+        }
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- NOTES -->
+    <!-- ================================================= -->
+
+    <section class="details-card">
+
+      <div class="card-header">
+
+        <h3>
+          Notes
+        </h3>
+
+      </div>
+
+
+      <div class="content-section">
+
+        @if (request.notes) {
+
+          <p>
+            {{ request.notes }}
+          </p>
+
+        }
+
+        @else {
+
+          <p class="not-available">
+            No notes recorded.
+          </p>
+
+        }
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- STATUS ACTIONS -->
+    <!-- ================================================= -->
+
+    <section class="details-card">
+
+      <div class="card-header">
+
+        <h3>
+          Request Status
+        </h3>
+
+        <span>
+          Update the laboratory workflow status.
+        </span>
+
+      </div>
+
+
+      <div class="status-actions">
+
+        @if (
+          request.status === 'Pending'
+        ) {
+
+          <button
+            type="button"
+            class="progress-button"
+            (click)="updateStatus('In Progress')"
+          >
+
+            <span class="material-symbols-outlined">
+              play_arrow
+            </span>
+
+            Start Processing
+
+          </button>
+
+
+          <button
+            type="button"
+            class="cancel-button"
+            (click)="updateStatus('Cancelled')"
+          >
+
+            <span class="material-symbols-outlined">
+              cancel
+            </span>
+
+            Cancel Request
+
+          </button>
+
+        }
+
+
+        @if (
+          request.status === 'In Progress'
+        ) {
+
+          <button
+            type="button"
+            class="complete-button"
+            (click)="updateStatus('Completed')"
+          >
+
+            <span class="material-symbols-outlined">
+              check_circle
+            </span>
+
+            Mark Completed
+
+          </button>
+
+
+          <button
+            type="button"
+            class="cancel-button"
+            (click)="updateStatus('Cancelled')"
+          >
+
+            <span class="material-symbols-outlined">
+              cancel
+            </span>
+
+            Cancel Request
+
+          </button>
+
+        }
+
+
+        @if (
+          request.status === 'Completed'
+        ) {
+
+          <div class="status-message completed-message">
+
+            <span class="material-symbols-outlined">
+              check_circle
+            </span>
+
+            Laboratory request completed.
+
+          </div>
+
+        }
+
+
+        @if (
+          request.status === 'Cancelled'
+        ) {
+
+          <div class="status-message cancelled-message">
+
+            <span class="material-symbols-outlined">
+              cancel
+            </span>
+
+            Laboratory request cancelled.
+
+          </div>
+
+        }
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- PAGE ACTIONS -->
+    <!-- ================================================= -->
+
+    <div class="page-actions">
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="backToRequests()"
+      >
+
+        Back
+
+      </button>
+
+
+      <div>
+
+        @if (
+          request.status !== 'Completed' &&
+          request.status !== 'Cancelled'
+        ) {
+
+          <button
+            type="button"
+            class="primary-button"
+            (click)="editRequest()"
+          >
+
+            <span class="material-symbols-outlined">
+              edit
+            </span>
+
+            Edit Request
+
+          </button>
+
+        }
+
+
+        <button
+          type="button"
+          class="danger-button"
+          (click)="deleteRequest()"
+        >
+
+          <span class="material-symbols-outlined">
+            delete
+          </span>
+
+          Delete
+
+        </button>
+
+      </div>
+
+    </div>
+
+  }
+
+</div>

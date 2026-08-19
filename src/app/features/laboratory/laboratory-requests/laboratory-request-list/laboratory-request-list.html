@@ -1,0 +1,480 @@
+<div class="laboratory-requests-page">
+
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Laboratory Requests
+      </h1>
+
+      <p>
+        Manage patient laboratory test requests
+      </p>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="primary-button"
+      (click)="registerRequest()"
+    >
+
+      <span class="material-symbols-outlined">
+        add
+      </span>
+
+      New Request
+
+    </button>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- STATISTICS -->
+  <!-- ================================================= -->
+
+  <div class="stats-grid">
+
+
+    <div class="stat-card">
+
+      <div class="stat-icon total">
+
+        <span class="material-symbols-outlined">
+          science
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Total Requests
+        </span>
+
+        <h2>
+          {{ totalRequests }}
+        </h2>
+
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-icon pending">
+
+        <span class="material-symbols-outlined">
+          pending
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Pending
+        </span>
+
+        <h2>
+          {{ pendingRequests }}
+        </h2>
+
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-icon progress">
+
+        <span class="material-symbols-outlined">
+          hourglass_top
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          In Progress
+        </span>
+
+        <h2>
+          {{ inProgressRequests }}
+        </h2>
+
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-icon completed">
+
+        <span class="material-symbols-outlined">
+          task_alt
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Completed
+        </span>
+
+        <h2>
+          {{ completedRequests }}
+        </h2>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- REQUEST CARD -->
+  <!-- ================================================= -->
+
+  <section class="requests-card">
+
+
+    <!-- ================================================= -->
+    <!-- TOOLBAR -->
+    <!-- ================================================= -->
+
+    <div class="toolbar">
+
+      <div class="search-box">
+
+        <span class="material-symbols-outlined">
+          search
+        </span>
+
+        <input
+          type="text"
+          placeholder="Search patient, test, doctor..."
+          [(ngModel)]="searchTerm"
+          (input)="applyFilters()"
+        />
+
+      </div>
+
+
+      <select
+        [(ngModel)]="selectedStatus"
+        (change)="applyFilters()"
+      >
+
+        <option value="All">
+          All Statuses
+        </option>
+
+        @for (
+          status of statuses;
+          track status
+        ) {
+
+          <option [value]="status">
+            {{ status }}
+          </option>
+
+        }
+
+      </select>
+
+
+      @if (
+        searchTerm ||
+        selectedStatus !== 'All'
+      ) {
+
+        <button
+          type="button"
+          class="clear-button"
+          (click)="clearFilters()"
+        >
+
+          Clear
+
+        </button>
+
+      }
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- TABLE -->
+    <!-- ================================================= -->
+
+    <div class="table-wrapper">
+
+      @if (filteredRequests.length > 0) {
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Request
+              </th>
+
+              <th>
+                Patient
+              </th>
+
+              <th>
+                Test
+              </th>
+
+              <th>
+                Doctor
+              </th>
+
+              <th>
+                Status
+              </th>
+
+              <th>
+                Price
+              </th>
+
+              <th>
+                Actions
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            @for (
+              request of filteredRequests;
+              track request.id
+            ) {
+
+              <tr>
+
+                <td>
+
+                  <div class="request-id">
+
+                    <strong>
+                      {{ request.id }}
+                    </strong>
+
+                    <span>
+                      {{ request.requestedAt | date:'short' }}
+                    </span>
+
+                  </div>
+
+                </td>
+
+
+                <td>
+
+                  <div class="patient-name">
+
+                    <span
+                      class="material-symbols-outlined"
+                    >
+                      person
+                    </span>
+
+                    <div>
+
+                      <strong>
+                        {{ request.patientName }}
+                      </strong>
+
+                      <span>
+                        {{ request.patientId }}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                </td>
+
+
+                <td>
+
+                  <strong>
+                    {{ request.testName }}
+                  </strong>
+
+                  <span class="sub-text">
+                    {{ request.sampleType }}
+                  </span>
+
+                </td>
+
+
+                <td>
+
+                  @if (request.doctorName) {
+
+                    {{ request.doctorName }}
+
+                  }
+
+                  @else {
+
+                    <span class="not-available">
+                      Not specified
+                    </span>
+
+                  }
+
+                </td>
+
+
+                <td>
+
+                  <span
+                    class="status"
+                    [class]="getStatusClass(request.status)"
+                  >
+                    {{ request.status }}
+                  </span>
+
+                </td>
+
+
+                <td>
+
+                  {{ formatCurrency(request.price) }}
+
+                </td>
+
+
+                <td>
+
+                  <div class="actions">
+
+                    <button
+                      type="button"
+                      class="action-button view"
+                      title="View"
+                      (click)="viewRequest(request)"
+                    >
+
+                      <span class="material-symbols-outlined">
+                        visibility
+                      </span>
+
+                    </button>
+
+
+                    @if (
+                      request.status !== 'Completed' &&
+                      request.status !== 'Cancelled'
+                    ) {
+
+                      <button
+                        type="button"
+                        class="action-button edit"
+                        title="Edit"
+                        (click)="editRequest(request)"
+                      >
+
+                        <span class="material-symbols-outlined">
+                          edit
+                        </span>
+
+                      </button>
+
+                    }
+
+
+                    <button
+                      type="button"
+                      class="action-button delete"
+                      title="Delete"
+                      (click)="deleteRequest(request)"
+                    >
+
+                      <span class="material-symbols-outlined">
+                        delete
+                      </span>
+
+                    </button>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      }
+
+      @else {
+
+        <div class="empty-state">
+
+          <div class="empty-icon">
+
+            <span class="material-symbols-outlined">
+              science
+            </span>
+
+          </div>
+
+          <h3>
+            No laboratory requests found
+          </h3>
+
+          <p>
+            Create a laboratory request for a patient to get started.
+          </p>
+
+          <button
+            type="button"
+            class="primary-button"
+            (click)="registerRequest()"
+          >
+
+            <span class="material-symbols-outlined">
+              add
+            </span>
+
+            New Request
+
+          </button>
+
+        </div>
+
+      }
+
+    </div>
+
+  </section>
+
+</div>
