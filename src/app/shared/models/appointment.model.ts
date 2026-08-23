@@ -6,6 +6,7 @@ export type AppointmentStatus =
   | 'Completed'
   | 'Cancelled'
   | 'No Show';
+
 export type AppointmentType =
   | 'Consultation'
   | 'Follow-up'
@@ -50,5 +51,4 @@ export interface Appointment {
   prescription?: string;
 
   consultationDate?: string;
-
 }

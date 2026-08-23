@@ -3,9 +3,13 @@
 // =====================================================
 
 export type LaboratoryStatus =
+
   | 'Pending'
+
   | 'In Progress'
+
   | 'Completed'
+
   | 'Cancelled';
 
 
@@ -14,13 +18,21 @@ export type LaboratoryStatus =
 // =====================================================
 
 export type SampleType =
+
   | 'Blood'
+
   | 'Urine'
+
   | 'Stool'
+
   | 'Sputum'
+
   | 'Swab'
+
   | 'Saliva'
+
   | 'Tissue'
+
   | 'Other';
 
 
@@ -29,14 +41,23 @@ export type SampleType =
 // =====================================================
 
 export type LaboratoryCategory =
+
   | 'Hematology'
+
   | 'Biochemistry'
+
   | 'Microbiology'
+
   | 'Parasitology'
+
   | 'Serology'
+
   | 'Urinalysis'
+
   | 'Immunology'
+
   | 'Pathology'
+
   | 'Other';
 
 
@@ -81,9 +102,26 @@ export interface LaboratoryRequest {
 
   patientName: string;
 
+
+  // ===================================================
+  // RELATED CONSULTATION
+  // ===================================================
+
+  consultationId?: string;
+
+
+  // ===================================================
+  // DOCTOR
+  // ===================================================
+
   doctorId?: string;
 
   doctorName?: string;
+
+
+  // ===================================================
+  // TEST INFORMATION
+  // ===================================================
 
   testId: string;
 
@@ -93,13 +131,33 @@ export interface LaboratoryRequest {
 
   sampleType: SampleType;
 
+
+  // ===================================================
+  // STATUS
+  // ===================================================
+
   status: LaboratoryStatus;
+
+
+  // ===================================================
+  // RESULT
+  // ===================================================
 
   result?: string;
 
   notes?: string;
 
+
+  // ===================================================
+  // BILLING
+  // ===================================================
+
   price: number;
+
+
+  // ===================================================
+  // DATES
+  // ===================================================
 
   requestedAt: string;
 

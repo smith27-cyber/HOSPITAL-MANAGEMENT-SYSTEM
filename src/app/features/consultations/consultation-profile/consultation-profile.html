@@ -169,7 +169,6 @@
 
       <div class="details-grid">
 
-
         <!-- PATIENT -->
 
         <div class="detail-item">
@@ -185,7 +184,8 @@
           @if (patient) {
 
             <span>
-              Patient ID: {{ patient.id }}
+              Patient ID:
+              {{ patient.id }}
             </span>
 
           }
@@ -412,6 +412,516 @@
 
 
     <!-- ================================================= -->
+    <!-- LABORATORY RESULTS -->
+    <!-- ================================================= -->
+
+    @if (hasLaboratoryRequests) {
+
+      <section class="profile-card laboratory-results-card">
+
+        <div class="card-header">
+
+          <div>
+
+            <h2>
+              Laboratory Results
+            </h2>
+
+            <p>
+              Laboratory requests and results associated with this consultation.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- LABORATORY SUMMARY -->
+        <!-- ================================================= -->
+
+        <div class="laboratory-summary">
+
+          <div class="laboratory-summary-item">
+
+            <span>
+              Total Requests
+            </span>
+
+            <strong>
+              {{ laboratoryRequests.length }}
+            </strong>
+
+          </div>
+
+
+          <div class="laboratory-summary-item">
+
+            <span>
+              Pending
+            </span>
+
+            <strong>
+              {{ pendingLaboratoryRequests.length }}
+            </strong>
+
+          </div>
+
+
+          <div class="laboratory-summary-item">
+
+            <span>
+              In Progress
+            </span>
+
+            <strong>
+              {{ inProgressLaboratoryRequests.length }}
+            </strong>
+
+          </div>
+
+
+          <div class="laboratory-summary-item">
+
+            <span>
+              Completed
+            </span>
+
+            <strong>
+              {{ completedLaboratoryRequests.length }}
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- COMPLETED RESULTS -->
+        <!-- ================================================= -->
+
+        @if (hasCompletedLaboratoryResults) {
+
+          <div class="laboratory-section">
+
+            <div class="laboratory-section-header">
+
+              <div>
+
+                <h3>
+                  Completed Results
+                </h3>
+
+                <p>
+                  Results available for clinical review.
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div class="laboratory-results-list">
+
+              @for (
+                request of completedLaboratoryRequests;
+                track request.id
+              ) {
+
+                <div class="laboratory-result-item">
+
+                  <div class="laboratory-result-icon">
+
+                    <span class="material-symbols-outlined">
+                      science
+                    </span>
+
+                  </div>
+
+
+                  <div class="laboratory-result-content">
+
+                    <div class="laboratory-result-header">
+
+                      <div>
+
+                        <strong>
+                          {{ request.testName }}
+                        </strong>
+
+                        <span>
+                          {{ request.category }}
+                          ·
+                          {{ request.sampleType }}
+                        </span>
+
+                      </div>
+
+
+                      <span class="lab-status completed">
+                        Completed
+                      </span>
+
+                    </div>
+
+
+                    <div class="laboratory-result-details">
+
+                      <div>
+
+                        <span>
+                          Request ID
+                        </span>
+
+                        <strong>
+                          {{ request.id }}
+                        </strong>
+
+                      </div>
+
+
+                      <div>
+
+                        <span>
+                          Requested
+                        </span>
+
+                        <strong>
+                          {{ request.requestedAt | date:'medium' }}
+                        </strong>
+
+                      </div>
+
+
+                      <div>
+
+                        <span>
+                          Completed
+                        </span>
+
+                        <strong>
+                          {{
+                            request.completedAt
+                              ? (request.completedAt | date:'medium')
+                              : '—'
+                          }}
+                        </strong>
+
+                      </div>
+
+
+                      <div>
+
+                        <span>
+                          Price
+                        </span>
+
+                        <strong>
+                          {{ formatCurrency(request.price) }}
+                        </strong>
+
+                      </div>
+
+                    </div>
+
+
+                    <div class="laboratory-result-box">
+
+                      <span>
+                        Laboratory Result
+                      </span>
+
+                      @if (request.result) {
+
+                        <p>
+                          {{ request.result }}
+                        </p>
+
+                      } @else {
+
+                        <p class="result-not-available">
+                          No result has been entered yet.
+                        </p>
+
+                      }
+
+                    </div>
+
+
+                    @if (request.notes) {
+
+                      <div class="laboratory-notes-box">
+
+                        <span>
+                          Laboratory Notes
+                        </span>
+
+                        <p>
+                          {{ request.notes }}
+                        </p>
+
+                      </div>
+
+                    }
+
+
+                    <div class="laboratory-result-actions">
+
+                      <button
+                        type="button"
+                        class="view-lab-button"
+                        (click)="viewLaboratoryRequest(request)"
+                      >
+
+                        <span class="material-symbols-outlined">
+                          visibility
+                        </span>
+
+                        View Laboratory Request
+
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              }
+
+            </div>
+
+          </div>
+
+        }
+
+
+        <!-- ================================================= -->
+        <!-- PENDING / IN PROGRESS -->
+        <!-- ================================================= -->
+
+        @if (
+          pendingLaboratoryRequests.length > 0 ||
+          inProgressLaboratoryRequests.length > 0
+        ) {
+
+          <div class="laboratory-section">
+
+            <div class="laboratory-section-header">
+
+              <div>
+
+                <h3>
+                  Laboratory Processing
+                </h3>
+
+                <p>
+                  Tests that are still being processed.
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div class="laboratory-pending-list">
+
+              @for (
+                request of pendingLaboratoryRequests;
+                track request.id
+              ) {
+
+                <div class="laboratory-pending-item">
+
+                  <div class="laboratory-pending-icon">
+
+                    <span class="material-symbols-outlined">
+                      pending
+                    </span>
+
+                  </div>
+
+
+                  <div class="laboratory-pending-content">
+
+                    <strong>
+                      {{ request.testName }}
+                    </strong>
+
+                    <span>
+                      {{ request.category }}
+                      ·
+                      {{ request.sampleType }}
+                    </span>
+
+                  </div>
+
+
+                  <span class="lab-status pending">
+                    Pending
+                  </span>
+
+
+                  <button
+                    type="button"
+                    class="view-lab-button"
+                    (click)="viewLaboratoryRequest(request)"
+                  >
+
+                    <span class="material-symbols-outlined">
+                      visibility
+                    </span>
+
+                    View
+
+                  </button>
+
+                </div>
+
+              }
+
+
+              @for (
+                request of inProgressLaboratoryRequests;
+                track request.id
+              ) {
+
+                <div class="laboratory-pending-item">
+
+                  <div class="laboratory-pending-icon in-progress-icon">
+
+                    <span class="material-symbols-outlined">
+                      hourglass_top
+                    </span>
+
+                  </div>
+
+
+                  <div class="laboratory-pending-content">
+
+                    <strong>
+                      {{ request.testName }}
+                    </strong>
+
+                    <span>
+                      {{ request.category }}
+                      ·
+                      {{ request.sampleType }}
+                    </span>
+
+                  </div>
+
+
+                  <span class="lab-status in-progress">
+                    In Progress
+                  </span>
+
+
+                  <button
+                    type="button"
+                    class="view-lab-button"
+                    (click)="viewLaboratoryRequest(request)"
+                  >
+
+                    <span class="material-symbols-outlined">
+                      visibility
+                    </span>
+
+                    View
+
+                  </button>
+
+                </div>
+
+              }
+
+            </div>
+
+          </div>
+
+        }
+
+
+        <!-- ================================================= -->
+        <!-- DOCTOR REVIEW NOTICE -->
+        <!-- ================================================= -->
+
+        @if (hasCompletedLaboratoryResults) {
+
+          <div class="laboratory-review-notice">
+
+            <span class="material-symbols-outlined">
+              clinical_notes
+            </span>
+
+
+            <div>
+
+              <strong>
+                Laboratory Results Available
+              </strong>
+
+              <p>
+                Review the completed laboratory results above before
+                prescribing medication or updating the treatment plan.
+              </p>
+
+            </div>
+
+          </div>
+
+        }
+
+      </section>
+
+    }
+
+
+    <!-- ================================================= -->
+    <!-- NO LABORATORY REQUESTS -->
+    <!-- ================================================= -->
+
+    @if (!hasLaboratoryRequests) {
+
+      <section class="profile-card laboratory-empty-card">
+
+        <div class="laboratory-empty">
+
+          <span class="material-symbols-outlined">
+            science
+          </span>
+
+          <h2>
+            No Laboratory Requests
+          </h2>
+
+          <p>
+            No laboratory tests have been requested for this consultation.
+          </p>
+
+          <button
+            type="button"
+            class="edit-button"
+            (click)="editConsultation()"
+          >
+
+            <span class="material-symbols-outlined">
+              add
+            </span>
+
+            Add Laboratory Request
+
+          </button>
+
+        </div>
+
+      </section>
+
+    }
+
+
+
+    <!-- ================================================= -->
     <!-- FOLLOW-UP -->
     <!-- ================================================= -->
 
@@ -559,7 +1069,9 @@
         class="secondary-button"
         (click)="backToConsultations()"
       >
+
         Back to Consultations
+
       </button>
 
     </div>

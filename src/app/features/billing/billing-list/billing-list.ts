@@ -5,7 +5,9 @@ import { Router } from '@angular/router';
 
 import {
   Bill,
-  BillingStatus
+  BillingStatus,
+  BillingType,
+  BillItem
 } from '../../../shared/models/billing.model';
 
 import {
@@ -28,7 +30,6 @@ import {
   styleUrl: './billing-list.css'
 })
 export class BillingList implements OnInit {
-
 
   // =====================================================
   // BILLS
@@ -55,6 +56,14 @@ export class BillingList implements OnInit {
 
 
   // =====================================================
+  // BILLING TYPE FILTER
+  // =====================================================
+
+  selectedBillingType:
+    BillingType | 'All' = 'All';
+
+
+  // =====================================================
   // STATISTICS
   // =====================================================
 
@@ -65,6 +74,10 @@ export class BillingList implements OnInit {
   totalPaid = 0;
 
   totalBalance = 0;
+
+  pendingBills = 0;
+
+  pharmacyBills = 0;
 
 
   // =====================================================
@@ -80,6 +93,27 @@ export class BillingList implements OnInit {
     'Paid',
 
     'Cancelled'
+
+  ];
+
+
+  // =====================================================
+  // BILLING TYPES
+  // =====================================================
+
+  billingTypes: BillingType[] = [
+
+    'Consultation',
+
+    'Laboratory',
+
+    'Pharmacy',
+
+    'Admission',
+
+    'Procedure',
+
+    'Other'
 
   ];
 
@@ -114,7 +148,9 @@ export class BillingList implements OnInit {
     this.bills =
       this.billingService.getBills();
 
+
     this.updateStatistics();
+
 
     this.applyFilters();
 
@@ -133,32 +169,67 @@ export class BillingList implements OnInit {
 
     this.totalAmount =
       this.bills.reduce(
-        (total, bill) =>
-          total + bill.amount,
+        (
+          total,
+          bill
+        ) =>
+          total +
+          bill.amount,
         0
       );
 
 
     this.totalPaid =
       this.bills.reduce(
-        (total, bill) =>
-          total + bill.amountPaid,
+        (
+          total,
+          bill
+        ) =>
+          total +
+          bill.amountPaid,
         0
       );
 
 
     this.totalBalance =
       this.bills.reduce(
-        (total, bill) =>
-          total + bill.balance,
+        (
+          total,
+          bill
+        ) =>
+          total +
+          bill.balance,
         0
       );
+
+
+    this.pendingBills =
+      this.bills.filter(
+        bill =>
+          bill.status ===
+          'Pending'
+      ).length;
+
+
+    /*
+     * Count invoices that contain at least one
+     * Pharmacy billing item.
+     */
+
+    this.pharmacyBills =
+      this.bills.filter(
+        bill =>
+          this.billContainsType(
+            bill,
+            'Pharmacy'
+          )
+      ).length;
 
   }
 
 
   // =====================================================
-  // FILTER
+  // APPLY FILTERS
   // =====================================================
 
   applyFilters(): void {
@@ -172,7 +243,6 @@ export class BillingList implements OnInit {
     this.filteredBills =
       this.bills.filter(
         bill => {
-
 
           // ---------------------------------------------
           // SEARCH
@@ -193,15 +263,24 @@ export class BillingList implements OnInit {
               .toLowerCase()
               .includes(search) ||
 
-            (bill.patientNumber ?? '')
+            (
+              bill.patientNumber ??
+              ''
+            )
               .toLowerCase()
               .includes(search) ||
 
-            (bill.doctorName ?? '')
+            (
+              bill.doctorName ??
+              ''
+            )
               .toLowerCase()
               .includes(search) ||
 
-            (bill.departmentName ?? '')
+            (
+              bill.departmentName ??
+              ''
+            )
               .toLowerCase()
               .includes(search) ||
 
@@ -211,7 +290,12 @@ export class BillingList implements OnInit {
 
             bill.description
               .toLowerCase()
-              .includes(search);
+              .includes(search) ||
+
+            this.billItemsMatchSearch(
+              bill,
+              search
+            );
 
 
           // ---------------------------------------------
@@ -219,19 +303,161 @@ export class BillingList implements OnInit {
           // ---------------------------------------------
 
           const matchesStatus =
-            this.selectedStatus === 'All' ||
+            this.selectedStatus ===
+              'All' ||
 
             bill.status ===
               this.selectedStatus;
 
 
+          // ---------------------------------------------
+          // BILLING TYPE
+          // ---------------------------------------------
+
+          const matchesBillingType =
+            this.selectedBillingType ===
+              'All' ||
+
+            this.billContainsType(
+              bill,
+              this.selectedBillingType
+            );
+
+
           return (
             matchesSearch &&
-            matchesStatus
+            matchesStatus &&
+            matchesBillingType
           );
 
         }
       );
+
+  }
+
+
+  // =====================================================
+  // CHECK BILL TYPE
+  // =====================================================
+
+  billContainsType(
+    bill: Bill,
+    billingType: BillingType
+  ): boolean {
+
+    /*
+     * Check the new item-based structure first.
+     */
+
+    const items =
+      bill.items ?? [];
+
+
+    const itemMatches =
+      items.some(
+        item =>
+          item.billingType ===
+          billingType
+      );
+
+
+    if (
+      itemMatches
+    ) {
+
+      return true;
+
+    }
+
+
+    /*
+     * Fall back to the legacy billingType field.
+     * This keeps old invoices working.
+     */
+
+    return (
+      bill.billingType ===
+      billingType
+    );
+
+  }
+
+
+  // =====================================================
+  // SEARCH BILL ITEMS
+  // =====================================================
+
+  private billItemsMatchSearch(
+    bill: Bill,
+    search: string
+  ): boolean {
+
+    if (!search) {
+
+      return false;
+
+    }
+
+
+    const items:
+      BillItem[] =
+      bill.items ?? [];
+
+
+    return items.some(
+      item => {
+
+        return (
+
+          item.billingType
+            .toLowerCase()
+            .includes(search) ||
+
+          item.description
+            .toLowerCase()
+            .includes(search) ||
+
+          item.referenceId
+            ?.toLowerCase()
+            .includes(search) ||
+
+          String(
+            item.amount
+          )
+            .includes(search)
+
+        );
+
+      }
+    );
+
+  }
+
+
+  // =====================================================
+  // GET BILL ITEMS
+  // =====================================================
+
+  getBillItems(
+    bill: Bill
+  ): BillItem[] {
+
+    return bill.items ?? [];
+
+  }
+
+
+  // =====================================================
+  // GET ITEM COUNT
+  // =====================================================
+
+  getItemCount(
+    bill: Bill
+  ): number {
+
+    return (
+      bill.items?.length ?? 0
+    );
 
   }
 
@@ -338,7 +564,12 @@ export class BillingList implements OnInit {
 
     this.searchTerm = '';
 
-    this.selectedStatus = 'All';
+    this.selectedStatus =
+      'All';
+
+    this.selectedBillingType =
+      'All';
+
 
     this.applyFilters();
 
@@ -376,6 +607,42 @@ export class BillingList implements OnInit {
 
 
   // =====================================================
+  // BILLING TYPE CLASS
+  // =====================================================
+
+  getBillingTypeClass(
+    type: BillingType
+  ): string {
+
+    switch (type) {
+
+      case 'Consultation':
+        return 'consultation';
+
+      case 'Laboratory':
+        return 'laboratory';
+
+      case 'Pharmacy':
+        return 'pharmacy';
+
+      case 'Admission':
+        return 'admission';
+
+      case 'Procedure':
+        return 'procedure';
+
+      case 'Other':
+        return 'other';
+
+      default:
+        return '';
+
+    }
+
+  }
+
+
+  // =====================================================
   // FORMAT CURRENCY
   // =====================================================
 
@@ -387,13 +654,12 @@ export class BillingList implements OnInit {
       'en-UG',
       {
         style: 'currency',
-
         currency: 'UGX',
-
         maximumFractionDigits: 0
-
       }
-    ).format(amount);
+    ).format(
+      amount || 0
+    );
 
   }
 
@@ -413,18 +679,30 @@ export class BillingList implements OnInit {
     }
 
 
+    const parsedDate =
+      new Date(date);
+
+
+    if (
+      Number.isNaN(
+        parsedDate.getTime()
+      )
+    ) {
+
+      return '—';
+
+    }
+
+
     return new Intl.DateTimeFormat(
       'en-GB',
       {
         day: '2-digit',
-
         month: 'short',
-
         year: 'numeric'
-
       }
     ).format(
-      new Date(date)
+      parsedDate
     );
 
   }

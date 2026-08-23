@@ -1,11 +1,14 @@
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
   Bill,
-  BillingStatus
+  BillItem,
+  BillingStatus,
+  BillingType,
+  PaymentMethod
 } from '../../../shared/models/billing.model';
 
 import {
@@ -19,7 +22,8 @@ import {
   standalone: true,
 
   imports: [
-    CommonModule
+    CommonModule,
+    FormsModule
   ],
 
   templateUrl: './billing-details.html',
@@ -36,13 +40,52 @@ export class BillingDetails implements OnInit {
 
 
   // =====================================================
+  // PAYMENT
+  // =====================================================
+
+  paymentAmount = 0;
+
+  selectedPaymentMethod:
+    PaymentMethod = 'Cash';
+
+  isProcessingPayment = false;
+
+
+  // =====================================================
+  // PAYMENT METHODS
+  // =====================================================
+
+  paymentMethods:
+    PaymentMethod[] = [
+
+      'Cash',
+
+      'Mobile Money',
+
+      'Card',
+
+      'Bank Transfer',
+
+      'Insurance',
+
+      'Other'
+
+    ];
+
+
+  // =====================================================
   // CONSTRUCTOR
   // =====================================================
 
   constructor(
-    private billingService: BillingService,
-    private route: ActivatedRoute,
-    private router: Router
+    private billingService:
+      BillingService,
+
+    private route:
+      ActivatedRoute,
+
+    private router:
+      Router
   ) {}
 
 
@@ -53,20 +96,37 @@ export class BillingDetails implements OnInit {
   ngOnInit(): void {
 
     const id =
-      this.route.snapshot.paramMap.get('id');
+      this.route.snapshot.paramMap.get(
+        'id'
+      );
 
 
     if (!id) {
 
-      this.router.navigate(['/billing']);
+      this.backToBilling();
 
       return;
 
     }
 
 
+    this.loadBill(id);
+
+  }
+
+
+  // =====================================================
+  // LOAD BILL
+  // =====================================================
+
+  private loadBill(
+    id: string
+  ): void {
+
     this.bill =
-      this.billingService.getBillById(id);
+      this.billingService.getBillById(
+        id
+      );
 
 
     if (!this.bill) {
@@ -75,22 +135,184 @@ export class BillingDetails implements OnInit {
         'Billing record not found.'
       );
 
-      this.router.navigate(['/billing']);
+      this.backToBilling();
+
+      return;
 
     }
+
+
+    /*
+     * Start payment amount with the current
+     * outstanding balance.
+     */
+
+    this.paymentAmount =
+      this.bill.balance;
 
   }
 
 
   // =====================================================
-  // EDIT
+  // GET BILL ITEMS
+  // =====================================================
+
+  getBillItems():
+    BillItem[] {
+
+    if (!this.bill) {
+
+      return [];
+
+    }
+
+
+    return this.bill.items ?? [];
+
+  }
+
+
+  // =====================================================
+  // GET ITEM COUNT
+  // =====================================================
+
+  getItemCount():
+    number {
+
+    return this.getBillItems()
+      .length;
+
+  }
+
+
+  // =====================================================
+  // GET ITEMS BY TYPE
+  // =====================================================
+
+  getItemsByType(
+    billingType: BillingType
+  ): BillItem[] {
+
+    return this.getBillItems()
+      .filter(
+        item =>
+          item.billingType ===
+          billingType
+      );
+
+  }
+
+
+  // =====================================================
+  // CHECK BILLING TYPE
+  // =====================================================
+
+  hasBillingType(
+    billingType: BillingType
+  ): boolean {
+
+    /*
+     * Check item-based billing first.
+     */
+
+    const itemMatch =
+      this.getBillItems().some(
+        item =>
+          item.billingType ===
+          billingType
+      );
+
+
+    if (itemMatch) {
+
+      return true;
+
+    }
+
+
+    /*
+     * Fall back to the legacy bill type so
+     * older invoices still work.
+     */
+
+    return (
+      this.bill?.billingType ===
+      billingType
+    );
+
+  }
+
+
+  // =====================================================
+  // GET BILLING TYPES
+  // =====================================================
+
+  getBillingTypes():
+    BillingType[] {
+
+    const types:
+      BillingType[] = [
+
+        'Consultation',
+
+        'Laboratory',
+
+        'Pharmacy',
+
+        'Admission',
+
+        'Procedure',
+
+        'Other'
+
+      ];
+
+
+    return types.filter(
+      type =>
+        this.hasBillingType(
+          type
+        )
+    );
+
+  }
+
+
+  // =====================================================
+  // CALCULATE TYPE TOTAL
+  // =====================================================
+
+  getTypeTotal(
+    billingType: BillingType
+  ): number {
+
+    return this.getItemsByType(
+      billingType
+    ).reduce(
+      (
+        total,
+        item
+      ) =>
+        total +
+        item.amount,
+      0
+    );
+
+  }
+
+
+  // =====================================================
+  // EDIT BILL
   // =====================================================
 
   editBill(): void {
 
     if (!this.bill) {
+
       return;
+
     }
+
 
     this.router.navigate([
       '/billing',
@@ -102,7 +324,7 @@ export class BillingDetails implements OnInit {
 
 
   // =====================================================
-  // BACK
+  // BACK TO BILLING
   // =====================================================
 
   backToBilling(): void {
@@ -115,13 +337,29 @@ export class BillingDetails implements OnInit {
 
 
   // =====================================================
-  // DELETE
+  // DELETE BILL
   // =====================================================
 
   deleteBill(): void {
 
     if (!this.bill) {
+
       return;
+
+    }
+
+
+    if (
+      this.bill.status ===
+      'Paid'
+    ) {
+
+      alert(
+        'A fully paid invoice cannot be deleted.'
+      );
+
+      return;
+
     }
 
 
@@ -132,7 +370,9 @@ export class BillingDetails implements OnInit {
 
 
     if (!confirmed) {
+
       return;
+
     }
 
 
@@ -158,9 +398,189 @@ export class BillingDetails implements OnInit {
     );
 
 
-    this.router.navigate([
-      '/billing'
-    ]);
+    this.backToBilling();
+
+  }
+
+
+  // =====================================================
+  // CAN RECORD PAYMENT
+  // =====================================================
+
+  canRecordPayment():
+    boolean {
+
+    if (!this.bill) {
+
+      return false;
+
+    }
+
+
+    return (
+      this.bill.status !== 'Paid' &&
+      this.bill.status !== 'Cancelled' &&
+      this.bill.balance > 0
+    );
+
+  }
+
+
+  // =====================================================
+  // RECORD PAYMENT
+  // =====================================================
+
+  recordPayment(): void {
+
+    if (
+      !this.bill
+    ) {
+
+      return;
+
+    }
+
+
+    if (
+      !this.canRecordPayment()
+    ) {
+
+      return;
+
+    }
+
+
+    // ===================================================
+    // VALIDATE AMOUNT
+    // ===================================================
+
+    if (
+      !Number.isFinite(
+        this.paymentAmount
+      ) ||
+      this.paymentAmount <= 0
+    ) {
+
+      alert(
+        'Please enter a valid payment amount.'
+      );
+
+      return;
+
+    }
+
+
+    if (
+      this.paymentAmount >
+      this.bill.balance
+    ) {
+
+      alert(
+        `Payment cannot exceed the outstanding balance of ${this.formatCurrency(
+          this.bill.balance
+        )}.`
+      );
+
+      return;
+
+    }
+
+
+    // ===================================================
+    // START PROCESSING
+    // ===================================================
+
+    this.isProcessingPayment =
+      true;
+
+
+    try {
+
+      const success =
+        this.billingService.recordPayment(
+
+          this.bill.id,
+
+          this.paymentAmount,
+
+          this.selectedPaymentMethod
+
+        );
+
+
+      if (!success) {
+
+        alert(
+          'Unable to record payment.'
+        );
+
+        return;
+
+      }
+
+
+      // =================================================
+      // RELOAD BILL
+      // =================================================
+
+      this.bill =
+        this.billingService.getBillById(
+          this.bill.id
+        );
+
+
+      if (!this.bill) {
+
+        alert(
+          'The billing record could not be reloaded.'
+        );
+
+        this.backToBilling();
+
+        return;
+
+      }
+
+
+      // =================================================
+      // RESET PAYMENT FORM
+      // =================================================
+
+      this.paymentAmount =
+        this.bill.balance;
+
+
+      // =================================================
+      // SUCCESS MESSAGE
+      // =================================================
+
+      if (
+        this.bill.status ===
+        'Paid'
+      ) {
+
+        alert(
+          'Payment recorded successfully. The invoice is now fully paid.'
+        );
+
+      }
+
+      else {
+
+        alert(
+          'Payment recorded successfully.'
+        );
+
+      }
+
+    }
+
+    finally {
+
+      this.isProcessingPayment =
+        false;
+
+    }
 
   }
 
@@ -173,21 +593,83 @@ export class BillingDetails implements OnInit {
     status: BillingStatus
   ): string {
 
-    switch (status) {
+    switch (
+      status
+    ) {
 
       case 'Paid':
+
         return 'paid';
 
+
       case 'Partially Paid':
+
         return 'partial';
 
+
       case 'Pending':
+
         return 'pending';
 
+
       case 'Cancelled':
+
         return 'cancelled';
 
+
       default:
+
+        return '';
+
+    }
+
+  }
+
+
+  // =====================================================
+  // BILLING TYPE CLASS
+  // =====================================================
+
+  getBillingTypeClass(
+    type: BillingType
+  ): string {
+
+    switch (
+      type
+    ) {
+
+      case 'Consultation':
+
+        return 'consultation';
+
+
+      case 'Laboratory':
+
+        return 'laboratory';
+
+
+      case 'Pharmacy':
+
+        return 'pharmacy';
+
+
+      case 'Admission':
+
+        return 'admission';
+
+
+      case 'Procedure':
+
+        return 'procedure';
+
+
+      case 'Other':
+
+        return 'other';
+
+
+      default:
+
         return '';
 
     }
@@ -204,7 +686,26 @@ export class BillingDetails implements OnInit {
   ): string {
 
     if (!date) {
+
       return '—';
+
+    }
+
+
+    const parsedDate =
+      new Date(
+        date
+      );
+
+
+    if (
+      Number.isNaN(
+        parsedDate.getTime()
+      )
+    ) {
+
+      return '—';
+
     }
 
 
@@ -212,11 +713,13 @@ export class BillingDetails implements OnInit {
       'en-GB',
       {
         day: '2-digit',
+
         month: 'short',
+
         year: 'numeric'
       }
     ).format(
-      new Date(date)
+      parsedDate
     );
 
   }
@@ -231,7 +734,26 @@ export class BillingDetails implements OnInit {
   ): string {
 
     if (!date) {
+
       return '—';
+
+    }
+
+
+    const parsedDate =
+      new Date(
+        date
+      );
+
+
+    if (
+      Number.isNaN(
+        parsedDate.getTime()
+      )
+    ) {
+
+      return '—';
+
     }
 
 
@@ -239,13 +761,17 @@ export class BillingDetails implements OnInit {
       'en-GB',
       {
         day: '2-digit',
+
         month: 'short',
+
         year: 'numeric',
+
         hour: '2-digit',
+
         minute: '2-digit'
       }
     ).format(
-      new Date(date)
+      parsedDate
     );
 
   }
@@ -263,7 +789,9 @@ export class BillingDetails implements OnInit {
       'en-UG',
       {
         style: 'currency',
+
         currency: 'UGX',
+
         maximumFractionDigits: 0
       }
     ).format(
@@ -277,24 +805,94 @@ export class BillingDetails implements OnInit {
   // PAYMENT PROGRESS
   // =====================================================
 
-  getPaymentPercentage(): number {
+  getPaymentPercentage():
+    number {
 
-    if (!this.bill || this.bill.amount <= 0) {
+    if (
+      !this.bill ||
+      this.bill.amount <= 0
+    ) {
+
       return 0;
+
     }
 
 
     return Math.min(
       100,
+
       Math.round(
         (
           this.bill.amountPaid /
           this.bill.amount
         ) * 100
       )
+
+    );
+
+  }
+
+
+  // =====================================================
+  // HAS BALANCE
+  // =====================================================
+
+  hasBalance():
+    boolean {
+
+    return !!this.bill &&
+      this.bill.balance > 0;
+
+  }
+
+
+  // =====================================================
+  // IS PAID
+  // =====================================================
+
+  isPaid():
+    boolean {
+
+    return !!this.bill &&
+      this.bill.status ===
+      'Paid';
+
+  }
+
+
+  // =====================================================
+  // IS PHARMACY BILL
+  // =====================================================
+
+  isPharmacyBill():
+    boolean {
+
+    return this.hasBillingType(
+      'Pharmacy'
+    );
+
+  }
+
+
+  // =====================================================
+  // GET LEGACY DESCRIPTION
+  // =====================================================
+
+  getLegacyDescription():
+    string {
+
+    if (!this.bill) {
+
+      return '—';
+
+    }
+
+
+    return (
+      this.bill.description ||
+      '—'
     );
 
   }
 
 }
-

@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import {
+  ActivatedRoute,
+  Router
+} from '@angular/router';
 
 import {
   LaboratoryRequest,
@@ -18,21 +22,42 @@ import {
   standalone: true,
 
   imports: [
-    CommonModule
+    CommonModule,
+    FormsModule
   ],
 
-  templateUrl: './laboratory-request-details.html',
+  templateUrl:
+    './laboratory-request-details.html',
 
-  styleUrl: './laboratory-request-details.css'
+  styleUrl:
+    './laboratory-request-details.css'
 })
-export class LaboratoryRequestDetails implements OnInit {
+export class LaboratoryRequestDetails
+  implements OnInit {
 
 
   // =====================================================
   // REQUEST
   // =====================================================
 
-  request: LaboratoryRequest | null = null;
+  request:
+    LaboratoryRequest | null = null;
+
+
+  // =====================================================
+  // RESULT
+  // =====================================================
+
+  laboratoryResult = '';
+
+  laboratoryNotes = '';
+
+
+  // =====================================================
+  // PROCESSING
+  // =====================================================
+
+  isSaving = false;
 
 
   // =====================================================
@@ -40,9 +65,14 @@ export class LaboratoryRequestDetails implements OnInit {
   // =====================================================
 
   constructor(
-    private laboratoryService: LaboratoryService,
-    private route: ActivatedRoute,
-    private router: Router
+    private laboratoryService:
+      LaboratoryService,
+
+    private route:
+      ActivatedRoute,
+
+    private router:
+      Router
   ) {}
 
 
@@ -53,7 +83,9 @@ export class LaboratoryRequestDetails implements OnInit {
   ngOnInit(): void {
 
     const id =
-      this.route.snapshot.paramMap.get('id');
+      this.route.snapshot.paramMap.get(
+        'id'
+      );
 
 
     if (!id) {
@@ -69,12 +101,32 @@ export class LaboratoryRequestDetails implements OnInit {
     }
 
 
-    this.request =
-      this.laboratoryService.getRequestById(id)
-      ?? null;
+    this.loadRequest(
+      id
+    );
+
+  }
 
 
-    if (!this.request) {
+  // =====================================================
+  // LOAD REQUEST
+  // =====================================================
+
+  private loadRequest(
+    id: string
+  ): void {
+
+    const request =
+      this.laboratoryService
+        .getRequestById(
+          id
+        );
+
+
+    if (!request) {
+
+      this.request =
+        null;
 
       alert(
         'Laboratory request could not be found.'
@@ -82,58 +134,483 @@ export class LaboratoryRequestDetails implements OnInit {
 
       this.backToRequests();
 
-    }
-
-  }
-
-
-  // =====================================================
-  // STATUS
-  // =====================================================
-
-  updateStatus(
-    status: LaboratoryStatus
-  ): void {
-
-    if (!this.request) {
-      return;
-    }
-
-
-    const success =
-      this.laboratoryService.updateRequestStatus(
-        this.request.id,
-        status
-      );
-
-
-    if (!success) {
-
-      alert(
-        'Unable to update request status.'
-      );
-
       return;
 
     }
 
 
     this.request =
-      this.laboratoryService.getRequestById(
-        this.request.id
-      ) ?? null;
+      request;
+
+
+    this.laboratoryResult =
+      request.result || '';
+
+
+    this.laboratoryNotes =
+      request.notes || '';
 
   }
 
 
   // =====================================================
-  // EDIT
+  // START PROCESSING
+  // =====================================================
+
+  startProcessing(): void {
+
+    if (!this.request) {
+
+      return;
+
+    }
+
+
+    if (
+      this.request.status !==
+      'Pending'
+    ) {
+
+      return;
+
+    }
+
+
+    const success =
+      this.laboratoryService
+        .updateRequestStatus(
+          this.request.id,
+          'In Progress'
+        );
+
+
+    if (!success) {
+
+      alert(
+        'Unable to start laboratory processing.'
+      );
+
+      return;
+
+    }
+
+
+    this.reloadCurrentRequest();
+
+  }
+
+
+  // =====================================================
+  // SAVE RESULT
+  // =====================================================
+
+  saveResult(): void {
+
+    if (!this.request) {
+
+      return;
+
+    }
+
+
+    if (
+      this.request.status ===
+      'Cancelled'
+    ) {
+
+      alert(
+        'Cancelled laboratory requests cannot be updated.'
+      );
+
+      return;
+
+    }
+
+
+    if (
+      !this.laboratoryResult.trim()
+    ) {
+
+      alert(
+        'Please enter the laboratory result.'
+      );
+
+      return;
+
+    }
+
+
+    this.isSaving =
+      true;
+
+
+    const updatedRequest:
+      LaboratoryRequest = {
+
+      ...this.request,
+
+      result:
+        this.laboratoryResult.trim(),
+
+      notes:
+        this.laboratoryNotes.trim() ||
+        undefined
+
+    };
+
+
+    const success =
+      this.laboratoryService
+        .updateRequest(
+          updatedRequest
+        );
+
+
+    this.isSaving =
+      false;
+
+
+    if (!success) {
+
+      alert(
+        'Unable to save laboratory result.'
+      );
+
+      return;
+
+    }
+
+
+    this.reloadCurrentRequest();
+
+
+    alert(
+      'Laboratory result saved successfully.'
+    );
+
+  }
+
+
+  // =====================================================
+  // COMPLETE REQUEST
+  // =====================================================
+
+  completeRequest(): void {
+
+    if (!this.request) {
+
+      return;
+
+    }
+
+
+    if (
+      this.request.status ===
+      'Completed'
+    ) {
+
+      return;
+
+    }
+
+
+    if (
+      this.request.status ===
+      'Cancelled'
+    ) {
+
+      alert(
+        'Cancelled laboratory requests cannot be completed.'
+      );
+
+      return;
+
+    }
+
+
+    if (
+      !this.laboratoryResult.trim()
+    ) {
+
+      alert(
+        'Please enter the laboratory result before completing this request.'
+      );
+
+      return;
+
+    }
+
+
+    const confirmed =
+      confirm(
+        'Complete this laboratory request? The laboratory charge will be added to the patient billing.'
+      );
+
+
+    if (!confirmed) {
+
+      return;
+
+    }
+
+
+    // ===================================================
+    // SAVE RESULT FIRST
+    // ===================================================
+
+    const updatedRequest:
+      LaboratoryRequest = {
+
+      ...this.request,
+
+      result:
+        this.laboratoryResult.trim(),
+
+      notes:
+        this.laboratoryNotes.trim() ||
+        undefined
+
+    };
+
+
+    const resultSaved =
+      this.laboratoryService
+        .updateRequest(
+          updatedRequest
+        );
+
+
+    if (!resultSaved) {
+
+      alert(
+        'Unable to save laboratory result.'
+      );
+
+      return;
+
+    }
+
+
+    // ===================================================
+    // COMPLETE REQUEST
+    // ===================================================
+
+    const completed =
+      this.laboratoryService
+        .completeRequest(
+          this.request.id
+        );
+
+
+    if (!completed) {
+
+      alert(
+        'The result was saved, but the laboratory request could not be completed.'
+      );
+
+      this.reloadCurrentRequest();
+
+      return;
+
+    }
+
+
+    this.reloadCurrentRequest();
+
+
+    alert(
+      'Laboratory request completed successfully. The laboratory charge has been added to billing.'
+    );
+
+  }
+// =====================================================
+// UPDATE STATUS
+// =====================================================
+
+updateStatus(
+  status: LaboratoryStatus
+): void {
+
+  if (!this.request) {
+
+    return;
+
+  }
+
+
+  // ===================================================
+  // COMPLETE REQUIRES RESULT
+  // ===================================================
+
+  if (
+    status === 'Completed'
+  ) {
+
+    this.completeRequest();
+
+    return;
+
+  }
+
+
+  // ===================================================
+  // START PROCESSING
+  // ===================================================
+
+  if (
+    status === 'In Progress'
+  ) {
+
+    this.startProcessing();
+
+    return;
+
+  }
+
+
+  // ===================================================
+  // CANCEL
+  // ===================================================
+
+  if (
+    status === 'Cancelled'
+  ) {
+
+    this.cancelRequest();
+
+    return;
+
+  }
+
+
+  // ===================================================
+  // OTHER STATUS
+  // ===================================================
+
+  const success =
+    this.laboratoryService
+      .updateRequestStatus(
+        this.request.id,
+        status
+      );
+
+
+  if (!success) {
+
+    alert(
+      'Unable to update request status.'
+    );
+
+    return;
+
+  }
+
+
+  this.reloadCurrentRequest();
+
+}
+
+  // =====================================================
+  // CANCEL REQUEST
+  // =====================================================
+
+  cancelRequest(): void {
+
+    if (!this.request) {
+
+      return;
+
+    }
+
+
+    if (
+      this.request.status ===
+      'Completed'
+    ) {
+
+      alert(
+        'Completed laboratory requests cannot be cancelled.'
+      );
+
+      return;
+
+    }
+
+
+    if (
+      this.request.status ===
+      'Cancelled'
+    ) {
+
+      return;
+
+    }
+
+
+    const confirmed =
+      confirm(
+        'Cancel this laboratory request?'
+      );
+
+
+    if (!confirmed) {
+
+      return;
+
+    }
+
+
+    const success =
+      this.laboratoryService
+        .updateRequestStatus(
+          this.request.id,
+          'Cancelled'
+        );
+
+
+    if (!success) {
+
+      alert(
+        'Unable to cancel laboratory request.'
+      );
+
+      return;
+
+    }
+
+
+    this.reloadCurrentRequest();
+
+
+    alert(
+      'Laboratory request cancelled.'
+    );
+
+  }
+
+
+  // =====================================================
+  // EDIT REQUEST
   // =====================================================
 
   editRequest(): void {
 
     if (!this.request) {
+
       return;
+
+    }
+
+
+    if (
+      this.request.status ===
+        'Completed' ||
+      this.request.status ===
+        'Cancelled'
+    ) {
+
+      return;
+
     }
 
 
@@ -147,31 +624,50 @@ export class LaboratoryRequestDetails implements OnInit {
 
 
   // =====================================================
-  // DELETE
+  // DELETE REQUEST
   // =====================================================
 
   deleteRequest(): void {
 
     if (!this.request) {
+
       return;
+
+    }
+
+
+    if (
+      this.request.status ===
+      'Completed'
+    ) {
+
+      alert(
+        'Completed laboratory requests cannot be deleted.'
+      );
+
+      return;
+
     }
 
 
     const confirmed =
       confirm(
-        `Are you sure you want to delete this laboratory request?`
+        `Are you sure you want to delete laboratory request ${this.request.id}?`
       );
 
 
     if (!confirmed) {
+
       return;
+
     }
 
 
     const deleted =
-      this.laboratoryService.deleteRequest(
-        this.request.id
-      );
+      this.laboratoryService
+        .deleteRequest(
+          this.request.id
+        );
 
 
     if (!deleted) {
@@ -196,31 +692,112 @@ export class LaboratoryRequestDetails implements OnInit {
 
 
   // =====================================================
+  // VIEW CONSULTATION
+  // =====================================================
+
+  viewConsultation(): void {
+
+    if (
+      !this.request?.consultationId
+    ) {
+
+      alert(
+        'This laboratory request is not linked to a consultation.'
+      );
+
+      return;
+
+    }
+
+
+    this.router.navigate([
+      '/consultations',
+      this.request.consultationId
+    ]);
+
+  }
+
+
+  // =====================================================
+  // RELOAD CURRENT REQUEST
+  // =====================================================
+
+  private reloadCurrentRequest(): void {
+
+    if (!this.request) {
+
+      return;
+
+    }
+
+
+    const id =
+      this.request.id;
+
+
+    const updated =
+      this.laboratoryService
+        .getRequestById(
+          id
+        );
+
+
+    this.request =
+      updated ?? null;
+
+
+    if (this.request) {
+
+      this.laboratoryResult =
+        this.request.result || '';
+
+      this.laboratoryNotes =
+        this.request.notes || '';
+
+    }
+
+  }
+
+
+  // =====================================================
   // STATUS CLASS
   // =====================================================
 
   getStatusClass(): string {
 
     if (!this.request) {
+
       return '';
+
     }
 
 
-    switch (this.request.status) {
+    switch (
+      this.request.status
+    ) {
 
       case 'Pending':
+
         return 'pending';
 
+
       case 'In Progress':
+
         return 'in-progress';
 
+
       case 'Completed':
+
         return 'completed';
 
+
       case 'Cancelled':
+
         return 'cancelled';
 
+
       default:
+
         return '';
 
     }
@@ -229,7 +806,88 @@ export class LaboratoryRequestDetails implements OnInit {
 
 
   // =====================================================
-  // CURRENCY
+  // CAN EDIT
+  // =====================================================
+
+  canEdit(): boolean {
+
+    if (!this.request) {
+
+      return false;
+
+    }
+
+
+    return (
+      this.request.status !== 'Completed' &&
+      this.request.status !== 'Cancelled'
+    );
+
+  }
+
+
+  // =====================================================
+  // CAN START PROCESSING
+  // =====================================================
+
+  canStartProcessing(): boolean {
+
+    return (
+      this.request?.status ===
+      'Pending'
+    );
+
+  }
+
+
+  // =====================================================
+  // CAN SAVE RESULT
+  // =====================================================
+
+  canSaveResult(): boolean {
+
+    if (!this.request) {
+
+      return false;
+
+    }
+
+
+    return (
+      this.request.status ===
+        'In Progress' ||
+      this.request.status ===
+        'Pending'
+    );
+
+  }
+
+
+  // =====================================================
+  // CAN COMPLETE
+  // =====================================================
+
+  canComplete(): boolean {
+
+    if (!this.request) {
+
+      return false;
+
+    }
+
+
+    return (
+      this.request.status ===
+        'In Progress' ||
+      this.request.status ===
+        'Pending'
+    );
+
+  }
+
+
+  // =====================================================
+  // FORMAT CURRENCY
   // =====================================================
 
   formatCurrency(
@@ -243,7 +901,99 @@ export class LaboratoryRequestDetails implements OnInit {
         currency: 'UGX',
         maximumFractionDigits: 0
       }
-    ).format(amount);
+    ).format(
+      amount || 0
+    );
+
+  }
+
+
+  // =====================================================
+  // FORMAT DATE
+  // =====================================================
+
+  formatDate(
+    date?: string
+  ): string {
+
+    if (!date) {
+
+      return '—';
+
+    }
+
+
+    const parsedDate =
+      new Date(date);
+
+
+    if (
+      Number.isNaN(
+        parsedDate.getTime()
+      )
+    ) {
+
+      return '—';
+
+    }
+
+
+    return new Intl.DateTimeFormat(
+      'en-GB',
+      {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      }
+    ).format(
+      parsedDate
+    );
+
+  }
+
+
+  // =====================================================
+  // FORMAT DATE TIME
+  // =====================================================
+
+  formatDateTime(
+    date?: string
+  ): string {
+
+    if (!date) {
+
+      return '—';
+
+    }
+
+
+    const parsedDate =
+      new Date(date);
+
+
+    if (
+      Number.isNaN(
+        parsedDate.getTime()
+      )
+    ) {
+
+      return '—';
+
+    }
+
+
+    return new Intl.DateTimeFormat(
+      'en-GB',
+      {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }
+    ).format(
+      parsedDate
+    );
 
   }
 

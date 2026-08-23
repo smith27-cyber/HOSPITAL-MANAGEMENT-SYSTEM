@@ -2,13 +2,38 @@ import { Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { ConsultationService } from '../../../core/services/consultation.service';
-import { PatientService } from '../../../core/services/patient.service';
-import { DoctorService } from '../../../core/services/doctor.service';
+import {
+  ConsultationService
+} from '../../../core/services/consultation.service';
 
-import { Consultation } from '../../../shared/models/consultation.model';
-import { Patient } from '../../../shared/models/patient.model';
-import { Doctor } from '../../../shared/models/doctor.model';
+import {
+  PatientService
+} from '../../../core/services/patient.service';
+
+import {
+  DoctorService
+} from '../../../core/services/doctor.service';
+
+import {
+  LaboratoryService
+} from '../../../core/services/laboratory.service';
+
+import {
+  Consultation
+} from '../../../shared/models/consultation.model';
+
+import {
+  Patient
+} from '../../../shared/models/patient.model';
+
+import {
+  Doctor
+} from '../../../shared/models/doctor.model';
+
+import {
+  LaboratoryRequest
+} from '../../../shared/models/laboratory.model';
+
 
 @Component({
   selector: 'app-consultation-profile',
@@ -46,6 +71,14 @@ export class ConsultationProfile implements OnInit {
 
 
   // =====================================================
+  // LABORATORY REQUESTS
+  // =====================================================
+
+  laboratoryRequests:
+    LaboratoryRequest[] = [];
+
+
+  // =====================================================
   // CONSTRUCTOR
   // =====================================================
 
@@ -61,7 +94,10 @@ export class ConsultationProfile implements OnInit {
       PatientService,
 
     private doctorService:
-      DoctorService
+      DoctorService,
+
+    private laboratoryService:
+      LaboratoryService
   ) {}
 
 
@@ -72,7 +108,9 @@ export class ConsultationProfile implements OnInit {
   ngOnInit(): void {
 
     const id =
-      this.route.snapshot.paramMap.get('id');
+      this.route.snapshot.paramMap.get(
+        'id'
+      );
 
 
     // ---------------------------------------------------
@@ -90,7 +128,9 @@ export class ConsultationProfile implements OnInit {
     }
 
 
-    this.loadConsultation(id);
+    this.loadConsultation(
+      id
+    );
 
   }
 
@@ -109,7 +149,9 @@ export class ConsultationProfile implements OnInit {
 
     const consultation =
       this.consultationService
-        .getConsultationById(id);
+        .getConsultationById(
+          id
+        );
 
 
     // ---------------------------------------------------
@@ -126,6 +168,9 @@ export class ConsultationProfile implements OnInit {
 
       this.doctor =
         undefined;
+
+      this.laboratoryRequests =
+        [];
 
       return;
 
@@ -159,20 +204,23 @@ export class ConsultationProfile implements OnInit {
 
 
     // ---------------------------------------------------
+    // Load laboratory requests
+    // ---------------------------------------------------
+
+    this.laboratoryRequests =
+      this.laboratoryService
+        .getRequestsByConsultation(
+          consultation.id
+        );
+
+
+    // ---------------------------------------------------
     // Debugging
     // ---------------------------------------------------
-    // You can remove these later.
-    // They help confirm that the correct IDs
-    // are being passed through the system.
 
     console.log(
       'Consultation:',
       consultation
-    );
-
-    console.log(
-      'Patient ID:',
-      consultation.patientId
     );
 
     console.log(
@@ -181,13 +229,13 @@ export class ConsultationProfile implements OnInit {
     );
 
     console.log(
-      'Doctor ID:',
-      consultation.doctorId
+      'Doctor:',
+      this.doctor
     );
 
     console.log(
-      'Doctor:',
-      this.doctor
+      'Laboratory Requests:',
+      this.laboratoryRequests
     );
 
   }
@@ -206,7 +254,9 @@ export class ConsultationProfile implements OnInit {
     }
 
 
-    return `${this.patient.firstName} ${this.patient.lastName}`;
+    return (
+      `${this.patient.firstName} ${this.patient.lastName}`
+    );
 
   }
 
@@ -224,10 +274,109 @@ export class ConsultationProfile implements OnInit {
     }
 
 
-    return `Dr. ${this.doctor.firstName} ${this.doctor.lastName}`;
+    return (
+      `Dr. ${this.doctor.firstName} ${this.doctor.lastName}`
+    );
 
   }
 
+
+  // =====================================================
+  // COMPLETED LABORATORY REQUESTS
+  // =====================================================
+
+  get completedLaboratoryRequests():
+    LaboratoryRequest[] {
+
+    return this.laboratoryRequests.filter(
+      request =>
+        request.status ===
+        'Completed'
+    );
+
+  }
+
+
+  // =====================================================
+  // PENDING LABORATORY REQUESTS
+  // =====================================================
+
+  get pendingLaboratoryRequests():
+    LaboratoryRequest[] {
+
+    return this.laboratoryRequests.filter(
+      request =>
+        request.status ===
+        'Pending'
+    );
+
+  }
+
+
+  // =====================================================
+  // IN-PROGRESS LABORATORY REQUESTS
+  // =====================================================
+
+  get inProgressLaboratoryRequests():
+    LaboratoryRequest[] {
+
+    return this.laboratoryRequests.filter(
+      request =>
+        request.status ===
+        'In Progress'
+    );
+
+  }
+
+
+  // =====================================================
+  // HAS LABORATORY REQUESTS
+  // =====================================================
+
+  get hasLaboratoryRequests():
+    boolean {
+
+    return (
+      this.laboratoryRequests.length >
+      0
+    );
+
+  }
+
+
+  // =====================================================
+  // HAS COMPLETED RESULTS
+  // =====================================================
+
+  get hasCompletedLaboratoryResults():
+    boolean {
+
+    return (
+      this.completedLaboratoryRequests.length >
+      0
+    );
+
+  }
+// =====================================================
+// FORMAT CURRENCY
+// =====================================================
+
+formatCurrency(
+  amount: number
+): string {
+
+  return new Intl.NumberFormat(
+    'en-UG',
+    {
+      style: 'currency',
+      currency: 'UGX',
+      maximumFractionDigits: 0
+    }
+  ).format(
+    amount || 0
+  );
+
+}
 
   // =====================================================
   // EDIT CONSULTATION
@@ -385,6 +534,22 @@ export class ConsultationProfile implements OnInit {
 
     this.router.navigate([
       '/consultations'
+    ]);
+
+  }
+
+
+  // =====================================================
+  // VIEW LABORATORY REQUEST
+  // =====================================================
+
+  viewLaboratoryRequest(
+    request: LaboratoryRequest
+  ): void {
+
+    this.router.navigate([
+      '/laboratory/requests',
+      request.id
     ]);
 
   }

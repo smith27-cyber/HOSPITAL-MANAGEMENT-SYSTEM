@@ -8,9 +8,7 @@
 
     <div>
 
-      <h1>
-        Appointments
-      </h1>
+      <h1>Appointments</h1>
 
       <p>
         Manage and view hospital appointments
@@ -19,7 +17,7 @@
     </div>
 
 
-    <!-- Header Actions -->
+    <!-- HEADER ACTIONS -->
 
     <div class="header-actions">
 
@@ -68,7 +66,7 @@
   <div class="appointment-stats">
 
 
-    <!-- Total -->
+    <!-- TOTAL -->
 
     <div class="stat-card">
 
@@ -95,7 +93,7 @@
     </div>
 
 
-    <!-- Scheduled -->
+    <!-- SCHEDULED -->
 
     <div class="stat-card">
 
@@ -122,7 +120,7 @@
     </div>
 
 
-    <!-- Confirmed -->
+    <!-- CONFIRMED -->
 
     <div class="stat-card">
 
@@ -149,7 +147,7 @@
     </div>
 
 
-    <!-- Checked In -->
+    <!-- CHECKED IN -->
 
     <div class="stat-card">
 
@@ -176,7 +174,34 @@
     </div>
 
 
-    <!-- Completed -->
+    <!-- IN CONSULTATION -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        <span class="material-symbols-outlined">
+          clinical_notes
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          In Consultation
+        </span>
+
+        <strong>
+          {{ inConsultationAppointments }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- COMPLETED -->
 
     <div class="stat-card">
 
@@ -203,7 +228,7 @@
     </div>
 
 
-    <!-- Cancelled -->
+    <!-- CANCELLED -->
 
     <div class="stat-card">
 
@@ -229,6 +254,33 @@
 
     </div>
 
+
+    <!-- NO SHOW -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        <span class="material-symbols-outlined">
+          person_off
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          No Show
+        </span>
+
+        <strong>
+          {{ noShowAppointments }}
+        </strong>
+
+      </div>
+
+    </div>
+
   </div>
 
 
@@ -246,7 +298,7 @@
     <div class="table-toolbar">
 
 
-      <!-- Search -->
+      <!-- SEARCH -->
 
       <div class="search-box">
 
@@ -264,12 +316,12 @@
       </div>
 
 
-      <!-- Filters -->
+      <!-- FILTERS -->
 
       <div class="filters">
 
 
-        <!-- Department -->
+        <!-- DEPARTMENT -->
 
         <select
           name="departmentFilter"
@@ -303,7 +355,7 @@
         </select>
 
 
-        <!-- Status -->
+        <!-- STATUS -->
 
         <select
           name="statusFilter"
@@ -345,7 +397,7 @@
         </select>
 
 
-        <!-- Clear -->
+        <!-- CLEAR -->
 
         <button
           class="clear-button"
@@ -438,11 +490,11 @@
                 <button
                   class="appointment-id-button"
                   type="button"
+                  title="View appointment"
                   [routerLink]="[
                     '/appointments',
                     appointment.id
                   ]"
-                  title="View appointment"
                 >
 
                   {{ appointment.id }}
@@ -497,9 +549,7 @@
               <td>
 
                 <strong class="doctor-name">
-
                   {{ appointment.doctorName }}
-
                 </strong>
 
               </td>
@@ -603,7 +653,9 @@
                 <div class="action-buttons">
 
 
+                  <!-- ========================= -->
                   <!-- VIEW -->
+                  <!-- ========================= -->
 
                   <button
                     class="action-button"
@@ -622,27 +674,38 @@
                   </button>
 
 
+                  <!-- ========================= -->
                   <!-- EDIT -->
+                  <!-- ========================= -->
 
-                  <button
-                    class="action-button"
-                    type="button"
-                    title="Edit appointment"
-                    [routerLink]="[
-                      '/appointments',
-                      appointment.id,
-                      'edit'
-                    ]"
-                  >
+                  @if (
+                    appointment.status !== 'Cancelled' &&
+                    appointment.status !== 'Completed'
+                  ) {
 
-                    <span class="material-symbols-outlined">
-                      edit
-                    </span>
+                    <button
+                      class="action-button"
+                      type="button"
+                      title="Edit appointment"
+                      [routerLink]="[
+                        '/appointments',
+                        appointment.id,
+                        'edit'
+                      ]"
+                    >
 
-                  </button>
+                      <span class="material-symbols-outlined">
+                        edit
+                      </span>
+
+                    </button>
+
+                  }
 
 
+                  <!-- ========================= -->
                   <!-- CONFIRM -->
+                  <!-- ========================= -->
 
                   @if (
                     appointment.status === 'Scheduled'
@@ -668,7 +731,9 @@
                   }
 
 
+                  <!-- ========================= -->
                   <!-- CHECK IN -->
+                  <!-- ========================= -->
 
                   @if (
                     appointment.status === 'Confirmed'
@@ -687,6 +752,34 @@
 
                       <span class="material-symbols-outlined">
                         how_to_reg
+                      </span>
+
+                    </button>
+
+                  }
+
+
+                  <!-- ========================= -->
+                  <!-- START CONSULTATION -->
+                  <!-- ========================= -->
+
+                  @if (
+                    appointment.status === 'Checked-In'
+                  ) {
+
+                    <button
+                      class="action-button consultation-start-action"
+                      type="button"
+                      title="Start consultation"
+                      (click)="
+                        startConsultation(
+                          appointment.id
+                        )
+                      "
+                    >
+
+                      <span class="material-symbols-outlined">
+                        play_circle
                       </span>
 
                     </button>
@@ -722,30 +815,118 @@
                   }
 
 
+                  <!-- ========================= -->
+                  <!-- COMPLETE -->
+                  <!-- ========================= -->
+
+                  @if (
+                    appointment.status === 'In Consultation'
+                  ) {
+
+                    <button
+                      class="action-button complete-action"
+                      type="button"
+                      title="Complete appointment"
+                      (click)="
+                        completeAppointment(
+                          appointment.id
+                        )
+                      "
+                    >
+
+                      <span class="material-symbols-outlined">
+                        task_alt
+                      </span>
+
+                    </button>
+
+                  }
+
+
+                  <!-- ========================= -->
+                  <!-- NO SHOW -->
+                  <!-- ========================= -->
+
+                  @if (
+                    appointment.status === 'Scheduled' ||
+                    appointment.status === 'Confirmed'
+                  ) {
+
+                    <button
+                      class="action-button no-show-action"
+                      type="button"
+                      title="Mark as No Show"
+                      (click)="
+                        markNoShow(
+                          appointment.id
+                        )
+                      "
+                    >
+
+                      <span class="material-symbols-outlined">
+                        person_off
+                      </span>
+
+                    </button>
+
+                  }
+
+
+                  <!-- ========================= -->
                   <!-- CANCEL -->
+                  <!-- ========================= -->
 
-                  <button
-                    class="action-button cancel-action"
-                    type="button"
-                    title="Cancel appointment"
+                  @if (
+                    appointment.status !== 'Cancelled' &&
+                    appointment.status !== 'Completed'
+                  ) {
 
-                    (click)="
-                      cancelAppointment(
-                        appointment.id
-                      )
-                    "
+                    <button
+                      class="action-button cancel-action"
+                      type="button"
+                      title="Cancel appointment"
+                      (click)="
+                        cancelAppointment(
+                          appointment.id
+                        )
+                      "
+                    >
 
-                    [disabled]="
-                      appointment.status === 'Cancelled' ||
-                      appointment.status === 'Completed'
-                    "
-                  >
+                      <span class="material-symbols-outlined">
+                        cancel
+                      </span>
 
-                    <span class="material-symbols-outlined">
-                      cancel
-                    </span>
+                    </button>
 
-                  </button>
+                  }
+
+
+                  <!-- ========================= -->
+                  <!-- DELETE CANCELLED -->
+                  <!-- ========================= -->
+
+                  @if (
+                    appointment.status === 'Cancelled'
+                  ) {
+
+                    <button
+                      class="action-button delete-action"
+                      type="button"
+                      title="Permanently delete appointment"
+                      (click)="
+                        deleteAppointment(
+                          appointment.id
+                        )
+                      "
+                    >
+
+                      <span class="material-symbols-outlined">
+                        delete
+                      </span>
+
+                    </button>
+
+                  }
 
                 </div>
 
@@ -801,7 +982,6 @@
       </div>
 
     }
-
 
   </section>
 

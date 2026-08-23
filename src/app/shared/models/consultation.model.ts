@@ -54,9 +54,9 @@ export interface Consultation {
   // =====================================================
 
   status:
-    'Open' |
-    'Completed' |
-    'Cancelled';
+    | 'Open'
+    | 'Completed'
+    | 'Cancelled';
 
 
   // =====================================================
@@ -64,5 +64,7 @@ export interface Consultation {
   // =====================================================
 
   createdAt: string;
+
+  updatedAt?: string;
 
 }

@@ -22,7 +22,9 @@ export const routes: Routes = [
 
     loadComponent: () =>
       import('./auth/login/login')
-        .then(m => m.Login)
+        .then(
+          m => m.Login
+        )
   },
 
 
@@ -35,7 +37,9 @@ export const routes: Routes = [
 
     loadComponent: () =>
       import('./layout/main-layout/main-layout')
-        .then(m => m.MainLayout),
+        .then(
+          m => m.MainLayout
+        ),
 
     children: [
 
@@ -49,7 +53,9 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/dashboard/dashboard'
-          ).then(m => m.Dashboard)
+          ).then(
+            m => m.Dashboard
+          )
       },
 
 
@@ -63,7 +69,9 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/patients/patient-list/patient-list'
-          ).then(m => m.PatientList)
+          ).then(
+            m => m.PatientList
+          )
       },
 
       {
@@ -72,7 +80,9 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/patients/patient-form/patient-form'
-          ).then(m => m.PatientForm)
+          ).then(
+            m => m.PatientForm
+          )
       },
 
       {
@@ -81,7 +91,9 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/patients/patient-form/patient-form'
-          ).then(m => m.PatientForm)
+          ).then(
+            m => m.PatientForm
+          )
       },
 
       {
@@ -90,7 +102,9 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/patients/patient-profile/patient-profile'
-          ).then(m => m.PatientProfile)
+          ).then(
+            m => m.PatientProfile
+          )
       },
 
 
@@ -104,7 +118,9 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/doctors/doctor-list/doctor-list'
-          ).then(m => m.DoctorList)
+          ).then(
+            m => m.DoctorList
+          )
       },
 
       {
@@ -113,7 +129,9 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/doctors/doctor-form/doctor-form'
-          ).then(m => m.DoctorForm)
+          ).then(
+            m => m.DoctorForm
+          )
       },
 
       {
@@ -122,7 +140,9 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/doctors/doctor-form/doctor-form'
-          ).then(m => m.DoctorForm)
+          ).then(
+            m => m.DoctorForm
+          )
       },
 
       {
@@ -131,7 +151,9 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/doctors/doctor-profile/doctor-profile'
-          ).then(m => m.DoctorProfile)
+          ).then(
+            m => m.DoctorProfile
+          )
       },
 
 
@@ -145,7 +167,9 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/departments/department-list/department-list'
-          ).then(m => m.DepartmentList)
+          ).then(
+            m => m.DepartmentList
+          )
       },
 
       {
@@ -154,7 +178,9 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/departments/department-form/department-form'
-          ).then(m => m.DepartmentForm)
+          ).then(
+            m => m.DepartmentForm
+          )
       },
 
       {
@@ -163,7 +189,9 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/departments/department-form/department-form'
-          ).then(m => m.DepartmentForm)
+          ).then(
+            m => m.DepartmentForm
+          )
       },
 
       {
@@ -172,7 +200,9 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/departments/department-profile/department-profile'
-          ).then(m => m.DepartmentProfile)
+          ).then(
+            m => m.DepartmentProfile
+          )
       },
 
 
@@ -186,7 +216,9 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/appointments/appointment-list/appointment-list'
-          ).then(m => m.AppointmentList)
+          ).then(
+            m => m.AppointmentList
+          )
       },
 
       {
@@ -195,7 +227,9 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/appointments/appointment-register/appointment-register'
-          ).then(m => m.AppointmentRegister)
+          ).then(
+            m => m.AppointmentRegister
+          )
       },
 
       {
@@ -204,7 +238,9 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/appointments/appointment-queue/appointment-queue'
-          ).then(m => m.AppointmentQueue)
+          ).then(
+            m => m.AppointmentQueue
+          )
       },
 
       {
@@ -213,9 +249,10 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/appointments/appointment-edit/appointment-edit'
-          ).then(m => m.AppointmentEdit)
+          ).then(
+            m => m.AppointmentEdit
+          )
       },
-
 
       {
         path: 'appointments/:id',
@@ -223,272 +260,491 @@ export const routes: Routes = [
         loadComponent: () =>
           import(
             './features/appointments/appointment-details/appointment-details'
-          ).then(m => m.AppointmentDetails)
+          ).then(
+            m => m.AppointmentDetails
+          )
       },
 
 
-     // =================================================
-// CONSULTATIONS
-// =================================================
+      // =================================================
+      // CONSULTATIONS
+      // =================================================
 
-// Consultation List
-{
-  path: 'consultations',
+      {
+        path: 'consultations',
 
-  loadComponent: () =>
-    import(
-      './features/consultations/consultation-list/consultation-list'
-    ).then(m => m.ConsultationList)
-},
+        loadComponent: () =>
+          import(
+            './features/consultations/consultation-list/consultation-list'
+          ).then(
+            m => m.ConsultationList
+          )
+      },
 
-{
-  path: 'consultations/register',
+      {
+        path: 'consultations/register',
 
-  loadComponent: () =>
-    import(
-      './features/consultations/consultation-form/consultation-form'
-    ).then(m => m.ConsultationForm)
-},
+        loadComponent: () =>
+          import(
+            './features/consultations/consultation-form/consultation-form'
+          ).then(
+            m => m.ConsultationForm
+          )
+      },
 
-// Consultation Edit / Form
-{
-  path: 'consultations/:id/edit',
+      {
+        path: 'consultations/:id/edit',
 
-  loadComponent: () =>
-    import(
-      './features/consultations/consultation-form/consultation-form'
-    ).then(m => m.ConsultationForm)
-},
+        loadComponent: () =>
+          import(
+            './features/consultations/consultation-form/consultation-form'
+          ).then(
+            m => m.ConsultationForm
+          )
+      },
 
-// Consultation Profile
-{
-  path: 'consultations/:id',
+      {
+        path: 'consultations/:id',
 
-  loadComponent: () =>
-    import(
-      './features/consultations/consultation-profile/consultation-profile'
-    ).then(m => m.ConsultationProfile)
-},
-// PHARMACY
-  {
-  path: 'pharmacy',
-  loadComponent: () =>
-    import('./features/pharmacy/pharmacy-list/pharmacy-list')
-      .then(m => m.PharmacyList)
-},
+        loadComponent: () =>
+          import(
+            './features/consultations/consultation-profile/consultation-profile'
+          ).then(
+            m => m.ConsultationProfile
+          )
+      },
 
-{
-  path: 'pharmacy/register',
-  loadComponent: () =>
-    import('./features/pharmacy/pharmacy-register/pharmacy-register')
-      .then(m => m.PharmacyRegister)
-},
-{
-  path: 'pharmacy/:id/edit',
 
-  loadComponent: () =>
-    import(
-      './features/pharmacy/pharmacy-edit/pharmacy-edit'
-    ).then(m => m.PharmacyEdit)
-},
-{
-  path: 'pharmacy/:id',
-  loadComponent: () =>
-    import(
-      './features/pharmacy/pharmacy-details/pharmacy-details'
-    ).then(m => m.PharmacyDetails)
-},
-{
-  path: 'pharmacy/stock',
+      // =================================================
+      // PHARMACY
+      // =================================================
 
-  loadComponent: () =>
-    import(
-      './features/pharmacy/pharmacy-stock/pharmacy-stock'
-    ).then(m => m.PharmacyStock)
-},
+      {
+        path: 'pharmacy',
+
+        loadComponent: () =>
+          import(
+            './features/pharmacy/pharmacy-dashboard/pharmacy-dashboard'
+          ).then(
+            m => m.PharmacyDashboard
+          )
+      },
+
+      {
+        path: 'pharmacy/queue',
+
+        loadComponent: () =>
+          import(
+            './features/pharmacy/pharmacy-queue/pharmacy-queue'
+          ).then(
+            m => m.PharmacyQueue
+          )
+      },
+
+      {
+        path: 'pharmacy/prescriptions/:id',
+
+        loadComponent: () =>
+          import(
+            './features/pharmacy/pharmacy-prescription/pharmacy-prescription'
+          ).then(
+            m => m.PharmacyPrescription
+          )
+      },
+
+      {
+        path: 'pharmacy/stock',
+
+        loadComponent: () =>
+          import(
+            './features/pharmacy/pharmacy-stock/pharmacy-stock'
+          ).then(
+            m => m.PharmacyStock
+          )
+      },
+
+
+      // =================================================
+      // LABORATORY
+      // =================================================
+
+      {
+        path: 'laboratory',
+
+        loadComponent: () =>
+          import(
+            './features/laboratory/laboratory-list/laboratory-list'
+          ).then(
+            m => m.LaboratoryList
+          )
+      },
+
+
+      // =================================================
+      // LABORATORY REQUESTS
+      // =================================================
+
+      {
+        path: 'laboratory/requests',
+
+        loadComponent: () =>
+          import(
+            './features/laboratory/laboratory-requests/laboratory-request-list/laboratory-request-list'
+          ).then(
+            m => m.LaboratoryRequestList
+          )
+      },
+
+      {
+        path: 'laboratory/requests/register',
+
+        loadComponent: () =>
+          import(
+            './features/laboratory/laboratory-requests/laboratory-request-form/laboratory-request-form'
+          ).then(
+            m => m.LaboratoryRequestForm
+          )
+      },
+
+      {
+        path: 'laboratory/requests/:id/edit',
+
+        loadComponent: () =>
+          import(
+            './features/laboratory/laboratory-requests/laboratory-request-form/laboratory-request-form'
+          ).then(
+            m => m.LaboratoryRequestForm
+          )
+      },
+
+      {
+        path: 'laboratory/requests/:id',
+
+        loadComponent: () =>
+          import(
+            './features/laboratory/laboratory-requests/laboratory-request-details/laboratory-request-details'
+          ).then(
+            m => m.LaboratoryRequestDetails
+          )
+      },
+
+
+      // =================================================
+      // LABORATORY TESTS
+      // =================================================
+
+      {
+        path: 'laboratory/register',
+
+        loadComponent: () =>
+          import(
+            './features/laboratory/laboratory-register/laboratory-register'
+          ).then(
+            m => m.LaboratoryRegister
+          )
+      },
+
+      {
+        path: 'laboratory/:id/edit',
+
+        loadComponent: () =>
+          import(
+            './features/laboratory/laboratory-register/laboratory-register'
+          ).then(
+            m => m.LaboratoryRegister
+          )
+      },
+
+      {
+        path: 'laboratory/:id',
+
+        loadComponent: () =>
+          import(
+            './features/laboratory/laboratory-details/laboratory-details'
+          ).then(
+            m => m.LaboratoryDetails
+          )
+      },
+
+
+      // =================================================
+      // ADMISSIONS
+      // =================================================
+
+      {
+        path: 'admissions',
+
+        loadComponent: () =>
+          import(
+            './features/admissions/admission-list/admission-list'
+          ).then(
+            m => m.AdmissionList
+          )
+      },
+
+      {
+        path: 'admissions/register',
+
+        loadComponent: () =>
+          import(
+            './features/admissions/admission-register/admission-register'
+          ).then(
+            m => m.AdmissionRegister
+          )
+      },
+
+      {
+        path: 'admissions/:id/edit',
+
+        loadComponent: () =>
+          import(
+            './features/admissions/admission-edit/admission-edit'
+          ).then(
+            m => m.AdmissionEdit
+          )
+      },
+
+      {
+        path: 'admissions/:id',
+
+        loadComponent: () =>
+          import(
+            './features/admissions/admission-details/admission-details'
+          ).then(
+            m => m.AdmissionDetails
+          )
+      },
+
+
+      // =================================================
+      // BILLING
+      // =================================================
+
+      {
+        path: 'billing',
+
+        loadComponent: () =>
+          import(
+            './features/billing/billing-list/billing-list'
+          ).then(
+            m => m.BillingList
+          )
+      },
+
+      {
+        path: 'billing/register',
+
+        loadComponent: () =>
+          import(
+            './features/billing/billing-register/billing-register'
+          ).then(
+            m => m.BillingRegister
+          )
+      },
+
+      {
+        path: 'billing/:id/edit',
+
+        loadComponent: () =>
+          import(
+            './features/billing/billing-edit/billing-edit'
+          ).then(
+            m => m.BillingEdit
+          )
+      },
+
+      {
+        path: 'billing/:id',
+
+        loadComponent: () =>
+          import(
+            './features/billing/billing-details/billing-details'
+          ).then(
+            m => m.BillingDetails
+          )
+      },
+
+
+      // =================================================
+      // INVENTORY
+      // =================================================
+
+      {
+        path: 'inventory',
+
+        children: [
+
+          {
+            path: '',
+
+            loadComponent: () =>
+              import(
+                './features/inventory/inventory-list/inventory-list'
+              ).then(
+                m => m.InventoryList
+              )
+          },
+
+          {
+            path: 'register',
+
+            loadComponent: () =>
+              import(
+                './features/inventory/inventory-register/inventory-register'
+              ).then(
+                m => m.InventoryRegister
+              )
+          },
+
+          {
+            path: 'stock',
+
+            loadComponent: () =>
+              import(
+                './features/inventory/inventory-stock/inventory-stock'
+              ).then(
+                m => m.InventoryStock
+              )
+          },
+
+          {
+            path: ':id/edit',
+
+            loadComponent: () =>
+              import(
+                './features/inventory/inventory-edit/inventory-edit'
+              ).then(
+                m => m.InventoryEdit
+              )
+          },
+
+          {
+            path: ':id',
+
+            loadComponent: () =>
+              import(
+                './features/inventory/inventory-details/inventory-details'
+              ).then(
+                m => m.InventoryDetails
+              )
+          }
+
+        ]
+
+      },
+
+
+      // =================================================
+      // REPORTS
+      // =================================================
+
+      {
+        path: 'reports',
+
+        loadComponent: () =>
+          import(
+            './features/reports/report/report'
+          ).then(
+            m => m.ReportComponent
+          )
+      },
+
+
+     // =====================================================
+// SETTINGS
 // =====================================================
-// LABORATORY
-// =====================================================
 
-// Laboratory List
 {
-  path: 'laboratory',
+  path: 'settings',
 
-  loadComponent: () =>
-    import(
-      './features/laboratory/laboratory-list/laboratory-list'
-    ).then(m => m.LaboratoryList)
-},
+  children: [
 
-// Register Laboratory Test
-{
-  path: 'laboratory/register',
+    // =============================================
+    // SETTINGS MAIN
+    // =============================================
 
-  loadComponent: () =>
-    import(
-      './features/laboratory/laboratory-register/laboratory-register'
-    ).then(m => m.LaboratoryRegister)
-},
+    {
+      path: '',
 
-//Edit Laboratory Test
-{
-  path: 'laboratory/:id/edit',
-
-  loadComponent: () =>
-    import(
-      './features/laboratory/laboratory-register/laboratory-register'
-    ).then(m => m.LaboratoryRegister)
-},
-
-// Laboratory Test Details
-{
-  path: 'laboratory/:id',
-
-  loadComponent: () =>
-    import(
-      './features/laboratory/laboratory-details/laboratory-details'
-    ).then(m => m.LaboratoryDetails)
-},
-
-// =====================================================
-// LABORATORY REQUESTS
-// =====================================================
-
-// Laboratory Request List
-{
-  path: 'laboratory/requests',
-
-  loadComponent: () =>
-    import(
-      './features/laboratory/laboratory-requests/laboratory-request-list/laboratory-request-list'
-    ).then(m => m.LaboratoryRequestList)
-},
-
-// Register Laboratory Request
-{
-  path: 'laboratory/requests/register',
-
-  loadComponent: () =>
-    import(
-      './features/laboratory/laboratory-requests/laboratory-request-form/laboratory-request-form'
-    ).then(m => m.LaboratoryRequestForm)
-},
-
-// Edit Laboratory Request
-{
-  path: 'laboratory/requests/:id/edit',
-
-  loadComponent: () =>
-    import(
-      './features/laboratory/laboratory-requests/laboratory-request-form/laboratory-request-form'
-    ).then(m => m.LaboratoryRequestForm)
-},
-
-// Laboratory Request Details
-{
-  path: 'laboratory/requests/:id',
-
-  loadComponent: () =>
-    import(
-      './features/laboratory/laboratory-requests/laboratory-request-details/laboratory-request-details'
-    ).then(m => m.LaboratoryRequestDetails)
-},
-
-// =====================================================
-// ADMISSIONS
-// =====================================================
-
-// Admission List
-{
-  path: 'admissions',
-
-  loadComponent: () =>
-    import(
-      './features/admissions/admission-list/admission-list'
-    ).then(m => m.AdmissionList)
-},
+      loadComponent: () =>
+        import(
+          './features/settings/settings/settings'
+        ).then(
+          m => m.Settings
+        )
+    },
 
 
-// Register Admission
-{
-  path: 'admissions/register',
+    // =============================================
+    // HOSPITAL SETTINGS
+    // URL: /settings/hospital
+    // =============================================
 
-  loadComponent: () =>
-    import(
-      './features/admissions/admission-register/admission-register'
-    ).then(m => m.AdmissionRegister)
-},
+    {
+      path: 'hospital',
 
-
-// Edit Admission
-{
-  path: 'admissions/:id/edit',
-
-  loadComponent: () =>
-    import(
-      './features/admissions/admission-edit/admission-edit'
-    ).then(m => m.AdmissionEdit)
-},
+      loadComponent: () =>
+        import(
+          './features/settings/hospital-settings/hospital-settings'
+        ).then(
+          m => m.HospitalSettingsComponent
+        )
+    },
 
 
-// Admission Details
-{
-  path: 'admissions/:id',
+    // =============================================
+    // PROFILE SETTINGS
+    // URL: /settings/profile
+    // =============================================
 
-  loadComponent: () =>
-    import(
-      './features/admissions/admission-details/admission-details'
-    ).then(m => m.AdmissionDetails)
-},
+    {
+      path: 'profile',
 
-
-
-// =====================================================
-// BILLING
-// =====================================================
-
-// Billing List
-{
-  path: 'billing',
-
-  loadComponent: () =>
-    import(
-      './features/billing/billing-list/billing-list'
-    ).then(m => m.BillingList)
-},
-
-// Register Billing
-{
-  path: 'billing/register',
-
-  loadComponent: () =>
-    import(
-      './features/billing/billing-register/billing-register'
-    ).then(m => m.BillingRegister)
-},
-
-// Edit Billing
-{
-  path: 'billing/:id/edit',
-
-  loadComponent: () =>
-    import(
-      './features/billing/billing-edit/billing-edit'
-    ).then(m => m.BillingEdit)
-},
-
-// Billing Details
-{
-  path: 'billing/:id',
-
-  loadComponent: () =>
-    import(
-      './features/billing/billing-details/billing-details'
-    ).then(m => m.BillingDetails)
-}
+      loadComponent: () =>
+        import(
+          './features/settings/profile-settings/profile-settings'
+        ).then(
+          m => m.ProfileSettings
+        )
+    },
 
 
-    ]
+    // =============================================
+    // SYSTEM PREFERENCES
+    // URL: /settings/system
+    // =============================================
+
+    {
+      path: 'system',
+
+      loadComponent: () =>
+        import(
+          './features/settings/system-preferences/system-preferences'
+        ).then(
+          m => m.SystemPreferencesComponent
+        )
+    },
+
+
+    // =============================================
+    // NOTIFICATION SETTINGS
+    // URL: /settings/notifications
+    // =============================================
+
+    {
+      path: 'notifications',
+
+      loadComponent: () =>
+        import(
+          './features/settings/notification-settings/notification-settings'
+        ).then(
+          m => m.NotificationSettingsComponent
+        )
+    }
+
+  ]
+
+},    ]
 
   },
 

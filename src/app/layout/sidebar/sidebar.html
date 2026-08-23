@@ -188,9 +188,7 @@
   class="nav-item"
   routerLink="/pharmacy"
   routerLinkActive="active"
-  [routerLinkActiveOptions]="{ exact: true }"
 >
-
   <span class="material-symbols-outlined">
     medication
   </span>
@@ -198,7 +196,6 @@
   <span>
     Pharmacy
   </span>
-
 </a>
 
 
@@ -297,60 +294,76 @@
 
 
 
-      <!-- Inventory -->
+    <!-- Inventory -->
 
-      <a
-        class="nav-item disabled-nav-item"
-        href="javascript:void(0)"
-      >
+<a
+  class="nav-item"
+  routerLink="/inventory"
+  routerLinkActive="active"
+  [routerLinkActiveOptions]="{ exact: true }"
+>
 
-        <span class="material-symbols-outlined">
-          inventory_2
-        </span>
+  <span class="material-symbols-outlined">
+    inventory_2
+  </span>
 
-        <span>
-          Inventory
-        </span>
+  <span>
+    Inventory
+  </span>
 
-      </a>
+</a>
+
+<a
+  class="nav-item"
+  routerLink="/inventory/stock"
+  routerLinkActive="active"
+>
+  <span class="material-symbols-outlined">
+    inventory_2
+  </span>
+
+  <span>
+    Stock Management
+  </span>
+</a>
 
 
 
       <!-- Reports -->
 
-      <a
-        class="nav-item disabled-nav-item"
-        href="javascript:void(0)"
-      >
+     <a
+  class="nav-item"
+  routerLink="/reports"
+  routerLinkActive="active"
+  [routerLinkActiveOptions]="{ exact: true }"
+>
+  <span class="material-symbols-outlined">
+    bar_chart
+  </span>
 
-        <span class="material-symbols-outlined">
-          bar_chart
-        </span>
-
-        <span>
-          Reports
-        </span>
-
-      </a>
+  <span>
+    Reports
+  </span>
+</a>
 
 
 
       <!-- Settings -->
 
-      <a
-        class="nav-item disabled-nav-item"
-        href="javascript:void(0)"
-      >
+     <a
+  class="nav-item"
+  routerLink="/settings"
+  routerLinkActive="active"
+  [routerLinkActiveOptions]="{ exact: true }"
+>
+  <span class="material-symbols-outlined">
+    settings
+  </span>
 
-        <span class="material-symbols-outlined">
-          settings
-        </span>
-
-        <span>
-          Settings
-        </span>
-
-      </a>
+  <span>
+    Settings
+  </span>
+</a>
 
     </div>
 

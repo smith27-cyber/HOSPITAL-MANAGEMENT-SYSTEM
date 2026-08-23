@@ -6,6 +6,18 @@ import {
   LaboratoryStatus
 } from '../../shared/models/laboratory.model';
 
+import {
+  BillingService
+} from './billing.service';
+
+import {
+  PatientService
+} from './patient.service';
+
+import {
+  DoctorService
+} from './doctor.service';
+
 
 @Injectable({
   providedIn: 'root'
@@ -24,19 +36,38 @@ export class LaboratoryService {
 
 
   // =====================================================
+  // DEFAULT LABORATORY FEE
+  // =====================================================
+
+  private readonly DEFAULT_LABORATORY_FEE =
+    20000;
+
+
+  // =====================================================
   // DATA
   // =====================================================
 
-  private tests: LaboratoryTest[] = [];
+  private tests:
+    LaboratoryTest[] = [];
 
-  private requests: LaboratoryRequest[] = [];
+  private requests:
+    LaboratoryRequest[] = [];
 
 
   // =====================================================
   // CONSTRUCTOR
   // =====================================================
 
-  constructor() {
+  constructor(
+    private billingService:
+      BillingService,
+
+    private patientService:
+      PatientService,
+
+    private doctorService:
+      DoctorService
+  ) {
 
     this.loadTests();
 
@@ -46,10 +77,11 @@ export class LaboratoryService {
 
 
   // =====================================================
-  // GET ALL TESTS
+  // TEST METHODS
   // =====================================================
 
-  getTests(): LaboratoryTest[] {
+  getTests():
+    LaboratoryTest[] {
 
     return [
       ...this.tests
@@ -57,10 +89,6 @@ export class LaboratoryService {
 
   }
 
-
-  // =====================================================
-  // GET TEST BY ID
-  // =====================================================
 
   getTestById(
     id: string
@@ -73,10 +101,6 @@ export class LaboratoryService {
 
   }
 
-
-  // =====================================================
-  // ADD TEST
-  // =====================================================
 
   addTest(
     test: LaboratoryTest
@@ -91,10 +115,6 @@ export class LaboratoryService {
   }
 
 
-  // =====================================================
-  // UPDATE TEST
-  // =====================================================
-
   updateTest(
     updatedTest: LaboratoryTest
   ): boolean {
@@ -102,11 +122,14 @@ export class LaboratoryService {
     const index =
       this.tests.findIndex(
         test =>
-          test.id === updatedTest.id
+          test.id ===
+          updatedTest.id
       );
 
 
-    if (index === -1) {
+    if (
+      index === -1
+    ) {
 
       return false;
 
@@ -130,10 +153,6 @@ export class LaboratoryService {
 
   }
 
-
-  // =====================================================
-  // DELETE TEST
-  // =====================================================
 
   deleteTest(
     id: string
@@ -169,10 +188,11 @@ export class LaboratoryService {
 
 
   // =====================================================
-  // GET ALL REQUESTS
+  // REQUEST METHODS
   // =====================================================
 
-  getRequests(): LaboratoryRequest[] {
+  getRequests():
+    LaboratoryRequest[] {
 
     return [
       ...this.requests
@@ -180,10 +200,6 @@ export class LaboratoryService {
 
   }
 
-
-  // =====================================================
-  // GET REQUEST BY ID
-  // =====================================================
 
   getRequestById(
     id: string
@@ -196,10 +212,6 @@ export class LaboratoryService {
 
   }
 
-
-  // =====================================================
-  // ADD REQUEST
-  // =====================================================
 
   addRequest(
     request: LaboratoryRequest
@@ -214,10 +226,6 @@ export class LaboratoryService {
   }
 
 
-  // =====================================================
-  // UPDATE REQUEST
-  // =====================================================
-
   updateRequest(
     updatedRequest: LaboratoryRequest
   ): boolean {
@@ -230,11 +238,17 @@ export class LaboratoryService {
       );
 
 
-    if (index === -1) {
+    if (
+      index === -1
+    ) {
 
       return false;
 
     }
+
+
+    const previousRequest =
+      this.requests[index];
 
 
     this.requests[index] = {
@@ -242,6 +256,22 @@ export class LaboratoryService {
       ...updatedRequest
 
     };
+
+
+    // ===================================================
+    // ADD BILLING WHEN COMPLETED
+    // ===================================================
+
+    if (
+      updatedRequest.status ===
+      'Completed'
+    ) {
+
+      this.addLaboratoryCharge(
+        this.requests[index]
+      );
+
+    }
 
 
     this.saveRequests();
@@ -252,13 +282,36 @@ export class LaboratoryService {
   }
 
 
-  // =====================================================
-  // DELETE REQUEST
-  // =====================================================
-
   deleteRequest(
     id: string
   ): boolean {
+
+    const request =
+      this.getRequestById(
+        id
+      );
+
+
+    if (!request) {
+
+      return false;
+
+    }
+
+
+    // ===================================================
+    // PROTECT COMPLETED REQUESTS
+    // ===================================================
+
+    if (
+      request.status ===
+      'Completed'
+    ) {
+
+      return false;
+
+    }
+
 
     const originalLength =
       this.requests.length;
@@ -266,8 +319,9 @@ export class LaboratoryService {
 
     this.requests =
       this.requests.filter(
-        request =>
-          request.id !== id
+        currentRequest =>
+          currentRequest.id !==
+          id
       );
 
 
@@ -299,7 +353,9 @@ export class LaboratoryService {
   ): boolean {
 
     const request =
-      this.getRequestById(id);
+      this.getRequestById(
+        id
+      );
 
 
     if (!request) {
@@ -309,24 +365,98 @@ export class LaboratoryService {
     }
 
 
+    // ===================================================
+    // PREVENT INVALID STATUS CHANGE
+    // ===================================================
+
+    if (
+      request.status ===
+      'Cancelled' &&
+      status !== 'Cancelled'
+    ) {
+
+      return false;
+
+    }
+
+
+    // ===================================================
+    // CHECK PREVIOUS STATUS
+    // ===================================================
+
+    const wasAlreadyCompleted =
+      request.status ===
+      'Completed';
+
+
+    // ===================================================
+    // UPDATE STATUS
+    // ===================================================
+
     request.status =
       status;
 
+
+    // ===================================================
+    // COMPLETION DATE
+    // ===================================================
 
     if (
       status === 'Completed'
     ) {
 
-      request.completedAt =
-        new Date().toISOString();
+      if (
+        !request.completedAt
+      ) {
+
+        request.completedAt =
+          new Date().toISOString();
+
+      }
 
     }
 
 
+    // ===================================================
+    // SAVE REQUEST
+    // ===================================================
+
     this.saveRequests();
 
 
+    // ===================================================
+    // ADD BILLING ON FIRST COMPLETION
+    // ===================================================
+
+    if (
+      status === 'Completed' &&
+      !wasAlreadyCompleted
+    ) {
+
+      this.addLaboratoryCharge(
+        request
+      );
+
+    }
+
+
     return true;
+
+  }
+
+
+  // =====================================================
+  // COMPLETE REQUEST
+  // =====================================================
+
+  completeRequest(
+    id: string
+  ): boolean {
+
+    return this.updateRequestStatus(
+      id,
+      'Completed'
+    );
 
   }
 
@@ -349,10 +479,28 @@ export class LaboratoryService {
 
 
   // =====================================================
+  // GET REQUESTS BY CONSULTATION
+  // =====================================================
+
+  getRequestsByConsultation(
+    consultationId: string
+  ): LaboratoryRequest[] {
+
+    return this.requests.filter(
+      request =>
+        request.consultationId ===
+        consultationId
+    );
+
+  }
+
+
+  // =====================================================
   // GET PENDING REQUESTS
   // =====================================================
 
-  getPendingRequests(): LaboratoryRequest[] {
+  getPendingRequests():
+    LaboratoryRequest[] {
 
     return this.requests.filter(
       request =>
@@ -367,7 +515,8 @@ export class LaboratoryService {
   // GET IN-PROGRESS REQUESTS
   // =====================================================
 
-  getInProgressRequests(): LaboratoryRequest[] {
+  getInProgressRequests():
+    LaboratoryRequest[] {
 
     return this.requests.filter(
       request =>
@@ -382,7 +531,8 @@ export class LaboratoryService {
   // GET COMPLETED REQUESTS
   // =====================================================
 
-  getCompletedRequests(): LaboratoryRequest[] {
+  getCompletedRequests():
+    LaboratoryRequest[] {
 
     return this.requests.filter(
       request =>
@@ -397,13 +547,289 @@ export class LaboratoryService {
   // GET CANCELLED REQUESTS
   // =====================================================
 
-  getCancelledRequests(): LaboratoryRequest[] {
+  getCancelledRequests():
+    LaboratoryRequest[] {
 
     return this.requests.filter(
       request =>
         request.status ===
         'Cancelled'
     );
+
+  }
+
+
+  // =====================================================
+  // GET COMPLETED REQUESTS BY PATIENT
+  // =====================================================
+
+  getCompletedRequestsByPatient(
+    patientId: string
+  ): LaboratoryRequest[] {
+
+    return this.requests.filter(
+      request =>
+        request.patientId ===
+        patientId &&
+        request.status ===
+        'Completed'
+    );
+
+  }
+
+
+  // =====================================================
+  // GET COMPLETED REQUESTS BY CONSULTATION
+  // =====================================================
+
+  getCompletedRequestsByConsultation(
+    consultationId: string
+  ): LaboratoryRequest[] {
+
+    return this.requests.filter(
+      request =>
+        request.consultationId ===
+        consultationId &&
+        request.status ===
+        'Completed'
+    );
+
+  }
+
+
+  // =====================================================
+  // ADD LABORATORY CHARGE
+  // =====================================================
+
+  private addLaboratoryCharge(
+    request:
+      LaboratoryRequest
+  ): void {
+
+    // ===================================================
+    // VERIFY PATIENT
+    // ===================================================
+
+    const patient =
+      this.patientService.getPatientById(
+        request.patientId
+      );
+
+
+    if (!patient) {
+
+      console.error(
+        'Laboratory billing failed: patient not found.',
+        request.patientId
+      );
+
+      return;
+
+    }
+
+
+    // ===================================================
+    // PATIENT NAME
+    // ===================================================
+
+    const patientName =
+      `${patient.firstName} ${patient.lastName}`;
+
+
+    // ===================================================
+    // DOCTOR
+    // ===================================================
+
+    let doctorName:
+      string | undefined;
+
+
+    if (
+      request.doctorId
+    ) {
+
+      const doctor =
+        this.doctorService.getDoctorById(
+          request.doctorId
+        );
+
+
+      if (doctor) {
+
+        doctorName =
+          `Dr. ${doctor.firstName} ${doctor.lastName}`;
+
+      }
+
+    }
+
+
+    // ===================================================
+    // PREVENT DUPLICATE BILLING
+    // ===================================================
+
+    const existingBills =
+      this.billingService.getBillsByPatient(
+        request.patientId
+      );
+
+
+    const alreadyBilled =
+      existingBills.some(
+        bill =>
+          (bill.items ?? []).some(
+            item =>
+              item.billingType ===
+                'Laboratory' &&
+
+              item.referenceId ===
+                request.id
+          )
+      );
+
+
+    if (
+      alreadyBilled
+    ) {
+
+      return;
+
+    }
+
+
+    // ===================================================
+    // LABORATORY TEST NAME
+    // ===================================================
+
+    const testName =
+      request.testName ||
+      'Laboratory Test';
+
+
+    // ===================================================
+    // LABORATORY CHARGE
+    // ===================================================
+
+    const amount =
+      this.getLaboratoryCharge(
+        request
+      );
+
+
+    if (
+      amount <= 0
+    ) {
+
+      console.error(
+        'Laboratory billing failed: invalid laboratory charge.',
+        request.id
+      );
+
+      return;
+
+    }
+
+
+    // ===================================================
+    // ADD TO SHARED PATIENT BILL
+    // ===================================================
+
+    const bill =
+      this.billingService.addServiceCharge(
+
+        request.patientId,
+
+        patientName,
+
+        'Laboratory',
+
+        testName,
+
+        amount,
+
+        request.id,
+
+        {
+
+          doctorId:
+            request.doctorId,
+
+          doctorName:
+            doctorName,
+
+          notes:
+            request.notes
+
+        }
+
+      );
+
+
+    if (!bill) {
+
+      console.error(
+        'Unable to add laboratory charge to billing.',
+        request.id
+      );
+
+      return;
+
+    }
+
+
+    // ===================================================
+    // LOG SUCCESS
+    // ===================================================
+
+    console.log(
+      'Laboratory charge added successfully.',
+      {
+
+        requestId:
+          request.id,
+
+        consultationId:
+          request.consultationId,
+
+        testName:
+          testName,
+
+        amount:
+          amount,
+
+        invoiceNumber:
+          bill.invoiceNumber,
+
+        billId:
+          bill.id
+
+      }
+    );
+
+  }
+
+
+  // =====================================================
+  // GET LABORATORY CHARGE
+  // =====================================================
+
+  private getLaboratoryCharge(
+    request:
+      LaboratoryRequest
+  ): number {
+
+    if (
+      typeof request.price ===
+      'number' &&
+      request.price > 0
+    ) {
+
+      return request.price;
+
+    }
+
+
+    return this.DEFAULT_LABORATORY_FEE;
 
   }
 
@@ -464,7 +890,9 @@ export class LaboratoryService {
     try {
 
       const parsed =
-        JSON.parse(stored);
+        JSON.parse(
+          stored
+        );
 
 
       if (
@@ -480,12 +908,17 @@ export class LaboratoryService {
 
       }
 
-    } catch (error) {
+    }
+
+    catch (
+      error
+    ) {
 
       console.error(
         'Failed to load laboratory tests:',
         error
       );
+
 
       this.tests = [];
 
@@ -518,7 +951,9 @@ export class LaboratoryService {
     try {
 
       const parsed =
-        JSON.parse(stored);
+        JSON.parse(
+          stored
+        );
 
 
       if (
@@ -534,12 +969,17 @@ export class LaboratoryService {
 
       }
 
-    } catch (error) {
+    }
+
+    catch (
+      error
+    ) {
 
       console.error(
         'Failed to load laboratory requests:',
         error
       );
+
 
       this.requests = [];
 

@@ -1,6 +1,5 @@
 <div class="laboratory-requests-page">
 
-
   <!-- ================================================= -->
   <!-- HEADER -->
   <!-- ================================================= -->
@@ -42,7 +41,6 @@
   <!-- ================================================= -->
 
   <div class="stats-grid">
-
 
     <div class="stat-card">
 
@@ -143,6 +141,31 @@
 
     </div>
 
+
+    <div class="stat-card">
+
+      <div class="stat-icon cancelled">
+
+        <span class="material-symbols-outlined">
+          cancel
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Cancelled
+        </span>
+
+        <h2>
+          {{ cancelledRequests }}
+        </h2>
+
+      </div>
+
+    </div>
+
   </div>
 
 
@@ -167,17 +190,19 @@
 
         <input
           type="text"
+          name="searchTerm"
           placeholder="Search patient, test, doctor..."
           [(ngModel)]="searchTerm"
-          (input)="applyFilters()"
+          (ngModelChange)="applyFilters()"
         />
 
       </div>
 
 
       <select
+        name="selectedStatus"
         [(ngModel)]="selectedStatus"
-        (change)="applyFilters()"
+        (ngModelChange)="applyFilters()"
       >
 
         <option value="All">
@@ -189,7 +214,9 @@
           track status
         ) {
 
-          <option [value]="status">
+          <option
+            [value]="status"
+          >
             {{ status }}
           </option>
 
@@ -209,6 +236,10 @@
           (click)="clearFilters()"
         >
 
+          <span class="material-symbols-outlined">
+            filter_alt_off
+          </span>
+
           Clear
 
         </button>
@@ -224,7 +255,9 @@
 
     <div class="table-wrapper">
 
-      @if (filteredRequests.length > 0) {
+      @if (
+        filteredRequests.length > 0
+      ) {
 
         <table>
 
@@ -274,6 +307,8 @@
 
               <tr>
 
+                <!-- REQUEST -->
+
                 <td>
 
                   <div class="request-id">
@@ -290,6 +325,8 @@
 
                 </td>
 
+
+                <!-- PATIENT -->
 
                 <td>
 
@@ -318,6 +355,8 @@
                 </td>
 
 
+                <!-- TEST -->
+
                 <td>
 
                   <strong>
@@ -331,15 +370,17 @@
                 </td>
 
 
+                <!-- DOCTOR -->
+
                 <td>
 
-                  @if (request.doctorName) {
+                  @if (
+                    request.doctorName
+                  ) {
 
                     {{ request.doctorName }}
 
-                  }
-
-                  @else {
+                  } @else {
 
                     <span class="not-available">
                       Not specified
@@ -350,17 +391,27 @@
                 </td>
 
 
+                <!-- STATUS -->
+
                 <td>
 
                   <span
                     class="status"
-                    [class]="getStatusClass(request.status)"
+                    [ngClass]="
+                      getStatusClass(
+                        request.status
+                      )
+                    "
                   >
+
                     {{ request.status }}
+
                   </span>
 
                 </td>
 
+
+                <!-- PRICE -->
 
                 <td>
 
@@ -369,14 +420,18 @@
                 </td>
 
 
+                <!-- ACTIONS -->
+
                 <td>
 
                   <div class="actions">
 
+                    <!-- VIEW -->
+
                     <button
                       type="button"
                       class="action-button view"
-                      title="View"
+                      title="View request"
                       (click)="viewRequest(request)"
                     >
 
@@ -387,6 +442,8 @@
                     </button>
 
 
+                    <!-- EDIT -->
+
                     @if (
                       request.status !== 'Completed' &&
                       request.status !== 'Cancelled'
@@ -395,7 +452,7 @@
                       <button
                         type="button"
                         class="action-button edit"
-                        title="Edit"
+                        title="Edit request"
                         (click)="editRequest(request)"
                       >
 
@@ -408,18 +465,26 @@
                     }
 
 
-                    <button
-                      type="button"
-                      class="action-button delete"
-                      title="Delete"
-                      (click)="deleteRequest(request)"
-                    >
+                    <!-- DELETE -->
 
-                      <span class="material-symbols-outlined">
-                        delete
-                      </span>
+                    @if (
+                      request.status !== 'Completed'
+                    ) {
 
-                    </button>
+                      <button
+                        type="button"
+                        class="action-button delete"
+                        title="Delete request"
+                        (click)="deleteRequest(request)"
+                      >
+
+                        <span class="material-symbols-outlined">
+                          delete
+                        </span>
+
+                      </button>
+
+                    }
 
                   </div>
 
@@ -433,9 +498,11 @@
 
         </table>
 
-      }
+      } @else {
 
-      @else {
+        <!-- ================================================= -->
+        <!-- EMPTY STATE -->
+        <!-- ================================================= -->
 
         <div class="empty-state">
 
@@ -455,19 +522,39 @@
             Create a laboratory request for a patient to get started.
           </p>
 
-          <button
-            type="button"
-            class="primary-button"
-            (click)="registerRequest()"
-          >
 
-            <span class="material-symbols-outlined">
-              add
-            </span>
+          @if (
+            searchTerm ||
+            selectedStatus !== 'All'
+          ) {
 
-            New Request
+            <button
+              type="button"
+              class="secondary-button"
+              (click)="clearFilters()"
+            >
 
-          </button>
+              Clear Filters
+
+            </button>
+
+          } @else {
+
+            <button
+              type="button"
+              class="primary-button"
+              (click)="registerRequest()"
+            >
+
+              <span class="material-symbols-outlined">
+                add
+              </span>
+
+              New Request
+
+            </button>
+
+          }
 
         </div>
 

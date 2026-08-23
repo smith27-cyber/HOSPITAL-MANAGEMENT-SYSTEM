@@ -5,24 +5,36 @@ import { AppointmentService } from '../../../core/services/appointment.service';
 
 import { Appointment } from '../../../shared/models/appointment.model';
 
+
 @Component({
   selector: 'app-appointment-queue',
+
   standalone: true,
+
   imports: [
     RouterLink
   ],
+
   templateUrl: './appointment-queue.html',
-  styleUrl: './appointment-queue.css'
+
+  styleUrl: './appointment-queue.css' 
 })
 export class AppointmentQueue implements OnInit {
+
+
+  // =====================================================
+  // APPOINTMENTS IN WAITING QUEUE
+  // =====================================================
 
   appointments: Appointment[] = [];
 
 
-  constructor(
-    private appointmentService:
-      AppointmentService,
+  // =====================================================
+  // CONSTRUCTOR
+  // =====================================================
 
+  constructor(
+    private appointmentService: AppointmentService,
     private router: Router
   ) {}
 
@@ -49,8 +61,7 @@ export class AppointmentQueue implements OnInit {
         .getAppointments()
         .filter(
           appointment =>
-            appointment.status ===
-            'Checked-In'
+            appointment.status === 'Checked-In'
         );
 
   }
@@ -79,41 +90,88 @@ export class AppointmentQueue implements OnInit {
           appointment.id === id
       );
 
+
+    // Appointment not found
+
     if (!appointment) {
+
       return;
+
     }
 
+
+    // ===================================================
+    // MAKE SURE APPOINTMENT IS STILL CHECKED IN
+    // ===================================================
+
+    if (
+      appointment.status !== 'Checked-In'
+    ) {
+
+      window.alert(
+        'This appointment is no longer in the waiting queue.'
+      );
+
+      this.loadQueue();
+
+      return;
+
+    }
+
+
+    // ===================================================
+    // CONFIRM ACTION
+    // ===================================================
 
     const confirmed =
       window.confirm(
         `Start consultation for ${appointment.patientName}?`
       );
 
+
     if (!confirmed) {
+
       return;
+
     }
 
 
     // ===================================================
-    // CHANGE APPOINTMENT STATUS
+    // START CONSULTATION
     // ===================================================
 
-    this.appointmentService.updateStatus(
-      id,
-      'In Consultation'
-    );
+    const success =
+      this.appointmentService
+        .startConsultation(id);
 
 
     // ===================================================
-    // REMOVE FROM WAITING QUEUE
+    // CHECK RESULT
     // ===================================================
+
+    if (!success) {
+
+      window.alert(
+        'Unable to start consultation.'
+      );
+
+      this.loadQueue();
+
+      return;
+
+    }
+
+
+    // ===================================================
+    // REMOVE FROM QUEUE
+    // =====================================================
 
     this.loadQueue();
 
 
     // ===================================================
-    // OPEN MAIN CONSULTATION FORM
-    // ===================================================
+    // OPEN CONSULTATION FORM
+    // =====================================================
 
     this.router.navigate(
       ['/consultations/register'],
@@ -134,6 +192,34 @@ export class AppointmentQueue implements OnInit {
   refreshQueue(): void {
 
     this.loadQueue();
+
+  }
+
+
+  // =====================================================
+  // VIEW APPOINTMENT
+  // =====================================================
+
+  viewAppointment(id: string): void {
+
+    this.router.navigate([
+      '/appointments',
+      id
+    ]);
+
+  }
+
+
+  // =====================================================
+  // VIEW PATIENT
+  // =====================================================
+
+  viewPatient(patientId: string): void {
+
+    this.router.navigate([
+      '/patients',
+      patientId
+    ]);
 
   }
 

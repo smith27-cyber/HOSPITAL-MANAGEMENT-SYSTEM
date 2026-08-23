@@ -1,19 +1,25 @@
 import { Injectable } from '@angular/core';
-import { Appointment } from '../../shared/models/appointment.model';
+
+import {
+  Appointment,
+  AppointmentStatus
+} from '../../shared/models/appointment.model';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppointmentService {
 
-  private readonly storageKey = 'hms_appointments';
+  private readonly storageKey =
+    'hms_appointments';
 
   private appointments: Appointment[] = [];
 
 
-  // =========================
-  // Constructor
-  // =========================
+  // =====================================================
+  // CONSTRUCTOR
+  // =====================================================
 
   constructor() {
 
@@ -22,20 +28,24 @@ export class AppointmentService {
   }
 
 
-  // =========================
-  // Get Appointments
-  // =========================
+  // =====================================================
+  // GET ALL APPOINTMENTS
+  // =====================================================
 
   getAppointments(): Appointment[] {
 
-    return [...this.appointments];
+    return this.appointments.map(
+      appointment => ({
+        ...appointment
+      })
+    );
 
   }
 
 
-  // =========================
-  // Get Appointment By ID
-  // =========================
+  // =====================================================
+  // GET APPOINTMENT BY ID
+  // =====================================================
 
   getAppointmentById(
     id: string
@@ -49,9 +59,9 @@ export class AppointmentService {
   }
 
 
-  // =========================
-  // Add Appointment
-  // =========================
+  // =====================================================
+  // ADD APPOINTMENT
+  // =====================================================
 
   addAppointment(
     appointment: Appointment
@@ -66,13 +76,13 @@ export class AppointmentService {
   }
 
 
-  // =========================
-  // Update Appointment
-  // =========================
+  // =====================================================
+  // UPDATE APPOINTMENT
+  // =====================================================
 
   updateAppointment(
     updatedAppointment: Appointment
-  ): void {
+  ): boolean {
 
     const index =
       this.appointments.findIndex(
@@ -82,183 +92,315 @@ export class AppointmentService {
       );
 
     if (index === -1) {
-      return;
+
+      return false;
+
     }
+
 
     this.appointments[index] = {
       ...updatedAppointment
     };
 
+
     this.saveAppointments();
+
+    return true;
 
   }
 
 
-  // =========================
-  // Confirm Appointment
-  // =========================
+  // =====================================================
+  // CONFIRM APPOINTMENT
+  // =====================================================
 
   confirmAppointment(
     id: string
-  ): void {
+  ): boolean {
 
-    const appointment =
-      this.getAppointmentById(id);
-
-    if (!appointment) {
-      return;
-    }
-
-    /*
-     * Only Scheduled appointments
-     * can be confirmed.
-     */
-
-    if (
-      appointment.status !==
-      'Scheduled'
-    ) {
-      return;
-    }
-
-    appointment.status =
-      'Confirmed';
-
-    this.saveAppointments();
+    return this.changeStatus(
+      id,
+      'Scheduled',
+      'Confirmed'
+    );
 
   }
 
 
-  // =========================
-  // Cancel Appointment
-  // =========================
+  // =====================================================
+  // CHECK IN APPOINTMENT
+  // =====================================================
 
-  cancelAppointment(
+  checkInAppointment(
     id: string
-  ): void {
+  ): boolean {
+
+    return this.changeStatus(
+      id,
+      'Confirmed',
+      'Checked-In'
+    );
+
+  }
+
+
+  // =====================================================
+  // START CONSULTATION
+  // =====================================================
+
+  startConsultation(
+    id: string
+  ): boolean {
+
+    return this.changeStatus(
+      id,
+      'Checked-In',
+      'In Consultation'
+    );
+
+  }
+
+
+  // =====================================================
+  // COMPLETE APPOINTMENT
+  // =====================================================
+
+  completeAppointment(
+    id: string
+  ): boolean {
+
+    return this.changeStatus(
+      id,
+      'In Consultation',
+      'Completed'
+    );
+
+  }
+
+
+  // =====================================================
+  // MARK NO SHOW
+  // =====================================================
+
+  markNoShow(
+    id: string
+  ): boolean {
 
     const appointment =
       this.getAppointmentById(id);
 
     if (!appointment) {
-      return;
+
+      return false;
+
     }
 
-    /*
-     * Prevent cancelling an
-     * already cancelled appointment.
-     */
 
     if (
-      appointment.status ===
-      'Cancelled'
+      appointment.status !== 'Scheduled' &&
+      appointment.status !== 'Confirmed'
     ) {
-      return;
+
+      return false;
+
     }
+
+
+    appointment.status =
+      'No Show';
+
+
+    this.saveAppointments();
+
+    return true;
+
+  }
+
+
+  // =====================================================
+  // CANCEL APPOINTMENT
+  // =====================================================
+
+  cancelAppointment(
+    id: string
+  ): boolean {
+
+    const appointment =
+      this.getAppointmentById(id);
+
+    if (!appointment) {
+
+      return false;
+
+    }
+
+
+    if (
+      appointment.status === 'Cancelled' ||
+      appointment.status === 'Completed'
+    ) {
+
+      return false;
+
+    }
+
 
     appointment.status =
       'Cancelled';
 
+
     this.saveAppointments();
+
+    return true;
 
   }
 
 
-  // =========================
-  // Update Status
-  // =========================
+  // =====================================================
+  // GENERIC STATUS UPDATE
+  // =====================================================
 
   updateStatus(
     id: string,
-    status: Appointment['status']
-  ): void {
+    status: AppointmentStatus
+  ): boolean {
 
     const appointment =
       this.getAppointmentById(id);
 
     if (!appointment) {
-      return;
+
+      return false;
+
     }
+
 
     appointment.status =
       status;
 
+
     this.saveAppointments();
 
-  }
+    return true;
 
-  // =========================
-// SAVE CONSULTATION
-// =========================
-
-saveConsultation(
-  id: string,
-  diagnosis: string,
-  consultationNotes: string,
-  treatmentPlan: string,
-  prescription: string
-): boolean {
-
-  const appointment =
-    this.getAppointmentById(id);
-
-  if (!appointment) {
-    return false;
   }
 
 
-  // Only appointments currently
-  // in consultation can be completed.
+  // =====================================================
+  // INTERNAL STATUS CHANGE
+  // =====================================================
 
-  if (
-    appointment.status !==
-    'In Consultation'
-  ) {
-    return false;
+  private changeStatus(
+    id: string,
+    currentStatus: AppointmentStatus,
+    newStatus: AppointmentStatus
+  ): boolean {
+
+    const appointment =
+      this.getAppointmentById(id);
+
+    if (!appointment) {
+
+      return false;
+
+    }
+
+
+    if (
+      appointment.status !==
+      currentStatus
+    ) {
+
+      return false;
+
+    }
+
+
+    appointment.status =
+      newStatus;
+
+
+    this.saveAppointments();
+
+    return true;
+
   }
 
 
-  // Save consultation information
+  // =====================================================
+  // SAVE CONSULTATION
+  // =====================================================
 
-  appointment.diagnosis =
-    diagnosis.trim();
+  saveConsultation(
+    id: string,
+    diagnosis: string,
+    consultationNotes: string,
+    treatmentPlan: string,
+    prescription: string
+  ): boolean {
 
-  appointment.consultationNotes =
-    consultationNotes.trim();
+    const appointment =
+      this.getAppointmentById(id);
 
-  appointment.treatmentPlan =
-    treatmentPlan.trim();
+    if (!appointment) {
 
-  appointment.prescription =
-    prescription.trim();
+      return false;
 
-  appointment.consultationDate =
-    new Date().toISOString();
-
-
-  // Complete appointment
-
-  appointment.status =
-    'Completed';
+    }
 
 
-  // IMPORTANT:
-  // Persist changes to localStorage
+    if (
+      appointment.status !==
+      'In Consultation'
+    ) {
 
-  this.saveAppointments();
+      return false;
+
+    }
 
 
-  return true;
-}
+    appointment.diagnosis =
+      diagnosis.trim();
 
 
-  // =========================
-  // Delete Appointment
-  // =========================
+    appointment.consultationNotes =
+      consultationNotes.trim();
+
+
+    appointment.treatmentPlan =
+      treatmentPlan.trim();
+
+
+    appointment.prescription =
+      prescription.trim();
+
+
+    appointment.consultationDate =
+      new Date().toISOString();
+
+
+    appointment.status =
+      'Completed';
+
+
+    this.saveAppointments();
+
+    return true;
+
+  }
+
+
+  // =====================================================
+  // DELETE APPOINTMENT
+  // =====================================================
 
   deleteAppointment(
     id: string
-  ): void {
+  ): boolean {
+
+    const originalLength =
+      this.appointments.length;
+
 
     this.appointments =
       this.appointments.filter(
@@ -266,14 +408,27 @@ saveConsultation(
           appointment.id !== id
       );
 
+
+    if (
+      this.appointments.length ===
+      originalLength
+    ) {
+
+      return false;
+
+    }
+
+
     this.saveAppointments();
+
+    return true;
 
   }
 
 
-  // =========================
-  // Clear Appointments
-  // =========================
+  // =====================================================
+  // CLEAR APPOINTMENTS
+  // =====================================================
 
   clearAppointments(): void {
 
@@ -284,9 +439,9 @@ saveConsultation(
   }
 
 
-  // =========================
-  // Load Appointments
-  // =========================
+  // =====================================================
+  // LOAD APPOINTMENTS
+  // =====================================================
 
   private loadAppointments(): void {
 
@@ -295,10 +450,6 @@ saveConsultation(
         this.storageKey
       );
 
-
-    /*
-     * No saved appointments.
-     */
 
     if (!stored) {
 
@@ -315,12 +466,9 @@ saveConsultation(
         JSON.parse(stored);
 
 
-      /*
-       * Make sure the stored
-       * value is actually an array.
-       */
-
-      if (Array.isArray(parsed)) {
+      if (
+        Array.isArray(parsed)
+      ) {
 
         this.appointments =
           parsed;
@@ -338,6 +486,7 @@ saveConsultation(
         error
       );
 
+
       this.appointments = [];
 
     }
@@ -345,9 +494,9 @@ saveConsultation(
   }
 
 
-  // =========================
-  // Save Appointments
-  // =========================
+  // =====================================================
+  // SAVE APPOINTMENTS
+  // =====================================================
 
   private saveAppointments(): void {
 
