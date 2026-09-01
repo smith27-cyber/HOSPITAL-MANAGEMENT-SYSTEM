@@ -1,0 +1,268 @@
+<!-- ===================================================== -->
+<!-- NOTIFICATION SETTINGS -->
+<!-- File: -->
+<!-- src/app/features/settings/notification-settings/notification-settings.html -->
+<!-- ===================================================== -->
+
+<div class="notification-settings-page">
+
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div class="header-left">
+
+      <button
+        type="button"
+        class="back-button"
+        (click)="goBack()"
+      >
+
+        <span class="material-symbols-outlined">
+          arrow_back
+        </span>
+
+      </button>
+
+      <div>
+
+        <h1>
+          Notification Settings
+        </h1>
+
+        <p>
+          Manage how the hospital management system sends notifications.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- SETTINGS CARD -->
+  <!-- ================================================= -->
+
+  <section class="settings-card">
+
+
+    <!-- ================================================= -->
+    <!-- CARD HEADER -->
+    <!-- ================================================= -->
+
+    <div class="card-header">
+
+      <div class="header-icon">
+
+        <span class="material-symbols-outlined">
+          notifications
+        </span>
+
+      </div>
+
+      <div>
+
+        <h2>
+          Notification Preferences
+        </h2>
+
+        <p>
+          Choose which notification channels are enabled.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- NOTIFICATION OPTIONS -->
+    <!-- ================================================= -->
+
+    <div class="notification-list">
+
+
+      <!-- =============================================== -->
+      <!-- SYSTEM NOTIFICATIONS -->
+      <!-- =============================================== -->
+
+      <div class="notification-item">
+
+        <div class="notification-icon">
+
+          <span class="material-symbols-outlined">
+            notifications_active
+          </span>
+
+        </div>
+
+        <div class="notification-content">
+
+          <h3>
+            System Notifications
+          </h3>
+
+          <p>
+            Receive notifications and important alerts inside the HMS.
+          </p>
+
+        </div>
+
+        <label class="switch">
+
+          <input
+            type="checkbox"
+            name="enableNotifications"
+            [(ngModel)]="notifications.enableNotifications"
+          />
+
+          <span class="slider"></span>
+
+        </label>
+
+      </div>
+
+
+      <!-- =============================================== -->
+      <!-- EMAIL NOTIFICATIONS -->
+      <!-- =============================================== -->
+
+      <div class="notification-item">
+
+        <div class="notification-icon">
+
+          <span class="material-symbols-outlined">
+            email
+          </span>
+
+        </div>
+
+        <div class="notification-content">
+
+          <h3>
+            Email Notifications
+          </h3>
+
+          <p>
+            Receive hospital alerts and system updates through email.
+          </p>
+
+        </div>
+
+        <label class="switch">
+
+          <input
+            type="checkbox"
+            name="enableEmailNotifications"
+            [(ngModel)]="notifications.enableEmailNotifications"
+          />
+
+          <span class="slider"></span>
+
+        </label>
+
+      </div>
+
+
+      <!-- =============================================== -->
+      <!-- SMS NOTIFICATIONS -->
+      <!-- =============================================== -->
+
+      <div class="notification-item">
+
+        <div class="notification-icon">
+
+          <span class="material-symbols-outlined">
+            sms
+          </span>
+
+        </div>
+
+        <div class="notification-content">
+
+          <h3>
+            SMS Notifications
+          </h3>
+
+          <p>
+            Receive important hospital alerts and reminders through SMS.
+          </p>
+
+        </div>
+
+        <label class="switch">
+
+          <input
+            type="checkbox"
+            name="enableSmsNotifications"
+            [(ngModel)]="notifications.enableSmsNotifications"
+          />
+
+          <span class="slider"></span>
+
+        </label>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- ACTIONS -->
+    <!-- ================================================= -->
+
+    <div class="form-actions">
+
+      <button
+        type="button"
+        class="danger-button"
+        (click)="resetSettings()"
+      >
+
+        <span class="material-symbols-outlined">
+          restart_alt
+        </span>
+
+        Reset
+
+      </button>
+
+
+      <div class="action-right">
+
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="goBack()"
+        >
+          Cancel
+        </button>
+
+
+        <button
+          type="button"
+          class="primary-button"
+          [disabled]="saving"
+          (click)="saveSettings()"
+        >
+
+          <span class="material-symbols-outlined">
+            save
+          </span>
+
+          {{ saving ? 'Saving...' : 'Save Changes' }}
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</div>

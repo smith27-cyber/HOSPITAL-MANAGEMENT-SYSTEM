@@ -1,0 +1,406 @@
+<div class="appointment-queue-page">
+
+  <!-- ===================================================== -->
+  <!-- PAGE HEADER -->
+  <!-- ===================================================== -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Waiting Queue
+      </h1>
+
+      <p>
+        Manage patients currently waiting for consultation
+      </p>
+
+    </div>
+
+
+    <!-- REFRESH -->
+
+    <button
+      class="secondary-button"
+      type="button"
+      (click)="refreshQueue()"
+    >
+
+      <span class="material-symbols-outlined">
+        refresh
+      </span>
+
+      Refresh Queue
+
+    </button>
+
+  </div>
+
+
+  <!-- ===================================================== -->
+  <!-- QUEUE SUMMARY -->
+  <!-- ===================================================== -->
+
+  <div class="queue-stats">
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        <span class="material-symbols-outlined">
+          groups
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Patients Waiting
+        </span>
+
+        <strong>
+          {{ queueCount }}
+        </strong>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================== -->
+  <!-- QUEUE CARD -->
+  <!-- ===================================================== -->
+
+  <section class="queue-card">
+
+
+    <!-- ===================================================== -->
+    <!-- QUEUE TOOLBAR -->
+    <!-- ===================================================== -->
+
+    <div class="queue-toolbar">
+
+      <div>
+
+        <h2>
+          Current Waiting Queue
+        </h2>
+
+        <p>
+          Patients checked in and waiting for consultation
+        </p>
+
+      </div>
+
+
+      <span class="material-symbols-outlined queue-icon">
+        format_list_numbered
+      </span>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- QUEUE CONTENT -->
+    <!-- ===================================================== -->
+
+    @if (appointments.length > 0) {
+
+      <div class="table-wrapper">
+
+        <table>
+
+          <!-- ================================================= -->
+          <!-- TABLE HEADER -->
+          <!-- ================================================= -->
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Queue #
+              </th>
+
+              <th>
+                Patient
+              </th>
+
+              <th>
+                Appointment
+              </th>
+
+              <th>
+                Doctor
+              </th>
+
+              <th>
+                Department
+              </th>
+
+              <th>
+                Appointment Time
+              </th>
+
+              <th>
+                Type
+              </th>
+
+              <th>
+                Status
+              </th>
+
+              <th>
+                Action
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <!-- ================================================= -->
+          <!-- TABLE BODY -->
+          <!-- ================================================= -->
+
+          <tbody>
+
+            @for (
+              appointment of appointments;
+              track appointment.id;
+              let i = $index
+            ) {
+
+              <tr>
+
+
+                <!-- =========================================== -->
+                <!-- QUEUE NUMBER -->
+                <!-- =========================================== -->
+
+                <td>
+
+                  <div class="queue-number">
+
+                    {{ i + 1 }}
+
+                  </div>
+
+                </td>
+
+
+                <!-- =========================================== -->
+                <!-- PATIENT -->
+                <!-- =========================================== -->
+
+                <td>
+
+                  <div class="patient-cell">
+
+                    <div class="patient-avatar">
+
+                      {{
+                        appointment.patientName
+                          ? appointment.patientName
+                              .charAt(0)
+                              .toUpperCase()
+                          : '?'
+                      }}
+
+                    </div>
+
+
+                    <div class="patient-info">
+
+                      <strong>
+                        {{ appointment.patientName }}
+                      </strong>
+
+                      <span>
+                        {{ appointment.patientId }}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                </td>
+
+
+                <!-- =========================================== -->
+                <!-- APPOINTMENT -->
+                <!-- =========================================== -->
+
+                <td>
+
+                  <button
+                    class="appointment-id-button"
+                    type="button"
+                    title="View appointment"
+                    [routerLink]="[
+                      '/appointments',
+                      appointment.id
+                    ]"
+                  >
+
+                    {{ appointment.id }}
+
+                  </button>
+
+                </td>
+
+
+                <!-- =========================================== -->
+                <!-- DOCTOR -->
+                <!-- =========================================== -->
+
+                <td>
+
+                  <strong class="doctor-name">
+
+                    {{ appointment.doctorName }}
+
+                  </strong>
+
+                </td>
+
+
+                <!-- =========================================== -->
+                <!-- DEPARTMENT -->
+                <!-- =========================================== -->
+
+                <td>
+
+                  {{ appointment.department }}
+
+                </td>
+
+
+                <!-- =========================================== -->
+                <!-- APPOINTMENT TIME -->
+                <!-- =========================================== -->
+
+                <td>
+
+                  {{ appointment.appointmentTime }}
+
+                </td>
+
+
+                <!-- =========================================== -->
+                <!-- APPOINTMENT TYPE -->
+                <!-- =========================================== -->
+
+                <td>
+
+                  {{ appointment.type }}
+
+                </td>
+
+
+                <!-- =========================================== -->
+                <!-- STATUS -->
+                <!-- =========================================== -->
+
+                <td>
+
+                  <span class="status checked-in">
+
+                    {{ appointment.status }}
+
+                  </span>
+
+                </td>
+
+
+                <!-- =========================================== -->
+                <!-- ACTION -->
+                <!-- =========================================== -->
+
+                <td>
+
+                  <div class="queue-action">
+
+                    <button
+                      class="start-consultation-button"
+                      type="button"
+                      title="Start consultation"
+                      (click)="
+                        startConsultation(
+                          appointment.id
+                        )
+                      "
+                    >
+
+                      <span class="material-symbols-outlined">
+                        play_arrow
+                      </span>
+
+                      Start Consultation
+
+                    </button>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    }
+
+
+    <!-- ===================================================== -->
+    <!-- EMPTY QUEUE -->
+    <!-- ===================================================== -->
+
+    @else {
+
+      <div class="empty-state">
+
+        <span class="material-symbols-outlined">
+          event_available
+        </span>
+
+        <h3>
+          No Patients Waiting
+        </h3>
+
+        <p>
+          There are currently no checked-in patients waiting
+          for consultation.
+        </p>
+
+
+        <button
+          class="secondary-button"
+          type="button"
+          (click)="refreshQueue()"
+        >
+
+          <span class="material-symbols-outlined">
+            refresh
+          </span>
+
+          Refresh Queue
+
+        </button>
+
+      </div>
+
+    }
+
+  </section>
+
+</div>

@@ -1,0 +1,544 @@
+<div class="admission-edit-page">
+
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Edit Admission
+      </h1>
+
+      <p>
+        Update the admission information
+      </p>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="cancel()"
+    >
+
+      <span class="material-symbols-outlined">
+        arrow_back
+      </span>
+
+      Back to Admission
+
+    </button>
+
+  </div>
+
+
+
+  @if (admission) {
+
+    <section class="form-card">
+
+
+      <!-- ================================================= -->
+      <!-- PATIENT INFORMATION -->
+      <!-- ================================================= -->
+
+      <div class="card-header">
+
+        <h2>
+          Patient Information
+        </h2>
+
+        <span>
+          Update the patient information associated with this admission.
+        </span>
+
+      </div>
+
+
+      <div class="form-body">
+
+
+        <!-- PATIENT NAME -->
+
+        <div class="form-group">
+
+          <label for="patientName">
+            Patient Name
+            <span>*</span>
+          </label>
+
+          <input
+            id="patientName"
+            type="text"
+            name="patientName"
+            [(ngModel)]="admission.patientName"
+            placeholder="Enter patient name"
+          />
+
+        </div>
+
+
+        <!-- PATIENT NUMBER -->
+
+        <div class="form-group">
+
+          <label for="patientNumber">
+            Patient Number
+          </label>
+
+          <input
+            id="patientNumber"
+            type="text"
+            name="patientNumber"
+            [(ngModel)]="admission.patientNumber"
+            placeholder="e.g. PT-0001"
+          />
+
+        </div>
+
+
+        <!-- DOCTOR -->
+
+        <div class="form-group">
+
+          <label for="doctorName">
+            Attending Doctor
+          </label>
+
+          <input
+            id="doctorName"
+            type="text"
+            name="doctorName"
+            [(ngModel)]="admission.doctorName"
+            placeholder="Enter doctor name"
+          />
+
+        </div>
+
+
+        <!-- DOCTOR ID -->
+
+        <div class="form-group">
+
+          <label for="doctorId">
+            Doctor ID
+          </label>
+
+          <input
+            id="doctorId"
+            type="text"
+            name="doctorId"
+            [(ngModel)]="admission.doctorId"
+            placeholder="Doctor ID"
+          />
+
+        </div>
+
+
+        <!-- DEPARTMENT -->
+
+        <div class="form-group">
+
+          <label for="departmentName">
+            Department
+          </label>
+
+          <input
+            id="departmentName"
+            type="text"
+            name="departmentName"
+            [(ngModel)]="admission.departmentName"
+            placeholder="Enter department"
+          />
+
+        </div>
+
+
+        <!-- DEPARTMENT ID -->
+
+        <div class="form-group">
+
+          <label for="departmentId">
+            Department ID
+          </label>
+
+          <input
+            id="departmentId"
+            type="text"
+            name="departmentId"
+            [(ngModel)]="admission.departmentId"
+            placeholder="Department ID"
+          />
+
+        </div>
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- ADMISSION INFORMATION -->
+      <!-- ================================================= -->
+
+      <div class="card-header">
+
+        <h2>
+          Admission Information
+        </h2>
+
+        <span>
+          Update ward, admission type and dates.
+        </span>
+
+      </div>
+
+
+      <div class="form-body">
+
+
+        <!-- WARD -->
+
+        <div class="form-group">
+
+          <label for="ward">
+            Ward
+            <span>*</span>
+          </label>
+
+          <select
+            id="ward"
+            name="ward"
+            [(ngModel)]="admission.ward"
+          >
+
+            @for (
+              ward of wards;
+              track ward
+            ) {
+
+              <option [value]="ward">
+                {{ ward }}
+              </option>
+
+            }
+
+          </select>
+
+        </div>
+
+
+        <!-- BED -->
+
+        <div class="form-group">
+
+          <label for="bedNumber">
+            Bed Number
+          </label>
+
+          <input
+            id="bedNumber"
+            type="text"
+            name="bedNumber"
+            [(ngModel)]="admission.bedNumber"
+            placeholder="e.g. B-12"
+          />
+
+        </div>
+
+
+        <!-- ADMISSION TYPE -->
+
+        <div class="form-group">
+
+          <label for="admissionType">
+            Admission Type
+            <span>*</span>
+          </label>
+
+          <select
+            id="admissionType"
+            name="admissionType"
+            [(ngModel)]="admission.admissionType"
+          >
+
+            @for (
+              type of admissionTypes;
+              track type
+            ) {
+
+              <option [value]="type">
+                {{ type }}
+              </option>
+
+            }
+
+          </select>
+
+        </div>
+
+
+        <!-- STATUS -->
+
+        <div class="form-group">
+
+          <label for="status">
+            Status
+            <span>*</span>
+          </label>
+
+          <select
+            id="status"
+            name="status"
+            [(ngModel)]="admission.status"
+          >
+
+            @for (
+              status of statuses;
+              track status
+            ) {
+
+              <option [value]="status">
+                {{ status }}
+              </option>
+
+            }
+
+          </select>
+
+        </div>
+
+
+        <!-- ADMISSION DATE -->
+
+        <div class="form-group">
+
+          <label for="admissionDate">
+            Admission Date
+            <span>*</span>
+          </label>
+
+          <input
+            id="admissionDate"
+            type="date"
+            name="admissionDate"
+            [(ngModel)]="admission.admissionDate"
+          />
+
+        </div>
+
+
+        <!-- EXPECTED DISCHARGE -->
+
+        <div class="form-group">
+
+          <label for="expectedDischargeDate">
+            Expected Discharge Date
+          </label>
+
+          <input
+            id="expectedDischargeDate"
+            type="date"
+            name="expectedDischargeDate"
+            [(ngModel)]="admission.expectedDischargeDate"
+          />
+
+        </div>
+
+
+        <!-- DISCHARGE DATE -->
+
+        <div class="form-group">
+
+          <label for="dischargeDate">
+            Discharge Date
+          </label>
+
+          <input
+            id="dischargeDate"
+            type="date"
+            name="dischargeDate"
+            [(ngModel)]="admission.dischargeDate"
+          />
+
+        </div>
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- CLINICAL INFORMATION -->
+      <!-- ================================================= -->
+
+      <div class="card-header">
+
+        <h2>
+          Clinical Information
+        </h2>
+
+        <span>
+          Update the reason, diagnosis and additional notes.
+        </span>
+
+      </div>
+
+
+      <div class="form-body">
+
+
+        <!-- REASON -->
+
+        <div class="form-group full-width">
+
+          <label for="reason">
+            Reason for Admission
+            <span>*</span>
+          </label>
+
+          <textarea
+            id="reason"
+            name="reason"
+            [(ngModel)]="admission.reason"
+            rows="4"
+            placeholder="Enter reason for admission"
+          ></textarea>
+
+        </div>
+
+
+        <!-- DIAGNOSIS -->
+
+        <div class="form-group full-width">
+
+          <label for="diagnosis">
+            Diagnosis
+          </label>
+
+          <textarea
+            id="diagnosis"
+            name="diagnosis"
+            [(ngModel)]="admission.diagnosis"
+            rows="4"
+            placeholder="Enter diagnosis"
+          ></textarea>
+
+        </div>
+
+
+        <!-- NOTES -->
+
+        <div class="form-group full-width">
+
+          <label for="notes">
+            Additional Notes
+          </label>
+
+          <textarea
+            id="notes"
+            name="notes"
+            [(ngModel)]="admission.notes"
+            rows="5"
+            placeholder="Enter additional notes"
+          ></textarea>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- ACTIONS -->
+      <!-- ================================================= -->
+
+      <div class="form-actions">
+
+        <button
+          type="button"
+          class="danger-button"
+          (click)="deleteAdmission()"
+        >
+
+          <span class="material-symbols-outlined">
+            delete
+          </span>
+
+          Delete
+
+        </button>
+
+
+        <div class="right-actions">
+
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="cancel()"
+          >
+
+            Cancel
+
+          </button>
+
+
+          <button
+            type="button"
+            class="primary-button"
+            (click)="saveAdmission()"
+          >
+
+            <span class="material-symbols-outlined">
+              save
+            </span>
+
+            Save Changes
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  }
+
+
+  @else {
+
+    <section class="empty-card">
+
+      <div class="empty-icon">
+
+        <span class="material-symbols-outlined">
+          hotel
+        </span>
+
+      </div>
+
+      <h3>
+        Admission Not Found
+      </h3>
+
+      <p>
+        The admission record could not be found.
+      </p>
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="cancel()"
+      >
+        Back to Admissions
+      </button>
+
+    </section>
+
+  }
+
+</div>

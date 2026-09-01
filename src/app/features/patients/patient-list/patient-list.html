@@ -1,0 +1,632 @@
+
+<div class="patients-page">
+
+  <!-- ========================= -->
+  <!-- PAGE HEADER -->
+  <!-- ========================= -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Patients
+      </h1>
+
+      <p>
+        Manage and view hospital patient records
+      </p>
+
+    </div>
+
+
+    <div class="header-actions">
+
+      <!-- Refresh -->
+
+      <button
+        class="secondary-button"
+        type="button"
+        (click)="refreshPatients()"
+      >
+
+        <span class="material-symbols-outlined">
+          refresh
+        </span>
+
+        Refresh
+
+      </button>
+
+
+      <!-- Register Patient -->
+
+      <button
+        class="primary-button"
+        type="button"
+        routerLink="/patients/register"
+      >
+
+        <span class="material-symbols-outlined">
+          person_add
+        </span>
+
+        Register Patient
+
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- ========================= -->
+  <!-- STATISTICS -->
+  <!-- ========================= -->
+
+  <div class="patient-stats">
+
+
+    <!-- Total -->
+
+    <div class="mini-stat">
+
+      <div class="mini-stat-icon">
+
+        <span class="material-symbols-outlined">
+          group
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Total Patients
+        </span>
+
+        <strong>
+          {{ totalPatients }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- Active -->
+
+    <div class="mini-stat">
+
+      <div class="mini-stat-icon active-icon">
+
+        <span class="material-symbols-outlined">
+          person
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Active Patients
+        </span>
+
+        <strong>
+          {{ activePatients }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- Male -->
+
+    <div class="mini-stat">
+
+      <div class="mini-stat-icon">
+
+        <span class="material-symbols-outlined">
+          male
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Male Patients
+        </span>
+
+        <strong>
+          {{ malePatients }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- Female -->
+
+    <div class="mini-stat">
+
+      <div class="mini-stat-icon">
+
+        <span class="material-symbols-outlined">
+          female
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Female Patients
+        </span>
+
+        <strong>
+          {{ femalePatients }}
+        </strong>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ========================= -->
+  <!-- PATIENTS CARD -->
+  <!-- ========================= -->
+
+  <section class="patients-card">
+
+
+    <!-- ========================= -->
+    <!-- TOOLBAR -->
+    <!-- ========================= -->
+
+    <div class="table-toolbar">
+
+
+      <!-- Search -->
+
+      <div class="search-box">
+
+        <span class="material-symbols-outlined">
+          search
+        </span>
+
+        <input
+          type="text"
+          name="patientSearch"
+          placeholder="Search by name, patient ID or phone..."
+          [(ngModel)]="searchTerm"
+        />
+
+      </div>
+
+
+      <!-- Filters -->
+
+      <div class="filters">
+
+
+        <!-- Department -->
+
+        <select
+          name="departmentFilter"
+          [(ngModel)]="selectedDepartment"
+        >
+
+          <option value="">
+            All Departments
+          </option>
+
+          <option value="General Medicine">
+            General Medicine
+          </option>
+
+          <option value="Cardiology">
+            Cardiology
+          </option>
+
+          <option value="Dental">
+            Dental
+          </option>
+
+          <option value="Orthopedics">
+            Orthopedics
+          </option>
+
+        </select>
+
+
+        <!-- Status -->
+
+        <select
+          name="statusFilter"
+          [(ngModel)]="selectedStatus"
+        >
+
+          <option value="">
+            All Status
+          </option>
+
+          <option value="Active">
+            Active
+          </option>
+
+          <option value="Inactive">
+            Inactive
+          </option>
+
+        </select>
+
+
+        <!-- Clear -->
+
+        <button
+          class="clear-button"
+          type="button"
+          (click)="clearFilters()"
+        >
+
+          <span class="material-symbols-outlined">
+            filter_alt_off
+          </span>
+
+          Clear
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- TABLE -->
+    <!-- ========================= -->
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>
+              Patient
+            </th>
+
+            <th>
+              Patient ID
+            </th>
+
+            <th>
+              Gender
+            </th>
+
+            <th>
+              Age
+            </th>
+
+            <th>
+              Phone
+            </th>
+
+            <th>
+              Department
+            </th>
+
+            <th>
+              Status
+            </th>
+
+            <th>
+              Actions
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          @for (
+            patient of filteredPatients;
+            track patient.id
+          ) {
+
+            <tr>
+
+
+              <!-- ========================= -->
+              <!-- PATIENT -->
+              <!-- ========================= -->
+
+              <td>
+
+                <div class="patient-cell">
+
+
+                  <div class="patient-avatar">
+
+                    {{
+                      patient.firstName
+                        ? patient.firstName
+                            .charAt(0)
+                            .toUpperCase()
+                        : '?'
+                    }}
+
+                  </div>
+
+
+                  <div>
+
+                    <strong>
+
+                      {{ patient.firstName }}
+                      {{ patient.lastName }}
+
+                    </strong>
+
+                    <span>
+                      Registered patient
+                    </span>
+
+                  </div>
+
+                </div>
+
+              </td>
+
+
+              <!-- ========================= -->
+              <!-- PATIENT ID -->
+              <!-- ========================= -->
+
+              <td>
+
+                <button
+                  class="patient-id-button"
+                  type="button"
+                  [routerLink]="[
+                    '/patients',
+                    patient.id
+                  ]"
+                >
+
+                  {{ patient.id }}
+
+                </button>
+
+              </td>
+
+
+              <!-- ========================= -->
+              <!-- GENDER -->
+              <!-- ========================= -->
+
+              <td>
+
+                {{ patient.gender }}
+
+              </td>
+
+
+              <!-- ========================= -->
+              <!-- AGE -->
+              <!-- ========================= -->
+
+              <td>
+
+                {{ calculateAge(patient.dateOfBirth) }}
+
+              </td>
+
+
+              <!-- ========================= -->
+              <!-- PHONE -->
+              <!-- ========================= -->
+
+              <td>
+
+                {{ patient.phone }}
+
+              </td>
+
+
+              <!-- ========================= -->
+              <!-- DEPARTMENT -->
+              <!-- ========================= -->
+
+              <td>
+
+                {{ patient.department }}
+
+              </td>
+
+
+              <!-- ========================= -->
+              <!-- STATUS -->
+              <!-- ========================= -->
+
+              <td>
+
+                <span
+                  class="status"
+                  [class.active]="
+                    patient.status === 'Active'
+                  "
+                  [class.inactive]="
+                    patient.status === 'Inactive'
+                  "
+                >
+
+                  {{ patient.status }}
+
+                </span>
+
+              </td>
+
+
+              <!-- ========================= -->
+              <!-- ACTIONS -->
+              <!-- ========================= -->
+
+              <td>
+
+                <div class="action-buttons">
+
+
+                  <!-- VIEW -->
+
+                  <button
+                    class="action-button"
+                    type="button"
+                    title="View patient"
+                    [routerLink]="[
+                      '/patients',
+                      patient.id
+                    ]"
+                  >
+
+                    <span class="material-symbols-outlined">
+                      visibility
+                    </span>
+
+                  </button>
+
+
+                  <!-- EDIT -->
+
+                  <button
+                    class="action-button"
+                    type="button"
+                    title="Edit patient"
+                    [routerLink]="[
+                      '/patients',
+                      patient.id,
+                      'edit'
+                    ]"
+                  >
+
+                    <span class="material-symbols-outlined">
+                      edit
+                    </span>
+
+                  </button>
+
+
+                  <!-- DEACTIVATE -->
+
+                  @if (
+                    patient.status === 'Active'
+                  ) {
+
+                    <button
+                      class="action-button"
+                      type="button"
+                      title="Deactivate patient"
+                      (click)="
+                        deactivatePatient(
+                          patient.id
+                        )
+                      "
+                    >
+
+                      <span class="material-symbols-outlined">
+                        person_off
+                      </span>
+
+                    </button>
+
+                  }
+
+
+                  <!-- DELETE -->
+
+                  <button
+                    class="action-button cancel-action"
+                    type="button"
+                    title="Delete patient"
+                    (click)="
+                      deletePatient(
+                        patient.id
+                      )
+                    "
+                  >
+
+                    <span class="material-symbols-outlined">
+                      delete
+                    </span>
+
+                  </button>
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- EMPTY STATE -->
+    <!-- ========================= -->
+
+    @if (
+      filteredPatients.length === 0
+    ) {
+
+      <div class="empty-state">
+
+        <span class="material-symbols-outlined">
+          person_search
+        </span>
+
+        <h3>
+          No patients found
+        </h3>
+
+        <p>
+          Try changing your search criteria
+          or clearing the filters.
+        </p>
+
+
+        <button
+          class="secondary-button"
+          type="button"
+          (click)="clearFilters()"
+        >
+
+          <span class="material-symbols-outlined">
+            filter_alt_off
+          </span>
+
+          Clear Filters
+
+        </button>
+
+      </div>
+
+    }
+
+  </section>
+
+</div>

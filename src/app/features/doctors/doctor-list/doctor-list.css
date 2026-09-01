@@ -1,0 +1,606 @@
+
+/* =====================================================
+   DOCTORS PAGE
+===================================================== */
+
+.doctors-page {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+
+/* =====================================================
+   PAGE HEADER
+===================================================== */
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin: 0;
+
+  color: #111827;
+  font-size: 26px;
+}
+
+.page-header p {
+  margin: 5px 0 0;
+
+  color: #6b7280;
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   PRIMARY BUTTON
+===================================================== */
+
+.primary-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 11px 16px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #0f766e;
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.primary-button:hover {
+  background: #115e59;
+}
+
+.primary-button .material-symbols-outlined {
+  font-size: 19px;
+}
+
+
+/* =====================================================
+   STATISTICS
+===================================================== */
+
+.doctor-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap: 18px;
+
+  margin-bottom: 20px;
+}
+
+.mini-stat {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 16px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 10px;
+}
+
+.mini-stat-icon {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 9px;
+
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.mini-stat-icon.active-icon {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.mini-stat-icon.inactive-icon {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.mini-stat-icon.specialist-icon {
+  background: #f3e8ff;
+  color: #9333ea;
+}
+
+.mini-stat-icon .material-symbols-outlined {
+  font-size: 21px;
+}
+
+.mini-stat span {
+  display: block;
+
+  color: #6b7280;
+
+  font-size: 11px;
+}
+
+.mini-stat strong {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #111827;
+
+  font-size: 18px;
+}
+
+
+/* =====================================================
+   DOCTORS CARD
+===================================================== */
+
+.doctors-card {
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 12px;
+
+  overflow: hidden;
+}
+
+
+/* =====================================================
+   TOOLBAR
+===================================================== */
+
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 16px;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+.search-box {
+  width: 350px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 9px 12px;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+}
+
+.search-box:focus-within {
+  border-color: #0f766e;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(15, 118, 110, 0.08);
+}
+
+.search-box .material-symbols-outlined {
+  color: #9ca3af;
+  font-size: 20px;
+}
+
+.search-box input {
+  width: 100%;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #374151;
+
+  font-size: 12px;
+}
+
+.search-box input::placeholder {
+  color: #9ca3af;
+}
+
+
+/* =====================================================
+   FILTERS
+===================================================== */
+
+.filters {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+}
+
+.filters select {
+  padding: 9px 12px;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #4b5563;
+
+  font-size: 12px;
+
+  outline: none;
+
+  cursor: pointer;
+}
+
+.filters select:focus {
+  border-color: #0f766e;
+}
+
+
+/* =====================================================
+   CLEAR BUTTON
+===================================================== */
+
+.clear-button {
+  display: flex;
+  align-items: center;
+
+  gap: 5px;
+
+  padding: 9px 11px;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #6b7280;
+
+  font-size: 12px;
+
+  cursor: pointer;
+}
+
+.clear-button:hover {
+  background: #f9fafb;
+
+  color: #374151;
+}
+
+.clear-button .material-symbols-outlined {
+  font-size: 17px;
+}
+
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+.table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+
+  min-width: 1050px;
+
+  border-collapse: collapse;
+
+  font-size: 12px;
+}
+
+thead {
+  background: #f9fafb;
+}
+
+th {
+  padding: 13px 16px;
+
+  text-align: left;
+
+  color: #6b7280;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+td {
+  padding: 13px 16px;
+
+  border-top: 1px solid #f3f4f6;
+
+  color: #4b5563;
+
+  white-space: nowrap;
+}
+
+tbody tr:hover {
+  background: #fafafa;
+}
+
+
+/* =====================================================
+   DOCTOR CELL
+===================================================== */
+
+.doctor-cell {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  min-width: 220px;
+}
+
+.doctor-avatar {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #ccfbf1;
+  color: #0f766e;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.doctor-cell strong {
+  display: block;
+
+  color: #111827;
+
+  font-size: 12px;
+}
+
+.doctor-cell span {
+  display: block;
+
+  max-width: 180px;
+
+  margin-top: 2px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  color: #9ca3af;
+
+  font-size: 10px;
+}
+
+
+/* =====================================================
+   DOCTOR ID
+===================================================== */
+
+.doctor-id {
+  color: #0f766e;
+
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.status {
+  display: inline-block;
+
+  padding: 5px 9px;
+
+  border-radius: 20px;
+
+  font-size: 10px;
+
+  font-weight: 600;
+}
+
+.status.active {
+  background: #dcfce7;
+
+  color: #15803d;
+}
+
+.status.inactive {
+  background: #f3f4f6;
+
+  color: #6b7280;
+}
+
+
+/* =====================================================
+   ACTIONS
+===================================================== */
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+
+  gap: 3px;
+}
+
+.action-button {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+
+  border-radius: 6px;
+
+  background: transparent;
+
+  color: #6b7280;
+
+  cursor: pointer;
+}
+
+.action-button:hover {
+  background: #f3f4f6;
+
+  color: #374151;
+}
+
+.action-button .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.action-button:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+}
+
+.danger-action:hover {
+  background: #fff1f2;
+
+  color: #dc2626;
+}
+
+.delete-action:hover {
+  background: #fee2e2;
+
+  color: #dc2626;
+}
+
+
+/* =====================================================
+   EMPTY STATE
+===================================================== */
+
+.empty-cell {
+  padding: 0 !important;
+}
+
+.empty-state {
+  padding: 60px 20px;
+
+  text-align: center;
+
+  color: #9ca3af;
+}
+
+.empty-state .material-symbols-outlined {
+  font-size: 42px;
+}
+
+.empty-state h3 {
+  margin: 10px 0 5px;
+
+  color: #374151;
+
+  font-size: 16px;
+}
+
+.empty-state p {
+  margin: 0;
+
+  font-size: 12px;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 1150px) {
+
+  .doctor-stats {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .table-toolbar {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .search-box {
+    width: auto;
+  }
+
+  .filters {
+    flex-wrap: wrap;
+  }
+
+}
+
+
+@media (max-width: 700px) {
+
+  .page-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 15px;
+  }
+
+  .doctor-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .filters {
+    width: 100%;
+  }
+
+  .filters select,
+  .clear-button {
+    flex: 1;
+  }
+
+}
+

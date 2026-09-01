@@ -1,0 +1,323 @@
+<div class="hospital-settings-page">
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div class="header-left">
+
+      <button
+        type="button"
+        class="back-button"
+        (click)="goBack()"
+      >
+
+        <span class="material-symbols-outlined">
+          arrow_back
+        </span>
+
+      </button>
+
+      <div>
+
+        <h1>
+          Hospital Information
+        </h1>
+
+        <p>
+          Manage your hospital's basic information and contact details.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- FORM CARD -->
+  <!-- ================================================= -->
+
+  <section class="settings-card">
+
+    <div class="card-header">
+
+      <div class="header-icon">
+
+        <span class="material-symbols-outlined">
+          local_hospital
+        </span>
+
+      </div>
+
+      <div>
+
+        <h2>
+          Hospital Details
+        </h2>
+
+        <p>
+          This information may be displayed throughout the HMS.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div class="form-body">
+
+
+      <!-- =============================================== -->
+      <!-- HOSPITAL NAME -->
+      <!-- =============================================== -->
+
+      <div class="form-group full-width">
+
+        <label for="hospitalName">
+          Hospital Name
+          <span>*</span>
+        </label>
+
+        <input
+          id="hospitalName"
+          type="text"
+          name="hospitalName"
+          [(ngModel)]="settings.hospitalName"
+          placeholder="Enter hospital name"
+        />
+
+      </div>
+
+
+      <!-- =============================================== -->
+      <!-- REGISTRATION NUMBER -->
+      <!-- =============================================== -->
+
+      <div class="form-group">
+
+        <label for="registrationNumber">
+          Registration Number
+        </label>
+
+        <input
+          id="registrationNumber"
+          type="text"
+          name="registrationNumber"
+          [(ngModel)]="settings.registrationNumber"
+          placeholder="e.g. HOSP-001"
+        />
+
+      </div>
+
+
+      <!-- =============================================== -->
+      <!-- PHONE -->
+      <!-- =============================================== -->
+
+      <div class="form-group">
+
+        <label for="phone">
+          Phone Number
+        </label>
+
+        <input
+          id="phone"
+          type="tel"
+          name="phone"
+          [(ngModel)]="settings.phone"
+          placeholder="+256 700 000 000"
+        />
+
+      </div>
+
+
+      <!-- =============================================== -->
+      <!-- EMAIL -->
+      <!-- =============================================== -->
+
+      <div class="form-group">
+
+        <label for="email">
+          Email Address
+        </label>
+
+        <input
+          id="email"
+          type="email"
+          name="email"
+          [(ngModel)]="settings.email"
+          placeholder="info@hospital.com"
+        />
+
+      </div>
+
+
+      <!-- =============================================== -->
+      <!-- WEBSITE -->
+      <!-- =============================================== -->
+
+      <div class="form-group">
+
+        <label for="website">
+          Website
+        </label>
+
+        <input
+          id="website"
+          type="url"
+          name="website"
+          [(ngModel)]="settings.website"
+          placeholder="https://www.hospital.com"
+        />
+
+      </div>
+
+
+      <!-- =============================================== -->
+      <!-- ADDRESS -->
+      <!-- =============================================== -->
+
+      <div class="form-group full-width">
+
+        <label for="address">
+          Address
+        </label>
+
+        <textarea
+          id="address"
+          name="address"
+          rows="3"
+          [(ngModel)]="settings.address"
+          placeholder="Enter hospital physical address"
+        ></textarea>
+
+      </div>
+
+
+      <!-- =============================================== -->
+      <!-- CITY -->
+      <!-- =============================================== -->
+
+      <div class="form-group">
+
+        <label for="city">
+          City
+        </label>
+
+        <input
+          id="city"
+          type="text"
+          name="city"
+          [(ngModel)]="settings.city"
+          placeholder="e.g. Kampala"
+        />
+
+      </div>
+
+
+      <!-- =============================================== -->
+      <!-- COUNTRY -->
+      <!-- =============================================== -->
+
+      <div class="form-group">
+
+        <label for="country">
+          Country
+        </label>
+
+        <input
+          id="country"
+          type="text"
+          name="country"
+          [(ngModel)]="settings.country"
+          placeholder="e.g. Uganda"
+        />
+
+      </div>
+
+
+      <!-- =============================================== -->
+      <!-- LOGO -->
+      <!-- =============================================== -->
+
+      <div class="form-group full-width">
+
+        <label for="logoUrl">
+          Logo URL
+        </label>
+
+        <input
+          id="logoUrl"
+          type="url"
+          name="logoUrl"
+          [(ngModel)]="settings.logoUrl"
+          placeholder="https://example.com/logo.png"
+        />
+
+        <small>
+          Enter the URL of your hospital logo if you have one.
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- ACTIONS -->
+    <!-- ================================================= -->
+
+    <div class="form-actions">
+
+      <button
+        type="button"
+        class="danger-button"
+        (click)="resetSettings()"
+      >
+
+        <span class="material-symbols-outlined">
+          restart_alt
+        </span>
+
+        Reset
+
+      </button>
+
+
+      <div class="action-right">
+
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="goBack()"
+        >
+          Cancel
+        </button>
+
+
+        <button
+          type="button"
+          class="primary-button"
+          [disabled]="saving"
+          (click)="saveSettings()"
+        >
+
+          <span class="material-symbols-outlined">
+            save
+          </span>
+
+          {{ saving ? 'Saving...' : 'Save Changes' }}
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</div>

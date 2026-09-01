@@ -1,0 +1,712 @@
+@if (patient) {
+
+  <div class="profile-page">
+
+    <!-- ================================================= -->
+    <!-- PAGE HEADER -->
+    <!-- ================================================= -->
+
+    <div class="page-header">
+
+      <!-- BACK -->
+
+      <button
+        class="back-button"
+        type="button"
+        (click)="backToPatients()"
+      >
+
+        <span class="material-symbols-outlined">
+          arrow_back
+        </span>
+
+        Back to Patients
+
+      </button>
+
+
+      <!-- HEADER ACTIONS -->
+
+      <div class="header-actions">
+
+        <!-- EDIT -->
+
+        <button
+          class="secondary-button"
+          type="button"
+          (click)="editPatient()"
+        >
+
+          <span class="material-symbols-outlined">
+            edit
+          </span>
+
+          Edit Patient
+
+        </button>
+
+
+        <!-- DEACTIVATE -->
+
+        <button
+          class="danger-button"
+          type="button"
+          (click)="deactivatePatient()"
+          [disabled]="patient.status === 'Inactive'"
+        >
+
+          <span class="material-symbols-outlined">
+            person_off
+          </span>
+
+          @if (patient.status === 'Inactive') {
+            Deactivated
+          } @else {
+            Deactivate
+          }
+
+        </button>
+
+
+        <!-- PRINT -->
+
+        <button
+          class="primary-button"
+          type="button"
+          (click)="printRecord()"
+        >
+
+          <span class="material-symbols-outlined">
+            print
+          </span>
+
+          Print Record
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- PATIENT HEADER CARD -->
+    <!-- ================================================= -->
+
+    <section class="patient-header-card">
+
+      <!-- AVATAR -->
+
+      <div class="large-avatar">
+
+        {{
+          patient.firstName
+            ? patient.firstName.charAt(0).toUpperCase()
+            : '?'
+        }}
+
+      </div>
+
+
+      <!-- MAIN INFORMATION -->
+
+      <div class="patient-main-info">
+
+        <div class="name-row">
+
+          <h1>
+            {{ patient.firstName }}
+            {{ patient.lastName }}
+          </h1>
+
+
+          <!-- STATUS -->
+
+          <span
+            class="status"
+            [class.active]="patient.status === 'Active'"
+            [class.inactive]="patient.status === 'Inactive'"
+          >
+
+            {{ patient.status }}
+
+          </span>
+
+        </div>
+
+
+        <!-- PATIENT ID -->
+
+        <p class="patient-id">
+
+          Patient ID:
+          {{ patient.id }}
+
+        </p>
+
+
+        <!-- QUICK INFORMATION -->
+
+        <div class="quick-info">
+
+          <!-- GENDER -->
+
+          <span>
+
+            <span class="material-symbols-outlined">
+              person
+            </span>
+
+            {{ patient.gender }}
+
+          </span>
+
+
+          <!-- AGE -->
+
+          <span>
+
+            <span class="material-symbols-outlined">
+              cake
+            </span>
+
+            {{ calculateAge(patient.dateOfBirth) }}
+
+            years
+
+          </span>
+
+
+          <!-- BLOOD GROUP -->
+
+          <span>
+
+            <span class="material-symbols-outlined">
+              bloodtype
+            </span>
+
+            {{
+              patient.bloodGroup ||
+              'Not recorded'
+            }}
+
+          </span>
+
+
+          <!-- PHONE -->
+
+          <span>
+
+            <span class="material-symbols-outlined">
+              phone
+            </span>
+
+            {{ patient.phone }}
+
+          </span>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- PROFILE GRID -->
+    <!-- ================================================= -->
+
+    <div class="profile-grid">
+
+
+      <!-- ================================================= -->
+      <!-- PERSONAL INFORMATION -->
+      <!-- ================================================= -->
+
+      <section class="profile-card">
+
+        <div class="card-header">
+
+          <div>
+
+            <h2>
+              Personal Information
+            </h2>
+
+            <p>
+              Patient demographic information
+            </p>
+
+          </div>
+
+          <span class="material-symbols-outlined">
+            person
+          </span>
+
+        </div>
+
+
+        <div class="information-grid">
+
+          <!-- FIRST NAME -->
+
+          <div>
+
+            <label>
+              First Name
+            </label>
+
+            <strong>
+              {{ patient.firstName }}
+            </strong>
+
+          </div>
+
+
+          <!-- LAST NAME -->
+
+          <div>
+
+            <label>
+              Last Name
+            </label>
+
+            <strong>
+              {{ patient.lastName }}
+            </strong>
+
+          </div>
+
+
+          <!-- DATE OF BIRTH -->
+
+          <div>
+
+            <label>
+              Date of Birth
+            </label>
+
+            <strong>
+              {{ patient.dateOfBirth }}
+            </strong>
+
+          </div>
+
+
+          <!-- AGE -->
+
+          <div>
+
+            <label>
+              Age
+            </label>
+
+            <strong>
+              {{ calculateAge(patient.dateOfBirth) }}
+              years
+            </strong>
+
+          </div>
+
+
+          <!-- GENDER -->
+
+          <div>
+
+            <label>
+              Gender
+            </label>
+
+            <strong>
+              {{ patient.gender }}
+            </strong>
+
+          </div>
+
+
+          <!-- PHONE -->
+
+          <div>
+
+            <label>
+              Phone
+            </label>
+
+            <strong>
+              {{ patient.phone }}
+            </strong>
+
+          </div>
+
+
+          <!-- EMAIL -->
+
+          <div>
+
+            <label>
+              Email
+            </label>
+
+            <strong>
+              {{
+                patient.email ||
+                'Not provided'
+              }}
+            </strong>
+
+          </div>
+
+
+          <!-- NATIONAL ID -->
+
+          <div>
+
+            <label>
+              National ID
+            </label>
+
+            <strong>
+              {{
+                patient.nationalId ||
+                'Not provided'
+              }}
+            </strong>
+
+          </div>
+
+
+          <!-- BLOOD GROUP -->
+
+          <div>
+
+            <label>
+              Blood Group
+            </label>
+
+            <strong>
+              {{
+                patient.bloodGroup ||
+                'Not recorded'
+              }}
+            </strong>
+
+          </div>
+
+
+          <!-- ADDRESS -->
+
+          <div class="full-width">
+
+            <label>
+              Address
+            </label>
+
+            <strong>
+              {{
+                patient.address ||
+                'Not provided'
+              }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- EMERGENCY CONTACT -->
+      <!-- ================================================= -->
+
+      <section class="profile-card">
+
+        <div class="card-header">
+
+          <div>
+
+            <h2>
+              Emergency Contact
+            </h2>
+
+            <p>
+              Emergency contact information
+            </p>
+
+          </div>
+
+          <span class="material-symbols-outlined">
+            contact_emergency
+          </span>
+
+        </div>
+
+
+        <div class="information-grid">
+
+          <!-- NAME -->
+
+          <div>
+
+            <label>
+              Contact Name
+            </label>
+
+            <strong>
+              {{
+                patient.emergencyContactName ||
+                'Not provided'
+              }}
+            </strong>
+
+          </div>
+
+
+          <!-- PHONE -->
+
+          <div>
+
+            <label>
+              Contact Phone
+            </label>
+
+            <strong>
+              {{
+                patient.emergencyContactPhone ||
+                'Not provided'
+              }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- HOSPITAL INFORMATION -->
+      <!-- ================================================= -->
+
+      <section class="profile-card">
+
+        <div class="card-header">
+
+          <div>
+
+            <h2>
+              Hospital Information
+            </h2>
+
+            <p>
+              Current hospital information
+            </p>
+
+          </div>
+
+          <span class="material-symbols-outlined">
+            local_hospital
+          </span>
+
+        </div>
+
+
+        <div class="information-grid">
+
+          <!-- DEPARTMENT -->
+
+          <div>
+
+            <label>
+              Department
+            </label>
+
+            <strong>
+              {{
+                patient.department ||
+                'Not assigned'
+              }}
+            </strong>
+
+          </div>
+
+
+          <!-- STATUS -->
+
+          <div>
+
+            <label>
+              Patient Status
+            </label>
+
+            <strong>
+              {{ patient.status }}
+            </strong>
+
+          </div>
+
+
+          <!-- REGISTRATION DATE -->
+
+          <div>
+
+            <label>
+              Registration Date
+            </label>
+
+            <strong>
+              {{ patient.createdAt | date:'mediumDate' }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- CLINICAL RECORD -->
+      <!-- ================================================= -->
+
+      <section class="profile-card medical-card">
+
+        <div class="card-header">
+
+          <div>
+
+            <h2>
+              Clinical Record
+            </h2>
+
+            <p>
+              Patient medical information
+            </p>
+
+          </div>
+
+          <span class="material-symbols-outlined">
+            medical_information
+          </span>
+
+        </div>
+
+
+        <div class="clinical-items">
+
+          <!-- MEDICAL HISTORY -->
+
+          <div class="clinical-item">
+
+            <span class="material-symbols-outlined">
+              history
+            </span>
+
+            <div>
+
+              <strong>
+                Medical History
+              </strong>
+
+              <p>
+                No medical history recorded yet.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <!-- MEDICATIONS -->
+
+          <div class="clinical-item">
+
+            <span class="material-symbols-outlined">
+              medication
+            </span>
+
+            <div>
+
+              <strong>
+                Medications
+              </strong>
+
+              <p>
+                No current medications recorded.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <!-- LABORATORY -->
+
+          <div class="clinical-item">
+
+            <span class="material-symbols-outlined">
+              science
+            </span>
+
+            <div>
+
+              <strong>
+                Laboratory Results
+              </strong>
+
+              <p>
+                No laboratory results available.
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </div>
+
+}
+
+
+<!-- ===================================================== -->
+<!-- PATIENT NOT FOUND -->
+<!-- ===================================================== -->
+
+@else {
+
+  <div class="not-found">
+
+    <span class="material-symbols-outlined">
+      person_off
+    </span>
+
+    <h2>
+      Patient not found
+    </h2>
+
+    <p>
+      The patient record could not be found.
+    </p>
+
+    <button
+      class="primary-button"
+      type="button"
+      (click)="backToPatients()"
+    >
+
+      <span class="material-symbols-outlined">
+        arrow_back
+      </span>
+
+      Back to Patients
+
+    </button>
+
+  </div>
+
+}

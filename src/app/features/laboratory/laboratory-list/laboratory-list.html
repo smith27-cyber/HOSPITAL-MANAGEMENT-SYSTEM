@@ -1,0 +1,485 @@
+<div class="laboratory-page">
+
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Laboratory
+      </h1>
+
+      <p>
+        Manage laboratory tests and services
+      </p>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="primary-button"
+      (click)="registerTest()"
+    >
+
+      <span class="material-symbols-outlined">
+        add
+      </span>
+
+      Register Test
+
+    </button>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- STATISTICS -->
+  <!-- ================================================= -->
+
+  <div class="stats-grid">
+
+
+    <!-- TOTAL TESTS -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon total">
+
+        <span class="material-symbols-outlined">
+          science
+        </span>
+
+      </div>
+
+      <div>
+
+        <span class="stat-label">
+          Total Tests
+        </span>
+
+        <h2>
+          {{ totalTests }}
+        </h2>
+
+      </div>
+
+    </div>
+
+
+    <!-- CATEGORIES -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon categories">
+
+        <span class="material-symbols-outlined">
+          category
+        </span>
+
+      </div>
+
+      <div>
+
+        <span class="stat-label">
+          Categories
+        </span>
+
+        <h2>
+          {{ totalCategories }}
+        </h2>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- TEST LIST -->
+  <!-- ================================================= -->
+
+  <section class="laboratory-card">
+
+
+    <!-- ================================================= -->
+    <!-- TOOLBAR -->
+    <!-- ================================================= -->
+
+    <div class="toolbar">
+
+
+      <!-- SEARCH -->
+
+      <div class="search-box">
+
+        <span class="material-symbols-outlined">
+          search
+        </span>
+
+        <input
+          type="text"
+          placeholder="Search laboratory tests..."
+          [(ngModel)]="searchTerm"
+          (input)="applyFilters()"
+        />
+
+      </div>
+
+
+      <!-- CATEGORY -->
+
+      <select
+        [(ngModel)]="selectedCategory"
+        (change)="applyFilters()"
+      >
+
+        <option value="All">
+          All Categories
+        </option>
+
+
+        @for (
+          category of categories;
+          track category
+        ) {
+
+          <option
+            [value]="category"
+          >
+
+            {{ category }}
+
+          </option>
+
+        }
+
+      </select>
+
+
+      <!-- CLEAR -->
+
+      @if (
+        searchTerm ||
+        selectedCategory !== 'All'
+      ) {
+
+        <button
+          type="button"
+          class="clear-button"
+          (click)="clearFilters()"
+        >
+
+          Clear
+
+        </button>
+
+      }
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- TABLE -->
+    <!-- ================================================= -->
+
+    <div class="table-wrapper">
+
+      @if (
+        filteredTests.length > 0
+      ) {
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Test
+              </th>
+
+              <th>
+                Category
+              </th>
+
+              <th>
+                Sample Type
+              </th>
+
+              <th>
+                Price
+              </th>
+
+              <th>
+                Normal Range
+              </th>
+
+              <th>
+                Actions
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            @for (
+              test of filteredTests;
+              track test.id
+            ) {
+
+              <tr>
+
+
+                <!-- TEST -->
+
+                <td>
+
+                  <div class="test-name">
+
+                    <div class="test-icon">
+
+                      <span
+                        class="material-symbols-outlined"
+                      >
+                        science
+                      </span>
+
+                    </div>
+
+
+                    <div>
+
+                      <strong>
+                        {{ test.testName }}
+                      </strong>
+
+                      <span>
+                        {{ test.id }}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                </td>
+
+
+                <!-- CATEGORY -->
+
+                <td>
+
+                  <span class="category-badge">
+
+                    {{ test.category }}
+
+                  </span>
+
+                </td>
+
+
+                <!-- SAMPLE -->
+
+                <td>
+                  {{ test.sampleType }}
+                </td>
+
+
+                <!-- PRICE -->
+
+                <td>
+
+                  {{ formatCurrency(
+                    test.price
+                  ) }}
+
+                </td>
+
+
+                <!-- NORMAL RANGE -->
+
+                <td>
+
+                  @if (
+                    test.normalRange
+                  ) {
+
+                    {{ test.normalRange }}
+
+                  }
+
+                  @else {
+
+                    <span class="not-available">
+                      Not specified
+                    </span>
+
+                  }
+
+                </td>
+
+
+                <!-- ACTIONS -->
+
+                <td>
+
+                  <div class="actions">
+
+
+                    <!-- VIEW -->
+
+                    <button
+                      type="button"
+                      class="action-button view"
+                      title="View"
+                      (click)="viewTest(test)"
+                    >
+
+                      <span
+                        class="material-symbols-outlined"
+                      >
+                        visibility
+                      </span>
+
+                    </button>
+
+
+                    <!-- EDIT -->
+
+                    <button
+                      type="button"
+                      class="action-button edit"
+                      title="Edit"
+                      (click)="editTest(test)"
+                    >
+
+                      <span
+                        class="material-symbols-outlined"
+                      >
+                        edit
+                      </span>
+
+                    </button>
+
+
+                    <!-- DELETE -->
+
+                    <button
+                      type="button"
+                      class="action-button delete"
+                      title="Delete"
+                      (click)="deleteTest(test)"
+                    >
+
+                      <span
+                        class="material-symbols-outlined"
+                      >
+                        delete
+                      </span>
+
+                    </button>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      }
+
+
+      <!-- ================================================= -->
+      <!-- EMPTY STATE -->
+      <!-- ================================================= -->
+
+      @else {
+
+        <div class="empty-state">
+
+          <div class="empty-icon">
+
+            <span class="material-symbols-outlined">
+              science
+            </span>
+
+          </div>
+
+
+          @if (
+            searchTerm ||
+            selectedCategory !== 'All'
+          ) {
+
+            <h3>
+              No laboratory tests found
+            </h3>
+
+            <p>
+              No tests match your current
+              search or category filter.
+            </p>
+
+
+            <button
+              type="button"
+              class="secondary-button"
+              (click)="clearFilters()"
+            >
+
+              Clear Filters
+
+            </button>
+
+          }
+
+          @else {
+
+            <h3>
+              No laboratory tests registered
+            </h3>
+
+            <p>
+              Start by registering your first
+              laboratory test.
+            </p>
+
+
+            <button
+              type="button"
+              class="primary-button"
+              (click)="registerTest()"
+            >
+
+              <span class="material-symbols-outlined">
+                add
+              </span>
+
+              Register Test
+
+            </button>
+
+          }
+
+        </div>
+
+      }
+
+    </div>
+
+  </section>
+
+</div>
