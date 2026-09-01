@@ -1,15 +1,19 @@
 
 package com.hms.backend.service.impl;
 
+import com.hms.backend.dto.BillingItemRequest;
 import com.hms.backend.dto.ConsultationRequest;
 import com.hms.backend.dto.ConsultationResponse;
+import com.hms.backend.entity.Billing;
 import com.hms.backend.entity.Consultation;
 import com.hms.backend.repository.ConsultationRepository;
+import com.hms.backend.service.BillingService;
 import com.hms.backend.service.ConsultationService;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -21,7 +25,12 @@ import java.util.stream.Collectors;
 public class ConsultationServiceImpl
         implements ConsultationService {
 
+    private static final BigDecimal CONSULTATION_FEE =
+            new BigDecimal("30000");
+
     private final ConsultationRepository consultationRepository;
+
+    private final BillingService billingService;
 
 
     // =====================================================
@@ -29,10 +38,15 @@ public class ConsultationServiceImpl
     // =====================================================
 
     public ConsultationServiceImpl(
-            ConsultationRepository consultationRepository) {
+            ConsultationRepository consultationRepository,
+            BillingService billingService
+    ) {
 
         this.consultationRepository =
                 consultationRepository;
+
+        this.billingService =
+                billingService;
     }
 
 
@@ -163,16 +177,6 @@ public class ConsultationServiceImpl
     // =====================================================
     // CREATE CONSULTATION
     // =====================================================
-    //
-    // Appointment
-    //      ↓
-    // Consultation created
-    //      ↓
-    // OPEN
-    //
-    // Creation NEVER completes the consultation.
-    //
-    // =====================================================
 
     @Override
     public ConsultationResponse createConsultation(
@@ -182,7 +186,9 @@ public class ConsultationServiceImpl
 
 
         String appointmentId =
-                clean(request.getAppointmentId());
+                clean(
+                        request.getAppointmentId()
+                );
 
 
         // -------------------------------------------------
@@ -204,6 +210,20 @@ public class ConsultationServiceImpl
         }
 
 
+        String patientName =
+                clean(
+                        request.getPatientName()
+                );
+
+
+        if (patientName == null) {
+
+            throw new IllegalArgumentException(
+                    "Patient name is required."
+            );
+        }
+
+
         Consultation consultation =
                 new Consultation();
 
@@ -215,6 +235,11 @@ public class ConsultationServiceImpl
 
         consultation.setPatientId(
                 request.getPatientId().trim()
+        );
+
+
+        consultation.setPatientName(
+                patientName
         );
 
 
@@ -316,10 +341,38 @@ public class ConsultationServiceImpl
         );
 
 
+        // -------------------------------------------------
+        // SAVE CONSULTATION FIRST
+        // -------------------------------------------------
+
         Consultation saved =
                 consultationRepository.save(
                         consultation
                 );
+
+
+        // =================================================
+        // ADD CONSULTATION BILLING
+        // =================================================
+
+        Billing bill =
+                addConsultationCharge(
+                        saved
+                );
+
+
+        if (bill != null) {
+
+            saved.setHasBilling(
+                    true
+            );
+
+
+            saved =
+                    consultationRepository.save(
+                            saved
+                    );
+        }
 
 
         return new ConsultationResponse(
@@ -329,13 +382,72 @@ public class ConsultationServiceImpl
 
 
     // =====================================================
-    // UPDATE CONSULTATION
+    // ADD CONSULTATION CHARGE
     // =====================================================
-    //
-    // SAVE PROGRESS ONLY.
-    //
-    // It DOES NOT complete the consultation.
-    //
+
+    private Billing addConsultationCharge(
+            Consultation consultation
+    ) {
+
+        if (consultation == null) {
+
+            return null;
+        }
+
+
+        BillingItemRequest billingItem =
+                new BillingItemRequest();
+
+
+        billingItem.setBillingType(
+                "Consultation"
+        );
+
+
+        billingItem.setDescription(
+                "Medical consultation"
+        );
+
+
+        billingItem.setQuantity(
+                1
+        );
+
+
+        billingItem.setUnitPrice(
+                CONSULTATION_FEE
+        );
+
+
+        billingItem.setReferenceId(
+                consultation.getId()
+        );
+
+
+        return billingService
+                .addChargeToPatientBill(
+
+                        consultation.getPatientId(),
+
+                        billingItem,
+
+                        consultation.getPatientName(),
+
+                        null,
+
+                        consultation.getDoctorId(),
+
+                        null,
+
+                        null,
+
+                        null
+                );
+    }
+
+
+    // =====================================================
+    // UPDATE CONSULTATION
     // =====================================================
 
     @Override
@@ -350,10 +462,6 @@ public class ConsultationServiceImpl
                 findConsultation(id);
 
 
-        // -------------------------------------------------
-        // COMPLETED
-        // -------------------------------------------------
-
         if (
                 consultation.getStatus() ==
                 Consultation.ConsultationStatus.COMPLETED
@@ -364,10 +472,6 @@ public class ConsultationServiceImpl
             );
         }
 
-
-        // -------------------------------------------------
-        // CANCELLED
-        // -------------------------------------------------
 
         if (
                 consultation.getStatus() ==
@@ -381,8 +485,27 @@ public class ConsultationServiceImpl
         }
 
 
+        String patientName =
+                clean(
+                        request.getPatientName()
+                );
+
+
+        if (patientName == null) {
+
+            throw new IllegalArgumentException(
+                    "Patient name is required."
+            );
+        }
+
+
         consultation.setPatientId(
                 request.getPatientId().trim()
+        );
+
+
+        consultation.setPatientName(
+                patientName
         );
 
 
@@ -396,10 +519,6 @@ public class ConsultationServiceImpl
                         request.getAppointmentId()
                 );
 
-
-        // -------------------------------------------------
-        // PREVENT DUPLICATE APPOINTMENT
-        // -------------------------------------------------
 
         if (
                 appointmentId != null &&
@@ -478,21 +597,6 @@ public class ConsultationServiceImpl
         );
 
 
-        // -------------------------------------------------
-        // DO NOT CHANGE STATUS
-        // -------------------------------------------------
-        //
-        // SAVE PROGRESS MUST PRESERVE:
-        //
-        // OPEN
-        // PENDING_RESULTS
-        // READY_FOR_REVIEW
-        //
-        // The laboratory module controls the laboratory
-        // workflow states.
-        //
-        // -------------------------------------------------
-
         Consultation saved =
                 consultationRepository.save(
                         consultation
@@ -507,19 +611,6 @@ public class ConsultationServiceImpl
 
     // =====================================================
     // UPDATE STATUS
-    // =====================================================
-    //
-    // Allowed manual transitions:
-    //
-    // OPEN
-    // CANCELLED
-    //
-    // System-controlled:
-    //
-    // PENDING_RESULTS
-    // READY_FOR_REVIEW
-    // COMPLETED
-    //
     // =====================================================
 
     @Override
@@ -560,10 +651,6 @@ public class ConsultationServiceImpl
         }
 
 
-        // -------------------------------------------------
-        // COMPLETED CANNOT BE SET HERE
-        // -------------------------------------------------
-
         if (
                 newStatus ==
                 Consultation.ConsultationStatus.COMPLETED
@@ -575,10 +662,6 @@ public class ConsultationServiceImpl
             );
         }
 
-
-        // -------------------------------------------------
-        // LABORATORY STATES ARE SYSTEM CONTROLLED
-        // -------------------------------------------------
 
         if (
                 newStatus ==
@@ -594,10 +677,6 @@ public class ConsultationServiceImpl
         }
 
 
-        // -------------------------------------------------
-        // COMPLETED CANNOT BE REOPENED
-        // -------------------------------------------------
-
         if (
                 consultation.getStatus() ==
                 Consultation.ConsultationStatus.COMPLETED
@@ -608,10 +687,6 @@ public class ConsultationServiceImpl
             );
         }
 
-
-        // -------------------------------------------------
-        // CANCELLED CAN ONLY GO TO OPEN
-        // -------------------------------------------------
 
         if (
                 consultation.getStatus() ==
@@ -627,14 +702,6 @@ public class ConsultationServiceImpl
         }
 
 
-        // -------------------------------------------------
-        // READY FOR REVIEW → OPEN
-        // -------------------------------------------------
-        //
-        // Doctor MUST use reviewLaboratoryResults().
-        //
-        // -------------------------------------------------
-
         if (
                 consultation.getStatus() ==
                 Consultation.ConsultationStatus.READY_FOR_REVIEW
@@ -648,10 +715,6 @@ public class ConsultationServiceImpl
             );
         }
 
-
-        // -------------------------------------------------
-        // PENDING RESULTS → OPEN
-        // -------------------------------------------------
 
         if (
                 consultation.getStatus() ==
@@ -687,22 +750,6 @@ public class ConsultationServiceImpl
     // =====================================================
     // REVIEW LABORATORY RESULTS
     // =====================================================
-    //
-    // READY_FOR_REVIEW
-    //        ↓
-    // Doctor reviews results
-    //        ↓
-    // OPEN
-    //        ↓
-    // Doctor adds final diagnosis
-    //        ↓
-    // Doctor adds treatment plan
-    //        ↓
-    // Doctor may add medicines
-    //        ↓
-    // COMPLETE CONSULTATION
-    //
-    // =====================================================
 
     @Override
     public ConsultationResponse reviewLaboratoryResults(
@@ -711,10 +758,6 @@ public class ConsultationServiceImpl
         Consultation consultation =
                 findConsultation(id);
 
-
-        // -------------------------------------------------
-        // COMPLETED
-        // -------------------------------------------------
 
         if (
                 consultation.getStatus() ==
@@ -727,10 +770,6 @@ public class ConsultationServiceImpl
         }
 
 
-        // -------------------------------------------------
-        // CANCELLED
-        // -------------------------------------------------
-
         if (
                 consultation.getStatus() ==
                 Consultation.ConsultationStatus.CANCELLED
@@ -742,10 +781,6 @@ public class ConsultationServiceImpl
         }
 
 
-        // -------------------------------------------------
-        // LAB REQUESTS
-        // -------------------------------------------------
-
         if (
                 !consultation.isHasLaboratoryRequests()
         ) {
@@ -756,10 +791,6 @@ public class ConsultationServiceImpl
         }
 
 
-        // -------------------------------------------------
-        // RESULTS
-        // -------------------------------------------------
-
         if (
                 !consultation.isHasLaboratoryResults()
         ) {
@@ -769,10 +800,6 @@ public class ConsultationServiceImpl
             );
         }
 
-
-        // -------------------------------------------------
-        // MUST BE READY FOR REVIEW
-        // -------------------------------------------------
 
         if (
                 consultation.getStatus() !=
@@ -785,10 +812,6 @@ public class ConsultationServiceImpl
         }
 
 
-        // -------------------------------------------------
-        // ALREADY REVIEWED
-        // -------------------------------------------------
-
         if (
                 consultation.isLaboratoryResultsReviewed()
         ) {
@@ -799,18 +822,10 @@ public class ConsultationServiceImpl
         }
 
 
-        // -------------------------------------------------
-        // MARK REVIEWED
-        // -------------------------------------------------
-
         consultation.setLaboratoryResultsReviewed(
                 true
         );
 
-
-        // -------------------------------------------------
-        // RETURN TO OPEN
-        // -------------------------------------------------
 
         consultation.setStatus(
                 Consultation.ConsultationStatus.OPEN
@@ -832,25 +847,6 @@ public class ConsultationServiceImpl
     // =====================================================
     // COMPLETE CONSULTATION
     // =====================================================
-    //
-    // THIS IS THE ONLY OPERATION THAT SETS COMPLETED.
-    //
-    // Requirements:
-    //
-    // 1. Consultation exists
-    // 2. Not cancelled
-    // 3. Not already completed
-    // 4. Final diagnosis exists
-    // 5. Treatment plan exists
-    // 6. If laboratory requests exist:
-    //      a. Results available
-    //      b. Results reviewed
-    //
-    // IMPORTANT:
-    //
-    // Adding medicines DOES NOT block completion.
-    //
-    // =====================================================
 
     @Override
     public ConsultationResponse completeConsultation(
@@ -859,10 +855,6 @@ public class ConsultationServiceImpl
         Consultation consultation =
                 findConsultation(id);
 
-
-        // -------------------------------------------------
-        // MUST BE OPEN
-        // -------------------------------------------------
 
         if (
                 consultation.getStatus() !=
@@ -874,10 +866,6 @@ public class ConsultationServiceImpl
             );
         }
 
-
-        // -------------------------------------------------
-        // FINAL DIAGNOSIS
-        // -------------------------------------------------
 
         if (
                 isBlank(
@@ -891,10 +879,6 @@ public class ConsultationServiceImpl
         }
 
 
-        // -------------------------------------------------
-        // TREATMENT PLAN
-        // -------------------------------------------------
-
         if (
                 isBlank(
                         consultation.getTreatmentPlan()
@@ -907,15 +891,10 @@ public class ConsultationServiceImpl
         }
 
 
-        // -------------------------------------------------
-        // LABORATORY WORKFLOW
-        // -------------------------------------------------
-
         if (
                 consultation.isHasLaboratoryRequests()
         ) {
 
-            // Results required.
             if (
                     !consultation.isHasLaboratoryResults()
             ) {
@@ -926,7 +905,6 @@ public class ConsultationServiceImpl
             }
 
 
-            // Results must be reviewed.
             if (
                     !consultation.isLaboratoryResultsReviewed()
             ) {
@@ -937,10 +915,6 @@ public class ConsultationServiceImpl
             }
         }
 
-
-        // -------------------------------------------------
-        // COMPLETE
-        // -------------------------------------------------
 
         consultation.setStatus(
                 Consultation.ConsultationStatus.COMPLETED
@@ -1046,9 +1020,7 @@ public class ConsultationServiceImpl
     private Consultation findConsultation(
             String id) {
 
-        if (
-                isBlank(id)
-        ) {
+        if (isBlank(id)) {
 
             throw new IllegalArgumentException(
                     "Consultation ID is required."
@@ -1077,9 +1049,7 @@ public class ConsultationServiceImpl
     private void validateRequest(
             ConsultationRequest request) {
 
-        if (
-                request == null
-        ) {
+        if (request == null) {
 
             throw new IllegalArgumentException(
                     "Consultation request cannot be null."
@@ -1095,6 +1065,18 @@ public class ConsultationServiceImpl
 
             throw new IllegalArgumentException(
                     "Patient ID is required."
+            );
+        }
+
+
+        if (
+                isBlank(
+                        request.getPatientName()
+                )
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Patient name is required."
             );
         }
 
@@ -1187,9 +1169,7 @@ public class ConsultationServiceImpl
                 );
 
 
-        if (
-                followUpDate != null
-        ) {
+        if (followUpDate != null) {
 
             try {
 
@@ -1265,9 +1245,7 @@ public class ConsultationServiceImpl
                 clean(value);
 
 
-        if (
-                cleaned == null
-        ) {
+        if (cleaned == null) {
 
             return null;
         }
@@ -1296,9 +1274,7 @@ public class ConsultationServiceImpl
     private String clean(
             String value) {
 
-        if (
-                isBlank(value)
-        ) {
+        if (isBlank(value)) {
 
             return null;
         }

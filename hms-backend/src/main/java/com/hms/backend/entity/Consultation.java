@@ -11,10 +11,22 @@ import java.time.LocalTime;
 @Table(
     name = "consultations",
     indexes = {
-        @Index(name = "idx_consultation_patient", columnList = "patient_id"),
-        @Index(name = "idx_consultation_doctor", columnList = "doctor_id"),
-        @Index(name = "idx_consultation_appointment", columnList = "appointment_id"),
-        @Index(name = "idx_consultation_status", columnList = "status")
+        @Index(
+            name = "idx_consultation_patient",
+            columnList = "patient_id"
+        ),
+        @Index(
+            name = "idx_consultation_doctor",
+            columnList = "doctor_id"
+        ),
+        @Index(
+            name = "idx_consultation_appointment",
+            columnList = "appointment_id"
+        ),
+        @Index(
+            name = "idx_consultation_status",
+            columnList = "status"
+        )
     }
 )
 public class Consultation {
@@ -34,7 +46,7 @@ public class Consultation {
 
 
     // =====================================================
-    // RELATED RECORDS
+    // PATIENT
     // =====================================================
 
     @Column(
@@ -44,12 +56,30 @@ public class Consultation {
     )
     private String patientId;
 
+
+    @Column(
+        name = "patient_name",
+        nullable = false,
+        length = 200
+    )
+    private String patientName;
+
+
+    // =====================================================
+    // DOCTOR
+    // =====================================================
+
     @Column(
         name = "doctor_id",
         nullable = false,
         length = 50
     )
     private String doctorId;
+
+
+    // =====================================================
+    // APPOINTMENT
+    // =====================================================
 
     @Column(
         name = "appointment_id",
@@ -67,6 +97,7 @@ public class Consultation {
         nullable = false
     )
     private LocalDate consultationDate;
+
 
     @Column(
         name = "consultation_time",
@@ -86,11 +117,13 @@ public class Consultation {
     )
     private String chiefComplaint;
 
+
     @Column(
         name = "symptoms",
         columnDefinition = "TEXT"
     )
     private String symptoms;
+
 
     @Column(
         name = "diagnosis",
@@ -98,11 +131,13 @@ public class Consultation {
     )
     private String diagnosis;
 
+
     @Column(
         name = "clinical_notes",
         columnDefinition = "TEXT"
     )
     private String clinicalNotes;
+
 
     @Column(
         name = "treatment_plan",
@@ -122,7 +157,7 @@ public class Consultation {
 
 
     // =====================================================
-    // CONSULTATION WORKFLOW STATUS
+    // CONSULTATION STATUS
     // =====================================================
 
     @Enumerated(EnumType.STRING)
@@ -144,11 +179,13 @@ public class Consultation {
     )
     private boolean hasLaboratoryRequests = false;
 
+
     @Column(
         name = "has_laboratory_results",
         nullable = false
     )
     private boolean hasLaboratoryResults = false;
+
 
     @Column(
         name = "laboratory_results_reviewed",
@@ -156,11 +193,13 @@ public class Consultation {
     )
     private boolean laboratoryResultsReviewed = false;
 
+
     @Column(
         name = "has_prescription",
         nullable = false
     )
     private boolean hasPrescription = false;
+
 
     @Column(
         name = "has_billing",
@@ -179,10 +218,12 @@ public class Consultation {
     )
     private LocalDateTime createdAt;
 
+
     @Column(
         name = "updated_at"
     )
     private LocalDateTime updatedAt;
+
 
     @Column(
         name = "completed_at"
@@ -191,7 +232,7 @@ public class Consultation {
 
 
     // =====================================================
-    // CONSULTATION STATUS
+    // STATUS ENUM
     // =====================================================
 
     public enum ConsultationStatus {
@@ -224,7 +265,10 @@ public class Consultation {
         return id;
     }
 
-    public void setId(String id) {
+
+    public void setId(
+            String id
+    ) {
         this.id = id;
     }
 
@@ -233,8 +277,23 @@ public class Consultation {
         return patientId;
     }
 
-    public void setPatientId(String patientId) {
+
+    public void setPatientId(
+            String patientId
+    ) {
         this.patientId = patientId;
+    }
+
+
+    public String getPatientName() {
+        return patientName;
+    }
+
+
+    public void setPatientName(
+            String patientName
+    ) {
+        this.patientName = patientName;
     }
 
 
@@ -242,7 +301,10 @@ public class Consultation {
         return doctorId;
     }
 
-    public void setDoctorId(String doctorId) {
+
+    public void setDoctorId(
+            String doctorId
+    ) {
         this.doctorId = doctorId;
     }
 
@@ -251,7 +313,10 @@ public class Consultation {
         return appointmentId;
     }
 
-    public void setAppointmentId(String appointmentId) {
+
+    public void setAppointmentId(
+            String appointmentId
+    ) {
         this.appointmentId = appointmentId;
     }
 
@@ -260,7 +325,10 @@ public class Consultation {
         return consultationDate;
     }
 
-    public void setConsultationDate(LocalDate consultationDate) {
+
+    public void setConsultationDate(
+            LocalDate consultationDate
+    ) {
         this.consultationDate = consultationDate;
     }
 
@@ -269,7 +337,10 @@ public class Consultation {
         return consultationTime;
     }
 
-    public void setConsultationTime(LocalTime consultationTime) {
+
+    public void setConsultationTime(
+            LocalTime consultationTime
+    ) {
         this.consultationTime = consultationTime;
     }
 
@@ -278,7 +349,10 @@ public class Consultation {
         return chiefComplaint;
     }
 
-    public void setChiefComplaint(String chiefComplaint) {
+
+    public void setChiefComplaint(
+            String chiefComplaint
+    ) {
         this.chiefComplaint = chiefComplaint;
     }
 
@@ -287,7 +361,10 @@ public class Consultation {
         return symptoms;
     }
 
-    public void setSymptoms(String symptoms) {
+
+    public void setSymptoms(
+            String symptoms
+    ) {
         this.symptoms = symptoms;
     }
 
@@ -296,7 +373,10 @@ public class Consultation {
         return diagnosis;
     }
 
-    public void setDiagnosis(String diagnosis) {
+
+    public void setDiagnosis(
+            String diagnosis
+    ) {
         this.diagnosis = diagnosis;
     }
 
@@ -305,7 +385,10 @@ public class Consultation {
         return clinicalNotes;
     }
 
-    public void setClinicalNotes(String clinicalNotes) {
+
+    public void setClinicalNotes(
+            String clinicalNotes
+    ) {
         this.clinicalNotes = clinicalNotes;
     }
 
@@ -314,7 +397,10 @@ public class Consultation {
         return treatmentPlan;
     }
 
-    public void setTreatmentPlan(String treatmentPlan) {
+
+    public void setTreatmentPlan(
+            String treatmentPlan
+    ) {
         this.treatmentPlan = treatmentPlan;
     }
 
@@ -323,7 +409,10 @@ public class Consultation {
         return followUpDate;
     }
 
-    public void setFollowUpDate(LocalDate followUpDate) {
+
+    public void setFollowUpDate(
+            LocalDate followUpDate
+    ) {
         this.followUpDate = followUpDate;
     }
 
@@ -332,7 +421,10 @@ public class Consultation {
         return status;
     }
 
-    public void setStatus(ConsultationStatus status) {
+
+    public void setStatus(
+            ConsultationStatus status
+    ) {
         this.status = status;
     }
 
@@ -341,10 +433,12 @@ public class Consultation {
         return hasLaboratoryRequests;
     }
 
+
     public void setHasLaboratoryRequests(
-        boolean hasLaboratoryRequests
+            boolean hasLaboratoryRequests
     ) {
-        this.hasLaboratoryRequests = hasLaboratoryRequests;
+        this.hasLaboratoryRequests =
+                hasLaboratoryRequests;
     }
 
 
@@ -352,10 +446,12 @@ public class Consultation {
         return hasLaboratoryResults;
     }
 
+
     public void setHasLaboratoryResults(
-        boolean hasLaboratoryResults
+            boolean hasLaboratoryResults
     ) {
-        this.hasLaboratoryResults = hasLaboratoryResults;
+        this.hasLaboratoryResults =
+                hasLaboratoryResults;
     }
 
 
@@ -363,11 +459,12 @@ public class Consultation {
         return laboratoryResultsReviewed;
     }
 
+
     public void setLaboratoryResultsReviewed(
-        boolean laboratoryResultsReviewed
+            boolean laboratoryResultsReviewed
     ) {
         this.laboratoryResultsReviewed =
-            laboratoryResultsReviewed;
+                laboratoryResultsReviewed;
     }
 
 
@@ -375,10 +472,12 @@ public class Consultation {
         return hasPrescription;
     }
 
+
     public void setHasPrescription(
-        boolean hasPrescription
+            boolean hasPrescription
     ) {
-        this.hasPrescription = hasPrescription;
+        this.hasPrescription =
+                hasPrescription;
     }
 
 
@@ -386,10 +485,12 @@ public class Consultation {
         return hasBilling;
     }
 
+
     public void setHasBilling(
-        boolean hasBilling
+            boolean hasBilling
     ) {
-        this.hasBilling = hasBilling;
+        this.hasBilling =
+                hasBilling;
     }
 
 
@@ -397,10 +498,12 @@ public class Consultation {
         return createdAt;
     }
 
+
     public void setCreatedAt(
-        LocalDateTime createdAt
+            LocalDateTime createdAt
     ) {
-        this.createdAt = createdAt;
+        this.createdAt =
+                createdAt;
     }
 
 
@@ -408,10 +511,12 @@ public class Consultation {
         return updatedAt;
     }
 
+
     public void setUpdatedAt(
-        LocalDateTime updatedAt
+            LocalDateTime updatedAt
     ) {
-        this.updatedAt = updatedAt;
+        this.updatedAt =
+                updatedAt;
     }
 
 
@@ -419,10 +524,12 @@ public class Consultation {
         return completedAt;
     }
 
+
     public void setCompletedAt(
-        LocalDateTime completedAt
+            LocalDateTime completedAt
     ) {
-        this.completedAt = completedAt;
+        this.completedAt =
+                completedAt;
     }
 
 
@@ -434,23 +541,35 @@ public class Consultation {
     protected void onCreate() {
 
         LocalDateTime now =
-            LocalDateTime.now();
+                LocalDateTime.now();
+
 
         if (createdAt == null) {
-            createdAt = now;
+
+            createdAt =
+                    now;
         }
 
-        updatedAt = now;
+
+        updatedAt =
+                now;
+
 
         if (status == null) {
+
             status =
-                ConsultationStatus.OPEN;
+                    ConsultationStatus.OPEN;
         }
 
-        if (completedAt != null &&
-            status != ConsultationStatus.COMPLETED) {
 
-            completedAt = null;
+        if (
+                completedAt != null &&
+                status !=
+                        ConsultationStatus.COMPLETED
+        ) {
+
+            completedAt =
+                    null;
         }
     }
 
@@ -459,19 +578,26 @@ public class Consultation {
     protected void onUpdate() {
 
         updatedAt =
-            LocalDateTime.now();
+                LocalDateTime.now();
 
-        if (status ==
-            ConsultationStatus.COMPLETED) {
 
-            if (completedAt == null) {
+        if (
+                status ==
+                        ConsultationStatus.COMPLETED
+        ) {
+
+            if (
+                    completedAt == null
+            ) {
+
                 completedAt =
-                    LocalDateTime.now();
+                        LocalDateTime.now();
             }
 
         } else {
 
-            completedAt = null;
+            completedAt =
+                    null;
         }
     }
 }

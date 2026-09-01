@@ -1,7 +1,22 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit
+} from '@angular/core';
+
+import {
+  CommonModule
+} from '@angular/common';
+
+import {
+  FormsModule
+} from '@angular/forms';
+
+import {
+  ActivatedRoute,
+  Router
+} from '@angular/router';
 
 import {
   Bill,
@@ -26,29 +41,53 @@ import {
     FormsModule
   ],
 
-  templateUrl: './billing-details.html',
+  templateUrl:
+    './billing-details.html',
 
-  styleUrl: './billing-details.css'
+  styleUrl:
+    './billing-details.css'
 })
-export class BillingDetails implements OnInit {
+export class BillingDetails
+  implements OnInit {
+
 
   // =====================================================
   // BILL
   // =====================================================
 
-  bill: Bill | undefined;
+  bill:
+    Bill | undefined;
+
+
+  // =====================================================
+  // LOADING
+  // =====================================================
+
+  isLoading =
+    true;
+
+
+  // =====================================================
+  // ERROR
+  // =====================================================
+
+  errorMessage =
+    '';
 
 
   // =====================================================
   // PAYMENT
   // =====================================================
 
-  paymentAmount = 0;
+  paymentAmount =
+    0;
 
   selectedPaymentMethod:
-    PaymentMethod = 'Cash';
+    PaymentMethod =
+      'Cash';
 
-  isProcessingPayment = false;
+  isProcessingPayment =
+    false;
 
 
   // =====================================================
@@ -78,14 +117,19 @@ export class BillingDetails implements OnInit {
   // =====================================================
 
   constructor(
-    private billingService:
+
+    private readonly billingService:
       BillingService,
 
-    private route:
+    private readonly route:
       ActivatedRoute,
 
-    private router:
-      Router
+    private readonly router:
+      Router,
+
+    private readonly changeDetectorRef:
+      ChangeDetectorRef
+
   ) {}
 
 
@@ -95,13 +139,30 @@ export class BillingDetails implements OnInit {
 
   ngOnInit(): void {
 
-    const id =
-      this.route.snapshot.paramMap.get(
-        'id'
-      );
+    const routeId =
+      this.route.snapshot
+        .paramMap
+        .get('id');
 
 
-    if (!id) {
+    console.log(
+      'Billing details route ID:',
+      routeId
+    );
+
+
+    if (
+      !routeId ||
+      !routeId.trim()
+    ) {
+
+      this.errorMessage =
+        'Billing record ID was not provided.';
+
+      this.isLoading =
+        false;
+
+      this.changeDetectorRef.detectChanges();
 
       this.backToBilling();
 
@@ -110,7 +171,9 @@ export class BillingDetails implements OnInit {
     }
 
 
-    this.loadBill(id);
+    this.loadBill(
+      routeId.trim()
+    );
 
   }
 
@@ -120,20 +183,42 @@ export class BillingDetails implements OnInit {
   // =====================================================
 
   private loadBill(
-    id: string
+    routeId:
+      string
   ): void {
 
-    this.bill =
-      this.billingService.getBillById(
-        id
+    const numericId =
+      Number(
+        routeId
       );
 
 
-    if (!this.bill) {
+    console.log(
+      'Loading billing record:',
+      numericId
+    );
+
+
+    if (
+      !Number.isInteger(
+        numericId
+      ) ||
+      numericId <= 0
+    ) {
+
+      this.errorMessage =
+        'Invalid billing record ID.';
+
+      this.isLoading =
+        false;
+
+      this.changeDetectorRef.detectChanges();
+
 
       alert(
-        'Billing record not found.'
+        this.errorMessage
       );
+
 
       this.backToBilling();
 
@@ -142,13 +227,506 @@ export class BillingDetails implements OnInit {
     }
 
 
-    /*
-     * Start payment amount with the current
-     * outstanding balance.
-     */
+    this.isLoading =
+      true;
 
-    this.paymentAmount =
-      this.bill.balance;
+    this.errorMessage =
+      '';
+
+    this.bill =
+      undefined;
+
+
+    // ---------------------------------------------------
+    // Render loading state first
+    // ---------------------------------------------------
+
+    this.changeDetectorRef.detectChanges();
+
+
+    // ===================================================
+    // API REQUEST
+    // ===================================================
+
+    this.billingService
+      .getBillById(
+        numericId
+      )
+      .subscribe({
+
+        // =================================================
+        // SUCCESS
+        // =================================================
+
+        next:
+          (
+            response:
+              Bill
+          ) => {
+
+            console.log(
+              'Billing record received:',
+              response
+            );
+
+
+            if (
+              !response
+            ) {
+
+              this.bill =
+                undefined;
+
+              this.errorMessage =
+                'Billing record not found.';
+
+              this.isLoading =
+                false;
+
+
+              this.changeDetectorRef.detectChanges();
+
+
+              alert(
+                this.errorMessage
+              );
+
+
+              this.backToBilling();
+
+              return;
+
+            }
+
+
+            // ---------------------------------------------
+            // NORMALIZE API BILL
+            // ---------------------------------------------
+
+            this.bill =
+              this.normalizeBill(
+                response
+              );
+
+
+            console.log(
+              'Billing record normalized:',
+              this.bill
+            );
+
+
+            // ---------------------------------------------
+            // INITIAL PAYMENT AMOUNT
+            // ---------------------------------------------
+
+            this.paymentAmount =
+              Math.max(
+                0,
+                Number(
+                  this.bill.balance || 0
+                )
+              );
+
+
+            // ---------------------------------------------
+            // STOP LOADING
+            // ---------------------------------------------
+
+            this.isLoading =
+              false;
+
+
+            // ---------------------------------------------
+            // FORCE FINAL RENDER
+            // ---------------------------------------------
+
+            this.changeDetectorRef.detectChanges();
+
+
+            console.log(
+              'Billing details rendered:',
+              {
+                id:
+                  this.bill.id,
+
+                invoice:
+                  this.bill.invoiceNumber,
+
+                patient:
+                  this.bill.patientName,
+
+                amount:
+                  this.bill.amount,
+
+                paid:
+                  this.bill.amountPaid,
+
+                balance:
+                  this.bill.balance,
+
+                status:
+                  this.bill.status,
+
+                items:
+                  this.bill.items
+              }
+            );
+
+          },
+
+
+        // =================================================
+        // ERROR
+        // =================================================
+
+        error:
+          (
+            error:
+              unknown
+          ) => {
+
+            console.error(
+              'Failed to load billing record:',
+              error
+            );
+
+
+            this.bill =
+              undefined;
+
+
+            this.errorMessage =
+              this.getErrorMessage(
+                error,
+                'Unable to load billing record.'
+              );
+
+
+            this.isLoading =
+              false;
+
+
+            this.changeDetectorRef.detectChanges();
+
+
+            alert(
+              this.errorMessage
+            );
+
+
+            this.backToBilling();
+
+          }
+
+      });
+
+  }
+
+
+  // =====================================================
+  // NORMALIZE BILL
+  // =====================================================
+
+  private normalizeBill(
+    bill:
+      Bill
+  ):
+    Bill {
+
+    if (
+      !bill
+    ) {
+
+      return bill;
+
+    }
+
+
+    const normalizedItems:
+      BillItem[] =
+      Array.isArray(
+        bill.items
+      )
+        ? bill.items.map(
+            (
+              item:
+                BillItem
+            ) => ({
+
+              ...item,
+
+              billingType:
+                this.normalizeBillingType(
+                  item.billingType as string
+                )
+
+            })
+          )
+
+        : [];
+
+
+    return {
+
+      ...bill,
+
+      status:
+        this.normalizeBillingStatus(
+          bill.status as string
+        ),
+
+      billingType:
+        this.normalizeBillingType(
+          bill.billingType as string
+        ),
+
+      items:
+        normalizedItems,
+
+      amount:
+        Number(
+          bill.amount || 0
+        ),
+
+      amountPaid:
+        Number(
+          bill.amountPaid || 0
+        ),
+
+      balance:
+        Number(
+          bill.balance || 0
+        )
+
+    };
+
+  }
+
+
+  // =====================================================
+  // NORMALIZE STATUS
+  // =====================================================
+
+  private normalizeBillingStatus(
+    status:
+      string
+  ):
+    BillingStatus {
+
+    const normalized =
+      String(
+        status || ''
+      )
+        .trim()
+        .toUpperCase();
+
+
+    switch (
+      normalized
+    ) {
+
+      case 'PENDING':
+
+        return 'Pending';
+
+
+      case 'PARTIALLY_PAID':
+
+        return 'Partially Paid';
+
+
+      case 'PARTIALLY PAID':
+
+        return 'Partially Paid';
+
+
+      case 'PAID':
+
+        return 'Paid';
+
+
+      case 'CANCELLED':
+
+        return 'Cancelled';
+
+
+      default:
+
+        return 'Pending';
+
+    }
+
+  }
+
+
+  // =====================================================
+  // NORMALIZE BILLING TYPE
+  // =====================================================
+
+  private normalizeBillingType(
+    type:
+      string
+  ):
+    BillingType {
+
+    const normalized =
+      String(
+        type || ''
+      )
+        .trim()
+        .toUpperCase();
+
+
+    switch (
+      normalized
+    ) {
+
+      case 'CONSULTATION':
+
+        return 'Consultation';
+
+
+      case 'LABORATORY':
+
+        return 'Laboratory';
+
+
+      case 'PHARMACY':
+
+        return 'Pharmacy';
+
+
+      case 'ADMISSION':
+
+        return 'Admission';
+
+
+      case 'PROCEDURE':
+
+        return 'Procedure';
+
+
+      case 'OTHER':
+
+        return 'Other';
+
+
+      default:
+
+        return 'Other';
+
+    }
+
+  }
+
+
+  // =====================================================
+  // RELOAD BILL
+  // =====================================================
+
+  private reloadBill(): void {
+
+    if (
+      !this.bill?.id
+    ) {
+
+      return;
+
+    }
+
+
+    const billId =
+      this.bill.id;
+
+
+    this.isLoading =
+      true;
+
+
+    this.changeDetectorRef.detectChanges();
+
+
+    this.billingService
+      .getBillById(
+        billId
+      )
+      .subscribe({
+
+        next:
+          (
+            response:
+              Bill
+          ) => {
+
+            if (
+              !response
+            ) {
+
+              this.isLoading =
+                false;
+
+              this.errorMessage =
+                'Billing record could not be reloaded.';
+
+              this.changeDetectorRef.detectChanges();
+
+              return;
+
+            }
+
+
+            this.bill =
+              this.normalizeBill(
+                response
+              );
+
+
+            this.paymentAmount =
+              Math.max(
+                0,
+                Number(
+                  this.bill.balance || 0
+                )
+              );
+
+
+            this.isLoading =
+              false;
+
+
+            this.changeDetectorRef.detectChanges();
+
+          },
+
+
+        error:
+          (
+            error:
+              unknown
+          ) => {
+
+            console.error(
+              'Failed to reload billing record:',
+              error
+            );
+
+
+            this.isLoading =
+              false;
+
+
+            this.errorMessage =
+              this.getErrorMessage(
+                error,
+                'Unable to reload billing record.'
+              );
+
+
+            this.changeDetectorRef.detectChanges();
+
+          }
+
+      });
 
   }
 
@@ -160,14 +738,20 @@ export class BillingDetails implements OnInit {
   getBillItems():
     BillItem[] {
 
-    if (!this.bill) {
+    if (
+      !this.bill
+    ) {
 
       return [];
 
     }
 
 
-    return this.bill.items ?? [];
+    return Array.isArray(
+      this.bill.items
+    )
+      ? this.bill.items
+      : [];
 
   }
 
@@ -190,13 +774,20 @@ export class BillingDetails implements OnInit {
   // =====================================================
 
   getItemsByType(
-    billingType: BillingType
-  ): BillItem[] {
+    billingType:
+      BillingType
+  ):
+    BillItem[] {
 
     return this.getBillItems()
       .filter(
-        item =>
-          item.billingType ===
+        (
+          item:
+            BillItem
+        ) =>
+          this.normalizeBillingType(
+            item.billingType as string
+          ) ===
           billingType
       );
 
@@ -208,35 +799,38 @@ export class BillingDetails implements OnInit {
   // =====================================================
 
   hasBillingType(
-    billingType: BillingType
-  ): boolean {
-
-    /*
-     * Check item-based billing first.
-     */
+    billingType:
+      BillingType
+  ):
+    boolean {
 
     const itemMatch =
-      this.getBillItems().some(
-        item =>
-          item.billingType ===
-          billingType
-      );
+      this.getBillItems()
+        .some(
+          (
+            item:
+              BillItem
+          ) =>
+            this.normalizeBillingType(
+              item.billingType as string
+            ) ===
+            billingType
+        );
 
 
-    if (itemMatch) {
+    if (
+      itemMatch
+    ) {
 
       return true;
 
     }
 
 
-    /*
-     * Fall back to the legacy bill type so
-     * older invoices still work.
-     */
-
     return (
-      this.bill?.billingType ===
+      this.normalizeBillingType(
+        this.bill?.billingType as string
+      ) ===
       billingType
     );
 
@@ -269,7 +863,10 @@ export class BillingDetails implements OnInit {
 
 
     return types.filter(
-      type =>
+      (
+        type:
+          BillingType
+      ) =>
         this.hasBillingType(
           type
         )
@@ -279,22 +876,30 @@ export class BillingDetails implements OnInit {
 
 
   // =====================================================
-  // CALCULATE TYPE TOTAL
+  // GET BILLING TYPE TOTAL
   // =====================================================
 
   getTypeTotal(
-    billingType: BillingType
-  ): number {
+    billingType:
+      BillingType
+  ):
+    number {
 
     return this.getItemsByType(
       billingType
     ).reduce(
       (
-        total,
-        item
+        total:
+          number,
+
+        item:
+          BillItem
       ) =>
         total +
-        item.amount,
+        Number(
+          item.amount || 0
+        ),
+
       0
     );
 
@@ -307,7 +912,37 @@ export class BillingDetails implements OnInit {
 
   editBill(): void {
 
-    if (!this.bill) {
+    if (
+      !this.bill
+    ) {
+
+      return;
+
+    }
+
+
+    if (
+      this.bill.status ===
+      'Paid'
+    ) {
+
+      alert(
+        'A fully paid invoice cannot be edited.'
+      );
+
+      return;
+
+    }
+
+
+    if (
+      this.bill.status ===
+      'Cancelled'
+    ) {
+
+      alert(
+        'A cancelled invoice cannot be edited.'
+      );
 
       return;
 
@@ -324,25 +959,14 @@ export class BillingDetails implements OnInit {
 
 
   // =====================================================
-  // BACK TO BILLING
-  // =====================================================
-
-  backToBilling(): void {
-
-    this.router.navigate([
-      '/billing'
-    ]);
-
-  }
-
-
-  // =====================================================
   // DELETE BILL
   // =====================================================
 
   deleteBill(): void {
 
-    if (!this.bill) {
+    if (
+      !this.bill
+    ) {
 
       return;
 
@@ -363,42 +987,96 @@ export class BillingDetails implements OnInit {
     }
 
 
+    if (
+      this.bill.status ===
+      'Cancelled'
+    ) {
+
+      alert(
+        'A cancelled invoice cannot be deleted.'
+      );
+
+      return;
+
+    }
+
+
     const confirmed =
-      confirm(
+      window.confirm(
         `Are you sure you want to delete invoice ${this.bill.invoiceNumber}?`
       );
 
 
-    if (!confirmed) {
+    if (
+      !confirmed
+    ) {
 
       return;
 
     }
 
 
-    const deleted =
-      this.billingService.deleteBill(
+    this.isLoading =
+      true;
+
+
+    this.changeDetectorRef.detectChanges();
+
+
+    this.billingService
+      .deleteBill(
         this.bill.id
-      );
+      )
+      .subscribe({
+
+        next: () => {
+
+          this.isLoading =
+            false;
 
 
-    if (!deleted) {
-
-      alert(
-        'Unable to delete billing record.'
-      );
-
-      return;
-
-    }
+          this.changeDetectorRef.detectChanges();
 
 
-    alert(
-      'Billing record deleted successfully.'
-    );
+          alert(
+            'Billing record deleted successfully.'
+          );
 
 
-    this.backToBilling();
+          this.backToBilling();
+
+        },
+
+
+        error:
+          (
+            error:
+              unknown
+          ) => {
+
+            console.error(
+              'Failed to delete billing record:',
+              error
+            );
+
+
+            this.isLoading =
+              false;
+
+
+            this.changeDetectorRef.detectChanges();
+
+
+            alert(
+              this.getErrorMessage(
+                error,
+                'Unable to delete billing record.'
+              )
+            );
+
+          }
+
+      });
 
   }
 
@@ -410,7 +1088,9 @@ export class BillingDetails implements OnInit {
   canRecordPayment():
     boolean {
 
-    if (!this.bill) {
+    if (
+      !this.bill
+    ) {
 
       return false;
 
@@ -418,9 +1098,17 @@ export class BillingDetails implements OnInit {
 
 
     return (
-      this.bill.status !== 'Paid' &&
-      this.bill.status !== 'Cancelled' &&
-      this.bill.balance > 0
+
+      this.bill.status !==
+        'Paid' &&
+
+      this.bill.status !==
+        'Cancelled' &&
+
+      Number(
+        this.bill.balance || 0
+      ) > 0
+
     );
 
   }
@@ -450,9 +1138,11 @@ export class BillingDetails implements OnInit {
     }
 
 
-    // ===================================================
-    // VALIDATE AMOUNT
-    // ===================================================
+    const balance =
+      Number(
+        this.bill.balance || 0
+      );
+
 
     if (
       !Number.isFinite(
@@ -472,12 +1162,12 @@ export class BillingDetails implements OnInit {
 
     if (
       this.paymentAmount >
-      this.bill.balance
+      balance
     ) {
 
       alert(
         `Payment cannot exceed the outstanding balance of ${this.formatCurrency(
-          this.bill.balance
+          balance
         )}.`
       );
 
@@ -486,101 +1176,102 @@ export class BillingDetails implements OnInit {
     }
 
 
-    // ===================================================
-    // START PROCESSING
-    // ===================================================
-
     this.isProcessingPayment =
       true;
 
 
-    try {
-
-      const success =
-        this.billingService.recordPayment(
-
-          this.bill.id,
-
-          this.paymentAmount,
-
-          this.selectedPaymentMethod
-
-        );
+    this.changeDetectorRef.detectChanges();
 
 
-      if (!success) {
+    this.billingService
+      .recordPayment(
 
-        alert(
-          'Unable to record payment.'
-        );
+        this.bill.id,
 
-        return;
+        this.paymentAmount,
 
-      }
+        this.selectedPaymentMethod
 
+      )
+      .subscribe({
 
-      // =================================================
-      // RELOAD BILL
-      // =================================================
+        next:
+          (
+            updatedBill:
+              Bill
+          ) => {
 
-      this.bill =
-        this.billingService.getBillById(
-          this.bill.id
-        );
-
-
-      if (!this.bill) {
-
-        alert(
-          'The billing record could not be reloaded.'
-        );
-
-        this.backToBilling();
-
-        return;
-
-      }
+            this.bill =
+              this.normalizeBill(
+                updatedBill
+              );
 
 
-      // =================================================
-      // RESET PAYMENT FORM
-      // =================================================
+            this.paymentAmount =
+              Math.max(
+                0,
+                Number(
+                  this.bill.balance || 0
+                )
+              );
 
-      this.paymentAmount =
-        this.bill.balance;
+
+            this.isProcessingPayment =
+              false;
 
 
-      // =================================================
-      // SUCCESS MESSAGE
-      // =================================================
+            this.changeDetectorRef.detectChanges();
 
-      if (
-        this.bill.status ===
-        'Paid'
-      ) {
 
-        alert(
-          'Payment recorded successfully. The invoice is now fully paid.'
-        );
+            if (
+              this.bill.status ===
+              'Paid'
+            ) {
 
-      }
+              alert(
+                'Payment recorded successfully. The invoice is now fully paid.'
+              );
 
-      else {
+            } else {
 
-        alert(
-          'Payment recorded successfully.'
-        );
+              alert(
+                'Payment recorded successfully.'
+              );
 
-      }
+            }
 
-    }
+          },
 
-    finally {
 
-      this.isProcessingPayment =
-        false;
+        error:
+          (
+            error:
+              unknown
+          ) => {
 
-    }
+            console.error(
+              'Failed to record payment:',
+              error
+            );
+
+
+            this.isProcessingPayment =
+              false;
+
+
+            this.changeDetectorRef.detectChanges();
+
+
+            alert(
+              this.getErrorMessage(
+                error,
+                'Unable to record payment.'
+              )
+            );
+
+          }
+
+      });
 
   }
 
@@ -590,11 +1281,15 @@ export class BillingDetails implements OnInit {
   // =====================================================
 
   getStatusClass(
-    status: BillingStatus
-  ): string {
+    status:
+      BillingStatus
+  ):
+    string {
 
     switch (
-      status
+      this.normalizeBillingStatus(
+        status as string
+      )
     ) {
 
       case 'Paid':
@@ -631,11 +1326,15 @@ export class BillingDetails implements OnInit {
   // =====================================================
 
   getBillingTypeClass(
-    type: BillingType
-  ): string {
+    type:
+      BillingType
+  ):
+    string {
 
     switch (
-      type
+      this.normalizeBillingType(
+        type as string
+      )
     ) {
 
       case 'Consultation':
@@ -682,10 +1381,14 @@ export class BillingDetails implements OnInit {
   // =====================================================
 
   formatDate(
-    date?: string
-  ): string {
+    date?:
+      string
+  ):
+    string {
 
-    if (!date) {
+    if (
+      !date
+    ) {
 
       return '—';
 
@@ -712,11 +1415,14 @@ export class BillingDetails implements OnInit {
     return new Intl.DateTimeFormat(
       'en-GB',
       {
-        day: '2-digit',
+        day:
+          '2-digit',
 
-        month: 'short',
+        month:
+          'short',
 
-        year: 'numeric'
+        year:
+          'numeric'
       }
     ).format(
       parsedDate
@@ -726,14 +1432,18 @@ export class BillingDetails implements OnInit {
 
 
   // =====================================================
-  // FORMAT DATE AND TIME
+  // FORMAT DATE TIME
   // =====================================================
 
   formatDateTime(
-    date?: string
-  ): string {
+    date?:
+      string
+  ):
+    string {
 
-    if (!date) {
+    if (
+      !date
+    ) {
 
       return '—';
 
@@ -760,15 +1470,20 @@ export class BillingDetails implements OnInit {
     return new Intl.DateTimeFormat(
       'en-GB',
       {
-        day: '2-digit',
+        day:
+          '2-digit',
 
-        month: 'short',
+        month:
+          'short',
 
-        year: 'numeric',
+        year:
+          'numeric',
 
-        hour: '2-digit',
+        hour:
+          '2-digit',
 
-        minute: '2-digit'
+        minute:
+          '2-digit'
       }
     ).format(
       parsedDate
@@ -782,20 +1497,27 @@ export class BillingDetails implements OnInit {
   // =====================================================
 
   formatCurrency(
-    amount: number
-  ): string {
+    amount:
+      number
+  ):
+    string {
 
     return new Intl.NumberFormat(
       'en-UG',
       {
-        style: 'currency',
+        style:
+          'currency',
 
-        currency: 'UGX',
+        currency:
+          'UGX',
 
-        maximumFractionDigits: 0
+        maximumFractionDigits:
+          0
       }
     ).format(
-      amount || 0
+      Number(
+        amount || 0
+      )
     );
 
   }
@@ -810,7 +1532,9 @@ export class BillingDetails implements OnInit {
 
     if (
       !this.bill ||
-      this.bill.amount <= 0
+      Number(
+        this.bill.amount || 0
+      ) <= 0
     ) {
 
       return 0;
@@ -818,13 +1542,25 @@ export class BillingDetails implements OnInit {
     }
 
 
+    const amount =
+      Number(
+        this.bill.amount || 0
+      );
+
+
+    const amountPaid =
+      Number(
+        this.bill.amountPaid || 0
+      );
+
+
     return Math.min(
       100,
 
       Math.round(
         (
-          this.bill.amountPaid /
-          this.bill.amount
+          amountPaid /
+          amount
         ) * 100
       )
 
@@ -840,8 +1576,12 @@ export class BillingDetails implements OnInit {
   hasBalance():
     boolean {
 
-    return !!this.bill &&
-      this.bill.balance > 0;
+    return (
+      !!this.bill &&
+      Number(
+        this.bill.balance || 0
+      ) > 0
+    );
 
   }
 
@@ -853,9 +1593,11 @@ export class BillingDetails implements OnInit {
   isPaid():
     boolean {
 
-    return !!this.bill &&
+    return (
+      !!this.bill &&
       this.bill.status ===
-      'Paid';
+      'Paid'
+    );
 
   }
 
@@ -875,13 +1617,15 @@ export class BillingDetails implements OnInit {
 
 
   // =====================================================
-  // GET LEGACY DESCRIPTION
+  // LEGACY DESCRIPTION
   // =====================================================
 
   getLegacyDescription():
     string {
 
-    if (!this.bill) {
+    if (
+      !this.bill
+    ) {
 
       return '—';
 
@@ -895,4 +1639,111 @@ export class BillingDetails implements OnInit {
 
   }
 
+
+  // =====================================================
+  // ERROR MESSAGE
+  // =====================================================
+
+  private getErrorMessage(
+    error:
+      unknown,
+
+    fallback:
+      string
+  ):
+    string {
+
+    if (
+      typeof error ===
+        'object' &&
+      error !== null
+    ) {
+
+      const response =
+        error as {
+          error?: unknown;
+          message?: string;
+        };
+
+
+      if (
+        typeof response.message ===
+          'string' &&
+        response.message.trim()
+      ) {
+
+        return response.message.trim();
+
+      }
+
+
+      if (
+        typeof response.error ===
+          'string' &&
+        response.error.trim()
+      ) {
+
+        return response.error.trim();
+
+      }
+
+
+      if (
+        typeof response.error ===
+          'object' &&
+        response.error !== null
+      ) {
+
+        const body =
+          response.error as {
+            message?: string;
+            error?: string;
+          };
+
+
+        if (
+          typeof body.message ===
+            'string' &&
+          body.message.trim()
+        ) {
+
+          return body.message.trim();
+
+        }
+
+
+        if (
+          typeof body.error ===
+            'string' &&
+          body.error.trim()
+        ) {
+
+          return body.error.trim();
+
+        }
+
+      }
+
+    }
+
+
+    return fallback;
+
+  }
+
+ 
+// =====================================================
+// BACK TO BILLING
+// =====================================================
+
+backToBilling(): void {
+
+  this.router.navigate([
+    '/billing'
+  ]);
+
 }
+
+
+}
+

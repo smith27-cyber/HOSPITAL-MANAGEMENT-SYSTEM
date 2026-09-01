@@ -1,18 +1,36 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit
+} from '@angular/core';
+
+import {
+  CommonModule
+} from '@angular/common';
+
+import {
+  FormsModule
+} from '@angular/forms';
+
+import {
+  Router
+} from '@angular/router';
 
 import {
   Bill,
+  BillItem,
   BillingStatus,
-  BillingType,
-  BillItem
+  BillingType
 } from '../../../shared/models/billing.model';
 
 import {
   BillingService
 } from '../../../core/services/billing.service';
+
+import {
+  finalize
+} from 'rxjs/operators';
 
 
 @Component({
@@ -25,26 +43,49 @@ import {
     FormsModule
   ],
 
-  templateUrl: './billing-list.html',
+  templateUrl:
+    './billing-list.html',
 
-  styleUrl: './billing-list.css'
+  styleUrl:
+    './billing-list.css'
 })
-export class BillingList implements OnInit {
+export class BillingList
+  implements OnInit {
+
 
   // =====================================================
   // BILLS
   // =====================================================
 
-  bills: Bill[] = [];
+  bills:
+    Bill[] = [];
 
-  filteredBills: Bill[] = [];
+  filteredBills:
+    Bill[] = [];
+
+
+  // =====================================================
+  // LOADING
+  // =====================================================
+
+  isLoading =
+    true;
+
+
+  // =====================================================
+  // ERROR
+  // =====================================================
+
+  errorMessage =
+    '';
 
 
   // =====================================================
   // SEARCH
   // =====================================================
 
-  searchTerm = '';
+  searchTerm =
+    '';
 
 
   // =====================================================
@@ -52,7 +93,8 @@ export class BillingList implements OnInit {
   // =====================================================
 
   selectedStatus:
-    BillingStatus | 'All' = 'All';
+    BillingStatus | 'All' =
+      'All';
 
 
   // =====================================================
@@ -60,62 +102,71 @@ export class BillingList implements OnInit {
   // =====================================================
 
   selectedBillingType:
-    BillingType | 'All' = 'All';
+    BillingType | 'All' =
+      'All';
 
 
   // =====================================================
   // STATISTICS
   // =====================================================
 
-  totalBills = 0;
+  totalBills =
+    0;
 
-  totalAmount = 0;
+  totalAmount =
+    0;
 
-  totalPaid = 0;
+  totalPaid =
+    0;
 
-  totalBalance = 0;
+  totalBalance =
+    0;
 
-  pendingBills = 0;
+  pendingBills =
+    0;
 
-  pharmacyBills = 0;
-
-
-  // =====================================================
-  // STATUSES
-  // =====================================================
-
-  statuses: BillingStatus[] = [
-
-    'Pending',
-
-    'Partially Paid',
-
-    'Paid',
-
-    'Cancelled'
-
-  ];
+  pharmacyBills =
+    0;
 
 
   // =====================================================
-  // BILLING TYPES
+  // STATUS OPTIONS
   // =====================================================
 
-  billingTypes: BillingType[] = [
+  statuses:
+    BillingStatus[] = [
 
-    'Consultation',
+      'Pending',
 
-    'Laboratory',
+      'Partially Paid',
 
-    'Pharmacy',
+      'Paid',
 
-    'Admission',
+      'Cancelled'
 
-    'Procedure',
+    ];
 
-    'Other'
 
-  ];
+  // =====================================================
+  // BILLING TYPE OPTIONS
+  // =====================================================
+
+  billingTypes:
+    BillingType[] = [
+
+      'Consultation',
+
+      'Laboratory',
+
+      'Pharmacy',
+
+      'Admission',
+
+      'Procedure',
+
+      'Other'
+
+    ];
 
 
   // =====================================================
@@ -123,8 +174,16 @@ export class BillingList implements OnInit {
   // =====================================================
 
   constructor(
-    private billingService: BillingService,
-    private router: Router
+
+    private readonly billingService:
+      BillingService,
+
+    private readonly router:
+      Router,
+
+    private readonly changeDetectorRef:
+      ChangeDetectorRef
+
   ) {}
 
 
@@ -133,6 +192,13 @@ export class BillingList implements OnInit {
   // =====================================================
 
   ngOnInit(): void {
+
+    this.isLoading =
+      true;
+
+
+    this.changeDetectorRef.detectChanges();
+
 
     this.loadBills();
 
@@ -145,20 +211,392 @@ export class BillingList implements OnInit {
 
   loadBills(): void {
 
-    this.bills =
-      this.billingService.getBills();
+    this.isLoading =
+      true;
+
+    this.errorMessage =
+      '';
 
 
-    this.updateStatistics();
+    // ---------------------------------------------------
+    // Render loading state immediately
+    // ---------------------------------------------------
+
+    this.changeDetectorRef.detectChanges();
 
 
-    this.applyFilters();
+    this.billingService
+      .getBills()
+
+      .pipe(
+
+        finalize(() => {
+
+          this.isLoading =
+            false;
+
+
+          this.changeDetectorRef.detectChanges();
+
+        })
+
+      )
+
+      .subscribe({
+
+        // =================================================
+        // SUCCESS
+        // =================================================
+
+        next:
+          (
+            bills:
+              Bill[]
+          ) => {
+
+            console.log(
+              'Billing records loaded:',
+              bills
+            );
+
+
+            this.bills =
+              Array.isArray(
+                bills
+              )
+                ? bills.map(
+                    (
+                      bill:
+                        Bill
+                    ) =>
+                      this.normalizeBill(
+                        bill
+                      )
+                  )
+                : [];
+
+
+            this.updateStatistics();
+
+            this.applyFilters();
+
+
+            console.log(
+              'Billing list ready:',
+              {
+                bills:
+                  this.bills.length,
+
+                filtered:
+                  this.filteredBills.length,
+
+                total:
+                  this.totalAmount,
+
+                paid:
+                  this.totalPaid,
+
+                balance:
+                  this.totalBalance
+              }
+            );
+
+
+            this.changeDetectorRef.detectChanges();
+
+          },
+
+
+        // =================================================
+        // ERROR
+        // =================================================
+
+        error:
+          (
+            error:
+              unknown
+          ) => {
+
+            console.error(
+              'Failed to load billing records:',
+              error
+            );
+
+
+            this.bills =
+              [];
+
+            this.filteredBills =
+              [];
+
+
+            this.resetStatistics();
+
+
+            this.errorMessage =
+              this.getErrorMessage(
+                error,
+                'Unable to load billing records. Please try again.'
+              );
+
+
+            this.changeDetectorRef.detectChanges();
+
+          }
+
+      });
 
   }
 
 
   // =====================================================
-  // STATISTICS
+  // NORMALIZE BILL
+  // =====================================================
+
+  private normalizeBill(
+    bill:
+      Bill
+  ):
+    Bill {
+
+    if (!bill) {
+
+      return bill;
+
+    }
+
+
+    return {
+
+      ...bill,
+
+      amount:
+        Number(
+          bill.amount || 0
+        ),
+
+      amountPaid:
+        Number(
+          bill.amountPaid || 0
+        ),
+
+      balance:
+        Number(
+          bill.balance || 0
+        ),
+
+      status:
+        this.normalizeBillingStatus(
+          bill.status as string
+        ),
+
+      billingType:
+        this.normalizeBillingType(
+          bill.billingType as string
+        ),
+
+      items:
+        Array.isArray(
+          bill.items
+        )
+
+          ? bill.items.map(
+              (
+                item:
+                  BillItem
+              ) => ({
+
+                ...item,
+
+                quantity:
+                  Number(
+                    item.quantity || 0
+                  ),
+
+                unitPrice:
+                  Number(
+                    item.unitPrice || 0
+                  ),
+
+                amount:
+                  Number(
+                    item.amount || 0
+                  ),
+
+                billingType:
+                  this.normalizeBillingType(
+                    item.billingType as string
+                  )
+
+              })
+            )
+
+          : []
+
+    };
+
+  }
+
+
+  // =====================================================
+  // NORMALIZE BILLING STATUS
+  // =====================================================
+
+  private normalizeBillingStatus(
+    status:
+      string
+  ):
+    BillingStatus {
+
+    const normalized =
+      String(
+        status || ''
+      )
+        .trim()
+        .toUpperCase()
+        .replace(
+          ' ',
+          '_'
+        );
+
+
+    switch (
+      normalized
+    ) {
+
+      case 'PENDING':
+
+        return 'Pending';
+
+
+      case 'PARTIALLY_PAID':
+
+        return 'Partially Paid';
+
+
+      case 'PAID':
+
+        return 'Paid';
+
+
+      case 'CANCELLED':
+
+        return 'Cancelled';
+
+
+      default:
+
+        return 'Pending';
+
+    }
+
+  }
+
+
+  // =====================================================
+  // NORMALIZE BILLING TYPE
+  // =====================================================
+
+  private normalizeBillingType(
+    type:
+      string
+  ):
+    BillingType {
+
+    const normalized =
+      String(
+        type || ''
+      )
+        .trim()
+        .toUpperCase()
+        .replace(
+          ' ',
+          '_'
+        );
+
+
+    switch (
+      normalized
+    ) {
+
+      case 'CONSULTATION':
+
+        return 'Consultation';
+
+
+      case 'LAB':
+
+      case 'LABORATORY':
+
+      case 'LABORATORY_TEST':
+
+      case 'LAB_TEST':
+
+        return 'Laboratory';
+
+
+      case 'PHARMACY':
+
+      case 'MEDICINE':
+
+      case 'MEDICATION':
+
+        return 'Pharmacy';
+
+
+      case 'ADMISSION':
+
+        return 'Admission';
+
+
+      case 'PROCEDURE':
+
+        return 'Procedure';
+
+
+      case 'OTHER':
+
+        return 'Other';
+
+
+      default:
+
+        return 'Other';
+
+    }
+
+  }
+
+
+  // =====================================================
+  // RESET STATISTICS
+  // =====================================================
+
+  private resetStatistics(): void {
+
+    this.totalBills =
+      0;
+
+    this.totalAmount =
+      0;
+
+    this.totalPaid =
+      0;
+
+    this.totalBalance =
+      0;
+
+    this.pendingBills =
+      0;
+
+    this.pharmacyBills =
+      0;
+
+  }
+
+
+  // =====================================================
+  // UPDATE STATISTICS
   // =====================================================
 
   private updateStatistics(): void {
@@ -170,11 +608,17 @@ export class BillingList implements OnInit {
     this.totalAmount =
       this.bills.reduce(
         (
-          total,
-          bill
+          total:
+            number,
+
+          bill:
+            Bill
         ) =>
           total +
-          bill.amount,
+          Number(
+            bill.amount || 0
+          ),
+
         0
       );
 
@@ -182,11 +626,17 @@ export class BillingList implements OnInit {
     this.totalPaid =
       this.bills.reduce(
         (
-          total,
-          bill
+          total:
+            number,
+
+          bill:
+            Bill
         ) =>
           total +
-          bill.amountPaid,
+          Number(
+            bill.amountPaid || 0
+          ),
+
         0
       );
 
@@ -194,31 +644,38 @@ export class BillingList implements OnInit {
     this.totalBalance =
       this.bills.reduce(
         (
-          total,
-          bill
+          total:
+            number,
+
+          bill:
+            Bill
         ) =>
           total +
-          bill.balance,
+          Number(
+            bill.balance || 0
+          ),
+
         0
       );
 
 
     this.pendingBills =
       this.bills.filter(
-        bill =>
+        (
+          bill:
+            Bill
+        ) =>
           bill.status ===
           'Pending'
       ).length;
 
 
-    /*
-     * Count invoices that contain at least one
-     * Pharmacy billing item.
-     */
-
     this.pharmacyBills =
       this.bills.filter(
-        bill =>
+        (
+          bill:
+            Bill
+        ) =>
           this.billContainsType(
             bill,
             'Pharmacy'
@@ -242,65 +699,107 @@ export class BillingList implements OnInit {
 
     this.filteredBills =
       this.bills.filter(
-        bill => {
+        (
+          bill:
+            Bill
+        ) => {
 
-          // ---------------------------------------------
-          // SEARCH
-          // ---------------------------------------------
+          const patientName =
+            String(
+              bill.patientName || ''
+            )
+              .toLowerCase();
+
+
+          const billId =
+            String(
+              bill.id || ''
+            )
+              .toLowerCase();
+
+
+          const invoiceNumber =
+            String(
+              bill.invoiceNumber || ''
+            )
+              .toLowerCase();
+
+
+          const patientNumber =
+            String(
+              bill.patientNumber || ''
+            )
+              .toLowerCase();
+
+
+          const doctorName =
+            String(
+              bill.doctorName || ''
+            )
+              .toLowerCase();
+
+
+          const departmentName =
+            String(
+              bill.departmentName || ''
+            )
+              .toLowerCase();
+
+
+          const billingType =
+            String(
+              bill.billingType || ''
+            )
+              .toLowerCase();
+
+
+          const description =
+            String(
+              bill.description || ''
+            )
+              .toLowerCase();
+
 
           const matchesSearch =
             !search ||
 
-            bill.patientName
-              .toLowerCase()
-              .includes(search) ||
+            patientName.includes(
+              search
+            ) ||
 
-            bill.id
-              .toLowerCase()
-              .includes(search) ||
+            billId.includes(
+              search
+            ) ||
 
-            bill.invoiceNumber
-              .toLowerCase()
-              .includes(search) ||
+            invoiceNumber.includes(
+              search
+            ) ||
 
-            (
-              bill.patientNumber ??
-              ''
-            )
-              .toLowerCase()
-              .includes(search) ||
+            patientNumber.includes(
+              search
+            ) ||
 
-            (
-              bill.doctorName ??
-              ''
-            )
-              .toLowerCase()
-              .includes(search) ||
+            doctorName.includes(
+              search
+            ) ||
 
-            (
-              bill.departmentName ??
-              ''
-            )
-              .toLowerCase()
-              .includes(search) ||
+            departmentName.includes(
+              search
+            ) ||
 
-            bill.billingType
-              .toLowerCase()
-              .includes(search) ||
+            billingType.includes(
+              search
+            ) ||
 
-            bill.description
-              .toLowerCase()
-              .includes(search) ||
+            description.includes(
+              search
+            ) ||
 
             this.billItemsMatchSearch(
               bill,
               search
             );
 
-
-          // ---------------------------------------------
-          // STATUS
-          // ---------------------------------------------
 
           const matchesStatus =
             this.selectedStatus ===
@@ -309,10 +808,6 @@ export class BillingList implements OnInit {
             bill.status ===
               this.selectedStatus;
 
-
-          // ---------------------------------------------
-          // BILLING TYPE
-          // ---------------------------------------------
 
           const matchesBillingType =
             this.selectedBillingType ===
@@ -341,28 +836,34 @@ export class BillingList implements OnInit {
   // =====================================================
 
   billContainsType(
-    bill: Bill,
-    billingType: BillingType
-  ): boolean {
+    bill:
+      Bill,
 
-    /*
-     * Check the new item-based structure first.
-     */
+    billingType:
+      BillingType
+  ):
+    boolean {
 
     const items =
-      bill.items ?? [];
+      bill.items ??
+      [];
 
 
-    const itemMatches =
+    const itemMatch =
       items.some(
-        item =>
-          item.billingType ===
+        (
+          item:
+            BillItem
+        ) =>
+          this.normalizeBillingType(
+            item.billingType as string
+          ) ===
           billingType
       );
 
 
     if (
-      itemMatches
+      itemMatch
     ) {
 
       return true;
@@ -370,13 +871,10 @@ export class BillingList implements OnInit {
     }
 
 
-    /*
-     * Fall back to the legacy billingType field.
-     * This keeps old invoices working.
-     */
-
     return (
-      bill.billingType ===
+      this.normalizeBillingType(
+        bill.billingType as string
+      ) ===
       billingType
     );
 
@@ -388,9 +886,13 @@ export class BillingList implements OnInit {
   // =====================================================
 
   private billItemsMatchSearch(
-    bill: Bill,
-    search: string
-  ): boolean {
+    bill:
+      Bill,
+
+    search:
+      string
+  ):
+    boolean {
 
     if (!search) {
 
@@ -401,30 +903,48 @@ export class BillingList implements OnInit {
 
     const items:
       BillItem[] =
-      bill.items ?? [];
+      bill.items ??
+      [];
 
 
     return items.some(
-      item => {
+      (
+        item:
+          BillItem
+      ) => {
 
         return (
 
-          item.billingType
+          String(
+            item.billingType || ''
+          )
             .toLowerCase()
-            .includes(search) ||
-
-          item.description
-            .toLowerCase()
-            .includes(search) ||
-
-          item.referenceId
-            ?.toLowerCase()
-            .includes(search) ||
+            .includes(
+              search
+            ) ||
 
           String(
-            item.amount
+            item.description || ''
           )
-            .includes(search)
+            .toLowerCase()
+            .includes(
+              search
+            ) ||
+
+          String(
+            item.referenceId || ''
+          )
+            .toLowerCase()
+            .includes(
+              search
+            ) ||
+
+          String(
+            item.amount ?? ''
+          )
+            .includes(
+              search
+            )
 
         );
 
@@ -439,10 +959,13 @@ export class BillingList implements OnInit {
   // =====================================================
 
   getBillItems(
-    bill: Bill
-  ): BillItem[] {
+    bill:
+      Bill
+  ):
+    BillItem[] {
 
-    return bill.items ?? [];
+    return bill.items ??
+      [];
 
   }
 
@@ -452,11 +975,14 @@ export class BillingList implements OnInit {
   // =====================================================
 
   getItemCount(
-    bill: Bill
-  ): number {
+    bill:
+      Bill
+  ):
+    number {
 
     return (
-      bill.items?.length ?? 0
+      bill.items?.length ??
+      0
     );
 
   }
@@ -480,8 +1006,16 @@ export class BillingList implements OnInit {
   // =====================================================
 
   viewBill(
-    bill: Bill
+    bill:
+      Bill
   ): void {
+
+    if (!bill?.id) {
+
+      return;
+
+    }
+
 
     this.router.navigate([
       '/billing',
@@ -496,8 +1030,44 @@ export class BillingList implements OnInit {
   // =====================================================
 
   editBill(
-    bill: Bill
+    bill:
+      Bill
   ): void {
+
+    if (!bill?.id) {
+
+      return;
+
+    }
+
+
+    if (
+      bill.status ===
+      'Paid'
+    ) {
+
+      alert(
+        'A fully paid invoice cannot be edited.'
+      );
+
+      return;
+
+    }
+
+
+    if (
+      bill.status ===
+      'Cancelled'
+    ) {
+
+      alert(
+        'A cancelled invoice cannot be edited.'
+      );
+
+      return;
+
+    }
+
 
     this.router.navigate([
       '/billing',
@@ -513,45 +1083,185 @@ export class BillingList implements OnInit {
   // =====================================================
 
   deleteBill(
-    bill: Bill
+    bill:
+      Bill
   ): void {
 
+    if (
+      !bill
+    ) {
+
+      return;
+
+    }
+
+
+    // ---------------------------------------------------
+    // PROTECT PAID BILL
+    // ---------------------------------------------------
+
+    if (
+      bill.status ===
+      'Paid'
+    ) {
+
+      alert(
+        'A fully paid invoice cannot be deleted.'
+      );
+
+      return;
+
+    }
+
+
+    // ---------------------------------------------------
+    // PROTECT CANCELLED BILL
+    // ---------------------------------------------------
+
+    if (
+      bill.status ===
+      'Cancelled'
+    ) {
+
+      alert(
+        'A cancelled invoice cannot be deleted.'
+      );
+
+      return;
+
+    }
+
+
+    // ---------------------------------------------------
+    // CONFIRM
+    // ---------------------------------------------------
+
     const confirmed =
-      confirm(
+      window.confirm(
         `Are you sure you want to delete invoice ${bill.invoiceNumber} for ${bill.patientName}?`
       );
 
 
-    if (!confirmed) {
+    if (
+      !confirmed
+    ) {
 
       return;
 
     }
 
 
-    const deleted =
-      this.billingService.deleteBill(
+    // ---------------------------------------------------
+    // START LOADING
+    // ---------------------------------------------------
+
+    this.isLoading =
+      true;
+
+    this.errorMessage =
+      '';
+
+
+    this.changeDetectorRef.detectChanges();
+
+
+    // ---------------------------------------------------
+    // DELETE THROUGH BACKEND
+    // ---------------------------------------------------
+
+    this.billingService
+      .deleteBill(
         bill.id
-      );
+      )
+      .subscribe({
+
+        // ===============================================
+        // SUCCESS
+        // ===============================================
+
+        next: () => {
+
+          console.log(
+            'Billing record deleted successfully:',
+            bill.id
+          );
 
 
-    if (!deleted) {
+          // ----------------------------------------------
+          // Remove deleted bill immediately
+          // ----------------------------------------------
 
-      alert(
-        'Unable to delete billing record.'
-      );
-
-      return;
-
-    }
-
-
-    alert(
-      'Billing record deleted successfully.'
-    );
+          this.bills =
+            this.bills.filter(
+              (
+                currentBill:
+                  Bill
+              ) =>
+                currentBill.id !==
+                bill.id
+            );
 
 
-    this.loadBills();
+          // ----------------------------------------------
+          // Recalculate page
+          // ----------------------------------------------
+
+          this.updateStatistics();
+
+          this.applyFilters();
+
+
+          this.isLoading =
+            false;
+
+
+          this.changeDetectorRef.detectChanges();
+
+
+          alert(
+            `Invoice ${bill.invoiceNumber} deleted successfully.`
+          );
+
+        },
+
+
+        // ===============================================
+        // ERROR
+        // ===============================================
+
+        error:
+          (
+            error:
+              unknown
+          ) => {
+
+            console.error(
+              'Failed to delete billing record:',
+              error
+            );
+
+
+            this.isLoading =
+              false;
+
+
+            this.errorMessage =
+              this.getErrorMessage(
+                error,
+                'Unable to delete billing record.'
+              );
+
+
+            this.changeDetectorRef.detectChanges();
+
+
+            alert(
+              this.errorMessage
+            );
+
+          }
+
+      });
 
   }
 
@@ -562,7 +1272,8 @@ export class BillingList implements OnInit {
 
   clearFilters(): void {
 
-    this.searchTerm = '';
+    this.searchTerm =
+      '';
 
     this.selectedStatus =
       'All';
@@ -573,6 +1284,9 @@ export class BillingList implements OnInit {
 
     this.applyFilters();
 
+
+    this.changeDetectorRef.detectChanges();
+
   }
 
 
@@ -581,24 +1295,39 @@ export class BillingList implements OnInit {
   // =====================================================
 
   getStatusClass(
-    status: BillingStatus
-  ): string {
+    status:
+      BillingStatus
+  ):
+    string {
 
-    switch (status) {
-
-      case 'Pending':
-        return 'pending';
-
-      case 'Partially Paid':
-        return 'partially-paid';
+    switch (
+      this.normalizeBillingStatus(
+        status as string
+      )
+    ) {
 
       case 'Paid':
+
         return 'paid';
 
+
+      case 'Partially Paid':
+
+        return 'partially-paid';
+
+
+      case 'Pending':
+
+        return 'pending';
+
+
       case 'Cancelled':
+
         return 'cancelled';
 
+
       default:
+
         return '';
 
     }
@@ -611,30 +1340,49 @@ export class BillingList implements OnInit {
   // =====================================================
 
   getBillingTypeClass(
-    type: BillingType
-  ): string {
+    type:
+      BillingType
+  ):
+    string {
 
-    switch (type) {
+    switch (
+      this.normalizeBillingType(
+        type as string
+      )
+    ) {
 
       case 'Consultation':
+
         return 'consultation';
 
+
       case 'Laboratory':
+
         return 'laboratory';
 
+
       case 'Pharmacy':
+
         return 'pharmacy';
 
+
       case 'Admission':
+
         return 'admission';
 
+
       case 'Procedure':
+
         return 'procedure';
 
+
       case 'Other':
+
         return 'other';
 
+
       default:
+
         return '';
 
     }
@@ -647,18 +1395,28 @@ export class BillingList implements OnInit {
   // =====================================================
 
   formatCurrency(
-    amount: number
-  ): string {
+    amount:
+      number
+  ):
+    string {
 
     return new Intl.NumberFormat(
       'en-UG',
       {
-        style: 'currency',
-        currency: 'UGX',
-        maximumFractionDigits: 0
+        style:
+          'currency',
+
+        currency:
+          'UGX',
+
+        maximumFractionDigits:
+          0
+
       }
     ).format(
-      amount || 0
+      Number(
+        amount || 0
+      )
     );
 
   }
@@ -669,10 +1427,14 @@ export class BillingList implements OnInit {
   // =====================================================
 
   formatDate(
-    date: string
-  ): string {
+    date:
+      string
+  ):
+    string {
 
-    if (!date) {
+    if (
+      !date
+    ) {
 
       return '—';
 
@@ -680,7 +1442,9 @@ export class BillingList implements OnInit {
 
 
     const parsedDate =
-      new Date(date);
+      new Date(
+        date
+      );
 
 
     if (
@@ -697,9 +1461,15 @@ export class BillingList implements OnInit {
     return new Intl.DateTimeFormat(
       'en-GB',
       {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
+        day:
+          '2-digit',
+
+        month:
+          'short',
+
+        year:
+          'numeric'
+
       }
     ).format(
       parsedDate
@@ -707,4 +1477,112 @@ export class BillingList implements OnInit {
 
   }
 
+
+  // =====================================================
+  // ERROR MESSAGE
+  // =====================================================
+
+  private getErrorMessage(
+    error:
+      unknown,
+
+    fallback:
+      string
+  ):
+    string {
+
+    if (
+      typeof error !==
+        'object' ||
+      error === null
+    ) {
+
+      return fallback;
+
+    }
+
+
+    const response =
+      error as {
+        error?: unknown;
+        message?: string;
+      };
+
+
+    // ---------------------------------------------------
+    // Direct message
+    // ---------------------------------------------------
+
+    if (
+      typeof response.message ===
+        'string' &&
+      response.message.trim()
+    ) {
+
+      return response.message.trim();
+
+    }
+
+
+    // ---------------------------------------------------
+    // String error body
+    // ---------------------------------------------------
+
+    if (
+      typeof response.error ===
+        'string' &&
+      response.error.trim()
+    ) {
+
+      return response.error.trim();
+
+    }
+
+
+    // ---------------------------------------------------
+    // Object error body
+    // ---------------------------------------------------
+
+    if (
+      typeof response.error ===
+        'object' &&
+      response.error !== null
+    ) {
+
+      const body =
+        response.error as {
+          message?: string;
+          error?: string;
+        };
+
+
+      if (
+        typeof body.message ===
+          'string' &&
+        body.message.trim()
+      ) {
+
+        return body.message.trim();
+
+      }
+
+
+      if (
+        typeof body.error ===
+          'string' &&
+        body.error.trim()
+      ) {
+
+        return body.error.trim();
+
+      }
+
+    }
+
+
+    return fallback;
+
+  }
+
 }
+

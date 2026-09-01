@@ -1,15 +1,19 @@
 
 package com.hms.backend.service.impl;
 
+import com.hms.backend.dto.BillingItemRequest;
+import com.hms.backend.entity.Billing;
 import com.hms.backend.entity.Consultation;
 import com.hms.backend.entity.LaboratoryRequest;
 import com.hms.backend.repository.ConsultationRepository;
 import com.hms.backend.repository.LaboratoryRequestRepository;
+import com.hms.backend.service.BillingService;
 import com.hms.backend.service.LaboratoryRequestService;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +27,8 @@ public class LaboratoryRequestServiceImpl
 
     private final ConsultationRepository consultationRepository;
 
+    private final BillingService billingService;
+
 
     // =====================================================
     // CONSTRUCTOR
@@ -30,13 +36,18 @@ public class LaboratoryRequestServiceImpl
 
     public LaboratoryRequestServiceImpl(
             LaboratoryRequestRepository laboratoryRequestRepository,
-            ConsultationRepository consultationRepository) {
+            ConsultationRepository consultationRepository,
+            BillingService billingService
+    ) {
 
         this.laboratoryRequestRepository =
                 laboratoryRequestRepository;
 
         this.consultationRepository =
                 consultationRepository;
+
+        this.billingService =
+                billingService;
     }
 
 
@@ -81,19 +92,82 @@ public class LaboratoryRequestServiceImpl
         }
 
 
+        if (
+                request.getPatientId() == null ||
+                request.getPatientId().isBlank()
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Patient ID is required."
+            );
+        }
+
+
+        if (
+                request.getPatientName() == null ||
+                request.getPatientName().isBlank()
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Patient name is required."
+            );
+        }
+
+
+        if (
+                request.getTestId() == null
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Laboratory test ID is required."
+            );
+        }
+
+
+        if (
+                request.getTestName() == null ||
+                request.getTestName().isBlank()
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Laboratory test name is required."
+            );
+        }
+
+
+        if (
+                request.getPrice() == null ||
+                request.getPrice()
+                        .compareTo(
+                                BigDecimal.ZERO
+                        ) <= 0
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Laboratory test price must be greater than zero."
+            );
+        }
+
+
         // -------------------------------------------------
         // DEFAULT STATUS
         // -------------------------------------------------
 
-        if (request.getStatus() == null ||
-                request.getStatus().isBlank()) {
+        if (
+                request.getStatus() == null ||
+                request.getStatus().isBlank()
+        ) {
 
-            request.setStatus("Pending");
+            request.setStatus(
+                    "Pending"
+            );
 
         } else {
 
             request.setStatus(
-                    normalizeStatus(request.getStatus())
+                    normalizeStatus(
+                            request.getStatus()
+                    )
             );
         }
 
@@ -102,11 +176,67 @@ public class LaboratoryRequestServiceImpl
         // REQUESTED DATE
         // -------------------------------------------------
 
-        if (request.getRequestedAt() == null) {
+        if (
+                request.getRequestedAt() == null
+        ) {
 
             request.setRequestedAt(
                     LocalDateTime.now()
             );
+        }
+
+
+        // -------------------------------------------------
+        // CONSULTATION VALIDATION
+        // -------------------------------------------------
+
+        String consultationId =
+                clean(
+                        request.getConsultationId()
+                );
+
+
+        request.setConsultationId(
+                consultationId
+        );
+
+
+        if (consultationId != null) {
+
+            Consultation consultation =
+                    consultationRepository
+                            .findById(
+                                    consultationId
+                            )
+                            .orElseThrow(
+                                    () ->
+                                            new IllegalArgumentException(
+                                                    "Consultation not found: "
+                                                            + consultationId
+                                            )
+                            );
+
+
+            if (
+                    consultation.getStatus() ==
+                            Consultation.ConsultationStatus.COMPLETED
+            ) {
+
+                throw new IllegalStateException(
+                        "Laboratory requests cannot be added to a completed consultation."
+                );
+            }
+
+
+            if (
+                    consultation.getStatus() ==
+                            Consultation.ConsultationStatus.CANCELLED
+            ) {
+
+                throw new IllegalStateException(
+                        "Laboratory requests cannot be added to a cancelled consultation."
+                );
+            }
         }
 
 
@@ -120,9 +250,19 @@ public class LaboratoryRequestServiceImpl
                 );
 
 
-        // -------------------------------------------------
+        // =================================================
+        // ADD LABORATORY CHARGE
+        // =================================================
+
+        Billing bill =
+                addLaboratoryCharge(
+                        savedRequest
+                );
+
+
+        // =================================================
         // SYNCHRONIZE CONSULTATION
-        // -------------------------------------------------
+        // =================================================
 
         synchronizeConsultation(
                 savedRequest.getConsultationId()
@@ -130,6 +270,68 @@ public class LaboratoryRequestServiceImpl
 
 
         return savedRequest;
+    }
+
+
+    // =====================================================
+    // ADD LABORATORY CHARGE
+    // =====================================================
+
+    private Billing addLaboratoryCharge(
+            LaboratoryRequest request
+    ) {
+
+        BillingItemRequest billingItem =
+                new BillingItemRequest();
+
+
+        billingItem.setBillingType(
+                "Laboratory"
+        );
+
+
+        billingItem.setDescription(
+                "Laboratory test - " +
+                        request.getTestName()
+        );
+
+
+        billingItem.setQuantity(
+                1
+        );
+
+
+        billingItem.setUnitPrice(
+                request.getPrice()
+        );
+
+
+        billingItem.setReferenceId(
+                String.valueOf(
+                        request.getId()
+                )
+        );
+
+
+        return billingService
+                .addChargeToPatientBill(
+
+                        request.getPatientId(),
+
+                        billingItem,
+
+                        request.getPatientName(),
+
+                        null,
+
+                        request.getDoctorId(),
+
+                        request.getDoctorName(),
+
+                        null,
+
+                        null
+                );
     }
 
 
@@ -161,12 +363,11 @@ public class LaboratoryRequestServiceImpl
                         );
 
 
-        // -------------------------------------------------
-        // PROTECT COMPLETED
-        // -------------------------------------------------
-
-        if ("Completed".equalsIgnoreCase(
-                existingRequest.getStatus())) {
+        if (
+                "Completed".equalsIgnoreCase(
+                        existingRequest.getStatus()
+                )
+        ) {
 
             throw new IllegalStateException(
                     "Completed laboratory requests cannot be modified."
@@ -174,12 +375,11 @@ public class LaboratoryRequestServiceImpl
         }
 
 
-        // -------------------------------------------------
-        // PROTECT CANCELLED
-        // -------------------------------------------------
-
-        if ("Cancelled".equalsIgnoreCase(
-                existingRequest.getStatus())) {
+        if (
+                "Cancelled".equalsIgnoreCase(
+                        existingRequest.getStatus()
+                )
+        ) {
 
             throw new IllegalStateException(
                     "Cancelled laboratory requests cannot be modified."
@@ -187,57 +387,75 @@ public class LaboratoryRequestServiceImpl
         }
 
 
-        // =================================================
-        // UPDATE BASIC FIELDS
-        // =================================================
-
         existingRequest.setPatientId(
-                request.getPatientId()
+                clean(
+                        request.getPatientId()
+                )
         );
+
 
         existingRequest.setPatientName(
-                request.getPatientName()
+                clean(
+                        request.getPatientName()
+                )
         );
+
 
         existingRequest.setConsultationId(
-                request.getConsultationId()
+                clean(
+                        request.getConsultationId()
+                )
         );
+
 
         existingRequest.setDoctorId(
-                request.getDoctorId()
+                clean(
+                        request.getDoctorId()
+                )
         );
 
+
         existingRequest.setDoctorName(
-                request.getDoctorName()
+                clean(
+                        request.getDoctorName()
+                )
         );
+
 
         existingRequest.setTestId(
                 request.getTestId()
         );
 
+
         existingRequest.setTestName(
-                request.getTestName()
+                clean(
+                        request.getTestName()
+                )
         );
+
 
         existingRequest.setCategory(
-                request.getCategory()
+                clean(
+                        request.getCategory()
+                )
         );
+
 
         existingRequest.setSampleType(
-                request.getSampleType()
+                clean(
+                        request.getSampleType()
+                )
         );
 
-
-        // =================================================
-        // STATUS
-        // =================================================
 
         String newStatus =
                 request.getStatus();
 
 
-        if (newStatus == null ||
-                newStatus.isBlank()) {
+        if (
+                newStatus == null ||
+                newStatus.isBlank()
+        ) {
 
             newStatus =
                     existingRequest.getStatus();
@@ -245,8 +463,9 @@ public class LaboratoryRequestServiceImpl
         } else {
 
             newStatus =
-                    normalizeStatus(newStatus);
-
+                    normalizeStatus(
+                            newStatus
+                    );
         }
 
 
@@ -255,38 +474,24 @@ public class LaboratoryRequestServiceImpl
         );
 
 
-        // =================================================
-        // RESULT
-        // =================================================
-
         existingRequest.setResult(
                 request.getResult()
         );
 
-
-        // =================================================
-        // NOTES
-        // =================================================
 
         existingRequest.setNotes(
                 request.getNotes()
         );
 
 
-        // =================================================
-        // PRICE
-        // =================================================
-
         existingRequest.setPrice(
                 request.getPrice()
         );
 
 
-        // =================================================
-        // REQUESTED AT
-        // =================================================
-
-        if (request.getRequestedAt() != null) {
+        if (
+                request.getRequestedAt() != null
+        ) {
 
             existingRequest.setRequestedAt(
                     request.getRequestedAt()
@@ -298,13 +503,19 @@ public class LaboratoryRequestServiceImpl
         // COMPLETION
         // =================================================
 
-        if ("Completed".equalsIgnoreCase(
-                newStatus)) {
+        if (
+                "Completed".equalsIgnoreCase(
+                        newStatus
+                )
+        ) {
 
-            if (existingRequest.getResult() == null ||
-                    existingRequest.getResult()
+            if (
+                    existingRequest.getResult() == null ||
+                    existingRequest
+                            .getResult()
                             .trim()
-                            .isEmpty()) {
+                            .isEmpty()
+            ) {
 
                 throw new IllegalStateException(
                         "Laboratory result is required before completing the request."
@@ -312,7 +523,9 @@ public class LaboratoryRequestServiceImpl
             }
 
 
-            if (existingRequest.getCompletedAt() == null) {
+            if (
+                    existingRequest.getCompletedAt() == null
+            ) {
 
                 existingRequest.setCompletedAt(
                         LocalDateTime.now()
@@ -321,31 +534,17 @@ public class LaboratoryRequestServiceImpl
 
         } else {
 
-            // Do not accidentally erase completion time
-            // for requests that are still being processed.
-            if (!"Completed".equalsIgnoreCase(
-                    existingRequest.getStatus())) {
-
-                existingRequest.setCompletedAt(
-                        null
-                );
-            }
+            existingRequest.setCompletedAt(
+                    null
+            );
         }
 
-
-        // =================================================
-        // SAVE
-        // =================================================
 
         LaboratoryRequest savedRequest =
                 laboratoryRequestRepository.save(
                         existingRequest
                 );
 
-
-        // =================================================
-        // SYNCHRONIZE CONSULTATION
-        // =================================================
 
         synchronizeConsultation(
                 savedRequest.getConsultationId()
@@ -359,23 +558,16 @@ public class LaboratoryRequestServiceImpl
     // =====================================================
     // UPDATE REQUEST STATUS
     // =====================================================
-    //
-    // IMPORTANT:
-    //
-    // Returns LaboratoryRequest rather than boolean.
-    //
-    // Frontend can therefore receive the updated request
-    // directly and refresh its UI correctly.
-    //
-    // =====================================================
 
     @Override
     public LaboratoryRequest updateRequestStatus(
             Long id,
             String status) {
 
-        if (status == null ||
-                status.isBlank()) {
+        if (
+                status == null ||
+                status.isBlank()
+        ) {
 
             throw new IllegalArgumentException(
                     "Laboratory request status is required."
@@ -399,18 +591,22 @@ public class LaboratoryRequestServiceImpl
 
 
         String normalizedStatus =
-                normalizeStatus(status);
+                normalizeStatus(
+                        status
+                );
 
 
-        // =================================================
-        // COMPLETED REQUEST
-        // =================================================
+        if (
+                "Completed".equalsIgnoreCase(
+                        currentStatus
+                )
+        ) {
 
-        if ("Completed".equalsIgnoreCase(
-                currentStatus)) {
-
-            if (!"Completed".equalsIgnoreCase(
-                    normalizedStatus)) {
+            if (
+                    !"Completed".equalsIgnoreCase(
+                            normalizedStatus
+                    )
+            ) {
 
                 throw new IllegalStateException(
                         "Completed laboratory requests cannot be reopened."
@@ -421,15 +617,17 @@ public class LaboratoryRequestServiceImpl
         }
 
 
-        // =================================================
-        // CANCELLED REQUEST
-        // =================================================
+        if (
+                "Cancelled".equalsIgnoreCase(
+                        currentStatus
+                )
+        ) {
 
-        if ("Cancelled".equalsIgnoreCase(
-                currentStatus)) {
-
-            if (!"Cancelled".equalsIgnoreCase(
-                    normalizedStatus)) {
+            if (
+                    !"Cancelled".equalsIgnoreCase(
+                            normalizedStatus
+                    )
+            ) {
 
                 throw new IllegalStateException(
                         "Cancelled laboratory requests cannot be reopened."
@@ -440,17 +638,18 @@ public class LaboratoryRequestServiceImpl
         }
 
 
-        // =================================================
-        // COMPLETE REQUEST
-        // =================================================
+        if (
+                "Completed".equalsIgnoreCase(
+                        normalizedStatus
+                )
+        ) {
 
-        if ("Completed".equalsIgnoreCase(
-                normalizedStatus)) {
-
-            if (request.getResult() == null ||
+            if (
+                    request.getResult() == null ||
                     request.getResult()
                             .trim()
-                            .isEmpty()) {
+                            .isEmpty()
+            ) {
 
                 throw new IllegalStateException(
                         "Laboratory result is required before completing the request."
@@ -461,14 +660,8 @@ public class LaboratoryRequestServiceImpl
             request.setCompletedAt(
                     LocalDateTime.now()
             );
-        }
 
-
-        // =================================================
-        // NON-COMPLETED STATUS
-        // =================================================
-
-        else {
+        } else {
 
             request.setCompletedAt(
                     null
@@ -476,28 +669,16 @@ public class LaboratoryRequestServiceImpl
         }
 
 
-        // =================================================
-        // SET STATUS
-        // =================================================
-
         request.setStatus(
                 normalizedStatus
         );
 
-
-        // =================================================
-        // SAVE
-        // =================================================
 
         LaboratoryRequest savedRequest =
                 laboratoryRequestRepository.save(
                         request
                 );
 
-
-        // =================================================
-        // SYNCHRONIZE CONSULTATION
-        // =================================================
 
         synchronizeConsultation(
                 savedRequest.getConsultationId()
@@ -510,11 +691,6 @@ public class LaboratoryRequestServiceImpl
 
     // =====================================================
     // COMPLETE REQUEST
-    // =====================================================
-    //
-    // Explicit operation used by the laboratory details
-    // screen.
-    //
     // =====================================================
 
     @Override
@@ -532,23 +708,21 @@ public class LaboratoryRequestServiceImpl
                         );
 
 
-        // -------------------------------------------------
-        // ALREADY COMPLETED
-        // -------------------------------------------------
-
-        if ("Completed".equalsIgnoreCase(
-                request.getStatus())) {
+        if (
+                "Completed".equalsIgnoreCase(
+                        request.getStatus()
+                )
+        ) {
 
             return request;
         }
 
 
-        // -------------------------------------------------
-        // CANCELLED
-        // -------------------------------------------------
-
-        if ("Cancelled".equalsIgnoreCase(
-                request.getStatus())) {
+        if (
+                "Cancelled".equalsIgnoreCase(
+                        request.getStatus()
+                )
+        ) {
 
             throw new IllegalStateException(
                     "Cancelled laboratory requests cannot be completed."
@@ -556,14 +730,12 @@ public class LaboratoryRequestServiceImpl
         }
 
 
-        // -------------------------------------------------
-        // RESULT REQUIRED
-        // -------------------------------------------------
-
-        if (request.getResult() == null ||
+        if (
+                request.getResult() == null ||
                 request.getResult()
                         .trim()
-                        .isEmpty()) {
+                        .isEmpty()
+        ) {
 
             throw new IllegalStateException(
                     "Laboratory result is required before completing the request."
@@ -571,13 +743,10 @@ public class LaboratoryRequestServiceImpl
         }
 
 
-        // -------------------------------------------------
-        // COMPLETE
-        // -------------------------------------------------
-
         request.setStatus(
                 "Completed"
         );
+
 
         request.setCompletedAt(
                 LocalDateTime.now()
@@ -589,10 +758,6 @@ public class LaboratoryRequestServiceImpl
                         request
                 );
 
-
-        // -------------------------------------------------
-        // UPDATE CONSULTATION WORKFLOW
-        // -------------------------------------------------
 
         synchronizeConsultation(
                 savedRequest.getConsultationId()
@@ -622,12 +787,11 @@ public class LaboratoryRequestServiceImpl
                         );
 
 
-        // -------------------------------------------------
-        // PROTECT COMPLETED
-        // -------------------------------------------------
-
-        if ("Completed".equalsIgnoreCase(
-                request.getStatus())) {
+        if (
+                "Completed".equalsIgnoreCase(
+                        request.getStatus()
+                )
+        ) {
 
             throw new IllegalStateException(
                     "Completed laboratory requests cannot be deleted."
@@ -643,10 +807,6 @@ public class LaboratoryRequestServiceImpl
                 request
         );
 
-
-        // -------------------------------------------------
-        // UPDATE CONSULTATION AFTER DELETE
-        // -------------------------------------------------
 
         synchronizeConsultation(
                 consultationId
@@ -664,7 +824,9 @@ public class LaboratoryRequestServiceImpl
             String patientId) {
 
         return laboratoryRequestRepository
-                .findByPatientId(patientId);
+                .findByPatientId(
+                        patientId
+                );
     }
 
 
@@ -679,7 +841,9 @@ public class LaboratoryRequestServiceImpl
             String consultationId) {
 
         return laboratoryRequestRepository
-                .findByConsultationId(consultationId);
+                .findByConsultationId(
+                        consultationId
+                );
     }
 
 
@@ -738,36 +902,14 @@ public class LaboratoryRequestServiceImpl
     // =====================================================
     // SYNCHRONIZE CONSULTATION
     // =====================================================
-    //
-    // LAB WORKFLOW:
-    //
-    // Request created
-    //      ↓
-    // PENDING_RESULTS
-    //
-    // Some requests completed
-    //      ↓
-    // PENDING_RESULTS
-    //
-    // ALL requests completed
-    //      ↓
-    // READY_FOR_REVIEW
-    //
-    // Doctor reviews results
-    //      ↓
-    // OPEN
-    //
-    // Doctor completes consultation
-    //      ↓
-    // COMPLETED
-    //
-    // =====================================================
 
     private void synchronizeConsultation(
             String consultationId) {
 
-        if (consultationId == null ||
-                consultationId.isBlank()) {
+        if (
+                consultationId == null ||
+                consultationId.isBlank()
+        ) {
 
             return;
         }
@@ -785,7 +927,9 @@ public class LaboratoryRequestServiceImpl
                         .orElse(null);
 
 
-        if (consultation == null) {
+        if (
+                consultation == null
+        ) {
 
             return;
         }
@@ -798,11 +942,9 @@ public class LaboratoryRequestServiceImpl
                         );
 
 
-        // =================================================
-        // NO LABORATORY REQUESTS
-        // =================================================
-
-        if (requests.isEmpty()) {
+        if (
+                requests.isEmpty()
+        ) {
 
             consultation.setHasLaboratoryRequests(
                     false
@@ -817,11 +959,13 @@ public class LaboratoryRequestServiceImpl
             );
 
 
-            // Never overwrite final states.
-            if (consultation.getStatus() !=
-                    Consultation.ConsultationStatus.COMPLETED &&
-                consultation.getStatus() !=
-                    Consultation.ConsultationStatus.CANCELLED) {
+            if (
+                    consultation.getStatus() !=
+                            Consultation.ConsultationStatus.COMPLETED
+                    &&
+                    consultation.getStatus() !=
+                            Consultation.ConsultationStatus.CANCELLED
+            ) {
 
                 consultation.setStatus(
                         Consultation.ConsultationStatus.OPEN
@@ -837,18 +981,10 @@ public class LaboratoryRequestServiceImpl
         }
 
 
-        // =================================================
-        // REQUESTS EXIST
-        // =================================================
-
         consultation.setHasLaboratoryRequests(
                 true
         );
 
-
-        // =================================================
-        // RESULT STATE
-        // =================================================
 
         boolean allCompleted =
                 requests.stream()
@@ -872,11 +1008,9 @@ public class LaboratoryRequestServiceImpl
                         );
 
 
-        // =================================================
-        // PENDING RESULTS
-        // =================================================
-
-        if (!allCompleted) {
+        if (
+                !allCompleted
+        ) {
 
             consultation.setHasLaboratoryResults(
                     anyCompleted
@@ -887,24 +1021,20 @@ public class LaboratoryRequestServiceImpl
             );
 
 
-            if (consultation.getStatus() !=
-                    Consultation.ConsultationStatus.COMPLETED &&
-                consultation.getStatus() !=
-                    Consultation.ConsultationStatus.CANCELLED) {
+            if (
+                    consultation.getStatus() !=
+                            Consultation.ConsultationStatus.COMPLETED
+                    &&
+                    consultation.getStatus() !=
+                            Consultation.ConsultationStatus.CANCELLED
+            ) {
 
                 consultation.setStatus(
                         Consultation.ConsultationStatus.PENDING_RESULTS
                 );
             }
 
-        }
-
-
-        // =================================================
-        // READY FOR REVIEW
-        // =================================================
-
-        else {
+        } else {
 
             consultation.setHasLaboratoryResults(
                     true
@@ -915,10 +1045,13 @@ public class LaboratoryRequestServiceImpl
             );
 
 
-            if (consultation.getStatus() !=
-                    Consultation.ConsultationStatus.COMPLETED &&
-                consultation.getStatus() !=
-                    Consultation.ConsultationStatus.CANCELLED) {
+            if (
+                    consultation.getStatus() !=
+                            Consultation.ConsultationStatus.COMPLETED
+                    &&
+                    consultation.getStatus() !=
+                            Consultation.ConsultationStatus.CANCELLED
+            ) {
 
                 consultation.setStatus(
                         Consultation.ConsultationStatus.READY_FOR_REVIEW
@@ -936,84 +1069,97 @@ public class LaboratoryRequestServiceImpl
     // =====================================================
     // NORMALIZE STATUS
     // =====================================================
-    //
-    // IMPORTANT:
-    //
-    // Frontend vocabulary is:
-    //
-    // Pending
-    // In Progress
-    // Completed
-    // Cancelled
-    //
-    // We deliberately do NOT use "Processing".
-    //
-    // =====================================================
 
-  // =====================================================
-// NORMALIZE STATUS
-// =====================================================
+    private String normalizeStatus(
+            String status) {
 
-private String normalizeStatus(
-        String status) {
+        if (
+                status == null
+        ) {
 
-    if (status == null) {
+            throw new IllegalArgumentException(
+                    "Laboratory request status is required."
+            );
+        }
+
+
+        String cleaned =
+                status.trim();
+
+
+        if (
+                "pending".equalsIgnoreCase(
+                        cleaned
+                )
+        ) {
+
+            return "Pending";
+        }
+
+
+        if (
+                "in progress".equalsIgnoreCase(
+                        cleaned
+                )
+                ||
+                "processing".equalsIgnoreCase(
+                        cleaned
+                )
+        ) {
+
+            return "In Progress";
+        }
+
+
+        if (
+                "completed".equalsIgnoreCase(
+                        cleaned
+                )
+        ) {
+
+            return "Completed";
+        }
+
+
+        if (
+                "cancelled".equalsIgnoreCase(
+                        cleaned
+                )
+        ) {
+
+            return "Cancelled";
+        }
+
 
         throw new IllegalArgumentException(
-                "Laboratory request status is required."
+                "Invalid laboratory request status: "
+                        + status
         );
     }
 
 
-    String cleaned =
-            status.trim();
+    // =====================================================
+    // CLEAN
+    // =====================================================
+
+    private String clean(
+            String value) {
+
+        if (
+                value == null
+        ) {
+
+            return null;
+        }
 
 
-    // -------------------------------------------------
-    // PENDING
-    // -------------------------------------------------
+        String cleaned =
+                value.trim();
 
-    if ("pending".equalsIgnoreCase(cleaned)) {
 
-        return "Pending";
+        return cleaned.isEmpty()
+                ? null
+                : cleaned;
     }
+}
 
-
-    // -------------------------------------------------
-    // IN PROGRESS
-    // -------------------------------------------------
-
-    if (
-            "in progress".equalsIgnoreCase(cleaned) ||
-            "processing".equalsIgnoreCase(cleaned)
-    ) {
-
-        return "In Progress";
-    }
-
-
-    // -------------------------------------------------
-    // COMPLETED
-    // -------------------------------------------------
-
-    if ("completed".equalsIgnoreCase(cleaned)) {
-
-        return "Completed";
-    }
-
-
-    // -------------------------------------------------
-    // CANCELLED
-    // -------------------------------------------------
-
-    if ("cancelled".equalsIgnoreCase(cleaned)) {
-
-        return "Cancelled";
-    }
-
-
-    throw new IllegalArgumentException(
-            "Invalid laboratory request status: "
-                    + status
-    );
-}}

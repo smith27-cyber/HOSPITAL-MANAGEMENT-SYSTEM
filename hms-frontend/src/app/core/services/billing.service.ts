@@ -1,4 +1,28 @@
-import { Injectable } from '@angular/core';
+
+import {
+  Injectable
+} from '@angular/core';
+
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpParams
+} from '@angular/common/http';
+
+
+import {
+  Observable,
+  of,
+  throwError
+} from 'rxjs';
+
+import {
+  catchError,
+  map,
+  switchMap
+} from 'rxjs/operators';
+
+
 
 import {
   Bill,
@@ -9,46 +33,247 @@ import {
 } from '../../shared/models/billing.model';
 
 
+// =====================================================
+// BACKEND BILLING DTO
+// =====================================================
+//
+// The Spring Boot backend uses:
+// - Long billing IDs
+// - BIG DECIMAL amounts
+// - uppercase enum values
+//
+// The Angular application uses:
+// - string IDs
+// - number amounts
+// - title-case enum values
+//
+// This service converts between the two formats.
+//
+
+interface BackendBillingItem {
+
+  id?: number;
+
+  billingType:
+    string;
+
+  description:
+    string;
+
+  quantity:
+    number;
+
+  unitPrice:
+    number | string;
+
+  amount:
+    number | string;
+
+  referenceId?:
+    string;
+
+}
+
+
+interface BackendBilling {
+
+  id:
+    number;
+
+  patientId:
+    string;
+
+  patientName:
+    string;
+
+  patientNumber?:
+    string;
+
+  doctorId?:
+    string;
+
+  doctorName?:
+    string;
+
+  departmentId?:
+    string;
+
+  departmentName?:
+    string;
+
+  description?:
+    string;
+
+  amount:
+    number | string;
+
+  amountPaid:
+    number | string;
+
+  balance:
+    number | string;
+
+  paymentMethod?:
+    string;
+
+  status:
+    string;
+
+  invoiceNumber:
+    string;
+
+  billingDate:
+    string;
+
+  dueDate?:
+    string;
+
+  notes?:
+    string;
+
+  createdAt:
+    string;
+
+  updatedAt?:
+    string;
+
+  items?:
+    BackendBillingItem[];
+
+}
+
+
+// =====================================================
+// CREATE / UPDATE REQUEST
+// =====================================================
+
+interface BillingRequestPayload {
+
+  patientId:
+    string;
+
+  patientName:
+    string;
+
+  patientNumber?:
+    string;
+
+  doctorId?:
+    string;
+
+  doctorName?:
+    string;
+
+  departmentId?:
+    string;
+
+  departmentName?:
+    string;
+
+  description?:
+    string;
+
+  dueDate?:
+    string;
+
+  notes?:
+    string;
+
+  items:
+    BillingItemRequestPayload[];
+
+}
+
+
+interface BillingItemRequestPayload {
+
+  billingType:
+    string;
+
+  description:
+    string;
+
+  quantity:
+    number;
+
+  unitPrice:
+    number;
+
+  referenceId?:
+    string;
+
+}
+
+
+// =====================================================
+// PAYMENT PAYLOAD
+// =====================================================
+
+interface PaymentRequestPayload {
+
+  amount:
+    number;
+
+  paymentMethod:
+    string;
+
+}
+
+
 @Injectable({
   providedIn: 'root'
 })
 export class BillingService {
 
-  // =====================================================
-  // STORAGE
-  // =====================================================
-
-  private readonly storageKey =
-    'hms_billing';
-
 
   // =====================================================
-  // DATA
+  // API
   // =====================================================
 
-  private bills: Bill[] = [];
+  private readonly apiUrl =
+    'http://localhost:8081/api/billing';
 
 
   // =====================================================
   // CONSTRUCTOR
   // =====================================================
 
-  constructor() {
-
-    this.loadBills();
-
-  }
+  constructor(
+    private readonly http:
+      HttpClient
+  ) {}
 
 
   // =====================================================
   // GET ALL BILLS
   // =====================================================
 
-  getBills(): Bill[] {
+  getBills():
+    Observable<Bill[]> {
 
-    return [
-      ...this.bills
-    ];
+    return this.http
+      .get<BackendBilling[]>(
+        this.apiUrl
+      )
+      .pipe(
+
+        map(
+          bills =>
+            Array.isArray(bills)
+              ? bills.map(
+                  bill =>
+                    this.mapBackendBill(
+                      bill
+                    )
+                )
+              : []
+        ),
+
+        catchError(
+          this.handleError
+        )
+
+      );
 
   }
 
@@ -58,13 +283,28 @@ export class BillingService {
   // =====================================================
 
   getBillById(
-    id: string
-  ): Bill | undefined {
+    id: string | number
+  ):
+    Observable<Bill> {
 
-    return this.bills.find(
-      bill =>
-        bill.id === id
-    );
+    return this.http
+      .get<BackendBilling>(
+        `${this.apiUrl}/${id}`
+      )
+      .pipe(
+
+        map(
+          bill =>
+            this.mapBackendBill(
+              bill
+            )
+        ),
+
+        catchError(
+          this.handleError
+        )
+
+      );
 
   }
 
@@ -75,12 +315,34 @@ export class BillingService {
 
   getBillsByPatient(
     patientId: string
-  ): Bill[] {
+  ):
+    Observable<Bill[]> {
 
-    return this.bills.filter(
-      bill =>
-        bill.patientId === patientId
-    );
+    return this.http
+      .get<BackendBilling[]>(
+        `${this.apiUrl}/patient/${encodeURIComponent(
+          patientId
+        )}`
+      )
+      .pipe(
+
+        map(
+          bills =>
+            Array.isArray(bills)
+              ? bills.map(
+                  bill =>
+                    this.mapBackendBill(
+                      bill
+                    )
+                )
+              : []
+        ),
+
+        catchError(
+          this.handleError
+        )
+
+      );
 
   }
 
@@ -91,14 +353,52 @@ export class BillingService {
 
   getActiveBillByPatient(
     patientId: string
-  ): Bill | undefined {
+  ):
+    Observable<Bill | undefined> {
 
-    return this.bills.find(
-      bill =>
-        bill.patientId === patientId &&
-        bill.status !== 'Paid' &&
-        bill.status !== 'Cancelled'
-    );
+    return this.http
+      .get<BackendBilling>(
+        `${this.apiUrl}/patient/${encodeURIComponent(
+          patientId
+        )}/active`
+      )
+      .pipe(
+
+        map(
+          bill =>
+            bill
+              ? this.mapBackendBill(
+                  bill
+                )
+              : undefined
+        ),
+
+        catchError(
+          (
+            error:
+              HttpErrorResponse
+          ) => {
+
+            // 404 means there is no active bill.
+            if (
+              error.status === 404
+            ) {
+
+              return [
+                undefined
+              ] as never;
+
+            }
+
+            return throwError(
+              () =>
+                error
+            );
+
+          }
+        )
+
+      );
 
   }
 
@@ -109,11 +409,55 @@ export class BillingService {
 
   getActiveBill(
     patientId: string
-  ): Bill | undefined {
+  ):
+    Observable<Bill | undefined> {
 
     return this.getActiveBillByPatient(
       patientId
     );
+
+  }
+
+
+  // =====================================================
+  // GET BILLS BY STATUS
+  // =====================================================
+
+  getBillsByStatus(
+    status:
+      BillingStatus
+  ):
+    Observable<Bill[]> {
+
+    const backendStatus =
+      this.toBackendBillingStatus(
+        status
+      );
+
+
+    return this.http
+      .get<BackendBilling[]>(
+        `${this.apiUrl}/status/${backendStatus}`
+      )
+      .pipe(
+
+        map(
+          bills =>
+            Array.isArray(bills)
+              ? bills.map(
+                  bill =>
+                    this.mapBackendBill(
+                      bill
+                    )
+                )
+              : []
+        ),
+
+        catchError(
+          this.handleError
+        )
+
+      );
 
   }
 
@@ -124,170 +468,120 @@ export class BillingService {
 
   addBill(
     bill: Bill
-  ): void {
+  ):
+    Observable<Bill> {
 
-    const items: BillItem[] =
-      Array.isArray(bill.items)
-        ? bill.items
-        : [];
+    const payload =
+      this.toBillingRequest(
+        bill
+      );
 
 
-    const amount =
-      items.length > 0
+    return this.http
+      .post<BackendBilling>(
+        this.apiUrl,
+        payload
+      )
+      .pipe(
 
-        ? this.calculateItemsTotal(
-            items
-          )
+        map(
+          response =>
+            this.mapBackendBill(
+              response
+            )
+        ),
 
-        : Math.max(
-            0,
-            bill.amount
+        catchError(
+          this.handleError
+        )
+
+      );
+
+  }
+
+// =====================================================
+// ADD BILL ITEM
+// =====================================================
+
+addBillItem(
+  billId:
+    string | number,
+
+  item:
+    BillItem
+):
+  Observable<Bill> {
+
+  return this.getBillById(
+    billId
+  ).pipe(
+
+    map(
+      currentBill => {
+
+        const items =
+          [
+            ...(currentBill.items ?? [])
+          ];
+
+
+        // ---------------------------------------------
+        // PREVENT DUPLICATE SOURCE CHARGES
+        // ---------------------------------------------
+
+        const duplicate =
+          item.referenceId &&
+          items.some(
+            existingItem =>
+              existingItem.referenceId ===
+                item.referenceId &&
+              existingItem.billingType ===
+                item.billingType
           );
 
 
-    const amountPaid =
-      Math.max(
-        0,
-        Math.min(
-          amount,
-          bill.amountPaid ?? 0
+        if (!duplicate) {
+
+          items.push(
+            item
+          );
+
+        }
+
+
+        return {
+          ...currentBill,
+          items
+        };
+
+      }
+    ),
+
+    // -----------------------------------------------
+    // UPDATE BILL THROUGH BACKEND
+    // -----------------------------------------------
+
+    // We cannot call updateBill() inside map because
+    // that would produce Observable<Observable<Bill>>.
+    //
+    // Therefore use switchMap.
+    //
+
+    switchMap(
+      updatedBill =>
+        this.updateBill(
+          updatedBill
         )
-      );
+    ),
 
+    catchError(
+      this.handleError
+    )
 
-    const firstItem =
-      items.length > 0
-        ? items[0]
-        : undefined;
+  );
 
+}
 
-    const newBill: Bill = {
-
-      ...bill,
-
-      // -------------------------------------------------
-      // Keep legacy fields working
-      // -------------------------------------------------
-
-      billingType:
-        bill.billingType ??
-        firstItem?.billingType ??
-        'Other',
-
-      description:
-        bill.description ??
-        firstItem?.description ??
-        'Hospital service',
-
-      // -------------------------------------------------
-      // New line-item system
-      // -------------------------------------------------
-
-      items,
-
-      amount,
-
-      amountPaid,
-
-      balance:
-        Math.max(
-          0,
-          amount -
-          amountPaid
-        )
-
-    };
-
-
-    this.updateLegacyFields(
-      newBill
-    );
-
-
-    this.updateStatusFromPayment(
-      newBill
-    );
-
-
-    this.bills.push(
-      newBill
-    );
-
-
-    this.saveBills();
-
-  }
-
-
-  // =====================================================
-  // ADD ITEM TO BILL
-  // =====================================================
-
-  addBillItem(
-    billId: string,
-    item: BillItem
-  ): boolean {
-
-    const bill =
-      this.getBillById(
-        billId
-      );
-
-
-    if (!bill) {
-
-      return false;
-
-    }
-
-
-    if (
-      bill.status === 'Paid' ||
-      bill.status === 'Cancelled'
-    ) {
-
-      return false;
-
-    }
-
-
-    bill.items ??= [];
-
-
-    const duplicate =
-      bill.items.some(
-        existingItem =>
-          existingItem.id === item.id
-      );
-
-
-    if (duplicate) {
-
-      return true;
-
-    }
-
-
-    bill.items.push(
-      item
-    );
-
-
-    this.recalculateBill(
-      bill
-    );
-
-
-    bill.updatedAt =
-      new Date().toISOString();
-
-
-    this.saveBills();
-
-
-    return true;
-
-  }
 
 
   // =====================================================
@@ -295,236 +589,76 @@ export class BillingService {
   // =====================================================
 
   addChargeToPatientBill(
-    patientId: string,
-    patientName: string,
-    item: BillItem,
+    patientId:
+      string,
+
+    patientName:
+      string,
+
+    item:
+      BillItem,
+
     options?: {
-      patientNumber?: string;
-      doctorId?: string;
-      doctorName?: string;
-      departmentId?: string;
-      departmentName?: string;
-      notes?: string;
-    }
-  ): Bill | undefined {
 
-    let bill =
-      this.getActiveBillByPatient(
-        patientId
+      patientNumber?:
+        string;
+
+      doctorId?:
+        string;
+
+      doctorName?:
+        string;
+
+      departmentId?:
+        string;
+
+      departmentName?:
+        string;
+
+      notes?:
+        string;
+
+    }
+  ):
+    Observable<Bill> {
+
+    const params =
+      this.buildChargeParams(
+        patientName,
+        options
       );
 
 
-    // ===================================================
-    // CREATE BILL
-    // ===================================================
-
-    if (!bill) {
-
-      bill = {
-
-        id:
-          this.generateBillId(),
-
-        patientId:
-
-          patientId,
-
-        patientName:
-
-          patientName,
-
-        patientNumber:
-
-          options?.patientNumber,
-
-        doctorId:
-
-          options?.doctorId,
-
-        doctorName:
-
-          options?.doctorName,
-
-        departmentId:
-
-          options?.departmentId,
-
-        departmentName:
-
-          options?.departmentName,
-
-        // ------------------------------------------------
-        // Legacy fields
-        // ------------------------------------------------
-
-        billingType:
-          item.billingType,
-
-        description:
-          item.description,
-
-        // ------------------------------------------------
-        // Items
-        // ------------------------------------------------
-
-        items: [],
-
-        // ------------------------------------------------
-        // Totals
-        // ------------------------------------------------
-
-        amount: 0,
-
-        amountPaid: 0,
-
-        balance: 0,
-
-        status:
-          'Pending',
-
-        invoiceNumber:
-          this.generateInvoiceNumber(),
-
-        billingDate:
-          new Date().toISOString(),
-
-        notes:
-          options?.notes,
-
-        createdAt:
-          new Date().toISOString()
-
-      };
-
-
-      this.bills.push(
-        bill
-      );
-
-    }
-
-
-    // ===================================================
-    // ENSURE ITEMS ARRAY
-    // ===================================================
-
-    bill.items ??= [];
-
-
-    // ===================================================
-    // UPDATE PATIENT INFORMATION
-    // ===================================================
-
-    bill.patientName =
-      patientName;
-
-
-    if (
-      options?.patientNumber
-    ) {
-
-      bill.patientNumber =
-        options.patientNumber;
-
-    }
-
-
-    if (
-      options?.doctorId
-    ) {
-
-      bill.doctorId =
-        options.doctorId;
-
-    }
-
-
-    if (
-      options?.doctorName
-    ) {
-
-      bill.doctorName =
-        options.doctorName;
-
-    }
-
-
-    if (
-      options?.departmentId
-    ) {
-
-      bill.departmentId =
-        options.departmentId;
-
-    }
-
-
-    if (
-      options?.departmentName
-    ) {
-
-      bill.departmentName =
-        options.departmentName;
-
-    }
-
-
-    if (
-      options?.notes
-    ) {
-
-      bill.notes =
-        options.notes;
-
-    }
-
-
-    // ===================================================
-    // ADD ITEM
-    // ===================================================
-
-    const alreadyExists =
-      bill.items.some(
-        existingItem =>
-          existingItem.id === item.id
-      );
-
-
-    if (!alreadyExists) {
-
-      bill.items.push(
+    const payload =
+      this.toBillingItemRequest(
         item
       );
 
-    }
 
+    return this.http
+      .post<BackendBilling>(
+        `${this.apiUrl}/patient/${encodeURIComponent(
+          patientId
+        )}/charge`,
+        payload,
+        {
+          params
+        }
+      )
+      .pipe(
 
-    // ===================================================
-    // UPDATE LEGACY FIELDS
-    // =====================================================
+        map(
+          response =>
+            this.mapBackendBill(
+              response
+            )
+        ),
 
-    this.updateLegacyFields(
-      bill
-    );
+        catchError(
+          this.handleError
+        )
 
-
-    // ===================================================
-    // RECALCULATE
-    // ===================================================
-
-    this.recalculateBill(
-      bill
-    );
-
-
-    bill.updatedAt =
-      new Date().toISOString();
-
-
-    this.saveBills();
-
-
-    return bill;
+      );
 
   }
 
@@ -534,35 +668,67 @@ export class BillingService {
   // =====================================================
 
   addServiceCharge(
-    patientId: string,
-    patientName: string,
-    billingType: BillingType,
-    description: string,
-    amount: number,
-    referenceId?: string,
+    patientId:
+      string,
+
+    patientName:
+      string,
+
+    billingType:
+      BillingType,
+
+    description:
+      string,
+
+    amount:
+      number,
+
+    referenceId?:
+      string,
+
     options?: {
-      patientNumber?: string;
-      doctorId?: string;
-      doctorName?: string;
-      departmentId?: string;
-      departmentName?: string;
-      notes?: string;
+
+      patientNumber?:
+        string;
+
+      doctorId?:
+        string;
+
+      doctorName?:
+        string;
+
+      departmentId?:
+        string;
+
+      departmentName?:
+        string;
+
+      notes?:
+        string;
+
     }
-  ): Bill | undefined {
+  ):
+    Observable<Bill> {
 
     if (
       amount <= 0
     ) {
 
-      return undefined;
+      return throwError(
+        () =>
+          new Error(
+            'Charge amount must be greater than zero.'
+          )
+      );
 
     }
 
 
-    const item: BillItem = {
+    const item:
+      BillItem = {
 
       id:
-        this.generateBillItemId(),
+        `BI-FRONTEND-${Date.now()}`,
 
       billingType,
 
@@ -596,147 +762,77 @@ export class BillingService {
   // =====================================================
 
   updateBill(
-    updatedBill: Bill
-  ): boolean {
-
-    const index =
-      this.bills.findIndex(
-        bill =>
-          bill.id ===
-          updatedBill.id
-      );
-
+    bill:
+      Bill
+  ):
+    Observable<Bill> {
 
     if (
-      index === -1
+      !bill.id
     ) {
 
-      return false;
+      return throwError(
+        () =>
+          new Error(
+            'Billing ID is required.'
+          )
+      );
 
     }
 
 
-    const items: BillItem[] =
-      Array.isArray(
-        updatedBill.items
-      )
-        ? updatedBill.items
-        : [];
-
-
-    const amount =
-      items.length > 0
-
-        ? this.calculateItemsTotal(
-            items
-          )
-
-        : Math.max(
-            0,
-            updatedBill.amount
-          );
-
-
-    const amountPaid =
-      Math.max(
-        0,
-        Math.min(
-          amount,
-          updatedBill.amountPaid
-        )
+    const payload =
+      this.toBillingRequest(
+        bill
       );
 
 
-    const bill: Bill = {
+    return this.http
+      .put<BackendBilling>(
+        `${this.apiUrl}/${bill.id}`,
+        payload
+      )
+      .pipe(
 
-      ...updatedBill,
-
-      items,
-
-      amount,
-
-      amountPaid,
-
-      balance:
-        Math.max(
-          0,
-          amount -
-          amountPaid
+        map(
+          response =>
+            this.mapBackendBill(
+              response
+            )
         ),
 
-      updatedAt:
-        new Date().toISOString()
+        catchError(
+          this.handleError
+        )
 
-    };
-
-
-    this.updateLegacyFields(
-      bill
-    );
-
-
-    this.updateStatusFromPayment(
-      bill
-    );
-
-
-    this.bills[index] =
-      bill;
-
-
-    this.saveBills();
-
-
-    return true;
-
-  }
-
-// =====================================================
-// DELETE BILL
-// =====================================================
-
-deleteBill(
-  id: string
-): boolean {
-
-  const index =
-    this.bills.findIndex(
-      bill =>
-        bill.id === id
-    );
-
-
-  // -----------------------------------------------------
-  // BILL NOT FOUND
-  // -----------------------------------------------------
-
-  if (index === -1) {
-
-    return false;
+      );
 
   }
 
 
-  // -----------------------------------------------------
+  // =====================================================
   // DELETE BILL
-  // -----------------------------------------------------
+  // =====================================================
 
-  this.bills.splice(
-    index,
-    1
-  );
+  deleteBill(
+    id:
+      string | number
+  ):
+    Observable<void> {
 
+    return this.http
+      .delete<void>(
+        `${this.apiUrl}/${id}`
+      )
+      .pipe(
 
-  // -----------------------------------------------------
-  // SAVE UPDATED BILL LIST
-  // -----------------------------------------------------
+        catchError(
+          this.handleError
+        )
 
-  this.saveBills();
+      );
 
-
-  return true;
-
-}
+  }
 
 
   // =====================================================
@@ -744,35 +840,47 @@ deleteBill(
   // =====================================================
 
   updateBillStatus(
-    id: string,
-    status: BillingStatus
-  ): boolean {
+    id:
+      string | number,
 
-    const bill =
-      this.getBillById(
-        id
+    status:
+      BillingStatus
+  ):
+    Observable<Bill> {
+
+    const backendStatus =
+      this.toBackendBillingStatus(
+        status
       );
 
 
-    if (!bill) {
+    return this.http
+      .patch<BackendBilling>(
+        `${this.apiUrl}/${id}/status`,
+        null,
+        {
+          params:
+            new HttpParams()
+              .set(
+                'status',
+                backendStatus
+              )
+        }
+      )
+      .pipe(
 
-      return false;
+        map(
+          response =>
+            this.mapBackendBill(
+              response
+            )
+        ),
 
-    }
+        catchError(
+          this.handleError
+        )
 
-
-    bill.status =
-      status;
-
-
-    bill.updatedAt =
-      new Date().toISOString();
-
-
-    this.saveBills();
-
-
-    return true;
+      );
 
   }
 
@@ -782,85 +890,63 @@ deleteBill(
   // =====================================================
 
   recordPayment(
-    id: string,
-    amount: number,
-    paymentMethod: PaymentMethod
-  ): boolean {
+    id:
+      string | number,
 
-    const bill =
-      this.getBillById(
-        id
-      );
+    amount:
+      number,
 
-
-    if (!bill) {
-
-      return false;
-
-    }
-
-
-    if (
-      bill.status === 'Cancelled'
-    ) {
-
-      return false;
-
-    }
-
+    paymentMethod:
+      PaymentMethod
+  ):
+    Observable<Bill> {
 
     if (
       amount <= 0
     ) {
 
-      return false;
+      return throwError(
+        () =>
+          new Error(
+            'Payment amount must be greater than zero.'
+          )
+      );
 
     }
 
 
-    if (
-      amount > bill.balance
-    ) {
+    const payload:
+      PaymentRequestPayload = {
 
-      amount =
-        bill.balance;
+      amount,
 
-    }
+      paymentMethod:
+        this.toBackendPaymentMethod(
+          paymentMethod
+        )
+
+    };
 
 
-    bill.amountPaid =
-      Math.min(
-        bill.amount,
-        bill.amountPaid +
-        amount
+    return this.http
+      .post<BackendBilling>(
+        `${this.apiUrl}/${id}/payment`,
+        payload
+      )
+      .pipe(
+
+        map(
+          response =>
+            this.mapBackendBill(
+              response
+            )
+        ),
+
+        catchError(
+          this.handleError
+        )
+
       );
-
-
-    bill.balance =
-      Math.max(
-        0,
-        bill.amount -
-        bill.amountPaid
-      );
-
-
-    bill.paymentMethod =
-      paymentMethod;
-
-
-    this.updateStatusFromPayment(
-      bill
-    );
-
-
-    bill.updatedAt =
-      new Date().toISOString();
-
-
-    this.saveBills();
-
-
-    return true;
 
   }
 
@@ -870,15 +956,17 @@ deleteBill(
   // =====================================================
 
   getBillItemsByType(
-    bill: Bill,
-    billingType: BillingType
-  ): BillItem[] {
+    bill:
+      Bill,
 
-    const items =
-      bill.items ?? [];
+    billingType:
+      BillingType
+  ):
+    BillItem[] {
 
-
-    return items.filter(
+    return (
+      bill.items ?? []
+    ).filter(
       item =>
         item.billingType ===
         billingType
@@ -890,25 +978,29 @@ deleteBill(
   // =====================================================
   // GET BILLS BY TYPE
   // =====================================================
+  //
+  // This remains a client-side convenience method.
+  // It works with a list already loaded from the backend.
+  //
+  // =====================================================
 
   getBillsByType(
-    billingType: BillingType
-  ): Bill[] {
+    bills:
+      Bill[],
+    billingType:
+      BillingType
+  ):
+    Bill[] {
 
-    return this.bills.filter(
-      bill => {
-
-        const items =
-          bill.items ?? [];
-
-
-        return items.some(
+    return bills.filter(
+      bill =>
+        (
+          bill.items ?? []
+        ).some(
           item =>
             item.billingType ===
             billingType
-        );
-
-      }
+        )
     );
 
   }
@@ -918,12 +1010,11 @@ deleteBill(
   // GET PENDING BILLS
   // =====================================================
 
-  getPendingBills(): Bill[] {
+  getPendingBills():
+    Observable<Bill[]> {
 
-    return this.bills.filter(
-      bill =>
-        bill.status ===
-        'Pending'
+    return this.getBillsByStatus(
+      'Pending'
     );
 
   }
@@ -933,12 +1024,11 @@ deleteBill(
   // GET PARTIALLY PAID BILLS
   // =====================================================
 
-  getPartiallyPaidBills(): Bill[] {
+  getPartiallyPaidBills():
+    Observable<Bill[]> {
 
-    return this.bills.filter(
-      bill =>
-        bill.status ===
-        'Partially Paid'
+    return this.getBillsByStatus(
+      'Partially Paid'
     );
 
   }
@@ -948,12 +1038,11 @@ deleteBill(
   // GET PAID BILLS
   // =====================================================
 
-  getPaidBills(): Bill[] {
+  getPaidBills():
+    Observable<Bill[]> {
 
-    return this.bills.filter(
-      bill =>
-        bill.status ===
-        'Paid'
+    return this.getBillsByStatus(
+      'Paid'
     );
 
   }
@@ -963,12 +1052,11 @@ deleteBill(
   // GET CANCELLED BILLS
   // =====================================================
 
-  getCancelledBills(): Bill[] {
+  getCancelledBills():
+    Observable<Bill[]> {
 
-    return this.bills.filter(
-      bill =>
-        bill.status ===
-        'Cancelled'
+    return this.getBillsByStatus(
+      'Cancelled'
     );
 
   }
@@ -978,17 +1066,27 @@ deleteBill(
   // TOTAL AMOUNT
   // =====================================================
 
-  getTotalAmount(): number {
+  getTotalAmount():
+    Observable<number> {
 
-    return this.bills.reduce(
-      (
-        total,
-        bill
-      ) =>
-        total +
-        bill.amount,
-      0
-    );
+    return this.http
+      .get<number>(
+        `${this.apiUrl}/statistics/total`
+      )
+      .pipe(
+
+        map(
+          value =>
+            Number(
+              value || 0
+            )
+        ),
+
+        catchError(
+          this.handleError
+        )
+
+      );
 
   }
 
@@ -997,17 +1095,27 @@ deleteBill(
   // TOTAL PAID
   // =====================================================
 
-  getTotalPaid(): number {
+  getTotalPaid():
+    Observable<number> {
 
-    return this.bills.reduce(
-      (
-        total,
-        bill
-      ) =>
-        total +
-        bill.amountPaid,
-      0
-    );
+    return this.http
+      .get<number>(
+        `${this.apiUrl}/statistics/paid`
+      )
+      .pipe(
+
+        map(
+          value =>
+            Number(
+              value || 0
+            )
+        ),
+
+        catchError(
+          this.handleError
+        )
+
+      );
 
   }
 
@@ -1016,468 +1124,778 @@ deleteBill(
   // TOTAL BALANCE
   // =====================================================
 
-  getTotalBalance(): number {
-
-    return this.bills.reduce(
-      (
-        total,
-        bill
-      ) =>
-        total +
-        bill.balance,
-      0
-    );
-
-  }
-
-
-  // =====================================================
-  // CALCULATE ITEMS TOTAL
-  // =====================================================
-
-  private calculateItemsTotal(
-    items: BillItem[]
-  ): number {
-
-    return items.reduce(
-      (
-        total,
-        item
-      ) =>
-        total +
-        Math.max(
-          0,
-          item.amount
-        ),
-      0
-    );
-
-  }
-
-
-  // =====================================================
-  // RECALCULATE BILL
-  // =====================================================
-
-  private recalculateBill(
-    bill: Bill
-  ): void {
-
-    bill.items ??= [];
-
-
-    bill.amount =
-      this.calculateItemsTotal(
-        bill.items
-      );
-
-
-    bill.amountPaid =
-      Math.min(
-        bill.amount,
-        Math.max(
-          0,
-          bill.amountPaid
-        )
-      );
-
-
-    bill.balance =
-      Math.max(
-        0,
-        bill.amount -
-        bill.amountPaid
-      );
-
-
-    this.updateLegacyFields(
-      bill
-    );
-
-
-    this.updateStatusFromPayment(
-      bill
-    );
-
-  }
-
-
-  // =====================================================
-  // UPDATE LEGACY BILL FIELDS
-  // =====================================================
-
-  private updateLegacyFields(
-    bill: Bill
-  ): void {
-
-    const items =
-      bill.items ?? [];
-
-
-    if (
-      items.length === 0
-    ) {
-
-      bill.billingType =
-        bill.billingType ??
-        'Other';
-
-      bill.description =
-        bill.description ??
-        'Hospital service';
-
-      return;
-
-    }
-
-
-    // ---------------------------------------------------
-    // Keep first item for old Billing screens
-    // ---------------------------------------------------
-
-    bill.billingType =
-      items[0].billingType;
-
-
-    // ---------------------------------------------------
-    // Combine descriptions
-    // ---------------------------------------------------
-
-    bill.description =
-      items
-        .map(
-          item =>
-            item.description
-        )
-        .join(', ');
-
-  }
-
-
-  // =====================================================
-  // UPDATE STATUS
-  // =====================================================
-
-  private updateStatusFromPayment(
-    bill: Bill
-  ): void {
-
-    if (
-      bill.status === 'Cancelled'
-    ) {
-
-      return;
-
-    }
-
-
-    if (
-      bill.amount <= 0
-    ) {
-
-      bill.status =
-        'Pending';
-
-      return;
-
-    }
-
-
-    if (
-      bill.amountPaid >=
-      bill.amount
-    ) {
-
-      bill.status =
-        'Paid';
-
-      return;
-
-    }
-
-
-    if (
-      bill.amountPaid > 0
-    ) {
-
-      bill.status =
-        'Partially Paid';
-
-      return;
-
-    }
-
-
-    bill.status =
-      'Pending';
-
-  }
-
-
-  // =====================================================
-  // GENERATE BILL ID
-  // =====================================================
-
-  private generateBillId(): string {
-
-    return `BILL-${Date.now()}`;
-
-  }
-
-
-  // =====================================================
-  // GENERATE BILL ITEM ID
-  // =====================================================
-
-  private generateBillItemId(): string {
-
-    return `BI-${Date.now()}-${Math.floor(
-      Math.random() * 10000
-    )}`;
-
-  }
-
-
-  // =====================================================
-  // GENERATE INVOICE NUMBER
-  // =====================================================
-
-  private generateInvoiceNumber(): string {
-
-    const year =
-      new Date().getFullYear();
-
-
-    return `INV-${year}-${Math.floor(
-      10000 +
-      Math.random() * 90000
-    )}`;
-
-  }
-
-
-  // =====================================================
-  // SAVE
-  // =====================================================
-
-  private saveBills(): void {
-
-    localStorage.setItem(
-      this.storageKey,
-      JSON.stringify(
-        this.bills
+  getTotalBalance():
+    Observable<number> {
+
+    return this.http
+      .get<number>(
+        `${this.apiUrl}/statistics/balance`
       )
-    );
+      .pipe(
+
+        map(
+          value =>
+            Number(
+              value || 0
+            )
+        ),
+
+        catchError(
+          this.handleError
+        )
+
+      );
 
   }
 
 
   // =====================================================
-  // LOAD
+  // COUNT BILLS
   // =====================================================
 
-  private loadBills(): void {
+  getCount():
+    Observable<number> {
 
-    const stored =
-      localStorage.getItem(
-        this.storageKey
+    return this.http
+      .get<number>(
+        `${this.apiUrl}/statistics/count`
+      )
+      .pipe(
+
+        map(
+          value =>
+            Number(
+              value || 0
+            )
+        ),
+
+        catchError(
+          this.handleError
+        )
+
       );
 
+  }
 
-    if (!stored) {
 
-      this.bills = [];
+  // =====================================================
+  // BUILD CHARGE PARAMS
+  // =====================================================
 
-      return;
+  private buildChargeParams(
+    patientName:
+      string,
+
+    options?: {
+
+      patientNumber?:
+        string;
+
+      doctorId?:
+        string;
+
+      doctorName?:
+        string;
+
+      departmentId?:
+        string;
+
+      departmentName?:
+        string;
+
+      notes?:
+        string;
+
+    }
+  ):
+    HttpParams {
+
+    let params =
+      new HttpParams()
+        .set(
+          'patientName',
+          patientName
+        );
+
+
+    if (
+      options?.patientNumber
+    ) {
+
+      params =
+        params.set(
+          'patientNumber',
+          options.patientNumber
+        );
 
     }
 
 
-    try {
+    if (
+      options?.doctorId
+    ) {
 
-      const parsed =
-        JSON.parse(
-          stored
+      params =
+        params.set(
+          'doctorId',
+          options.doctorId
         );
 
-
-      if (
-        !Array.isArray(
-          parsed
-        )
-      ) {
-
-        this.bills = [];
-
-        return;
-
-      }
+    }
 
 
-      this.bills =
-        parsed.map(
-          (
-            storedBill: any
-          ) =>
-            this.migrateBill(
-              storedBill
+    if (
+      options?.doctorName
+    ) {
+
+      params =
+        params.set(
+          'doctorName',
+          options.doctorName
+        );
+
+    }
+
+
+    if (
+      options?.departmentId
+    ) {
+
+      params =
+        params.set(
+          'departmentId',
+          options.departmentId
+        );
+
+    }
+
+
+    if (
+      options?.departmentName
+    ) {
+
+      params =
+        params.set(
+          'departmentName',
+          options.departmentName
+        );
+
+    }
+
+
+    return params;
+
+  }
+
+
+  // =====================================================
+  // BILL -> BACKEND REQUEST
+  // =====================================================
+
+  private toBillingRequest(
+    bill:
+      Bill
+  ):
+    BillingRequestPayload {
+
+    return {
+
+      patientId:
+        bill.patientId,
+
+      patientName:
+        bill.patientName,
+
+      patientNumber:
+        bill.patientNumber,
+
+      doctorId:
+        bill.doctorId,
+
+      doctorName:
+        bill.doctorName,
+
+      departmentId:
+        bill.departmentId,
+
+      departmentName:
+        bill.departmentName,
+
+      description:
+        bill.description,
+
+      dueDate:
+        this.toDateOnly(
+          bill.dueDate
+        ),
+
+      notes:
+        bill.notes,
+
+      items:
+        (
+          bill.items ?? []
+        ).map(
+          item =>
+            this.toBillingItemRequest(
+              item
             )
-        );
+        )
+
+    };
+
+  }
 
 
-      this.saveBills();
+  // =====================================================
+  // BILL ITEM -> BACKEND REQUEST
+  // =====================================================
+
+  private toBillingItemRequest(
+    item:
+      BillItem
+  ):
+    BillingItemRequestPayload {
+
+    return {
+
+      billingType:
+        this.toBackendBillingType(
+          item.billingType
+        ),
+
+      description:
+        item.description,
+
+      quantity:
+        Number(
+          item.quantity || 1
+        ),
+
+      unitPrice:
+        Number(
+          item.unitPrice || 0
+        ),
+
+      referenceId:
+        item.referenceId
+
+    };
+
+  }
+
+
+  // =====================================================
+  // BACKEND BILL -> FRONTEND BILL
+  // =====================================================
+
+  private mapBackendBill(
+    bill:
+      BackendBilling
+  ):
+    Bill {
+
+    const items:
+      BillItem[] =
+
+      Array.isArray(
+        bill.items
+      )
+
+        ? bill.items.map(
+            item =>
+              this.mapBackendBillItem(
+                item
+              )
+          )
+
+        : [];
+
+
+    return {
+
+      id:
+        String(
+          bill.id
+        ),
+
+      patientId:
+        bill.patientId,
+
+      patientName:
+        bill.patientName,
+
+      patientNumber:
+        bill.patientNumber,
+
+      doctorId:
+        bill.doctorId,
+
+      doctorName:
+        bill.doctorName,
+
+      departmentId:
+        bill.departmentId,
+
+      departmentName:
+        bill.departmentName,
+
+      billingType:
+        items.length > 0
+
+          ? items[0].billingType
+
+          : 'Other',
+
+      description:
+        bill.description ??
+        (
+          items.length > 0
+            ? items[0].description
+            : 'Hospital service'
+        ),
+
+      items,
+
+      amount:
+        Number(
+          bill.amount || 0
+        ),
+
+      amountPaid:
+        Number(
+          bill.amountPaid || 0
+        ),
+
+      balance:
+        Number(
+          bill.balance || 0
+        ),
+
+      paymentMethod:
+        bill.paymentMethod
+          ? this.toFrontendPaymentMethod(
+              bill.paymentMethod
+            )
+          : undefined,
+
+      status:
+        this.toFrontendBillingStatus(
+          bill.status
+        ),
+
+      invoiceNumber:
+        bill.invoiceNumber,
+
+      billingDate:
+        bill.billingDate,
+
+      dueDate:
+        bill.dueDate,
+
+      notes:
+        bill.notes,
+
+      createdAt:
+        bill.createdAt,
+
+      updatedAt:
+        bill.updatedAt
+
+    };
+
+  }
+
+
+  // =====================================================
+  // BACKEND ITEM -> FRONTEND ITEM
+  // =====================================================
+
+  private mapBackendBillItem(
+    item:
+      BackendBillingItem
+  ):
+    BillItem {
+
+    return {
+
+      id:
+        item.id !== undefined &&
+        item.id !== null
+
+          ? String(
+              item.id
+            )
+
+          : `BI-${Date.now()}`,
+
+      billingType:
+        this.toFrontendBillingType(
+          item.billingType
+        ),
+
+      description:
+        item.description,
+
+      quantity:
+        Number(
+          item.quantity || 1
+        ),
+
+      unitPrice:
+        Number(
+          item.unitPrice || 0
+        ),
+
+      amount:
+        Number(
+          item.amount || 0
+        ),
+
+      referenceId:
+        item.referenceId
+
+    };
+
+  }
+
+
+  // =====================================================
+  // FRONTEND -> BACKEND BILLING TYPE
+  // =====================================================
+
+  private toBackendBillingType(
+    value:
+      BillingType
+  ):
+    string {
+
+    switch (
+      value
+    ) {
+
+      case 'Consultation':
+        return 'CONSULTATION';
+
+      case 'Laboratory':
+        return 'LABORATORY';
+
+      case 'Pharmacy':
+        return 'PHARMACY';
+
+      case 'Admission':
+        return 'ADMISSION';
+
+      case 'Procedure':
+        return 'PROCEDURE';
+
+      case 'Other':
+      default:
+        return 'OTHER';
 
     }
 
-    catch (error) {
+  }
+
+
+  // =====================================================
+  // BACKEND -> FRONTEND BILLING TYPE
+  // =====================================================
+
+  private toFrontendBillingType(
+    value:
+      string
+  ):
+    BillingType {
+
+    switch (
+      value?.toUpperCase()
+    ) {
+
+      case 'CONSULTATION':
+        return 'Consultation';
+
+      case 'LABORATORY':
+        return 'Laboratory';
+
+      case 'PHARMACY':
+        return 'Pharmacy';
+
+      case 'ADMISSION':
+        return 'Admission';
+
+      case 'PROCEDURE':
+        return 'Procedure';
+
+      case 'OTHER':
+      default:
+        return 'Other';
+
+    }
+
+  }
+
+
+  // =====================================================
+  // FRONTEND -> BACKEND STATUS
+  // =====================================================
+
+  private toBackendBillingStatus(
+    value:
+      BillingStatus
+  ):
+    string {
+
+    switch (
+      value
+    ) {
+
+      case 'Pending':
+        return 'PENDING';
+
+      case 'Partially Paid':
+        return 'PARTIALLY_PAID';
+
+      case 'Paid':
+        return 'PAID';
+
+      case 'Cancelled':
+        return 'CANCELLED';
+
+      default:
+        return 'PENDING';
+
+    }
+
+  }
+
+
+  // =====================================================
+  // BACKEND -> FRONTEND STATUS
+  // =====================================================
+
+  private toFrontendBillingStatus(
+    value:
+      string
+  ):
+    BillingStatus {
+
+    switch (
+      value?.toUpperCase()
+    ) {
+
+      case 'PENDING':
+        return 'Pending';
+
+      case 'PARTIALLY_PAID':
+        return 'Partially Paid';
+
+      case 'PAID':
+        return 'Paid';
+
+      case 'CANCELLED':
+        return 'Cancelled';
+
+      default:
+        return 'Pending';
+
+    }
+
+  }
+
+
+  // =====================================================
+  // FRONTEND -> BACKEND PAYMENT METHOD
+  // =====================================================
+
+  private toBackendPaymentMethod(
+    value:
+      PaymentMethod
+  ):
+    string {
+
+    switch (
+      value
+    ) {
+
+      case 'Cash':
+        return 'CASH';
+
+      case 'Mobile Money':
+        return 'MOBILE_MONEY';
+
+      case 'Card':
+        return 'CARD';
+
+      case 'Bank Transfer':
+        return 'BANK_TRANSFER';
+
+      case 'Insurance':
+        return 'INSURANCE';
+
+      case 'Other':
+      default:
+        return 'OTHER';
+
+    }
+
+  }
+
+
+  // =====================================================
+  // BACKEND -> FRONTEND PAYMENT METHOD
+  // =====================================================
+
+  private toFrontendPaymentMethod(
+    value:
+      string
+  ):
+    PaymentMethod {
+
+    switch (
+      value?.toUpperCase()
+    ) {
+
+      case 'CASH':
+        return 'Cash';
+
+      case 'MOBILE_MONEY':
+        return 'Mobile Money';
+
+      case 'CARD':
+        return 'Card';
+
+      case 'BANK_TRANSFER':
+        return 'Bank Transfer';
+
+      case 'INSURANCE':
+        return 'Insurance';
+
+      case 'OTHER':
+      default:
+        return 'Other';
+
+    }
+
+  }
+
+
+  // =====================================================
+  // DATE ONLY
+  // =====================================================
+
+  private toDateOnly(
+    value?:
+      string
+  ):
+    string | undefined {
+
+    if (
+      !value
+    ) {
+
+      return undefined;
+
+    }
+
+
+    return value.includes('T')
+      ? value.split('T')[0]
+      : value;
+
+  }
+
+
+  // =====================================================
+  // ERROR HANDLER
+  // =====================================================
+
+  private handleError =
+    (
+      error:
+        HttpErrorResponse
+    ) => {
 
       console.error(
-        'Failed to load billing records:',
+        'Billing API error:',
         error
       );
 
 
-      this.bills = [];
-
-    }
-
-  }
+      let message =
+        'Unable to communicate with the billing server.';
 
 
-  // =====================================================
-  // MIGRATE OLD BILL
-  // =====================================================
+      if (
+        typeof error.error ===
+        'string' &&
+        error.error.trim()
+      ) {
 
-  private migrateBill(
-    storedBill: any
-  ): Bill {
+        message =
+          error.error;
 
-    let items: BillItem[] = [];
+      }
 
 
-    // ---------------------------------------------------
-    // NEW FORMAT
-    // ---------------------------------------------------
+      else if (
+        error.error &&
+        typeof error.error ===
+        'object'
+      ) {
 
-    if (
-      Array.isArray(
-        storedBill.items
-      )
-    ) {
+        const body =
+          error.error as {
+            message?:
+              string;
 
-      items =
-        storedBill.items;
+            error?:
+              string;
+          };
 
-    }
 
-    // ---------------------------------------------------
-    // OLD FORMAT
-    // ---------------------------------------------------
+        if (
+          body.message &&
+          body.message.trim()
+        ) {
 
-    else {
-
-      items = [
-
-        {
-
-          id:
-            `LEGACY-${storedBill.id}`,
-
-          billingType:
-            storedBill.billingType ??
-            'Other',
-
-          description:
-            storedBill.description ??
-            'Billing charge',
-
-          quantity:
-            1,
-
-          unitPrice:
-            Math.max(
-              0,
-              storedBill.amount ??
-              0
-            ),
-
-          amount:
-            Math.max(
-              0,
-              storedBill.amount ??
-              0
-            )
+          message =
+            body.message;
 
         }
 
-      ];
+        else if (
+          body.error &&
+          body.error.trim()
+        ) {
 
-    }
+          message =
+            body.error;
+
+        }
+
+      }
 
 
-    const amount =
-      this.calculateItemsTotal(
-        items
+      else if (
+        error.message &&
+        error.message.trim()
+      ) {
+
+        message =
+          error.message;
+
+      }
+
+
+      return throwError(
+        () =>
+          new Error(
+            message
+          )
       );
-
-
-    const amountPaid =
-      Math.max(
-        0,
-        Math.min(
-          amount,
-          storedBill.amountPaid ??
-          0
-        )
-      );
-
-
-    const bill: Bill = {
-
-      ...storedBill,
-
-      items,
-
-      billingType:
-        storedBill.billingType ??
-        items[0]?.billingType ??
-        'Other',
-
-      description:
-        storedBill.description ??
-        items[0]?.description ??
-        'Hospital service',
-
-      amount,
-
-      amountPaid,
-
-      balance:
-        Math.max(
-          0,
-          amount -
-          amountPaid
-        ),
-
-      status:
-        storedBill.status ??
-        'Pending'
 
     };
 
-
-    this.updateLegacyFields(
-      bill
-    );
-
-
-    this.updateStatusFromPayment(
-      bill
-    );
-
-
-    return bill;
-
-  }
-
 }
+

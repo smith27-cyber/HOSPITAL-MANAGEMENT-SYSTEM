@@ -21,16 +21,15 @@ import java.util.Locale;
 import java.util.Optional;
 
 
-/**
- * =====================================================
- * BILLING SERVICE IMPLEMENTATION
- * =====================================================
- */
 @Service
 @Transactional
 public class BillingServiceImpl
         implements BillingService {
 
+
+    // =====================================================
+    // REPOSITORIES
+    // =====================================================
 
     private final BillingRepository billingRepository;
 
@@ -62,7 +61,8 @@ public class BillingServiceImpl
     @Override
     public List<Billing> getAllBills() {
 
-        return billingRepository.findAll();
+        return billingRepository
+                .findAll();
 
     }
 
@@ -82,7 +82,8 @@ public class BillingServiceImpl
 
         }
 
-        return billingRepository.findById(id);
+        return billingRepository
+                .findById(id);
 
     }
 
@@ -107,14 +108,14 @@ public class BillingServiceImpl
 
         return billingRepository
                 .findByPatientIdOrderByBillingDateDesc(
-                        patientId
+                        patientId.trim()
                 );
 
     }
 
 
     // =====================================================
-    // GET ACTIVE BILL
+    // GET ACTIVE BILL BY PATIENT
     // =====================================================
 
     @Override
@@ -133,7 +134,7 @@ public class BillingServiceImpl
 
         return billingRepository
                 .findFirstByPatientIdAndStatusNotAndStatusNotOrderByBillingDateDesc(
-                        patientId,
+                        patientId.trim(),
                         Billing.BillingStatus.PAID,
                         Billing.BillingStatus.CANCELLED
                 );
@@ -142,7 +143,7 @@ public class BillingServiceImpl
 
 
     // =====================================================
-    // GET BY STATUS
+    // GET BILLS BY STATUS
     // =====================================================
 
     @Override
@@ -182,8 +183,14 @@ public class BillingServiceImpl
                 new Billing();
 
 
+        // -------------------------------------------------
+        // PATIENT
+        // -------------------------------------------------
+
         bill.setPatientId(
-                request.getPatientId().trim()
+                request
+                        .getPatientId()
+                        .trim()
         );
 
 
@@ -195,29 +202,51 @@ public class BillingServiceImpl
 
 
         bill.setPatientNumber(
-                request.getPatientNumber()
+                safeNullableString(
+                        request.getPatientNumber()
+                )
         );
 
 
+        // -------------------------------------------------
+        // DOCTOR
+        // -------------------------------------------------
+
         bill.setDoctorId(
-                request.getDoctorId()
+                safeNullableString(
+                        request.getDoctorId()
+                )
         );
 
 
         bill.setDoctorName(
-                request.getDoctorName()
+                safeNullableString(
+                        request.getDoctorName()
+                )
         );
 
 
+        // -------------------------------------------------
+        // DEPARTMENT
+        // -------------------------------------------------
+
         bill.setDepartmentId(
-                request.getDepartmentId()
+                safeNullableString(
+                        request.getDepartmentId()
+                )
         );
 
 
         bill.setDepartmentName(
-                request.getDepartmentName()
+                safeNullableString(
+                        request.getDepartmentName()
+                )
         );
 
+
+        // -------------------------------------------------
+        // BILLING DATE
+        // -------------------------------------------------
 
         bill.setBillingDate(
                 LocalDateTime.now()
@@ -235,10 +264,20 @@ public class BillingServiceImpl
         );
 
 
+        // -------------------------------------------------
+        // NOTES
+        // -------------------------------------------------
+
         bill.setNotes(
-                request.getNotes()
+                safeNullableString(
+                        request.getNotes()
+                )
         );
 
+
+        // -------------------------------------------------
+        // INITIAL TOTALS
+        // -------------------------------------------------
 
         bill.setAmount(
                 BigDecimal.ZERO
@@ -255,20 +294,46 @@ public class BillingServiceImpl
         );
 
 
+        // -------------------------------------------------
+        // INITIAL STATUS
+        // -------------------------------------------------
+
         bill.setStatus(
                 Billing.BillingStatus.PENDING
         );
 
+
+        // -------------------------------------------------
+        // INVOICE NUMBER
+        // -------------------------------------------------
 
         bill.setInvoiceNumber(
                 generateInvoiceNumber()
         );
 
 
+        // -------------------------------------------------
+        // ITEMS
+        // -------------------------------------------------
+
         bill.setItems(
                 new ArrayList<>()
         );
 
+
+        // -------------------------------------------------
+        // DESCRIPTION
+        // -------------------------------------------------
+        //
+        // Billing entity does not contain a description
+        // field. Descriptions belong to BillingItem.
+        //
+        // -------------------------------------------------
+
+
+        // -------------------------------------------------
+        // SAVE BILL FIRST
+        // -------------------------------------------------
 
         Billing savedBill =
                 billingRepository.save(
@@ -332,6 +397,10 @@ public class BillingServiceImpl
             String departmentName
     ) {
 
+        // -------------------------------------------------
+        // VALIDATE PATIENT
+        // -------------------------------------------------
+
         if (
                 patientId == null ||
                 patientId.isBlank()
@@ -344,10 +413,18 @@ public class BillingServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // VALIDATE ITEM
+        // -------------------------------------------------
+
         validateBillingItemRequest(
                 item
         );
 
+
+        // -------------------------------------------------
+        // GET OR CREATE ACTIVE BILL
+        // -------------------------------------------------
 
         Billing bill =
                 getActiveBillByPatient(
@@ -356,7 +433,7 @@ public class BillingServiceImpl
                 .orElseGet(
                         () ->
                                 createEmptyBill(
-                                        patientId,
+                                        patientId.trim(),
                                         patientName,
                                         patientNumber,
                                         doctorId,
@@ -368,7 +445,7 @@ public class BillingServiceImpl
 
 
         // -------------------------------------------------
-        // UPDATE PATIENT INFORMATION
+        // UPDATE PATIENT DETAILS
         // -------------------------------------------------
 
         if (
@@ -377,7 +454,7 @@ public class BillingServiceImpl
         ) {
 
             bill.setPatientName(
-                    patientName
+                    patientName.trim()
             );
 
         }
@@ -389,11 +466,15 @@ public class BillingServiceImpl
         ) {
 
             bill.setPatientNumber(
-                    patientNumber
+                    patientNumber.trim()
             );
 
         }
 
+
+        // -------------------------------------------------
+        // UPDATE DOCTOR
+        // -------------------------------------------------
 
         if (
                 doctorId != null &&
@@ -401,7 +482,7 @@ public class BillingServiceImpl
         ) {
 
             bill.setDoctorId(
-                    doctorId
+                    doctorId.trim()
             );
 
         }
@@ -413,11 +494,15 @@ public class BillingServiceImpl
         ) {
 
             bill.setDoctorName(
-                    doctorName
+                    doctorName.trim()
             );
 
         }
 
+
+        // -------------------------------------------------
+        // UPDATE DEPARTMENT
+        // -------------------------------------------------
 
         if (
                 departmentId != null &&
@@ -425,7 +510,7 @@ public class BillingServiceImpl
         ) {
 
             bill.setDepartmentId(
-                    departmentId
+                    departmentId.trim()
             );
 
         }
@@ -437,14 +522,14 @@ public class BillingServiceImpl
         ) {
 
             bill.setDepartmentName(
-                    departmentName
+                    departmentName.trim()
             );
 
         }
 
 
         // =================================================
-        // DUPLICATE PROTECTION
+        // DUPLICATE CHARGE PROTECTION
         // =================================================
 
         if (
@@ -462,7 +547,7 @@ public class BillingServiceImpl
                     billingItemRepository
                             .existsByBillingAndReferenceIdAndBillingType(
                                     bill,
-                                    item.getReferenceId(),
+                                    item.getReferenceId().trim(),
                                     type
                             );
 
@@ -477,7 +562,7 @@ public class BillingServiceImpl
 
 
         // =================================================
-        // ADD CHARGE
+        // ADD NEW ITEM
         // =================================================
 
         addItemToBill(
@@ -487,7 +572,7 @@ public class BillingServiceImpl
 
 
         // =================================================
-        // RECALCULATE
+        // RECALCULATE BILL
         // =================================================
 
         recalculateBill(
@@ -525,6 +610,10 @@ public class BillingServiceImpl
                 new Billing();
 
 
+        // -------------------------------------------------
+        // PATIENT
+        // -------------------------------------------------
+
         bill.setPatientId(
                 patientId
         );
@@ -538,34 +627,60 @@ public class BillingServiceImpl
 
 
         bill.setPatientNumber(
-                patientNumber
+                safeNullableString(
+                        patientNumber
+                )
         );
 
 
+        // -------------------------------------------------
+        // DOCTOR
+        // -------------------------------------------------
+
         bill.setDoctorId(
-                doctorId
+                safeNullableString(
+                        doctorId
+                )
         );
 
 
         bill.setDoctorName(
-                doctorName
+                safeNullableString(
+                        doctorName
+                )
         );
 
 
+        // -------------------------------------------------
+        // DEPARTMENT
+        // -------------------------------------------------
+
         bill.setDepartmentId(
-                departmentId
+                safeNullableString(
+                        departmentId
+                )
         );
 
 
         bill.setDepartmentName(
-                departmentName
+                safeNullableString(
+                        departmentName
+                )
         );
 
+
+        // -------------------------------------------------
+        // DATE
+        // -------------------------------------------------
 
         bill.setBillingDate(
                 LocalDateTime.now()
         );
 
+
+        // -------------------------------------------------
+        // TOTALS
+        // -------------------------------------------------
 
         bill.setAmount(
                 BigDecimal.ZERO
@@ -582,15 +697,27 @@ public class BillingServiceImpl
         );
 
 
+        // -------------------------------------------------
+        // STATUS
+        // -------------------------------------------------
+
         bill.setStatus(
                 Billing.BillingStatus.PENDING
         );
 
 
+        // -------------------------------------------------
+        // INVOICE
+        // -------------------------------------------------
+
         bill.setInvoiceNumber(
                 generateInvoiceNumber()
         );
 
+
+        // -------------------------------------------------
+        // ITEMS
+        // -------------------------------------------------
 
         bill.setItems(
                 new ArrayList<>()
@@ -639,6 +766,10 @@ public class BillingServiceImpl
                         );
 
 
+        // -------------------------------------------------
+        // PROTECT PAID
+        // -------------------------------------------------
+
         if (
                 bill.getStatus() ==
                         Billing.BillingStatus.PAID
@@ -650,6 +781,10 @@ public class BillingServiceImpl
 
         }
 
+
+        // -------------------------------------------------
+        // PROTECT CANCELLED
+        // -------------------------------------------------
 
         if (
                 bill.getStatus() ==
@@ -663,8 +798,14 @@ public class BillingServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // PATIENT
+        // -------------------------------------------------
+
         bill.setPatientId(
-                request.getPatientId().trim()
+                request
+                        .getPatientId()
+                        .trim()
         );
 
 
@@ -676,29 +817,51 @@ public class BillingServiceImpl
 
 
         bill.setPatientNumber(
-                request.getPatientNumber()
+                safeNullableString(
+                        request.getPatientNumber()
+                )
         );
 
 
+        // -------------------------------------------------
+        // DOCTOR
+        // -------------------------------------------------
+
         bill.setDoctorId(
-                request.getDoctorId()
+                safeNullableString(
+                        request.getDoctorId()
+                )
         );
 
 
         bill.setDoctorName(
-                request.getDoctorName()
+                safeNullableString(
+                        request.getDoctorName()
+                )
         );
 
 
+        // -------------------------------------------------
+        // DEPARTMENT
+        // -------------------------------------------------
+
         bill.setDepartmentId(
-                request.getDepartmentId()
+                safeNullableString(
+                        request.getDepartmentId()
+                )
         );
 
 
         bill.setDepartmentName(
-                request.getDepartmentName()
+                safeNullableString(
+                        request.getDepartmentName()
+                )
         );
 
+
+        // -------------------------------------------------
+        // DUE DATE
+        // -------------------------------------------------
 
         bill.setDueDate(
                 toDateTime(
@@ -707,14 +870,20 @@ public class BillingServiceImpl
         );
 
 
+        // -------------------------------------------------
+        // NOTES
+        // -------------------------------------------------
+
         bill.setNotes(
-                request.getNotes()
+                safeNullableString(
+                        request.getNotes()
+                )
         );
 
 
-        // -------------------------------------------------
+        // =================================================
         // REPLACE ITEMS
-        // -------------------------------------------------
+        // =================================================
 
         if (
                 request.getItems() != null
@@ -749,6 +918,10 @@ public class BillingServiceImpl
 
         }
 
+
+        // =================================================
+        // RECALCULATE
+        // =================================================
 
         recalculateBill(
                 bill
@@ -808,6 +981,18 @@ public class BillingServiceImpl
         }
 
 
+        if (
+                bill.getStatus() ==
+                        Billing.BillingStatus.CANCELLED
+        ) {
+
+            throw new IllegalStateException(
+                    "Cancelled invoices cannot be deleted."
+            );
+
+        }
+
+
         billingRepository.delete(
                 bill
         );
@@ -854,6 +1039,10 @@ public class BillingServiceImpl
                         );
 
 
+        // -------------------------------------------------
+        // PROTECT CANCELLED
+        // -------------------------------------------------
+
         if (
                 bill.getStatus() ==
                         Billing.BillingStatus.CANCELLED
@@ -866,6 +1055,10 @@ public class BillingServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // PROTECT PAID
+        // -------------------------------------------------
+
         if (
                 bill.getStatus() ==
                         Billing.BillingStatus.PAID
@@ -877,6 +1070,10 @@ public class BillingServiceImpl
 
         }
 
+
+        // -------------------------------------------------
+        // PAYMENT AMOUNT
+        // -------------------------------------------------
 
         BigDecimal payment =
                 request.getAmount();
@@ -896,6 +1093,10 @@ public class BillingServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // CURRENT BALANCE
+        // -------------------------------------------------
+
         BigDecimal balance =
                 Optional.ofNullable(
                         bill.getBalance()
@@ -904,6 +1105,10 @@ public class BillingServiceImpl
                         BigDecimal.ZERO
                 );
 
+
+        // -------------------------------------------------
+        // PREVENT OVERPAYMENT
+        // -------------------------------------------------
 
         if (
                 payment.compareTo(
@@ -917,6 +1122,10 @@ public class BillingServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // CURRENT PAID
+        // -------------------------------------------------
+
         BigDecimal currentPaid =
                 Optional.ofNullable(
                         bill.getAmountPaid()
@@ -926,14 +1135,13 @@ public class BillingServiceImpl
                 );
 
 
-        bill.setAmountPaid(
+        BigDecimal newPaid =
                 currentPaid.add(
                         payment
-                )
-        );
+                );
 
 
-        BigDecimal total =
+        BigDecimal amount =
                 Optional.ofNullable(
                         bill.getAmount()
                 )
@@ -942,8 +1150,23 @@ public class BillingServiceImpl
                 );
 
 
+        // -------------------------------------------------
+        // UPDATE PAID
+        // -------------------------------------------------
+
+        bill.setAmountPaid(
+                newPaid.min(
+                        amount
+                )
+        );
+
+
+        // -------------------------------------------------
+        // UPDATE BALANCE
+        // -------------------------------------------------
+
         bill.setBalance(
-                total
+                amount
                         .subtract(
                                 bill.getAmountPaid()
                         )
@@ -953,12 +1176,20 @@ public class BillingServiceImpl
         );
 
 
+        // -------------------------------------------------
+        // PAYMENT METHOD
+        // -------------------------------------------------
+
         bill.setPaymentMethod(
                 parsePaymentMethod(
                         request.getPaymentMethod()
                 )
         );
 
+
+        // -------------------------------------------------
+        // UPDATE STATUS
+        // -------------------------------------------------
 
         updatePaymentStatus(
                 bill
@@ -1016,6 +1247,10 @@ public class BillingServiceImpl
                         );
 
 
+        // -------------------------------------------------
+        // PAID CANNOT BE REOPENED
+        // -------------------------------------------------
+
         if (
                 bill.getStatus() ==
                         Billing.BillingStatus.PAID &&
@@ -1029,6 +1264,10 @@ public class BillingServiceImpl
 
         }
 
+
+        // -------------------------------------------------
+        // CANCELLED CANNOT BE REOPENED
+        // -------------------------------------------------
 
         if (
                 bill.getStatus() ==
@@ -1192,36 +1431,58 @@ public class BillingServiceImpl
                 new BillingItem();
 
 
-        BillingItem.BillingType type =
-                parseBillingType(
-                        request.getBillingType()
-                );
-
+        // -------------------------------------------------
+        // BILL RELATIONSHIP
+        // -------------------------------------------------
 
         item.setBilling(
                 bill
         );
 
 
+        // -------------------------------------------------
+        // BILLING TYPE
+        // -------------------------------------------------
+
         item.setBillingType(
-                type
+                parseBillingType(
+                        request.getBillingType()
+                )
         );
 
+
+        // -------------------------------------------------
+        // DESCRIPTION
+        // -------------------------------------------------
 
         item.setDescription(
-                request.getDescription().trim()
+                request
+                        .getDescription()
+                        .trim()
         );
 
+
+        // -------------------------------------------------
+        // QUANTITY
+        // -------------------------------------------------
 
         item.setQuantity(
                 request.getQuantity()
         );
 
 
+        // -------------------------------------------------
+        // UNIT PRICE
+        // -------------------------------------------------
+
         item.setUnitPrice(
                 request.getUnitPrice()
         );
 
+
+        // -------------------------------------------------
+        // TOTAL
+        // -------------------------------------------------
 
         BigDecimal quantity =
                 BigDecimal.valueOf(
@@ -1230,7 +1491,8 @@ public class BillingServiceImpl
 
 
         BigDecimal amount =
-                request.getUnitPrice()
+                request
+                        .getUnitPrice()
                         .multiply(
                                 quantity
                         );
@@ -1241,10 +1503,20 @@ public class BillingServiceImpl
         );
 
 
+        // -------------------------------------------------
+        // REFERENCE
+        // -------------------------------------------------
+
         item.setReferenceId(
-                request.getReferenceId()
+                safeNullableString(
+                        request.getReferenceId()
+                )
         );
 
+
+        // -------------------------------------------------
+        // ADD USING ENTITY HELPER
+        // -------------------------------------------------
 
         bill.addItem(
                 item
@@ -1279,6 +1551,10 @@ public class BillingServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // TOTAL ITEMS
+        // -------------------------------------------------
+
         BigDecimal total =
                 bill.getItems()
                         .stream()
@@ -1297,6 +1573,10 @@ public class BillingServiceImpl
                         );
 
 
+        // -------------------------------------------------
+        // EXISTING PAYMENTS
+        // -------------------------------------------------
+
         BigDecimal paid =
                 Optional.ofNullable(
                         bill.getAmountPaid()
@@ -1305,6 +1585,10 @@ public class BillingServiceImpl
                         BigDecimal.ZERO
                 );
 
+
+        // -------------------------------------------------
+        // PREVENT PAID > TOTAL
+        // -------------------------------------------------
 
         if (
                 paid.compareTo(
@@ -1317,6 +1601,10 @@ public class BillingServiceImpl
 
         }
 
+
+        // -------------------------------------------------
+        // SET TOTALS
+        // -------------------------------------------------
 
         bill.setAmount(
                 total
@@ -1339,6 +1627,10 @@ public class BillingServiceImpl
         );
 
 
+        // -------------------------------------------------
+        // UPDATE STATUS
+        // -------------------------------------------------
+
         updatePaymentStatus(
                 bill
         );
@@ -1360,6 +1652,10 @@ public class BillingServiceImpl
 
         }
 
+
+        // -------------------------------------------------
+        // CANCELLED STAYS CANCELLED
+        // -------------------------------------------------
 
         if (
                 bill.getStatus() ==
@@ -1389,6 +1685,10 @@ public class BillingServiceImpl
                 );
 
 
+        // -------------------------------------------------
+        // NO CHARGES
+        // -------------------------------------------------
+
         if (
                 amount.compareTo(
                         BigDecimal.ZERO
@@ -1403,6 +1703,10 @@ public class BillingServiceImpl
 
         }
 
+
+        // -------------------------------------------------
+        // FULLY PAID
+        // -------------------------------------------------
 
         if (
                 paid.compareTo(
@@ -1419,6 +1723,10 @@ public class BillingServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // PARTIALLY PAID
+        // -------------------------------------------------
+
         if (
                 paid.compareTo(
                         BigDecimal.ZERO
@@ -1433,6 +1741,10 @@ public class BillingServiceImpl
 
         }
 
+
+        // -------------------------------------------------
+        // UNPAID
+        // -------------------------------------------------
 
         bill.setStatus(
                 Billing.BillingStatus.PENDING
@@ -1478,27 +1790,44 @@ public class BillingServiceImpl
         switch (normalized) {
 
             case "CONSULTATION":
+
                 return BillingItem.BillingType.CONSULTATION;
 
+
             case "LAB":
+
             case "LABORATORY":
+
             case "LABORATORY_TEST":
+
             case "LAB_TEST":
+
                 return BillingItem.BillingType.LABORATORY;
 
+
             case "PHARMACY":
+
             case "MEDICINE":
+
             case "MEDICATION":
+
                 return BillingItem.BillingType.PHARMACY;
 
+
             case "ADMISSION":
+
                 return BillingItem.BillingType.ADMISSION;
 
+
             case "PROCEDURE":
+
                 return BillingItem.BillingType.PROCEDURE;
 
+
             case "OTHER":
+
                 return BillingItem.BillingType.OTHER;
+
 
             default:
 
@@ -1549,25 +1878,40 @@ public class BillingServiceImpl
         switch (normalized) {
 
             case "CASH":
+
                 return Billing.PaymentMethod.CASH;
 
+
             case "MOBILE_MONEY":
+
             case "MOBILE":
+
             case "MOMO":
+
                 return Billing.PaymentMethod.MOBILE_MONEY;
 
+
             case "CARD":
+
                 return Billing.PaymentMethod.CARD;
 
+
             case "BANK_TRANSFER":
+
             case "BANK":
+
                 return Billing.PaymentMethod.BANK_TRANSFER;
 
+
             case "INSURANCE":
+
                 return Billing.PaymentMethod.INSURANCE;
 
+
             case "OTHER":
+
                 return Billing.PaymentMethod.OTHER;
+
 
             default:
 
@@ -1609,6 +1953,22 @@ public class BillingServiceImpl
 
         }
 
+
+        if (
+                request.getPatientName() == null ||
+                request.getPatientName().isBlank()
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Patient name is required."
+            );
+
+        }
+
+
+        // -------------------------------------------------
+        // VALIDATE ITEMS
+        // -------------------------------------------------
 
         if (
                 request.getItems() != null
@@ -1684,8 +2044,19 @@ public class BillingServiceImpl
 
 
         if (
-                request.getUnitPrice() == null ||
-                request.getUnitPrice()
+                request.getUnitPrice() == null
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Billing item unit price is required."
+            );
+
+        }
+
+
+        if (
+                request
+                        .getUnitPrice()
                         .compareTo(
                                 BigDecimal.ZERO
                         ) < 0
@@ -1697,6 +2068,10 @@ public class BillingServiceImpl
 
         }
 
+
+        // -------------------------------------------------
+        // VERIFY BILLING TYPE
+        // -------------------------------------------------
 
         parseBillingType(
                 request.getBillingType()
@@ -1744,13 +2119,40 @@ public class BillingServiceImpl
 
 
     // =====================================================
+    // SAFE NULLABLE STRING
+    // =====================================================
+
+    private String safeNullableString(
+            String value
+    ) {
+
+        if (value == null) {
+
+            return null;
+
+        }
+
+
+        String trimmed =
+                value.trim();
+
+
+        return trimmed.isEmpty()
+                ? null
+                : trimmed;
+
+    }
+
+
+    // =====================================================
     // GENERATE INVOICE NUMBER
     // =====================================================
 
     private String generateInvoiceNumber() {
 
         int year =
-                LocalDate.now()
+                LocalDate
+                        .now()
                         .getYear();
 
 
@@ -1764,13 +2166,16 @@ public class BillingServiceImpl
                             Locale.ROOT,
                             "INV-%d-%05d",
                             year,
-                            (int)
+                            (
+                                    10000 +
+                                    (int)
                                     (
-                                            10000 +
                                             Math.random() *
                                             90000
                                     )
+                            )
                     );
+
 
         } while (
                 billingRepository

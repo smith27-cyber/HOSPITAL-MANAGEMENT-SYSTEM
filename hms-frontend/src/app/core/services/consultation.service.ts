@@ -9,10 +9,14 @@ import {
 
 import {
   BehaviorSubject,
-  Observable
+  Observable,
+  of
 } from 'rxjs';
 
 import {
+  catchError,
+  map,
+  switchMap,
   tap
 } from 'rxjs/operators';
 
@@ -23,6 +27,10 @@ import {
 import {
   PharmacyPrescriptionItem
 } from '../../shared/models/pharmacy.model';
+
+import {
+  Bill
+} from '../../shared/models/billing.model';
 
 import {
   PharmacyService
@@ -37,7 +45,6 @@ import {
   providedIn: 'root'
 })
 export class ConsultationService {
-
 
   // =====================================================
   // API
@@ -109,10 +116,13 @@ export class ConsultationService {
         ) => {
 
           this.setConsultations(
-            Array.isArray(consultations)
+            Array.isArray(
+              consultations
+            )
               ? consultations
               : []
           );
+
 
           console.log(
             'Initial consultations loaded:',
@@ -120,6 +130,7 @@ export class ConsultationService {
           );
 
         },
+
 
         error: (
           error: unknown
@@ -130,7 +141,10 @@ export class ConsultationService {
             error
           );
 
-          this.setConsultations([]);
+
+          this.setConsultations(
+            []
+          );
 
         }
 
@@ -159,7 +173,9 @@ export class ConsultationService {
           ) => {
 
             this.setConsultations(
-              Array.isArray(consultations)
+              Array.isArray(
+                consultations
+              )
                 ? consultations
                 : []
             );
@@ -173,7 +189,7 @@ export class ConsultationService {
 
 
   // =====================================================
-  // GET CONSULTATION SNAPSHOT
+  // GET CONSULTATIONS SNAPSHOT
   // =====================================================
 
   getConsultationsSnapshot():
@@ -239,7 +255,8 @@ export class ConsultationService {
           consultation:
             Consultation
         ) =>
-          consultation.id === id
+          consultation.id ===
+          id
       );
 
   }
@@ -352,11 +369,9 @@ export class ConsultationService {
   // CREATE CONSULTATION
   // =====================================================
   //
-  // IMPORTANT:
+  // Creating a consultation always starts it as OPEN.
   //
-  // Creating a consultation ALWAYS starts it as OPEN.
-  //
-  // It does NOT complete the consultation.
+  // Saving/registering a consultation does NOT complete it.
   //
   // =====================================================
 
@@ -370,7 +385,6 @@ export class ConsultationService {
       >
   ):
     Observable<Consultation> {
-
 
     const payload = {
 
@@ -504,15 +518,15 @@ export class ConsultationService {
   // COMPLETE CONSULTATION
   // =====================================================
   //
-  // IMPORTANT:
+  // Dedicated backend completion endpoint.
   //
-  // This returns Observable<Consultation>.
+  // Does NOT create:
   //
-  // It does NOT return boolean.
+  // - Laboratory requests
+  // - Pharmacy prescriptions
+  // - Billing charges
   //
-  // Endpoint:
-  //
-  // PATCH /api/consultations/{id}/complete
+  // Those remain separate workflows.
   //
   // =====================================================
 
@@ -559,16 +573,12 @@ export class ConsultationService {
   // Workflow:
   //
   // PENDING RESULTS
-  //        ↓
+  //       ↓
   // READY FOR REVIEW
-  //        ↓
+  //       ↓
   // DOCTOR REVIEWS
-  //        ↓
+  //       ↓
   // OPEN
-  //
-  // Endpoint:
-  //
-  // PATCH /api/consultations/{id}/review-laboratory-results
   //
   // =====================================================
 
@@ -685,12 +695,19 @@ export class ConsultationService {
   // =====================================================
   // PHARMACY PRESCRIPTION
   // =====================================================
+  //
+  // Kept available for the separate Pharmacy workflow.
+  //
+  // It is NOT automatically called by Save or Complete.
+  //
+  // =====================================================
 
   private createPharmacyPrescription(
     consultation:
       Consultation,
 
     pharmacyData: {
+
       patientName:
         string;
 
@@ -705,6 +722,7 @@ export class ConsultationService {
 
       notes?:
         string;
+
     }
   ) {
 
@@ -743,125 +761,261 @@ export class ConsultationService {
   // =====================================================
   // CONSULTATION BILLING
   // =====================================================
+  //
+  // IMPORTANT:
+  //
+  // BillingService is now HTTP/Observable based.
+  //
+  // Therefore this method MUST NOT do:
+  //
+  // const bills = billingService.getBillsByPatient(...)
+  //
+  // because the result is Observable<Bill[]>.
+  //
+  // =====================================================
 
   private addConsultationCharge(
     consultation:
       Consultation
   ):
-    void {
+    Observable<Bill | undefined> {
 
-    const patientBills =
-      this.billingService
-        .getBillsByPatient(
-          consultation.patientId
-        );
+    if (
+      !consultation ||
+      !consultation.patientId
+    ) {
 
-
-    const alreadyBilled =
-      patientBills.some(
-        bill => {
-
-          const items =
-            bill.items ?? [];
-
-
-          return items.some(
-            item =>
-
-              item.billingType ===
-                'Consultation' &&
-
-              item.referenceId ===
-                consultation.id
-
-          );
-
-        }
+      return of(
+        undefined
       );
-
-
-    if (alreadyBilled) {
-
-      return;
 
     }
 
 
-    const patientName =
-      consultation.patientName;
-
-
-    if (!patientName) {
-
-      console.warn(
-        'Consultation has no patient name:',
+    return this.billingService
+      .getBillsByPatient(
         consultation.patientId
-      );
+      )
+      .pipe(
 
-      return;
+        map(
+          (
+            patientBills:
+              Bill[]
+          ) =>
+            Array.isArray(
+              patientBills
+            )
+              ? patientBills
+              : []
+        ),
 
-    }
+        switchMap(
+          (
+            patientBills:
+              Bill[]
+          ) => {
+
+            // -------------------------------------------
+            // CHECK FOR DUPLICATE CONSULTATION CHARGE
+            // -------------------------------------------
+
+            const alreadyBilled =
+              patientBills.some(
+                (
+                  bill:
+                    Bill
+                ) => {
+
+                  const items =
+                    bill.items ?? [];
 
 
-    const bill =
-      this.billingService
-        .addServiceCharge(
+                  return items.some(
+                    (
+                      item
+                    ) =>
 
-          consultation.patientId,
+                      item.billingType ===
+                        'Consultation' &&
 
-          patientName,
+                      item.referenceId ===
+                        consultation.id
 
-          'Consultation',
+                  );
 
-          `Medical consultation - ${consultation.chiefComplaint}`,
+                }
+              );
 
-          this.CONSULTATION_FEE,
 
-          consultation.id,
+            if (alreadyBilled) {
 
-          {
+              const existingBill =
+                patientBills.find(
+                  (
+                    bill:
+                      Bill
+                  ) =>
 
-            doctorId:
-              consultation.doctorId,
+                    (
+                      bill.items ?? []
+                    ).some(
+                      (
+                        item
+                      ) =>
 
-            notes:
-              consultation.clinicalNotes
+                        item.billingType ===
+                          'Consultation' &&
+
+                        item.referenceId ===
+                          consultation.id
+
+                    )
+                );
+
+
+              console.log(
+                'Consultation already billed:',
+                {
+                  consultationId:
+                    consultation.id,
+
+                  invoiceNumber:
+                    existingBill?.invoiceNumber,
+
+                  billId:
+                    existingBill?.id
+                }
+              );
+
+
+              return of(
+                existingBill
+              );
+
+            }
+
+
+            // -------------------------------------------
+            // PATIENT NAME
+            // -------------------------------------------
+
+            const patientName =
+              consultation.patientName;
+
+
+            if (
+              !patientName ||
+              !patientName.trim()
+            ) {
+
+              console.warn(
+                'Consultation has no patient name:',
+                consultation.patientId
+              );
+
+
+              return of(
+                undefined
+              );
+
+            }
+
+
+            // -------------------------------------------
+            // CREATE CONSULTATION CHARGE
+            // -------------------------------------------
+
+            return this.billingService
+              .addServiceCharge(
+
+                consultation.patientId,
+
+                patientName,
+
+                'Consultation',
+
+                `Medical consultation - ${consultation.chiefComplaint || 'Consultation'}`,
+
+                this.CONSULTATION_FEE,
+
+                consultation.id,
+
+                {
+
+                  doctorId:
+                    consultation.doctorId,
+
+                  notes:
+                    consultation.clinicalNotes || undefined
+
+                }
+
+              );
 
           }
 
-        );
+        ),
+
+        tap(
+          (
+            bill:
+              Bill | undefined
+          ) => {
+
+            if (!bill) {
+
+              return;
+
+            }
 
 
-    if (!bill) {
+            console.log(
+              'Consultation charge available:',
+              {
 
-      console.error(
-        'Unable to add consultation charge:',
-        consultation.id
+                consultationId:
+                  consultation.id,
+
+                invoiceNumber:
+                  bill.invoiceNumber,
+
+                billId:
+                  bill.id,
+
+                amount:
+                  this.CONSULTATION_FEE
+
+              }
+            );
+
+          }
+        ),
+
+        catchError(
+          (
+            error: unknown
+          ) => {
+
+            console.error(
+              'Failed to process consultation billing:',
+              error
+            );
+
+
+            // -----------------------------------------
+            // Billing failure must not break the
+            // consultation stream.
+            // -----------------------------------------
+
+            return of(
+              undefined
+            );
+
+          }
+        )
+
       );
-
-      return;
-
-    }
-
-
-    console.log(
-      'Consultation charge added:',
-      {
-
-        consultationId:
-          consultation.id,
-
-        invoiceNumber:
-          bill.invoiceNumber,
-
-        billId:
-          bill.id,
-
-        amount:
-          this.CONSULTATION_FEE
-
-      }
-    );
 
   }
 
@@ -877,8 +1031,12 @@ export class ConsultationService {
     void {
 
     this.consultationsSubject.next(
-      Array.isArray(consultations)
-        ? [...consultations]
+      Array.isArray(
+        consultations
+      )
+        ? [
+            ...consultations
+          ]
         : []
     );
 
@@ -920,7 +1078,9 @@ export class ConsultationService {
       );
 
 
-    if (index === -1) {
+    if (
+      index === -1
+    ) {
 
       this.setConsultations([
 
@@ -935,9 +1095,10 @@ export class ConsultationService {
     }
 
 
-    const updated = [
-      ...current
-    ];
+    const updated =
+      [
+        ...current
+      ];
 
 
     updated[index] =

@@ -359,5 +359,29 @@ public class ConsultationResponse {
     public String getCompletedAt() {
         return completedAt;
     }
+     
+// =====================================================
+// PATIENT NAME
+// =====================================================
+
+private String patientName;
+
+
+public String getPatientName() {
+
+    return patientName;
+
+}
+
+
+public void setPatientName(
+        String patientName
+) {
+
+    this.patientName =
+            patientName;
+}
+
+
 }
 

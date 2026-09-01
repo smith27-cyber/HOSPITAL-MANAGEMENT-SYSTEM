@@ -1,6 +1,6 @@
 
 package com.hms.backend.entity;
-
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -213,14 +213,22 @@ public class Billing {
     // BILL ITEMS
     // =====================================================
 
-    @OneToMany(
-            mappedBy = "billing",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY
-    )
-    private List<BillingItem> items =
-            new ArrayList<>();
+ 
+// =====================================================
+// BILL ITEMS
+// =====================================================
+
+@JsonManagedReference
+@OneToMany(
+        mappedBy = "billing",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+)
+private List<BillingItem> items =
+        new ArrayList<>();
+
+
 
 
     // =====================================================

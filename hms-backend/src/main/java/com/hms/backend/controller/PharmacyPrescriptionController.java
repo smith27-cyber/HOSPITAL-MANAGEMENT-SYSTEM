@@ -171,8 +171,12 @@ public class PharmacyPrescriptionController {
 
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(saved);
+                .status(
+                        HttpStatus.CREATED
+                )
+                .body(
+                        saved
+                );
     }
 
 
@@ -217,8 +221,14 @@ public class PharmacyPrescriptionController {
     // =====================================================
     // SEND TO BILLING
     // =====================================================
+    //
+    // Frontend endpoint:
+    //
+    // PATCH /api/pharmacy/prescriptions/{id}/send-to-billing
+    //
+    // =====================================================
 
-    @PatchMapping("/{id}/billing")
+    @PatchMapping("/{id}/send-to-billing")
     public ResponseEntity<PharmacyPrescription>
     sendToBilling(
             @PathVariable Long id
@@ -231,21 +241,24 @@ public class PharmacyPrescriptionController {
     }
 
 
-    // =====================================================
-    // CHECK PAYMENT
-    // =====================================================
+  
+// =====================================================
+// CHECK PAYMENT
+// =====================================================
 
-    @PatchMapping("/{id}/payment")
-    public ResponseEntity<PharmacyPrescription>
-    checkPayment(
-            @PathVariable Long id
-    ) {
+@PatchMapping("/{id}/check-payment")
+public ResponseEntity<PharmacyPrescription>
+checkPayment(
+        @PathVariable Long id
+) {
 
-        return ResponseEntity.ok(
-                prescriptionService
-                        .checkPayment(id)
-        );
-    }
+    return ResponseEntity.ok(
+            prescriptionService
+                    .checkPayment(id)
+    );
+}
+
+
 
 
     // =====================================================
@@ -318,5 +331,6 @@ public class PharmacyPrescriptionController {
                 .noContent()
                 .build();
     }
+
 }
 

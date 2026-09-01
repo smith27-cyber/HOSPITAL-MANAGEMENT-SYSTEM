@@ -1,6 +1,6 @@
 
 package com.hms.backend.entity;
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -34,19 +34,22 @@ public class BillingItem {
     private Long id;
 
 
-    // =====================================================
-    // BILL
-    // =====================================================
+   
+// =====================================================
+// BILL
+// =====================================================
 
-    @ManyToOne(
-            fetch = FetchType.LAZY,
-            optional = false
-    )
-    @JoinColumn(
-            name = "billing_id",
-            nullable = false
-    )
-    private Billing billing;
+@JsonBackReference
+@ManyToOne(
+        fetch = FetchType.LAZY,
+        optional = false
+)
+@JoinColumn(
+        name = "billing_id",
+        nullable = false
+)
+private Billing billing;
+
 
 
     // =====================================================
