@@ -1,0 +1,39 @@
+# =====================================================
+# HMS Git Ignore
+# =====================================================
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Angular
+hms-frontend/node_modules/
+hms-frontend/dist/
+hms-frontend/.angular/
+hms-frontend/.cache/
+
+# Spring Boot / Maven
+hms-backend/target/
+hms-backend/.mvn/
+hms-backend/*.log
+
+# Java
+*.class
+
+# Environment / secrets
+.env
+.env.*
+application-local.properties
+application-secret.properties
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.iml
+
+# Logs
+*.log
+

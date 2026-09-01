@@ -1,0 +1,303 @@
+<div class="laboratory-request-form-page">
+
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        {{ isEditMode
+          ? 'Edit Laboratory Request'
+          : 'New Laboratory Request'
+        }}
+      </h1>
+
+      <p>
+        Request a laboratory test for a patient
+      </p>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="cancel()"
+    >
+
+      <span class="material-symbols-outlined">
+        arrow_back
+      </span>
+
+      Back to Requests
+
+    </button>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- FORM -->
+  <!-- ================================================= -->
+
+  <section class="form-card">
+
+
+    <div class="card-header">
+
+      <h2>
+        Request Information
+      </h2>
+
+      <span>
+        Enter the patient and laboratory test information.
+      </span>
+
+    </div>
+
+
+    <div class="form-body">
+
+
+      <!-- ================================================= -->
+      <!-- PATIENT ID -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label>
+          Patient ID
+          <span>*</span>
+        </label>
+
+        <input
+          type="text"
+          name="patientId"
+          [(ngModel)]="request.patientId"
+          placeholder="e.g. PAT-10001"
+        />
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- PATIENT NAME -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label>
+          Patient Name
+          <span>*</span>
+        </label>
+
+        <input
+          type="text"
+          name="patientName"
+          [(ngModel)]="request.patientName"
+          placeholder="Enter patient name"
+        />
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- DOCTOR ID -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label>
+          Doctor ID
+        </label>
+
+        <input
+          type="text"
+          name="doctorId"
+          [(ngModel)]="request.doctorId"
+          placeholder="e.g. DOC-10001"
+        />
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- DOCTOR NAME -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label>
+          Doctor Name
+        </label>
+
+        <input
+          type="text"
+          name="doctorName"
+          [(ngModel)]="request.doctorName"
+          placeholder="Enter doctor name"
+        />
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- TEST -->
+      <!-- ================================================= -->
+
+      <div class="form-group full-width">
+
+        <label>
+          Laboratory Test
+          <span>*</span>
+        </label>
+
+        <select
+          name="testId"
+          [(ngModel)]="request.testId"
+          (change)="testSelected()"
+        >
+
+          <option value="">
+            Select laboratory test
+          </option>
+
+          @for (
+            test of tests;
+            track test.id
+          ) {
+
+            <option
+              [value]="test.id"
+            >
+
+              {{ test.testName }}
+              —
+              {{ test.category }}
+
+            </option>
+
+          }
+
+        </select>
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- TEST INFORMATION -->
+      <!-- ================================================= -->
+
+      @if (request.testId) {
+
+        <div class="test-preview full-width">
+
+          <div>
+
+            <span>
+              Category
+            </span>
+
+            <strong>
+              {{ request.category }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Sample Type
+            </span>
+
+            <strong>
+              {{ request.sampleType }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Price
+            </span>
+
+            <strong>
+              UGX {{ request.price | number }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      }
+
+
+      <!-- ================================================= -->
+      <!-- NOTES -->
+      <!-- ================================================= -->
+
+      <div class="form-group full-width">
+
+        <label>
+          Notes
+        </label>
+
+        <textarea
+          name="notes"
+          [(ngModel)]="request.notes"
+          rows="5"
+          placeholder="Additional instructions or clinical notes..."
+        ></textarea>
+
+      </div>
+
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- ACTIONS -->
+    <!-- ================================================= -->
+
+    <div class="form-actions">
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="cancel()"
+      >
+
+        Cancel
+
+      </button>
+
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="saveRequest()"
+      >
+
+        <span class="material-symbols-outlined">
+          save
+        </span>
+
+        {{ isEditMode
+          ? 'Update Request'
+          : 'Create Request'
+        }}
+
+      </button>
+
+    </div>
+
+  </section>
+
+</div>

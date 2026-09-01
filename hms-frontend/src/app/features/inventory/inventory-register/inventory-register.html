@@ -1,0 +1,574 @@
+<div class="inventory-register-page">
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Register Inventory Item
+      </h1>
+
+      <p>
+        Add a new item to the hospital inventory
+      </p>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="cancel()"
+    >
+
+      <span class="material-symbols-outlined">
+        arrow_back
+      </span>
+
+      Back to Inventory
+
+    </button>
+
+  </div>
+
+
+
+  <!-- ================================================= -->
+  <!-- FORM CARD -->
+  <!-- ================================================= -->
+
+  <section class="form-card">
+
+
+    <!-- ================================================= -->
+    <!-- BASIC INFORMATION -->
+    <!-- ================================================= -->
+
+    <div class="card-header">
+
+      <div>
+
+        <h2>
+          Item Information
+        </h2>
+
+        <span>
+          Enter the basic information about this inventory item.
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div class="form-body">
+
+
+      <!-- ================================================= -->
+      <!-- ITEM NAME -->
+      <!-- ================================================= -->
+
+      <div class="form-group full-width">
+
+        <label for="itemName">
+
+          Item Name
+
+          <span>*</span>
+
+        </label>
+
+
+        <input
+          id="itemName"
+          type="text"
+          name="itemName"
+          [(ngModel)]="item.itemName"
+          placeholder="e.g. Paracetamol 500mg"
+        />
+
+
+        <small>
+          Enter the official name of the inventory item.
+        </small>
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- ITEM CODE -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label for="itemCode">
+          Item Code
+        </label>
+
+
+        <input
+          id="itemCode"
+          type="text"
+          name="itemCode"
+          [(ngModel)]="item.itemCode"
+          placeholder="Auto-generated if left blank"
+        />
+
+
+        <small>
+          Leave blank to generate automatically.
+        </small>
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- CATEGORY -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label for="category">
+
+          Category
+
+          <span>*</span>
+
+        </label>
+
+
+        <select
+          id="category"
+          name="category"
+          [(ngModel)]="item.category"
+        >
+
+          @for (
+            category of categories;
+            track category
+          ) {
+
+            <option
+              [value]="category"
+            >
+              {{ category }}
+            </option>
+
+          }
+
+        </select>
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- UNIT -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label for="unit">
+
+          Unit
+
+          <span>*</span>
+
+        </label>
+
+
+        <select
+          id="unit"
+          name="unit"
+          [(ngModel)]="item.unit"
+        >
+
+          @for (
+            unit of units;
+            track unit
+          ) {
+
+            <option
+              [value]="unit"
+            >
+              {{ unit }}
+            </option>
+
+          }
+
+        </select>
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- DESCRIPTION -->
+      <!-- ================================================= -->
+
+      <div class="form-group full-width">
+
+        <label for="description">
+          Description
+        </label>
+
+
+        <textarea
+          id="description"
+          name="description"
+          [(ngModel)]="item.description"
+          rows="4"
+          placeholder="Describe the inventory item..."
+        ></textarea>
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- STOCK INFORMATION -->
+      <!-- ================================================= -->
+
+      <div class="section-divider">
+
+        <div>
+
+          <h3>
+            Stock Information
+          </h3>
+
+          <p>
+            Set the current quantity and stock limits.
+          </p>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- QUANTITY -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label for="quantity">
+
+          Current Quantity
+
+          <span>*</span>
+
+        </label>
+
+
+        <input
+          id="quantity"
+          type="number"
+          name="quantity"
+          [(ngModel)]="item.quantity"
+          min="0"
+          step="1"
+          placeholder="e.g. 100"
+        />
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- MINIMUM STOCK -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label for="minimumStock">
+
+          Minimum Stock
+
+          <span>*</span>
+
+        </label>
+
+
+        <input
+          id="minimumStock"
+          type="number"
+          name="minimumStock"
+          [(ngModel)]="item.minimumStock"
+          min="0"
+          step="1"
+          placeholder="e.g. 20"
+        />
+
+
+        <small>
+          The system will identify the item as low stock at or below this quantity.
+        </small>
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- MAXIMUM STOCK -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label for="maximumStock">
+          Maximum Stock
+        </label>
+
+
+        <input
+          id="maximumStock"
+          type="number"
+          name="maximumStock"
+          [(ngModel)]="item.maximumStock"
+          min="0"
+          step="1"
+          placeholder="e.g. 500"
+        />
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- UNIT PRICE -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label for="unitPrice">
+
+          Unit Price (UGX)
+
+          <span>*</span>
+
+        </label>
+
+
+        <input
+          id="unitPrice"
+          type="number"
+          name="unitPrice"
+          [(ngModel)]="item.unitPrice"
+          min="0"
+          step="100"
+          placeholder="e.g. 500"
+        />
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- SUPPLIER INFORMATION -->
+      <!-- ================================================= -->
+
+      <div class="section-divider">
+
+        <div>
+
+          <h3>
+            Supplier Information
+          </h3>
+
+          <p>
+            Enter supplier and procurement information.
+          </p>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- SUPPLIER -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label for="supplier">
+          Supplier
+        </label>
+
+
+        <input
+          id="supplier"
+          type="text"
+          name="supplier"
+          [(ngModel)]="item.supplier"
+          placeholder="e.g. Kampala Medical Supplies"
+        />
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- SUPPLIER CONTACT -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label for="supplierContact">
+          Supplier Contact
+        </label>
+
+
+        <input
+          id="supplierContact"
+          type="text"
+          name="supplierContact"
+          [(ngModel)]="item.supplierContact"
+          placeholder="e.g. 0700 000 000"
+        />
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- BATCH NUMBER -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label for="batchNumber">
+          Batch Number
+        </label>
+
+
+        <input
+          id="batchNumber"
+          type="text"
+          name="batchNumber"
+          [(ngModel)]="item.batchNumber"
+          placeholder="e.g. BTH-2026-001"
+        />
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- EXPIRY DATE -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label for="expiryDate">
+          Expiry Date
+        </label>
+
+
+        <input
+          id="expiryDate"
+          type="date"
+          name="expiryDate"
+          [(ngModel)]="item.expiryDate"
+        />
+
+
+        <small>
+          Required for medicines and other expirable items.
+        </small>
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- STORAGE LOCATION -->
+      <!-- ================================================= -->
+
+      <div class="form-group full-width">
+
+        <label for="storageLocation">
+          Storage Location
+        </label>
+
+
+        <input
+          id="storageLocation"
+          type="text"
+          name="storageLocation"
+          [(ngModel)]="item.storageLocation"
+          placeholder="e.g. Main Pharmacy - Shelf A3"
+        />
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- NOTES -->
+      <!-- ================================================= -->
+
+      <div class="form-group full-width">
+
+        <label for="notes">
+          Notes
+        </label>
+
+
+        <textarea
+          id="notes"
+          name="notes"
+          [(ngModel)]="item.notes"
+          rows="4"
+          placeholder="Additional notes about this inventory item..."
+        ></textarea>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- ================================================= -->
+    <!-- FORM ACTIONS -->
+    <!-- ================================================= -->
+
+    <div class="form-actions">
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="cancel()"
+      >
+
+        Cancel
+
+      </button>
+
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="saveItem()"
+      >
+
+        <span class="material-symbols-outlined">
+          inventory_2
+        </span>
+
+        Register Item
+
+      </button>
+
+    </div>
+
+  </section>
+
+</div>

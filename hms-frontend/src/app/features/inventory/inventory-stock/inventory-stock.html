@@ -1,0 +1,996 @@
+<div class="inventory-stock-page">
+
+  <!-- ===================================================== -->
+  <!-- PAGE HEADER -->
+  <!-- ===================================================== -->
+
+  <div class="page-header">
+
+    <div class="page-title">
+
+      <div class="title-icon">
+
+        <span class="material-symbols-outlined">
+          inventory_2
+        </span>
+
+      </div>
+
+
+      <div>
+
+        <h1>
+          Inventory Stock
+        </h1>
+
+        <p>
+          Monitor stock levels, inventory value and stock movements.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="loadInventory()"
+    >
+
+      <span class="material-symbols-outlined">
+        refresh
+      </span>
+
+      Refresh
+
+    </button>
+
+  </div>
+
+
+
+  <!-- ===================================================== -->
+  <!-- STATISTICS -->
+  <!-- ===================================================== -->
+
+  <div class="stats-grid">
+
+    <!-- TOTAL ITEMS -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon total">
+
+        <span class="material-symbols-outlined">
+          inventory_2
+        </span>
+
+      </div>
+
+
+      <div class="stat-content">
+
+        <span>
+          Total Items
+        </span>
+
+        <strong>
+          {{ totalItems }}
+        </strong>
+
+        <small>
+          Inventory records
+        </small>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- TOTAL QUANTITY -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon quantity">
+
+        <span class="material-symbols-outlined">
+          stacks
+        </span>
+
+      </div>
+
+
+      <div class="stat-content">
+
+        <span>
+          Total Quantity
+        </span>
+
+        <strong>
+          {{ totalQuantity }}
+        </strong>
+
+        <small>
+          Units in stock
+        </small>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- STOCK VALUE -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon value">
+
+        <span class="material-symbols-outlined">
+          payments
+        </span>
+
+      </div>
+
+
+      <div class="stat-content">
+
+        <span>
+          Stock Value
+        </span>
+
+        <strong>
+          {{ formatCurrency(totalStockValue) }}
+        </strong>
+
+        <small>
+          Current inventory value
+        </small>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- LOW STOCK -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon low-stock">
+
+        <span class="material-symbols-outlined">
+          warning
+        </span>
+
+      </div>
+
+
+      <div class="stat-content">
+
+        <span>
+          Low Stock
+        </span>
+
+        <strong>
+          {{ lowStockItems }}
+        </strong>
+
+        <small>
+          Reorder required
+        </small>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- OUT OF STOCK -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon out-of-stock">
+
+        <span class="material-symbols-outlined">
+          remove_shopping_cart
+        </span>
+
+      </div>
+
+
+      <div class="stat-content">
+
+        <span>
+          Out of Stock
+        </span>
+
+        <strong>
+          {{ outOfStockItems }}
+        </strong>
+
+        <small>
+          No stock available
+        </small>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- EXPIRED -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon expired">
+
+        <span class="material-symbols-outlined">
+          event_busy
+        </span>
+
+      </div>
+
+
+      <div class="stat-content">
+
+        <span>
+          Expired
+        </span>
+
+        <strong>
+          {{ expiredItems }}
+        </strong>
+
+        <small>
+          Requires attention
+        </small>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ===================================================== -->
+  <!-- FILTERS -->
+  <!-- ===================================================== -->
+
+  <section class="filter-card">
+
+    <!-- SEARCH -->
+
+    <div class="search-box">
+
+      <span class="material-symbols-outlined">
+        search
+      </span>
+
+
+      <input
+        type="text"
+        name="searchTerm"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()"
+        placeholder="Search item, batch number, supplier..."
+      />
+
+    </div>
+
+
+
+    <!-- CATEGORY -->
+
+    <div class="filter-control">
+
+      <label>
+        Category
+      </label>
+
+
+      <select
+        name="selectedCategory"
+        [(ngModel)]="selectedCategory"
+        (ngModelChange)="applyFilters()"
+      >
+
+        <option value="All">
+          All Categories
+        </option>
+
+
+        @for (
+          category of categories;
+          track category
+        ) {
+
+          <option
+            [value]="category"
+          >
+
+            {{ category }}
+
+          </option>
+
+        }
+
+      </select>
+
+    </div>
+
+
+
+    <!-- STATUS -->
+
+    <div class="filter-control">
+
+      <label>
+        Status
+      </label>
+
+
+      <select
+        name="selectedStatus"
+        [(ngModel)]="selectedStatus"
+        (ngModelChange)="applyFilters()"
+      >
+
+        <option value="All">
+          All Statuses
+        </option>
+
+        <option value="In Stock">
+          In Stock
+        </option>
+
+        <option value="Low Stock">
+          Low Stock
+        </option>
+
+        <option value="Out of Stock">
+          Out of Stock
+        </option>
+
+        <option value="Expired">
+          Expired
+        </option>
+
+      </select>
+
+    </div>
+
+
+
+    <!-- CLEAR -->
+
+    @if (
+      searchTerm ||
+      selectedCategory !== 'All' ||
+      selectedStatus !== 'All'
+    ) {
+
+      <button
+        type="button"
+        class="clear-button"
+        (click)="clearFilters()"
+      >
+
+        <span class="material-symbols-outlined">
+          filter_alt_off
+        </span>
+
+        Clear
+
+      </button>
+
+    }
+
+  </section>
+
+
+
+  <!-- ===================================================== -->
+  <!-- INVENTORY TABLE -->
+  <!-- ===================================================== -->
+
+  <section class="inventory-card">
+
+    <div class="section-header">
+
+      <div>
+
+        <h2>
+          Stock Records
+        </h2>
+
+        <p>
+          {{ filteredItems.length }}
+          item{{ filteredItems.length === 1 ? '' : 's' }}
+          displayed
+        </p>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- =================================================== -->
+    <!-- EMPTY STATE -->
+    <!-- =================================================== -->
+
+    @if (
+      filteredItems.length === 0
+    ) {
+
+      <div class="empty-state">
+
+        <div class="empty-icon">
+
+          <span class="material-symbols-outlined">
+            inventory_2
+          </span>
+
+        </div>
+
+
+        <h3>
+          No inventory items found
+        </h3>
+
+
+        <p>
+          No inventory records match the current filters.
+        </p>
+
+
+        @if (
+          searchTerm ||
+          selectedCategory !== 'All' ||
+          selectedStatus !== 'All'
+        ) {
+
+          <button
+            type="button"
+            class="primary-button"
+            (click)="clearFilters()"
+          >
+
+            Clear Filters
+
+          </button>
+
+        }
+
+      </div>
+
+    }
+
+
+
+    <!-- =================================================== -->
+    <!-- TABLE -->
+    <!-- =================================================== -->
+
+    @if (
+      filteredItems.length > 0
+    ) {
+
+      <div class="inventory-table">
+
+        <!-- TABLE HEADER -->
+
+        <div class="table-header">
+
+          <span>
+            Item
+          </span>
+
+          <span>
+            Category
+          </span>
+
+          <span>
+            Batch
+          </span>
+
+          <span>
+            Quantity
+          </span>
+
+          <span>
+            Minimum
+          </span>
+
+          <span>
+            Unit Price
+          </span>
+
+          <span>
+            Expiry
+          </span>
+
+          <span>
+            Status
+          </span>
+
+          <span>
+            Actions
+          </span>
+
+        </div>
+
+
+
+        <!-- TABLE ROWS -->
+
+        @for (
+          item of filteredItems;
+          track item.id
+        ) {
+
+          <div class="table-row">
+
+            <!-- ========================================= -->
+            <!-- ITEM -->
+            <!-- ========================================= -->
+
+            <div class="item-cell">
+
+              <div class="item-avatar">
+
+                <span class="material-symbols-outlined">
+                  inventory_2
+                </span>
+
+              </div>
+
+
+              <div class="item-info">
+
+                <strong>
+                  {{ item.itemName }}
+                </strong>
+
+
+                <span>
+                  {{ item.id }}
+                </span>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- ========================================= -->
+            <!-- CATEGORY -->
+            <!-- ========================================= -->
+
+            <div class="table-cell">
+
+              <span class="category-badge">
+                {{ item.category }}
+              </span>
+
+            </div>
+
+
+
+            <!-- ========================================= -->
+            <!-- BATCH -->
+            <!-- ========================================= -->
+
+            <div class="table-cell">
+
+              <strong>
+                {{ item.batchNumber || '—' }}
+              </strong>
+
+            </div>
+
+
+
+            <!-- ========================================= -->
+            <!-- QUANTITY -->
+            <!-- ========================================= -->
+
+            <div class="table-cell quantity-cell">
+
+              <strong
+                [class.low-quantity]="
+                  item.quantity <= item.minimumStock &&
+                  item.quantity > 0
+                "
+                [class.zero-quantity]="
+                  item.quantity <= 0
+                "
+              >
+
+                {{ item.quantity }}
+
+              </strong>
+
+
+              <span>
+                {{ item.unit }}
+              </span>
+
+            </div>
+
+
+
+            <!-- ========================================= -->
+            <!-- MINIMUM STOCK -->
+            <!-- ========================================= -->
+
+            <div class="table-cell">
+
+              <span>
+                {{ item.minimumStock }}
+              </span>
+
+            </div>
+
+
+
+            <!-- ========================================= -->
+            <!-- UNIT PRICE -->
+            <!-- ========================================= -->
+
+            <div class="table-cell">
+
+              <strong>
+                {{ formatCurrency(item.unitPrice) }}
+              </strong>
+
+            </div>
+
+
+
+            <!-- ========================================= -->
+            <!-- EXPIRY -->
+            <!-- ========================================= -->
+
+            <div class="table-cell">
+
+              <span
+                [class.expired-date]="
+                  getItemStatus(item) === 'Expired'
+                "
+              >
+
+                {{ formatDate(item.expiryDate) }}
+
+              </span>
+
+            </div>
+
+
+
+            <!-- ========================================= -->
+            <!-- STATUS -->
+            <!-- ========================================= -->
+
+            <div class="table-cell">
+
+              <span
+                class="status-badge"
+                [ngClass]="
+                  getStatusClass(
+                    getItemStatus(item)
+                  )
+                "
+              >
+
+                {{ getItemStatus(item) }}
+
+              </span>
+
+            </div>
+
+
+
+            <!-- ========================================= -->
+            <!-- ACTIONS -->
+            <!-- ========================================= -->
+
+            <div class="actions-cell">
+
+              <!-- STOCK IN -->
+
+              <button
+                type="button"
+                class="action-button stock-in"
+                title="Receive stock"
+                (click)="openStockIn(item)"
+              >
+
+                <span class="material-symbols-outlined">
+                  add_box
+                </span>
+
+              </button>
+
+
+
+              <!-- ADJUST -->
+
+              <button
+                type="button"
+                class="action-button adjust"
+                title="Adjust stock"
+                (click)="openAdjustment(item)"
+              >
+
+                <span class="material-symbols-outlined">
+                  tune
+                </span>
+
+              </button>
+
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+
+    }
+
+  </section>
+
+
+
+  <!-- ===================================================== -->
+  <!-- STOCK ACTION MODAL -->
+  <!-- ===================================================== -->
+
+  @if (
+    selectedItem
+  ) {
+
+    <div
+      class="modal-backdrop"
+      (click)="closeStockAction()"
+    >
+
+      <div
+        class="stock-modal"
+        (click)="$event.stopPropagation()"
+      >
+
+        <!-- MODAL HEADER -->
+
+        <div class="modal-header">
+
+          <div>
+
+            <span class="modal-label">
+
+              {{
+                stockAction === 'stockIn'
+                  ? 'RECEIVE STOCK'
+                  : 'STOCK ADJUSTMENT'
+              }}
+
+            </span>
+
+
+            <h2>
+
+              {{
+                stockAction === 'stockIn'
+                  ? 'Add Stock'
+                  : 'Adjust Stock'
+              }}
+
+            </h2>
+
+
+            <p>
+              {{ selectedItem.itemName }}
+            </p>
+
+          </div>
+
+
+          <button
+            type="button"
+            class="modal-close"
+            (click)="closeStockAction()"
+          >
+
+            <span class="material-symbols-outlined">
+              close
+            </span>
+
+          </button>
+
+        </div>
+
+
+
+        <!-- CURRENT STOCK -->
+
+        <div class="current-stock">
+
+          <div>
+
+            <span>
+              Current Stock
+            </span>
+
+            <strong>
+              {{ selectedItem.quantity }}
+              {{ selectedItem.unit }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Minimum Stock
+            </span>
+
+            <strong>
+              {{ selectedItem.minimumStock }}
+            </strong>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- FORM -->
+
+        <div class="stock-form">
+
+          <div class="stock-form-group">
+
+            <label>
+              {{
+                stockAction === 'stockIn'
+                  ? 'Quantity to Receive'
+                  : 'New Stock Quantity'
+              }}
+            </label>
+
+
+            <input
+              type="number"
+              name="stockQuantity"
+              [(ngModel)]="stockQuantity"
+              min="0"
+              step="1"
+              [placeholder]="
+                stockAction === 'stockIn'
+                  ? 'Enter quantity to receive'
+                  : 'Enter new stock quantity'
+              "
+            />
+
+          </div>
+
+
+
+          <!-- PREVIEW -->
+
+          @if (
+            stockAction === 'stockIn'
+          ) {
+
+            <div class="stock-preview">
+
+              <span>
+                New Stock Level
+              </span>
+
+
+              <strong>
+
+                {{
+                  selectedItem.quantity +
+                  stockQuantity
+                }}
+
+                {{ selectedItem.unit }}
+
+              </strong>
+
+            </div>
+
+          }
+
+          @else {
+
+            <div class="stock-preview">
+
+              <span>
+                Stock Difference
+              </span>
+
+
+              <strong
+                [class.increase]="
+                  stockQuantity >
+                  selectedItem.quantity
+                "
+                [class.decrease]="
+                  stockQuantity <
+                  selectedItem.quantity
+                "
+              >
+
+                {{
+                  stockQuantity -
+                  selectedItem.quantity
+                }}
+
+              </strong>
+
+            </div>
+
+          }
+
+        </div>
+
+
+
+        <!-- MODAL ACTIONS -->
+
+        <div class="modal-actions">
+
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="closeStockAction()"
+          >
+
+            Cancel
+
+          </button>
+
+
+          <button
+            type="button"
+            class="primary-button"
+            (click)="processStockAction()"
+          >
+
+            <span class="material-symbols-outlined">
+
+              {{
+                stockAction === 'stockIn'
+                  ? 'add_box'
+                  : 'save'
+              }}
+
+            </span>
+
+
+            {{
+              stockAction === 'stockIn'
+                ? 'Receive Stock'
+                : 'Save Adjustment'
+            }}
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  }
+
+</div>

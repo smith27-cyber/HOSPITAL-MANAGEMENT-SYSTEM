@@ -1,0 +1,851 @@
+
+<div class="consultations-page">
+
+  <!-- ================================================= -->
+  <!-- PAGE HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Consultations
+      </h1>
+
+      <p>
+        Manage patient consultations and clinical records
+      </p>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="primary-button"
+      routerLink="/consultations/register"
+    >
+
+      <span class="material-symbols-outlined">
+        add
+      </span>
+
+      New Consultation
+
+    </button>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- STATISTICS -->
+  <!-- ================================================= -->
+
+  <div class="consultation-stats">
+
+    <!-- TOTAL -->
+
+    <div class="mini-stat">
+
+      <div class="mini-stat-icon">
+
+        <span class="material-symbols-outlined">
+          stethoscope
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Total Consultations
+        </span>
+
+        <strong>
+          {{ totalConsultations }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- OPEN -->
+
+    <div class="mini-stat">
+
+      <div class="mini-stat-icon open-icon">
+
+        <span class="material-symbols-outlined">
+          pending_actions
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Open
+        </span>
+
+        <strong>
+          {{ openConsultations }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- PENDING RESULTS -->
+
+    <div class="mini-stat">
+
+      <div class="mini-stat-icon pending-icon">
+
+        <span class="material-symbols-outlined">
+          science
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Pending Results
+        </span>
+
+        <strong>
+          {{ pendingResultsConsultations }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- READY FOR REVIEW -->
+
+    <div class="mini-stat">
+
+      <div class="mini-stat-icon review-icon">
+
+        <span class="material-symbols-outlined">
+          clinical_notes
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Ready For Review
+        </span>
+
+        <strong>
+          {{ readyForReviewConsultations }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- COMPLETED -->
+
+    <div class="mini-stat">
+
+      <div class="mini-stat-icon completed-icon">
+
+        <span class="material-symbols-outlined">
+          task_alt
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Completed
+        </span>
+
+        <strong>
+          {{ completedConsultations }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- CANCELLED -->
+
+    <div class="mini-stat">
+
+      <div class="mini-stat-icon cancelled-icon">
+
+        <span class="material-symbols-outlined">
+          cancel
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Cancelled
+        </span>
+
+        <strong>
+          {{ cancelledConsultations }}
+        </strong>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- CONSULTATIONS CARD -->
+  <!-- ================================================= -->
+
+  <section class="consultations-card">
+
+
+    <!-- ================================================= -->
+    <!-- TOOLBAR -->
+    <!-- ================================================= -->
+
+    <div class="table-toolbar">
+
+
+      <!-- SEARCH -->
+
+      <div class="search-box">
+
+        <span class="material-symbols-outlined">
+          search
+        </span>
+
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Search by consultation, patient, doctor or diagnosis..."
+        />
+
+      </div>
+
+
+      <!-- FILTERS -->
+
+      <div class="filters">
+
+        <select
+          [(ngModel)]="selectedStatus"
+        >
+
+          <option value="">
+            All Status
+          </option>
+
+          <option value="Open">
+            Open
+          </option>
+
+          <option value="Pending Results">
+            Pending Results
+          </option>
+
+          <option value="Ready For Review">
+            Ready For Review
+          </option>
+
+          <option value="Completed">
+            Completed
+          </option>
+
+          <option value="Cancelled">
+            Cancelled
+          </option>
+
+        </select>
+
+
+        <!-- CLEAR -->
+
+        <button
+          type="button"
+          class="clear-button"
+          (click)="clearFilters()"
+        >
+
+          <span class="material-symbols-outlined">
+            filter_alt_off
+          </span>
+
+          Clear
+
+        </button>
+
+
+        <!-- REFRESH -->
+
+        <button
+          type="button"
+          class="refresh-button"
+          (click)="refreshConsultations()"
+          title="Refresh consultations"
+        >
+
+          <span class="material-symbols-outlined">
+            refresh
+          </span>
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- TABLE -->
+    <!-- ================================================= -->
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>
+              Consultation
+            </th>
+
+            <th>
+              Patient
+            </th>
+
+            <th>
+              Doctor
+            </th>
+
+            <th>
+              Date
+            </th>
+
+            <th>
+              Complaint
+            </th>
+
+            <th>
+              Diagnosis
+            </th>
+
+            <th>
+              Status
+            </th>
+
+            <th>
+              Actions
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          @for (
+            consultation of filteredConsultations;
+            track consultation.id
+          ) {
+
+            <tr>
+
+
+              <!-- ===================================== -->
+              <!-- CONSULTATION -->
+              <!-- ===================================== -->
+
+              <td>
+
+                <span class="consultation-id">
+                  {{ consultation.id }}
+                </span>
+
+
+                @if (
+                  consultation.appointmentId
+                ) {
+
+                  <span class="appointment-id">
+
+                    Appointment:
+                    {{ consultation.appointmentId }}
+
+                  </span>
+
+                }
+
+              </td>
+
+
+              <!-- ===================================== -->
+              <!-- PATIENT -->
+              <!-- ===================================== -->
+
+              <td>
+
+                <div class="person-cell">
+
+                  <strong>
+                    {{
+                      getPatientName(
+                        consultation.patientId
+                      )
+                    }}
+                  </strong>
+
+                  <span class="record-id">
+                    {{ consultation.patientId }}
+                  </span>
+
+                </div>
+
+              </td>
+
+
+              <!-- ===================================== -->
+              <!-- DOCTOR -->
+              <!-- ===================================== -->
+
+              <td>
+
+                <div class="person-cell">
+
+                  <strong>
+                    {{
+                      getDoctorName(
+                        consultation.doctorId
+                      )
+                    }}
+                  </strong>
+
+                  <span class="record-id">
+                    {{ consultation.doctorId }}
+                  </span>
+
+                </div>
+
+              </td>
+
+
+              <!-- ===================================== -->
+              <!-- DATE -->
+              <!-- ===================================== -->
+
+              <td>
+
+                <div class="date-cell">
+
+                  <strong>
+                    {{ consultation.consultationDate }}
+                  </strong>
+
+                  <span>
+                    {{ consultation.consultationTime }}
+                  </span>
+
+                </div>
+
+              </td>
+
+
+              <!-- ===================================== -->
+              <!-- COMPLAINT -->
+              <!-- ===================================== -->
+
+              <td>
+
+                <span class="truncate-text">
+
+                  {{
+                    consultation.chiefComplaint ||
+                    '—'
+                  }}
+
+                </span>
+
+              </td>
+
+
+              <!-- ===================================== -->
+              <!-- DIAGNOSIS -->
+              <!-- ===================================== -->
+
+              <td>
+
+                <span
+                  class="truncate-text"
+                  [class.muted-text]="
+                    !consultation.diagnosis
+                  "
+                >
+
+                  {{
+                    consultation.diagnosis ||
+                    'Not diagnosed'
+                  }}
+
+                </span>
+
+              </td>
+
+
+              <!-- ===================================== -->
+              <!-- STATUS -->
+              <!-- ===================================== -->
+
+              <td>
+
+                <span
+                  class="status"
+
+                  [class.open]="
+                    consultation.status ===
+                    'Open'
+                  "
+
+                  [class.pending]="
+                    consultation.status ===
+                    'Pending Results'
+                  "
+
+                  [class.ready-for-review]="
+                    consultation.status ===
+                    'Ready For Review'
+                  "
+
+                  [class.completed]="
+                    consultation.status ===
+                    'Completed'
+                  "
+
+                  [class.cancelled]="
+                    consultation.status ===
+                    'Cancelled'
+                  "
+                >
+
+                  {{ consultation.status }}
+
+                </span>
+
+              </td>
+
+
+              <!-- ===================================== -->
+              <!-- ACTIONS -->
+              <!-- ===================================== -->
+
+              <td>
+
+                <div class="action-buttons">
+
+
+                  <!-- ================================= -->
+                  <!-- VIEW -->
+                  <!-- ================================= -->
+
+                  <button
+                    type="button"
+                    class="action-button"
+
+                    [routerLink]="[
+                      '/consultations',
+                      consultation.id
+                    ]"
+
+                    title="View Consultation"
+                  >
+
+                    <span class="material-symbols-outlined">
+                      visibility
+                    </span>
+
+                  </button>
+
+
+                  <!-- ================================= -->
+                  <!-- EDIT -->
+                  <!-- ================================= -->
+
+                  <button
+                    type="button"
+                    class="action-button"
+
+                    [routerLink]="[
+                      '/consultations',
+                      consultation.id,
+                      'edit'
+                    ]"
+
+                    [disabled]="
+                      consultation.status ===
+                        'Completed' ||
+                      consultation.status ===
+                        'Cancelled'
+                    "
+
+                    [title]="
+                      consultation.status ===
+                        'Completed' ||
+                      consultation.status ===
+                        'Cancelled'
+                        ? 'This consultation cannot be edited'
+                        : 'Edit Consultation'
+                    "
+                  >
+
+                    <span class="material-symbols-outlined">
+                      edit
+                    </span>
+
+                  </button>
+
+
+                  <!-- ================================= -->
+                  <!-- COMPLETE -->
+                  <!-- ================================= -->
+
+                  @if (
+                    consultation.status ===
+                    'Open'
+                  ) {
+
+                    <button
+                      type="button"
+                      class="action-button complete-action"
+
+                      (click)="
+                        completeConsultation(
+                          consultation.id
+                        )
+                      "
+
+                      title="Complete Consultation"
+                    >
+
+                      <span class="material-symbols-outlined">
+                        check_circle
+                      </span>
+
+                    </button>
+
+                  }
+
+
+                  <!-- ================================= -->
+                  <!-- REVIEW INDICATOR -->
+                  <!-- ================================= -->
+
+                  @if (
+                    consultation.status ===
+                    'Ready For Review'
+                  ) {
+
+                    <button
+                      type="button"
+                      class="action-button review-action"
+
+                      [routerLink]="[
+                        '/consultations',
+                        consultation.id
+                      ]"
+
+                      title="Review Laboratory Results"
+                    >
+
+                      <span class="material-symbols-outlined">
+                        clinical_notes
+                      </span>
+
+                    </button>
+
+                  }
+
+
+                  <!-- ================================= -->
+                  <!-- WAITING INDICATOR -->
+                  <!-- ================================= -->
+
+                  @if (
+                    consultation.status ===
+                    'Pending Results'
+                  ) {
+
+                    <button
+                      type="button"
+                      class="action-button pending-action"
+
+                      [routerLink]="[
+                        '/consultations',
+                        consultation.id
+                      ]"
+
+                      title="Waiting for Laboratory Results"
+                    >
+
+                      <span class="material-symbols-outlined">
+                        hourglass_top
+                      </span>
+
+                    </button>
+
+                  }
+
+
+                  <!-- ================================= -->
+                  <!-- CANCEL -->
+                  <!-- ================================= -->
+
+                  <button
+                    type="button"
+                    class="action-button danger-action"
+
+                    (click)="
+                      cancelConsultation(
+                        consultation.id
+                      )
+                    "
+
+                    [disabled]="
+                      consultation.status !==
+                      'Open'
+                    "
+
+                    [title]="
+                      consultation.status ===
+                      'Open'
+                        ? 'Cancel Consultation'
+                        : 'Only Open consultations can be cancelled'
+                    "
+                  >
+
+                    <span class="material-symbols-outlined">
+                      cancel
+                    </span>
+
+                  </button>
+
+
+                  <!-- ================================= -->
+                  <!-- DELETE -->
+                  <!-- ================================= -->
+
+                  <button
+                    type="button"
+                    class="action-button delete-action"
+
+                    (click)="
+                      deleteConsultation(
+                        consultation.id
+                      )
+                    "
+
+                    [disabled]="
+                      consultation.status ===
+                      'Completed'
+                    "
+
+                    [title]="
+                      consultation.status ===
+                      'Completed'
+                        ? 'Completed consultations cannot be deleted'
+                        : 'Delete Consultation'
+                    "
+                  >
+
+                    <span class="material-symbols-outlined">
+                      delete
+                    </span>
+
+                  </button>
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          }
+
+
+          <!-- ================================================= -->
+          <!-- EMPTY -->
+          <!-- ================================================= -->
+
+          @if (
+            filteredConsultations.length === 0
+          ) {
+
+            <tr>
+
+              <td
+                colspan="8"
+                class="empty-cell"
+              >
+
+                <div class="empty-state">
+
+                  <span class="material-symbols-outlined">
+                    stethoscope
+                  </span>
+
+                  <h3>
+                    No consultations found
+                  </h3>
+
+                  <p>
+                    There are no consultations matching
+                    your search or filters.
+                  </p>
+
+                  <button
+                    type="button"
+                    class="primary-button"
+                    routerLink="/consultations/register"
+                  >
+
+                    <span class="material-symbols-outlined">
+                      add
+                    </span>
+
+                    New Consultation
+
+                  </button>
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</div>
+

@@ -1,0 +1,2333 @@
+
+<div class="consultation-form-page">
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        {{
+          isEditMode
+            ? 'Edit Consultation'
+            : 'Patient Consultation'
+        }}
+      </h1>
+
+      <p>
+        {{
+          isEditMode
+            ? 'Update the clinical consultation record'
+            : 'Document the patient consultation'
+        }}
+      </p>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="cancel()"
+      [disabled]="isSaving"
+    >
+
+      <span class="material-symbols-outlined">
+        arrow_back
+      </span>
+
+      Back
+
+    </button>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- ERROR MESSAGE -->
+  <!-- ================================================= -->
+
+  @if (errorMessage) {
+
+    <div class="error-message">
+
+      <span class="material-symbols-outlined">
+        error
+      </span>
+
+      <span>
+        {{ errorMessage }}
+      </span>
+
+    </div>
+
+  }
+
+
+  <!-- ================================================= -->
+  <!-- LOADING -->
+  <!-- ================================================= -->
+
+  @if (isLoading) {
+
+    <div class="loading-card">
+
+      <span class="material-symbols-outlined">
+        progress_activity
+      </span>
+
+      <span>
+        Loading consultation...
+      </span>
+
+    </div>
+
+  }
+
+
+  <!-- ================================================= -->
+  <!-- APPOINTMENT / PATIENT SUMMARY -->
+  <!-- ================================================= -->
+
+  @if (!isLoading && appointment) {
+
+    <section class="form-card patient-summary-card">
+
+      <div class="section-header">
+
+        <div class="section-icon">
+
+          <span class="material-symbols-outlined">
+            person
+          </span>
+
+        </div>
+
+        <div>
+
+          <h2>
+            Patient Information
+          </h2>
+
+          <p>
+            Patient information from the current appointment
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="patient-summary-grid">
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Patient
+          </span>
+
+          <strong>
+            {{ appointment.patientName }}
+          </strong>
+
+        </div>
+
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Patient ID
+          </span>
+
+          <strong>
+            {{ appointment.patientId }}
+          </strong>
+
+        </div>
+
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Doctor
+          </span>
+
+          <strong>
+            {{ appointment.doctorName }}
+          </strong>
+
+        </div>
+
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Doctor ID
+          </span>
+
+          <strong>
+            {{ appointment.doctorId }}
+          </strong>
+
+        </div>
+
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Department
+          </span>
+
+          <strong>
+            {{ appointment.department }}
+          </strong>
+
+        </div>
+
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Appointment ID
+          </span>
+
+          <strong>
+            {{ appointment.id }}
+          </strong>
+
+        </div>
+
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Appointment Date
+          </span>
+
+          <strong>
+            {{ appointment.appointmentDate }}
+          </strong>
+
+        </div>
+
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Appointment Time
+          </span>
+
+          <strong>
+            {{ appointment.appointmentTime }}
+          </strong>
+
+        </div>
+
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Appointment Type
+          </span>
+
+          <strong>
+            {{ appointment.type }}
+          </strong>
+
+        </div>
+
+
+        <div class="summary-item summary-item-wide">
+
+          <span class="summary-label">
+            Reason for Visit
+          </span>
+
+          <strong>
+            {{ appointment.reason || '—' }}
+          </strong>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  }
+
+
+  <!-- ================================================= -->
+  <!-- FORM -->
+  <!-- ================================================= -->
+
+  @if (!isLoading) {
+
+    <form
+      class="consultation-form"
+      novalidate
+    >
+
+
+      <!-- ============================================== -->
+      <!-- WORKFLOW STATUS -->
+      <!-- ============================================== -->
+
+      @if (isEditMode) {
+
+        <section class="form-card workflow-status-card">
+
+          <div class="section-header">
+
+            <div class="section-icon">
+
+              <span class="material-symbols-outlined">
+                account_tree
+              </span>
+
+            </div>
+
+            <div>
+
+              <h2>
+                Consultation Workflow
+              </h2>
+
+              <p>
+                The consultation status is controlled by the clinical workflow.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="workflow-status-display">
+
+            <div class="workflow-status-main">
+
+              <span class="workflow-status-label">
+                Current Status
+              </span>
+
+              <strong
+                [class.workflow-open]="
+                  consultation.status === 'Open'
+                "
+                [class.workflow-pending]="
+                  consultation.status === 'Pending Results'
+                "
+                [class.workflow-ready]="
+                  consultation.status === 'Ready For Review'
+                "
+                [class.workflow-completed]="
+                  consultation.status === 'Completed'
+                "
+                [class.workflow-cancelled]="
+                  consultation.status === 'Cancelled'
+                "
+              >
+
+                {{ consultation.status }}
+
+              </strong>
+
+            </div>
+
+
+            <!-- ======================================== -->
+            <!-- PENDING RESULTS -->
+            <!-- ======================================== -->
+
+            @if (
+              consultation.status ===
+              'Pending Results'
+            ) {
+
+              <div class="workflow-status-message">
+
+                <span class="material-symbols-outlined">
+                  hourglass_top
+                </span>
+
+                <div>
+
+                  <strong>
+                    Waiting for Laboratory Results
+                  </strong>
+
+                  <p>
+                    Laboratory tests associated with this
+                    consultation are still being processed.
+                  </p>
+
+                </div>
+
+              </div>
+
+            }
+
+
+            <!-- ======================================== -->
+            <!-- READY FOR REVIEW -->
+            <!-- ======================================== -->
+
+            @if (
+              consultation.status ===
+              'Ready For Review'
+            ) {
+
+              <div class="workflow-status-message">
+
+                <span class="material-symbols-outlined">
+                  clinical_notes
+                </span>
+
+                <div>
+
+                  <strong>
+                    Laboratory Results Ready for Review
+                  </strong>
+
+                  <p>
+                    All requested laboratory tests have been
+                    completed. Review the results before
+                    continuing the consultation.
+                  </p>
+
+                  <button
+                    type="button"
+                    class="review-laboratory-button"
+                    (click)="reviewLaboratoryResults()"
+                    [disabled]="isSaving"
+                  >
+
+                    <span class="material-symbols-outlined">
+                      fact_check
+                    </span>
+
+                    @if (isSaving) {
+
+                      Reviewing...
+
+                    } @else {
+
+                      Review Laboratory Results
+
+                    }
+
+                  </button>
+
+                </div>
+
+              </div>
+
+            }
+
+
+            <!-- ======================================== -->
+            <!-- COMPLETED -->
+            <!-- ======================================== -->
+
+            @if (
+              consultation.status ===
+              'Completed'
+            ) {
+
+              <div class="workflow-status-message">
+
+                <span class="material-symbols-outlined">
+                  task_alt
+                </span>
+
+                <div>
+
+                  <strong>
+                    Consultation Completed
+                  </strong>
+
+                  <p>
+                    This consultation is now a final clinical record.
+                  </p>
+
+                </div>
+
+              </div>
+
+            }
+
+
+            <!-- ======================================== -->
+            <!-- CANCELLED -->
+            <!-- ======================================== -->
+
+            @if (
+              consultation.status ===
+              'Cancelled'
+            ) {
+
+              <div class="workflow-status-message">
+
+                <span class="material-symbols-outlined">
+                  cancel
+                </span>
+
+                <div>
+
+                  <strong>
+                    Consultation Cancelled
+                  </strong>
+
+                  <p>
+                    This consultation has been cancelled and
+                    cannot be edited until it is reopened.
+                  </p>
+
+                </div>
+
+              </div>
+
+            }
+
+          </div>
+
+        </section>
+
+      }
+
+
+      <!-- ============================================== -->
+      <!-- CONSULTATION DETAILS -->
+      <!-- ============================================== -->
+
+      <section class="form-card">
+
+        <div class="section-header">
+
+          <div class="section-icon">
+
+            <span class="material-symbols-outlined">
+              medical_information
+            </span>
+
+          </div>
+
+          <div>
+
+            <h2>
+              Consultation Details
+            </h2>
+
+            <p>
+
+              {{
+                appointment
+                  ? 'Patient and doctor information has been loaded from the appointment'
+                  : 'Select the patient and attending doctor'
+              }}
+
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+          <!-- PATIENT -->
+
+          <div class="form-group">
+
+            <label>
+              Patient <span>*</span>
+            </label>
+
+            @if (appointment) {
+
+              <input
+                type="text"
+                [value]="appointment.patientName"
+                readonly
+              />
+
+            } @else {
+
+              <select
+                name="patientId"
+                [(ngModel)]="consultation.patientId"
+                required
+                [disabled]="isSaving"
+              >
+
+                <option value="">
+                  Select patient
+                </option>
+
+                @for (
+                  patient of patients;
+                  track patient.id
+                ) {
+
+                  <option
+                    [value]="patient.id"
+                  >
+
+                    {{ patient.firstName }}
+                    {{ patient.lastName }}
+                    —
+                    {{ patient.id }}
+
+                  </option>
+
+                }
+
+              </select>
+
+            }
+
+          </div>
+
+
+          <!-- PATIENT ID -->
+
+          <div class="form-group">
+
+            <label>
+              Patient ID
+            </label>
+
+            <input
+              type="text"
+              [value]="consultation.patientId"
+              readonly
+            />
+
+          </div>
+
+
+          <!-- DOCTOR -->
+
+          <div class="form-group">
+
+            <label>
+              Doctor <span>*</span>
+            </label>
+
+            @if (appointment) {
+
+              <input
+                type="text"
+                [value]="appointment.doctorName"
+                readonly
+              />
+
+            } @else {
+
+              <select
+                name="doctorId"
+                [(ngModel)]="consultation.doctorId"
+                required
+                [disabled]="isSaving"
+              >
+
+                <option value="">
+                  Select doctor
+                </option>
+
+                @for (
+                  doctor of doctors;
+                  track doctor.id
+                ) {
+
+                  <option
+                    [value]="doctor.id"
+                  >
+
+                    Dr.
+                    {{ doctor.firstName }}
+                    {{ doctor.lastName }}
+                    —
+                    {{ doctor.specialization }}
+
+                  </option>
+
+                }
+
+              </select>
+
+            }
+
+          </div>
+
+
+          <!-- DOCTOR ID -->
+
+          <div class="form-group">
+
+            <label>
+              Doctor ID
+            </label>
+
+            <input
+              type="text"
+              [value]="consultation.doctorId"
+              readonly
+            />
+
+          </div>
+
+
+          <!-- APPOINTMENT ID -->
+
+          <div class="form-group">
+
+            <label>
+              Appointment ID
+            </label>
+
+            <input
+              type="text"
+              [value]="consultation.appointmentId || '—'"
+              readonly
+            />
+
+          </div>
+
+
+          <!-- CONSULTATION DATE -->
+
+          <div class="form-group">
+
+            <label>
+              Consultation Date <span>*</span>
+            </label>
+
+            <input
+              type="date"
+              name="consultationDate"
+              [(ngModel)]="consultation.consultationDate"
+              required
+              [disabled]="isSaving"
+            />
+
+          </div>
+
+
+          <!-- CONSULTATION TIME -->
+
+          <div class="form-group">
+
+            <label>
+              Consultation Time <span>*</span>
+            </label>
+
+            <input
+              type="time"
+              name="consultationTime"
+              [(ngModel)]="consultation.consultationTime"
+              required
+              [disabled]="isSaving"
+            />
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ============================================== -->
+      <!-- CONSULTATION FEE -->
+      <!-- ============================================== -->
+
+      <section class="form-card consultation-billing-card">
+
+        <div class="section-header">
+
+          <div class="section-icon">
+
+            <span class="material-symbols-outlined">
+              payments
+            </span>
+
+          </div>
+
+          <div>
+
+            <h2>
+              Consultation Fee
+            </h2>
+
+            <p>
+              Consultation charges are handled through the shared billing workflow.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="consultation-fee-box">
+
+          <div class="fee-information">
+
+            <span>
+              Consultation Fee
+            </span>
+
+            <strong>
+              {{ formatCurrency(consultationFee) }}
+            </strong>
+
+          </div>
+
+
+          <div class="fee-status">
+
+            <span class="material-symbols-outlined">
+              info
+            </span>
+
+            <div>
+
+              <strong>
+                Shared Patient Invoice
+              </strong>
+
+              <p>
+                Consultation, laboratory and pharmacy charges
+                are handled through their respective billing workflow.
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ============================================== -->
+      <!-- CLINICAL INFORMATION -->
+      <!-- ============================================== -->
+
+      <section class="form-card">
+
+        <div class="section-header">
+
+          <div class="section-icon">
+
+            <span class="material-symbols-outlined">
+              stethoscope
+            </span>
+
+          </div>
+
+          <div>
+
+            <h2>
+              Clinical Information
+            </h2>
+
+            <p>
+              Record the patient's clinical presentation.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="form-grid single-column">
+
+
+          <!-- CHIEF COMPLAINT -->
+
+          <div class="form-group">
+
+            <label>
+              Chief Complaint <span>*</span>
+            </label>
+
+            <textarea
+              name="chiefComplaint"
+              [(ngModel)]="consultation.chiefComplaint"
+              placeholder="Describe the main reason for the visit..."
+              rows="3"
+              required
+              [disabled]="
+                isSaving ||
+                consultation.status === 'Completed' ||
+                consultation.status === 'Cancelled'
+              "
+            ></textarea>
+
+          </div>
+
+
+          <!-- SYMPTOMS -->
+
+          <div class="form-group">
+
+            <label>
+              Symptoms
+            </label>
+
+            <textarea
+              name="symptoms"
+              [(ngModel)]="consultation.symptoms"
+              placeholder="Describe symptoms reported by the patient..."
+              rows="4"
+              [disabled]="
+                isSaving ||
+                consultation.status === 'Completed' ||
+                consultation.status === 'Cancelled'
+              "
+            ></textarea>
+
+          </div>
+
+
+          <!-- DIAGNOSIS -->
+
+          <div class="form-group">
+
+            <label>
+              Final Diagnosis
+            </label>
+
+            <textarea
+              name="diagnosis"
+              [(ngModel)]="consultation.diagnosis"
+              placeholder="Enter the final clinical diagnosis..."
+              rows="3"
+              [disabled]="
+                isSaving ||
+                consultation.status === 'Completed' ||
+                consultation.status === 'Cancelled'
+              "
+            ></textarea>
+
+          </div>
+
+
+          <!-- CLINICAL NOTES -->
+
+          <div class="form-group">
+
+            <label>
+              Clinical Notes
+            </label>
+
+            <textarea
+              name="clinicalNotes"
+              [(ngModel)]="consultation.clinicalNotes"
+              placeholder="Enter examination findings and clinical notes..."
+              rows="5"
+              [disabled]="
+                isSaving ||
+                consultation.status === 'Completed' ||
+                consultation.status === 'Cancelled'
+              "
+            ></textarea>
+
+          </div>
+
+
+          <!-- TREATMENT PLAN -->
+
+          <div class="form-group">
+
+            <label>
+              Final Treatment Plan
+            </label>
+
+            <textarea
+              name="treatmentPlan"
+              [(ngModel)]="consultation.treatmentPlan"
+              placeholder="Enter the final recommended treatment or management plan..."
+              rows="4"
+              [disabled]="
+                isSaving ||
+                consultation.status === 'Completed' ||
+                consultation.status === 'Cancelled'
+              "
+            ></textarea>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ============================================== -->
+      <!-- LABORATORY REQUESTS -->
+      <!-- ============================================== -->
+
+      <section class="form-card laboratory-request-card">
+
+        <div class="section-header">
+
+          <div class="section-icon">
+
+            <span class="material-symbols-outlined">
+              science
+            </span>
+
+          </div>
+
+          <div>
+
+            <h2>
+              Laboratory Requests
+            </h2>
+
+            <p>
+              Request laboratory tests for this patient during the consultation.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="laboratory-entry">
+
+          <div class="laboratory-entry-grid">
+
+
+            <!-- TEST -->
+
+            <div class="form-group laboratory-test-field">
+
+              <label>
+                Laboratory Test
+              </label>
+
+              <select
+                name="selectedLaboratoryTestId"
+                [(ngModel)]="selectedLaboratoryTestId"
+                [disabled]="
+                  isSaving ||
+                  consultation.status === 'Completed' ||
+                  consultation.status === 'Cancelled'
+                "
+              >
+
+                <option value="">
+                  Select laboratory test
+                </option>
+
+                @for (
+                  test of laboratoryTests;
+                  track test.id
+                ) {
+
+                  <option
+                    [value]="test.id"
+                  >
+
+                    {{ test.testName }}
+                    —
+                    {{ test.category }}
+                    —
+                    {{ test.sampleType }}
+                    —
+                    {{ formatCurrency(test.price) }}
+
+                  </option>
+
+                }
+
+              </select>
+
+            </div>
+
+
+            <!-- NOTES -->
+
+            <div class="form-group laboratory-notes-field">
+
+              <label>
+                Clinical / Laboratory Notes
+              </label>
+
+              <input
+                type="text"
+                name="laboratoryNotes"
+                [(ngModel)]="laboratoryNotes"
+                placeholder="Reason for test or special instructions..."
+                [disabled]="
+                  isSaving ||
+                  consultation.status === 'Completed' ||
+                  consultation.status === 'Cancelled'
+                "
+              />
+
+            </div>
+
+          </div>
+
+
+          <!-- SELECTED TEST -->
+
+          @if (
+            getSelectedLaboratoryTest();
+            as selectedTest
+          ) {
+
+            <div class="selected-laboratory-test">
+
+              <div class="selected-test-icon">
+
+                <span class="material-symbols-outlined">
+                  science
+                </span>
+
+              </div>
+
+
+              <div class="selected-test-info">
+
+                <strong>
+                  {{ selectedTest.testName }}
+                </strong>
+
+                <span>
+                  {{ selectedTest.category }}
+                  ·
+                  {{ selectedTest.sampleType }}
+                </span>
+
+
+                @if (selectedTest.description) {
+
+                  <p>
+                    {{ selectedTest.description }}
+                  </p>
+
+                }
+
+              </div>
+
+
+              <strong class="selected-test-price">
+
+                {{ formatCurrency(selectedTest.price) }}
+
+              </strong>
+
+            </div>
+
+          }
+
+
+          <!-- ADD TEST -->
+
+          <div class="laboratory-entry-actions">
+
+            <button
+              type="button"
+              class="add-laboratory-button"
+              (click)="addLaboratoryTest()"
+              [disabled]="
+                isSaving ||
+                consultation.status === 'Completed' ||
+                consultation.status === 'Cancelled'
+              "
+            >
+
+              <span class="material-symbols-outlined">
+                add
+              </span>
+
+              Add Laboratory Test
+
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- REQUESTED TESTS -->
+
+        <div class="laboratory-list">
+
+          <div class="laboratory-list-header">
+
+            <div>
+
+              <h3>
+                Requested Tests
+              </h3>
+
+              <p>
+
+                {{ laboratoryRequests.length }}
+
+                test{{
+                  laboratoryRequests.length === 1
+                    ? ''
+                    : 's'
+                }}
+
+              </p>
+
+            </div>
+
+
+            @if (
+              laboratoryRequests.length > 0
+            ) {
+
+              <strong class="laboratory-total">
+
+                Total:
+                {{ formatCurrency(laboratoryTotal) }}
+
+              </strong>
+
+            }
+
+          </div>
+
+
+          @if (
+            laboratoryRequests.length === 0
+          ) {
+
+            <div class="laboratory-empty">
+
+              <span class="material-symbols-outlined">
+                science
+              </span>
+
+              <h4>
+                No laboratory tests requested
+              </h4>
+
+              <p>
+                Select a laboratory test above and add it to the request list.
+              </p>
+
+            </div>
+
+          }
+
+
+          @if (
+            laboratoryRequests.length > 0
+          ) {
+
+            <div class="laboratory-table">
+
+              <div class="laboratory-table-header">
+
+                <span>
+                  Test
+                </span>
+
+                <span>
+                  Category
+                </span>
+
+                <span>
+                  Sample
+                </span>
+
+                <span>
+                  Price
+                </span>
+
+                <span>
+                  Status
+                </span>
+
+                <span>
+                  Action
+                </span>
+
+              </div>
+
+
+              @for (
+                request of laboratoryRequests;
+                track request.id
+              ) {
+
+                <div class="laboratory-table-row">
+
+
+                  <div class="laboratory-test-cell">
+
+                    <div class="laboratory-test-icon">
+
+                      <span class="material-symbols-outlined">
+                        science
+                      </span>
+
+                    </div>
+
+
+                    <div>
+
+                      <strong>
+                        {{ request.testName }}
+                      </strong>
+
+                      <span>
+                        {{ request.id }}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+
+                  <div class="laboratory-table-cell">
+
+                    <span>
+                      {{ request.category }}
+                    </span>
+
+                  </div>
+
+
+                  <div class="laboratory-table-cell">
+
+                    <span>
+                      {{ request.sampleType }}
+                    </span>
+
+                  </div>
+
+
+                  <div class="laboratory-table-cell">
+
+                    <strong>
+                      {{ formatCurrency(request.price) }}
+                    </strong>
+
+                  </div>
+
+
+                  <div class="laboratory-table-cell">
+
+                    <span
+                      class="laboratory-status"
+                      [class.pending]="
+                        request.status === 'Pending'
+                      "
+                      [class.in-progress]="
+                        request.status === 'In Progress'
+                      "
+                      [class.completed]="
+                        request.status === 'Completed'
+                      "
+                      [class.cancelled]="
+                        request.status === 'Cancelled'
+                      "
+                    >
+
+                      {{ request.status }}
+
+                    </span>
+
+                  </div>
+
+
+                  <div class="laboratory-table-action">
+
+                    <button
+                      type="button"
+                      class="remove-laboratory-button"
+                      (click)="removeLaboratoryTest(request.id)"
+                      [disabled]="
+                        isSaving ||
+                        typeof request.id === 'number' ||
+                        consultation.status === 'Completed' ||
+                        consultation.status === 'Cancelled'
+                      "
+                      title="Remove laboratory test"
+                    >
+
+                      <span class="material-symbols-outlined">
+                        delete
+                      </span>
+
+                    </button>
+
+                  </div>
+
+                </div>
+
+              }
+
+            </div>
+
+          }
+
+        </div>
+
+
+        <!-- LAB WORKFLOW NOTICE -->
+
+        @if (
+          laboratoryRequests.length > 0
+        ) {
+
+          <div class="laboratory-workflow-notice">
+
+            <span class="material-symbols-outlined">
+              account_tree
+            </span>
+
+            <div>
+
+              <strong>
+                Laboratory Workflow
+              </strong>
+
+              <p>
+                Saved laboratory requests are sent to the
+                Laboratory Queue. When all requested tests are
+                completed, the consultation becomes
+                <strong>Ready For Review</strong>.
+              </p>
+
+            </div>
+
+          </div>
+
+        }
+
+      </section>
+
+
+      <!-- ============================================== -->
+      <!-- PRESCRIPTION / PHARMACY -->
+      <!-- ============================================== -->
+
+      <section class="form-card pharmacy-prescription-card">
+
+        <div class="section-header">
+
+          <div class="section-icon">
+
+            <span class="material-symbols-outlined">
+              medication
+            </span>
+
+          </div>
+
+          <div>
+
+            <h2>
+              Prescription
+            </h2>
+
+            <p>
+              Prepare medicines for the patient as part of the treatment plan.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <!-- ADD MEDICINE -->
+
+        <div class="prescription-entry">
+
+          <div class="prescription-entry-grid">
+
+
+            <!-- MEDICINE -->
+
+            <div class="form-group">
+
+              <label>
+                Medicine
+              </label>
+
+              <select
+                name="selectedMedicineId"
+                [(ngModel)]="selectedMedicineId"
+                [disabled]="
+                  isSaving ||
+                  consultation.status === 'Completed' ||
+                  consultation.status === 'Cancelled'
+                "
+              >
+
+                <option value="">
+                  Select medicine
+                </option>
+
+                @for (
+                  medicine of medicines;
+                  track medicine.id
+                ) {
+
+                  <option
+                    [value]="medicine.id"
+                  >
+
+                    {{ medicine.name }}
+                    —
+                    {{ medicine.strength }}
+                    —
+                    {{ medicine.form }}
+                    —
+                    Stock:
+                    {{ medicine.quantity }}
+
+                  </option>
+
+                }
+
+              </select>
+
+            </div>
+
+
+            <!-- QUANTITY -->
+
+            <div class="form-group">
+
+              <label>
+                Quantity
+              </label>
+
+              <input
+                type="number"
+                name="medicineQuantity"
+                [(ngModel)]="medicineQuantity"
+                min="1"
+                step="1"
+                [disabled]="
+                  isSaving ||
+                  consultation.status === 'Completed' ||
+                  consultation.status === 'Cancelled'
+                "
+              />
+
+            </div>
+
+
+            <!-- DOSAGE -->
+
+            <div class="form-group">
+
+              <label>
+                Dosage
+              </label>
+
+              <input
+                type="text"
+                name="medicineDosage"
+                [(ngModel)]="medicineDosage"
+                placeholder="e.g. 1 tablet"
+                [disabled]="
+                  isSaving ||
+                  consultation.status === 'Completed' ||
+                  consultation.status === 'Cancelled'
+                "
+              />
+
+            </div>
+
+
+            <!-- FREQUENCY -->
+
+            <div class="form-group">
+
+              <label>
+                Frequency
+              </label>
+
+              <input
+                type="text"
+                name="medicineFrequency"
+                [(ngModel)]="medicineFrequency"
+                placeholder="e.g. Twice daily"
+                [disabled]="
+                  isSaving ||
+                  consultation.status === 'Completed' ||
+                  consultation.status === 'Cancelled'
+                "
+              />
+
+            </div>
+
+
+            <!-- DURATION -->
+
+            <div class="form-group">
+
+              <label>
+                Duration
+              </label>
+
+              <input
+                type="text"
+                name="medicineDuration"
+                [(ngModel)]="medicineDuration"
+                placeholder="e.g. 5 days"
+                [disabled]="
+                  isSaving ||
+                  consultation.status === 'Completed' ||
+                  consultation.status === 'Cancelled'
+                "
+              />
+
+            </div>
+
+
+            <!-- INSTRUCTIONS -->
+
+            <div class="form-group prescription-entry-wide">
+
+              <label>
+                Instructions
+              </label>
+
+              <input
+                type="text"
+                name="medicineInstructions"
+                [(ngModel)]="medicineInstructions"
+                placeholder="Special instructions for the patient..."
+                [disabled]="
+                  isSaving ||
+                  consultation.status === 'Completed' ||
+                  consultation.status === 'Cancelled'
+                "
+              />
+
+            </div>
+
+          </div>
+
+
+          <div class="prescription-entry-actions">
+
+            <button
+              type="button"
+              class="add-medicine-button"
+              (click)="addMedicine()"
+              [disabled]="
+                isSaving ||
+                consultation.status === 'Completed' ||
+                consultation.status === 'Cancelled'
+              "
+            >
+
+              <span class="material-symbols-outlined">
+                add
+              </span>
+
+              Add Medicine
+
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- PRESCRIBED MEDICINES -->
+
+        <div class="prescription-list">
+
+          <div class="prescription-list-header">
+
+            <div>
+
+              <h3>
+                Prescribed Medicines
+              </h3>
+
+              <p>
+
+                {{ prescribedMedicines.length }}
+
+                medicine{{
+                  prescribedMedicines.length === 1
+                    ? ''
+                    : 's'
+                }}
+
+              </p>
+
+            </div>
+
+
+            @if (
+              prescribedMedicines.length > 0
+            ) {
+
+              <strong class="prescription-total">
+
+                Total:
+                {{ formatCurrency(prescriptionTotal) }}
+
+              </strong>
+
+            }
+
+          </div>
+
+
+          @if (
+            prescribedMedicines.length === 0
+          ) {
+
+            <div class="prescription-empty">
+
+              <span class="material-symbols-outlined">
+                medication
+              </span>
+
+              <h4>
+                No medicines prescribed
+              </h4>
+
+              <p>
+                Select a medicine above and add it to the prescription.
+              </p>
+
+            </div>
+
+          }
+
+
+          @if (
+            prescribedMedicines.length > 0
+          ) {
+
+            <div class="prescription-table">
+
+              <div class="prescription-table-header">
+
+                <span>
+                  Medicine
+                </span>
+
+                <span>
+                  Quantity
+                </span>
+
+                <span>
+                  Dosage
+                </span>
+
+                <span>
+                  Frequency
+                </span>
+
+                <span>
+                  Duration
+                </span>
+
+                <span>
+                  Total
+                </span>
+
+                <span>
+                  Action
+                </span>
+
+              </div>
+
+
+              @for (
+                medicine of prescribedMedicines;
+                track medicine.medicineId
+              ) {
+
+                <div class="prescription-table-row">
+
+
+                  <!-- MEDICINE -->
+
+                  <div class="prescription-medicine">
+
+                    <div class="prescription-medicine-icon">
+
+                      <span class="material-symbols-outlined">
+                        medication
+                      </span>
+
+                    </div>
+
+
+                    <div>
+
+                      <strong>
+                        {{ medicine.medicineName }}
+                      </strong>
+
+                      <span>
+                        {{
+                          medicine.itemCode ||
+                          'No batch reference'
+                        }}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+
+                  <!-- QUANTITY -->
+
+                  <div class="prescription-table-cell">
+
+                    <strong>
+                      {{ medicine.quantity }}
+                    </strong>
+
+                    <span>
+                      {{ medicine.unit }}
+                    </span>
+
+                  </div>
+
+
+                  <!-- DOSAGE -->
+
+                  <div class="prescription-table-cell">
+
+                    <span>
+                      {{ medicine.dosage || '—' }}
+                    </span>
+
+                  </div>
+
+
+                  <!-- FREQUENCY -->
+
+                  <div class="prescription-table-cell">
+
+                    <span>
+                      {{ medicine.frequency || '—' }}
+                    </span>
+
+                  </div>
+
+
+                  <!-- DURATION -->
+
+                  <div class="prescription-table-cell">
+
+                    <span>
+                      {{ medicine.duration || '—' }}
+                    </span>
+
+                  </div>
+
+
+                  <!-- TOTAL -->
+
+                  <div class="prescription-table-cell">
+
+                    <strong>
+                      {{ formatCurrency(medicine.totalPrice) }}
+                    </strong>
+
+                  </div>
+
+
+                  <!-- ACTION -->
+
+                  <div class="prescription-table-action">
+
+                    <button
+                      type="button"
+                      class="remove-medicine-button"
+                      (click)="removeMedicine(medicine.medicineId)"
+                      [disabled]="
+                        isSaving ||
+                        consultation.status === 'Completed' ||
+                        consultation.status === 'Cancelled'
+                      "
+                      title="Remove medicine"
+                    >
+
+                      <span class="material-symbols-outlined">
+                        delete
+                      </span>
+
+                    </button>
+
+                  </div>
+
+                </div>
+
+              }
+
+            </div>
+
+          }
+
+        </div>
+
+
+        <!-- PHARMACY NOTES -->
+
+        <div class="form-group pharmacy-notes">
+
+          <label>
+            Pharmacy Notes
+          </label>
+
+          <textarea
+            name="pharmacyNotes"
+            [(ngModel)]="pharmacyNotes"
+            placeholder="Add any special instructions for the pharmacist..."
+            rows="3"
+            [disabled]="
+              isSaving ||
+              consultation.status === 'Completed' ||
+              consultation.status === 'Cancelled'
+            "
+          ></textarea>
+
+        </div>
+
+
+        <!-- PHARMACY WORKFLOW -->
+
+        @if (
+          prescribedMedicines.length > 0
+        ) {
+
+          <div class="pharmacy-workflow-notice">
+
+            <span class="material-symbols-outlined">
+              account_tree
+            </span>
+
+            <div>
+
+              <strong>
+                Pharmacy Workflow
+              </strong>
+
+              <p>
+                The prescription is linked to this consultation.
+                Pharmacy processing and dispensing are handled
+                by the Pharmacy module.
+              </p>
+
+            </div>
+
+          </div>
+
+        }
+
+      </section>
+
+
+      <!-- ============================================== -->
+      <!-- FOLLOW-UP -->
+      <!-- ============================================== -->
+
+      <section class="form-card">
+
+        <div class="section-header">
+
+          <div class="section-icon">
+
+            <span class="material-symbols-outlined">
+              event
+            </span>
+
+          </div>
+
+          <div>
+
+            <h2>
+              Follow-up
+            </h2>
+
+            <p>
+              Schedule the patient's next visit.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+          <div class="form-group">
+
+            <label>
+              Follow-up Date
+            </label>
+
+            <input
+              type="date"
+              name="followUpDate"
+              [(ngModel)]="consultation.followUpDate"
+              [disabled]="
+                isSaving ||
+                consultation.status === 'Completed' ||
+                consultation.status === 'Cancelled'
+              "
+            />
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ============================================== -->
+      <!-- CONSULTATION SUMMARY -->
+      <!-- ============================================== -->
+
+      <section class="form-card consultation-summary-card">
+
+        <div class="section-header">
+
+          <div class="section-icon">
+
+            <span class="material-symbols-outlined">
+              receipt_long
+            </span>
+
+          </div>
+
+          <div>
+
+            <h2>
+              Consultation Summary
+            </h2>
+
+            <p>
+              Charges and services associated with this consultation.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="consultation-summary-grid">
+
+
+          <div class="summary-charge">
+
+            <span>
+              Consultation
+            </span>
+
+            <strong>
+              {{ formatCurrency(consultationFee) }}
+            </strong>
+
+          </div>
+
+
+          <div class="summary-charge">
+
+            <span>
+              Laboratory
+            </span>
+
+            <strong>
+              {{ formatCurrency(laboratoryTotal) }}
+            </strong>
+
+          </div>
+
+
+          <div class="summary-charge">
+
+            <span>
+              Pharmacy
+            </span>
+
+            <strong>
+              {{ formatCurrency(prescriptionTotal) }}
+            </strong>
+
+          </div>
+
+
+          <div class="summary-charge summary-charge-total">
+
+            <span>
+              Estimated Charges
+            </span>
+
+            <strong>
+
+              {{
+                formatCurrency(
+                  consultationFee +
+                  laboratoryTotal +
+                  prescriptionTotal
+                )
+              }}
+
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="billing-summary-notice">
+
+          <span class="material-symbols-outlined">
+            info
+          </span>
+
+          <p>
+            These amounts are estimates for clinical reference.
+            Billing processes the patient's actual charges through
+            the shared billing workflow.
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <!-- ============================================== -->
+      <!-- ACTIONS -->
+      <!-- ============================================== -->
+
+      <div class="form-actions">
+
+
+        <!-- CANCEL -->
+
+        <button
+          type="button"
+          class="cancel-button"
+          (click)="cancel()"
+          [disabled]="isSaving"
+        >
+
+          <span class="material-symbols-outlined">
+            close
+          </span>
+
+          Cancel
+
+        </button>
+
+
+        <!-- ============================================ -->
+        <!-- SAVE PROGRESS -->
+        <!-- ============================================ -->
+
+        @if (
+          consultation.status !== 'Completed' &&
+          consultation.status !== 'Cancelled'
+        ) {
+
+          <button
+            type="button"
+            class="save-button"
+            (click)="saveConsultation()"
+            [disabled]="isSaving"
+          >
+
+            <span class="material-symbols-outlined">
+              save
+            </span>
+
+            @if (isSaving) {
+
+              Saving...
+
+            } @else {
+
+              Save Progress
+
+            }
+
+          </button>
+
+        }
+
+
+        <!-- ============================================ -->
+        <!-- COMPLETE -->
+        <!-- ============================================ -->
+
+        @if (
+          consultation.status === 'Open'
+        ) {
+
+          <button
+            type="button"
+            class="complete-button"
+            (click)="completeConsultation()"
+            [disabled]="
+              isSaving ||
+              !canCompleteConsultation
+            "
+          >
+
+            <span class="material-symbols-outlined">
+              check_circle
+            </span>
+
+            Complete Consultation
+
+          </button>
+
+        }
+
+
+        <!-- ============================================ -->
+        <!-- READY FOR REVIEW -->
+        <!-- ============================================ -->
+
+        @if (
+          consultation.status ===
+          'Ready For Review'
+        ) {
+
+          <div class="workflow-action-message">
+
+            <span class="material-symbols-outlined">
+              clinical_notes
+            </span>
+
+            <div>
+
+              <strong>
+                Laboratory Review Required
+              </strong>
+
+              <span>
+                Review the laboratory results above.
+              </span>
+
+            </div>
+
+          </div>
+
+        }
+
+
+        <!-- ============================================ -->
+        <!-- PENDING RESULTS -->
+        <!-- ============================================ -->
+
+        @if (
+          consultation.status ===
+          'Pending Results'
+        ) {
+
+          <div class="workflow-action-message">
+
+            <span class="material-symbols-outlined">
+              science
+            </span>
+
+            <div>
+
+              <strong>
+                Waiting for Laboratory Results
+              </strong>
+
+              <span>
+                The consultation will continue after all requested
+                laboratory tests are completed.
+              </span>
+
+            </div>
+
+          </div>
+
+        }
+
+
+        <!-- ============================================ -->
+        <!-- COMPLETED -->
+        <!-- ============================================ -->
+
+        @if (
+          consultation.status ===
+          'Completed'
+        ) {
+
+          <div class="workflow-action-message completed-message">
+
+            <span class="material-symbols-outlined">
+              task_alt
+            </span>
+
+            <div>
+
+              <strong>
+                Consultation Completed
+              </strong>
+
+              <span>
+                This consultation has been finalized as a clinical record.
+              </span>
+
+            </div>
+
+          </div>
+
+        }
+
+
+        <!-- ============================================ -->
+        <!-- CANCELLED -->
+        <!-- ============================================ -->
+
+        @if (
+          consultation.status ===
+          'Cancelled'
+        ) {
+
+          <div class="workflow-action-message cancelled-message">
+
+            <span class="material-symbols-outlined">
+              cancel
+            </span>
+
+            <div>
+
+              <strong>
+                Consultation Cancelled
+              </strong>
+
+              <span>
+                This consultation is cancelled.
+              </span>
+
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+
+    </form>
+
+  }
+
+</div>
+

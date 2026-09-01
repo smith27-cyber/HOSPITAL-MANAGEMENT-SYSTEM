@@ -1,0 +1,477 @@
+<div class="billing-register-page">
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Create Billing Record
+      </h1>
+
+      <p>
+        Create a new patient billing or invoice record
+      </p>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="cancel()"
+    >
+
+      <span class="material-symbols-outlined">
+        arrow_back
+      </span>
+
+      Back to Billing
+
+    </button>
+
+  </div>
+
+
+
+  <!-- ================================================= -->
+  <!-- FORM -->
+  <!-- ================================================= -->
+
+  <section class="form-card">
+
+
+    <!-- ================================================= -->
+    <!-- PATIENT INFORMATION -->
+    <!-- ================================================= -->
+
+    <div class="card-header">
+
+      <div>
+
+        <h2>
+          Patient Information
+        </h2>
+
+        <span>
+          Enter the patient details for this billing record.
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div class="form-body">
+
+
+      <!-- PATIENT ID -->
+
+      <div class="form-group">
+
+        <label for="patientId">
+          Patient ID
+          <span>*</span>
+        </label>
+
+        <input
+          id="patientId"
+          type="text"
+          name="patientId"
+          [(ngModel)]="bill.patientId"
+          placeholder="e.g. PAT-001"
+        />
+
+      </div>
+
+
+      <!-- PATIENT NUMBER -->
+
+      <div class="form-group">
+
+        <label for="patientNumber">
+          Patient Number
+        </label>
+
+        <input
+          id="patientNumber"
+          type="text"
+          name="patientNumber"
+          [(ngModel)]="bill.patientNumber"
+          placeholder="e.g. P000123"
+        />
+
+      </div>
+
+
+      <!-- PATIENT NAME -->
+
+      <div class="form-group full-width">
+
+        <label for="patientName">
+          Patient Name
+          <span>*</span>
+        </label>
+
+        <input
+          id="patientName"
+          type="text"
+          name="patientName"
+          [(ngModel)]="bill.patientName"
+          placeholder="Enter patient full name"
+        />
+
+      </div>
+
+
+      <!-- DOCTOR -->
+
+      <div class="form-group">
+
+        <label for="doctorName">
+          Doctor
+        </label>
+
+        <input
+          id="doctorName"
+          type="text"
+          name="doctorName"
+          [(ngModel)]="bill.doctorName"
+          placeholder="Enter doctor name"
+        />
+
+      </div>
+
+
+      <!-- DEPARTMENT -->
+
+      <div class="form-group">
+
+        <label for="departmentName">
+          Department
+        </label>
+
+        <input
+          id="departmentName"
+          type="text"
+          name="departmentName"
+          [(ngModel)]="bill.departmentName"
+          placeholder="e.g. Outpatient Department"
+        />
+
+      </div>
+
+
+    </div>
+
+
+
+    <!-- ================================================= -->
+    <!-- BILLING INFORMATION -->
+    <!-- ================================================= -->
+
+    <div class="card-header">
+
+      <div>
+
+        <h2>
+          Billing Information
+        </h2>
+
+        <span>
+          Enter the service and payment information.
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div class="form-body">
+
+
+      <!-- BILLING TYPE -->
+
+      <div class="form-group">
+
+        <label for="billingType">
+          Billing Type
+          <span>*</span>
+        </label>
+
+        <select
+          id="billingType"
+          name="billingType"
+          [(ngModel)]="bill.billingType"
+        >
+
+          @for (
+            type of billingTypes;
+            track type
+          ) {
+
+            <option
+              [value]="type"
+            >
+
+              {{ type }}
+
+            </option>
+
+          }
+
+        </select>
+
+      </div>
+
+
+      <!-- DESCRIPTION -->
+
+      <div class="form-group full-width">
+
+        <label for="description">
+          Description
+          <span>*</span>
+        </label>
+
+        <input
+          id="description"
+          type="text"
+          name="description"
+          [(ngModel)]="bill.description"
+          placeholder="e.g. Consultation fee"
+        />
+
+      </div>
+
+
+      <!-- AMOUNT -->
+
+      <div class="form-group">
+
+        <label for="amount">
+          Amount (UGX)
+          <span>*</span>
+        </label>
+
+        <input
+          id="amount"
+          type="number"
+          name="amount"
+          [(ngModel)]="bill.amount"
+          min="0"
+          step="100"
+          placeholder="e.g. 50000"
+        />
+
+      </div>
+
+
+      <!-- AMOUNT PAID -->
+
+      <div class="form-group">
+
+        <label for="amountPaid">
+          Amount Paid (UGX)
+        </label>
+
+        <input
+          id="amountPaid"
+          type="number"
+          name="amountPaid"
+          [(ngModel)]="bill.amountPaid"
+          min="0"
+          step="100"
+          placeholder="e.g. 20000"
+        />
+
+      </div>
+
+
+      <!-- PAYMENT METHOD -->
+
+      <div class="form-group">
+
+        <label for="paymentMethod">
+          Payment Method
+        </label>
+
+        <select
+          id="paymentMethod"
+          name="paymentMethod"
+          [(ngModel)]="bill.paymentMethod"
+        >
+
+          @for (
+            method of paymentMethods;
+            track method
+          ) {
+
+            <option
+              [value]="method"
+            >
+
+              {{ method }}
+
+            </option>
+
+          }
+
+        </select>
+
+      </div>
+
+
+      <!-- BILLING DATE -->
+
+      <div class="form-group">
+
+        <label for="billingDate">
+          Billing Date
+          <span>*</span>
+        </label>
+
+        <input
+          id="billingDate"
+          type="date"
+          name="billingDate"
+          [(ngModel)]="bill.billingDate"
+        />
+
+      </div>
+
+
+      <!-- DUE DATE -->
+
+      <div class="form-group">
+
+        <label for="dueDate">
+          Due Date
+        </label>
+
+        <input
+          id="dueDate"
+          type="date"
+          name="dueDate"
+          [(ngModel)]="bill.dueDate"
+        />
+
+      </div>
+
+
+      <!-- NOTES -->
+
+      <div class="form-group full-width">
+
+        <label for="notes">
+          Notes
+        </label>
+
+        <textarea
+          id="notes"
+          name="notes"
+          rows="5"
+          [(ngModel)]="bill.notes"
+          placeholder="Enter any additional billing notes..."
+        ></textarea>
+
+      </div>
+
+
+    </div>
+
+
+
+    <!-- ================================================= -->
+    <!-- PAYMENT SUMMARY -->
+    <!-- ================================================= -->
+
+    <div class="billing-summary">
+
+      <div class="summary-item">
+
+        <span>
+          Total Amount
+        </span>
+
+        <strong>
+          UGX {{ bill.amount | number:'1.0-0' }}
+        </strong>
+
+      </div>
+
+
+      <div class="summary-item">
+
+        <span>
+          Amount Paid
+        </span>
+
+        <strong>
+          UGX {{ bill.amountPaid | number:'1.0-0' }}
+        </strong>
+
+      </div>
+
+
+      <div class="summary-item balance">
+
+        <span>
+          Balance
+        </span>
+
+        <strong>
+          UGX {{
+            (bill.amount - bill.amountPaid > 0
+              ? bill.amount - bill.amountPaid
+              : 0)
+            | number:'1.0-0'
+          }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- ================================================= -->
+    <!-- ACTIONS -->
+    <!-- ================================================= -->
+
+    <div class="form-actions">
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="cancel()"
+      >
+
+        Cancel
+
+      </button>
+
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="saveBilling()"
+      >
+
+        <span class="material-symbols-outlined">
+          save
+        </span>
+
+        Create Bill
+
+      </button>
+
+    </div>
+
+
+  </section>
+
+</div>
