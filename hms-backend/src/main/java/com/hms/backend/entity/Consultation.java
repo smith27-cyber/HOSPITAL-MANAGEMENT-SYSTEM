@@ -57,13 +57,8 @@ public class Consultation {
     private String patientId;
 
 
-    @Column(
-        name = "patient_name",
-        nullable = false,
-        length = 200
-    )
-    private String patientName;
-
+   @Transient
+private String patientName;
 
     // =====================================================
     // DOCTOR

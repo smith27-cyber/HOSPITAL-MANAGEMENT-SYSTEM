@@ -19,7 +19,7 @@ public interface ConsultationService {
     // =====================================================
 
     ConsultationResponse getConsultationById(
-        String id
+            String id
     );
 
 
@@ -28,7 +28,7 @@ public interface ConsultationService {
     // =====================================================
 
     List<ConsultationResponse> getConsultationsByPatient(
-        String patientId
+            String patientId
     );
 
 
@@ -37,7 +37,7 @@ public interface ConsultationService {
     // =====================================================
 
     List<ConsultationResponse> getConsultationsByDoctor(
-        String doctorId
+            String doctorId
     );
 
 
@@ -46,7 +46,7 @@ public interface ConsultationService {
     // =====================================================
 
     ConsultationResponse getConsultationByAppointment(
-        String appointmentId
+            String appointmentId
     );
 
 
@@ -55,7 +55,7 @@ public interface ConsultationService {
     // =====================================================
 
     ConsultationResponse getConsultationByAppointmentOrNull(
-        String appointmentId
+            String appointmentId
     );
 
 
@@ -64,7 +64,7 @@ public interface ConsultationService {
     // =====================================================
 
     ConsultationResponse createConsultation(
-        ConsultationRequest request
+            ConsultationRequest request
     );
 
 
@@ -73,8 +73,8 @@ public interface ConsultationService {
     // =====================================================
 
     ConsultationResponse updateConsultation(
-        String id,
-        ConsultationRequest request
+            String id,
+            ConsultationRequest request
     );
 
 
@@ -83,19 +83,18 @@ public interface ConsultationService {
     // =====================================================
 
     ConsultationResponse updateStatus(
-        String id,
-        String status
+            String id,
+            String status
     );
-    
-// =====================================================
-// REVIEW LABORATORY RESULTS
-// =====================================================
-
-ConsultationResponse reviewLaboratoryResults(
-        String id
-);
 
 
+    // =====================================================
+    // REVIEW LABORATORY RESULTS
+    // =====================================================
+
+    ConsultationResponse reviewLaboratoryResults(
+            String id
+    );
 
 
     // =====================================================
@@ -103,7 +102,7 @@ ConsultationResponse reviewLaboratoryResults(
     // =====================================================
 
     ConsultationResponse completeConsultation(
-        String id
+            String id
     );
 
 
@@ -112,7 +111,7 @@ ConsultationResponse reviewLaboratoryResults(
     // =====================================================
 
     ConsultationResponse cancelConsultation(
-        String id
+            String id
     );
 
 
@@ -121,6 +120,6 @@ ConsultationResponse reviewLaboratoryResults(
     // =====================================================
 
     void deleteConsultation(
-        String id
+            String id
     );
 }

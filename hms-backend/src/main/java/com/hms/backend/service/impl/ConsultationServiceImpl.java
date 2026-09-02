@@ -1,10 +1,7 @@
-
 package com.hms.backend.service.impl;
 
-import com.hms.backend.dto.BillingItemRequest;
 import com.hms.backend.dto.ConsultationRequest;
 import com.hms.backend.dto.ConsultationResponse;
-import com.hms.backend.entity.Billing;
 import com.hms.backend.entity.Consultation;
 import com.hms.backend.repository.ConsultationRepository;
 import com.hms.backend.service.BillingService;
@@ -13,7 +10,6 @@ import com.hms.backend.service.ConsultationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -25,8 +21,6 @@ import java.util.stream.Collectors;
 public class ConsultationServiceImpl
         implements ConsultationService {
 
-    private static final BigDecimal CONSULTATION_FEE =
-            new BigDecimal("30000");
 
     private final ConsultationRepository consultationRepository;
 
@@ -73,7 +67,8 @@ public class ConsultationServiceImpl
     @Override
     @Transactional(readOnly = true)
     public ConsultationResponse getConsultationById(
-            String id) {
+            String id
+    ) {
 
         Consultation consultation =
                 findConsultation(id);
@@ -91,7 +86,8 @@ public class ConsultationServiceImpl
     @Override
     @Transactional(readOnly = true)
     public List<ConsultationResponse> getConsultationsByPatient(
-            String patientId) {
+            String patientId
+    ) {
 
         if (isBlank(patientId)) {
 
@@ -117,7 +113,8 @@ public class ConsultationServiceImpl
     @Override
     @Transactional(readOnly = true)
     public List<ConsultationResponse> getConsultationsByDoctor(
-            String doctorId) {
+            String doctorId
+    ) {
 
         if (isBlank(doctorId)) {
 
@@ -143,7 +140,8 @@ public class ConsultationServiceImpl
     @Override
     @Transactional(readOnly = true)
     public ConsultationResponse getConsultationByAppointment(
-            String appointmentId) {
+            String appointmentId
+    ) {
 
         if (isBlank(appointmentId)) {
 
@@ -166,7 +164,8 @@ public class ConsultationServiceImpl
     @Override
     @Transactional(readOnly = true)
     public ConsultationResponse getConsultationByAppointmentOrNull(
-            String appointmentId) {
+            String appointmentId
+    ) {
 
         return getConsultationByAppointment(
                 appointmentId
@@ -180,7 +179,8 @@ public class ConsultationServiceImpl
 
     @Override
     public ConsultationResponse createConsultation(
-            ConsultationRequest request) {
+            ConsultationRequest request
+    ) {
 
         validateRequest(request);
 
@@ -228,30 +228,57 @@ public class ConsultationServiceImpl
                 new Consultation();
 
 
+        // -------------------------------------------------
+        // GENERATE ID
+        // -------------------------------------------------
+
         consultation.setId(
                 generateConsultationId()
         );
 
+
+        // -------------------------------------------------
+        // PATIENT
+        // -------------------------------------------------
 
         consultation.setPatientId(
                 request.getPatientId().trim()
         );
 
 
+        /*
+         * patientName is @Transient in the current
+         * Consultation entity.
+         *
+         * It is useful for the response/UI but is NOT
+         * persisted in the consultations table.
+         */
         consultation.setPatientName(
                 patientName
         );
 
+
+        // -------------------------------------------------
+        // DOCTOR
+        // -------------------------------------------------
 
         consultation.setDoctorId(
                 request.getDoctorId().trim()
         );
 
 
+        // -------------------------------------------------
+        // APPOINTMENT
+        // -------------------------------------------------
+
         consultation.setAppointmentId(
                 appointmentId
         );
 
+
+        // -------------------------------------------------
+        // DATE
+        // -------------------------------------------------
 
         consultation.setConsultationDate(
                 parseRequiredDate(
@@ -260,12 +287,20 @@ public class ConsultationServiceImpl
         );
 
 
+        // -------------------------------------------------
+        // TIME
+        // -------------------------------------------------
+
         consultation.setConsultationTime(
                 parseRequiredTime(
                         request.getConsultationTime()
                 )
         );
 
+
+        // -------------------------------------------------
+        // CLINICAL INFORMATION
+        // -------------------------------------------------
 
         consultation.setChiefComplaint(
                 request.getChiefComplaint().trim()
@@ -307,43 +342,43 @@ public class ConsultationServiceImpl
         );
 
 
-        // -------------------------------------------------
-        // INITIAL STATUS
-        // -------------------------------------------------
+        // =================================================
+        // INITIAL WORKFLOW STATE
+        // =================================================
 
         consultation.setStatus(
                 Consultation.ConsultationStatus.OPEN
         );
 
 
-        // -------------------------------------------------
-        // INITIAL WORKFLOW FLAGS
-        // -------------------------------------------------
-
         consultation.setHasLaboratoryRequests(
                 false
         );
+
 
         consultation.setHasLaboratoryResults(
                 false
         );
 
+
         consultation.setLaboratoryResultsReviewed(
                 false
         );
 
+
         consultation.setHasPrescription(
                 false
         );
+
 
         consultation.setHasBilling(
                 false
         );
 
 
-        // -------------------------------------------------
+        // =================================================
         // SAVE CONSULTATION FIRST
-        // -------------------------------------------------
+        // =================================================
 
         Consultation saved =
                 consultationRepository.save(
@@ -352,16 +387,25 @@ public class ConsultationServiceImpl
 
 
         // =================================================
-        // ADD CONSULTATION BILLING
+        // CREATE / SYNC CONSULTATION INVOICE
+        // =================================================
+        //
+        // IMPORTANT:
+        //
+        // This creates the invoice belonging specifically
+        // to this consultation.
+        //
+        // It does NOT complete the consultation.
+        //
         // =================================================
 
-        Billing bill =
-                addConsultationCharge(
-                        saved
-                );
+        try {
 
+            billingService
+                    .syncConsultationInvoice(
+                            saved.getId()
+                    );
 
-        if (bill != null) {
 
             saved.setHasBilling(
                     true
@@ -372,6 +416,20 @@ public class ConsultationServiceImpl
                     consultationRepository.save(
                             saved
                     );
+
+        } catch (Exception error) {
+
+            /*
+             * The consultation itself has already been saved.
+             *
+             * We deliberately do not mark the consultation
+             * as completed.
+             *
+             * Re-throwing allows the transaction to roll back
+             * if billing synchronization fails.
+             */
+
+            throw error;
         }
 
 
@@ -382,78 +440,14 @@ public class ConsultationServiceImpl
 
 
     // =====================================================
-    // ADD CONSULTATION CHARGE
-    // =====================================================
-
-    private Billing addConsultationCharge(
-            Consultation consultation
-    ) {
-
-        if (consultation == null) {
-
-            return null;
-        }
-
-
-        BillingItemRequest billingItem =
-                new BillingItemRequest();
-
-
-        billingItem.setBillingType(
-                "Consultation"
-        );
-
-
-        billingItem.setDescription(
-                "Medical consultation"
-        );
-
-
-        billingItem.setQuantity(
-                1
-        );
-
-
-        billingItem.setUnitPrice(
-                CONSULTATION_FEE
-        );
-
-
-        billingItem.setReferenceId(
-                consultation.getId()
-        );
-
-
-        return billingService
-                .addChargeToPatientBill(
-
-                        consultation.getPatientId(),
-
-                        billingItem,
-
-                        consultation.getPatientName(),
-
-                        null,
-
-                        consultation.getDoctorId(),
-
-                        null,
-
-                        null,
-
-                        null
-                );
-    }
-
-
-    // =====================================================
     // UPDATE CONSULTATION
     // =====================================================
 
     @Override
     public ConsultationResponse updateConsultation(
             String id,
-            ConsultationRequest request) {
+            ConsultationRequest request
+    ) {
 
         validateRequest(request);
 
@@ -462,9 +456,13 @@ public class ConsultationServiceImpl
                 findConsultation(id);
 
 
+        // -------------------------------------------------
+        // COMPLETED PROTECTION
+        // -------------------------------------------------
+
         if (
                 consultation.getStatus() ==
-                Consultation.ConsultationStatus.COMPLETED
+                        Consultation.ConsultationStatus.COMPLETED
         ) {
 
             throw new IllegalStateException(
@@ -473,9 +471,13 @@ public class ConsultationServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // CANCELLED PROTECTION
+        // -------------------------------------------------
+
         if (
                 consultation.getStatus() ==
-                Consultation.ConsultationStatus.CANCELLED
+                        Consultation.ConsultationStatus.CANCELLED
         ) {
 
             throw new IllegalStateException(
@@ -485,34 +487,41 @@ public class ConsultationServiceImpl
         }
 
 
-        String patientName =
-                clean(
-                        request.getPatientName()
-                );
-
-
-        if (patientName == null) {
-
-            throw new IllegalArgumentException(
-                    "Patient name is required."
-            );
-        }
-
+        // -------------------------------------------------
+        // PATIENT
+        // -------------------------------------------------
 
         consultation.setPatientId(
                 request.getPatientId().trim()
         );
 
 
-        consultation.setPatientName(
-                patientName
-        );
+        String patientName =
+                clean(
+                        request.getPatientName()
+                );
 
+
+        if (patientName != null) {
+
+            consultation.setPatientName(
+                    patientName
+            );
+        }
+
+
+        // -------------------------------------------------
+        // DOCTOR
+        // -------------------------------------------------
 
         consultation.setDoctorId(
                 request.getDoctorId().trim()
         );
 
+
+        // -------------------------------------------------
+        // APPOINTMENT
+        // -------------------------------------------------
 
         String appointmentId =
                 clean(
@@ -543,6 +552,10 @@ public class ConsultationServiceImpl
         );
 
 
+        // -------------------------------------------------
+        // DATE
+        // -------------------------------------------------
+
         consultation.setConsultationDate(
                 parseRequiredDate(
                         request.getConsultationDate()
@@ -550,12 +563,20 @@ public class ConsultationServiceImpl
         );
 
 
+        // -------------------------------------------------
+        // TIME
+        // -------------------------------------------------
+
         consultation.setConsultationTime(
                 parseRequiredTime(
                         request.getConsultationTime()
                 )
         );
 
+
+        // -------------------------------------------------
+        // CLINICAL INFORMATION
+        // -------------------------------------------------
 
         consultation.setChiefComplaint(
                 request.getChiefComplaint().trim()
@@ -597,10 +618,53 @@ public class ConsultationServiceImpl
         );
 
 
+        // -------------------------------------------------
+        // SAVE PROGRESS
+        // -------------------------------------------------
+        //
+        // IMPORTANT:
+        //
+        // Updating the consultation does NOT complete it.
+        //
+        // -------------------------------------------------
+
         Consultation saved =
                 consultationRepository.save(
                         consultation
                 );
+
+
+        // -------------------------------------------------
+        // KEEP BILLING LINK SYNCHRONIZED
+        // -------------------------------------------------
+
+        try {
+
+            billingService
+                    .syncConsultationInvoice(
+                            saved.getId()
+                    );
+
+
+            if (!saved.isHasBilling()) {
+
+                saved.setHasBilling(
+                        true
+                );
+
+                saved =
+                        consultationRepository.save(
+                                saved
+                        );
+            }
+
+        } catch (Exception error) {
+
+            /*
+             * Do not silently ignore billing failures.
+             */
+            throw error;
+        }
 
 
         return new ConsultationResponse(
@@ -616,7 +680,8 @@ public class ConsultationServiceImpl
     @Override
     public ConsultationResponse updateStatus(
             String id,
-            String status) {
+            String status
+    ) {
 
         Consultation consultation =
                 findConsultation(id);
@@ -631,6 +696,7 @@ public class ConsultationServiceImpl
 
 
         Consultation.ConsultationStatus newStatus;
+
 
         try {
 
@@ -651,9 +717,13 @@ public class ConsultationServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // COMPLETED MUST USE DEDICATED ENDPOINT
+        // -------------------------------------------------
+
         if (
                 newStatus ==
-                Consultation.ConsultationStatus.COMPLETED
+                        Consultation.ConsultationStatus.COMPLETED
         ) {
 
             throw new IllegalStateException(
@@ -663,12 +733,16 @@ public class ConsultationServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // LABORATORY WORKFLOW STATUSES
+        // -------------------------------------------------
+
         if (
                 newStatus ==
-                Consultation.ConsultationStatus.PENDING_RESULTS
+                        Consultation.ConsultationStatus.PENDING_RESULTS
                 ||
                 newStatus ==
-                Consultation.ConsultationStatus.READY_FOR_REVIEW
+                        Consultation.ConsultationStatus.READY_FOR_REVIEW
         ) {
 
             throw new IllegalStateException(
@@ -677,9 +751,13 @@ public class ConsultationServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // COMPLETED PROTECTION
+        // -------------------------------------------------
+
         if (
                 consultation.getStatus() ==
-                Consultation.ConsultationStatus.COMPLETED
+                        Consultation.ConsultationStatus.COMPLETED
         ) {
 
             throw new IllegalStateException(
@@ -688,12 +766,16 @@ public class ConsultationServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // CANCELLED
+        // -------------------------------------------------
+
         if (
                 consultation.getStatus() ==
-                Consultation.ConsultationStatus.CANCELLED
+                        Consultation.ConsultationStatus.CANCELLED
                 &&
                 newStatus !=
-                Consultation.ConsultationStatus.OPEN
+                        Consultation.ConsultationStatus.OPEN
         ) {
 
             throw new IllegalStateException(
@@ -702,30 +784,38 @@ public class ConsultationServiceImpl
         }
 
 
-        if (
-                consultation.getStatus() ==
-                Consultation.ConsultationStatus.READY_FOR_REVIEW
-                &&
-                newStatus ==
-                Consultation.ConsultationStatus.OPEN
-        ) {
-
-            throw new IllegalStateException(
-                    "Use Review Laboratory Results before returning the consultation to OPEN."
-            );
-        }
-
+        // -------------------------------------------------
+        // PENDING RESULTS
+        // -------------------------------------------------
 
         if (
                 consultation.getStatus() ==
-                Consultation.ConsultationStatus.PENDING_RESULTS
+                        Consultation.ConsultationStatus.PENDING_RESULTS
                 &&
                 newStatus ==
-                Consultation.ConsultationStatus.OPEN
+                        Consultation.ConsultationStatus.OPEN
         ) {
 
             throw new IllegalStateException(
                     "The consultation is waiting for laboratory results."
+            );
+        }
+
+
+        // -------------------------------------------------
+        // READY FOR REVIEW
+        // -------------------------------------------------
+
+        if (
+                consultation.getStatus() ==
+                        Consultation.ConsultationStatus.READY_FOR_REVIEW
+                &&
+                newStatus ==
+                        Consultation.ConsultationStatus.OPEN
+        ) {
+
+            throw new IllegalStateException(
+                    "Use Review Laboratory Results before returning the consultation to OPEN."
             );
         }
 
@@ -753,15 +843,20 @@ public class ConsultationServiceImpl
 
     @Override
     public ConsultationResponse reviewLaboratoryResults(
-            String id) {
+            String id
+    ) {
 
         Consultation consultation =
                 findConsultation(id);
 
 
+        // -------------------------------------------------
+        // COMPLETED
+        // -------------------------------------------------
+
         if (
                 consultation.getStatus() ==
-                Consultation.ConsultationStatus.COMPLETED
+                        Consultation.ConsultationStatus.COMPLETED
         ) {
 
             throw new IllegalStateException(
@@ -770,9 +865,13 @@ public class ConsultationServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // CANCELLED
+        // -------------------------------------------------
+
         if (
                 consultation.getStatus() ==
-                Consultation.ConsultationStatus.CANCELLED
+                        Consultation.ConsultationStatus.CANCELLED
         ) {
 
             throw new IllegalStateException(
@@ -780,6 +879,10 @@ public class ConsultationServiceImpl
             );
         }
 
+
+        // -------------------------------------------------
+        // LAB REQUESTS
+        // -------------------------------------------------
 
         if (
                 !consultation.isHasLaboratoryRequests()
@@ -791,6 +894,10 @@ public class ConsultationServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // LAB RESULTS
+        // -------------------------------------------------
+
         if (
                 !consultation.isHasLaboratoryResults()
         ) {
@@ -801,9 +908,13 @@ public class ConsultationServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // READY FOR REVIEW
+        // -------------------------------------------------
+
         if (
                 consultation.getStatus() !=
-                Consultation.ConsultationStatus.READY_FOR_REVIEW
+                        Consultation.ConsultationStatus.READY_FOR_REVIEW
         ) {
 
             throw new IllegalStateException(
@@ -811,6 +922,10 @@ public class ConsultationServiceImpl
             );
         }
 
+
+        // -------------------------------------------------
+        // PREVENT DOUBLE REVIEW
+        // -------------------------------------------------
 
         if (
                 consultation.isLaboratoryResultsReviewed()
@@ -822,10 +937,18 @@ public class ConsultationServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // MARK RESULTS REVIEWED
+        // -------------------------------------------------
+
         consultation.setLaboratoryResultsReviewed(
                 true
         );
 
+
+        // -------------------------------------------------
+        // RETURN TO OPEN
+        // -------------------------------------------------
 
         consultation.setStatus(
                 Consultation.ConsultationStatus.OPEN
@@ -850,15 +973,20 @@ public class ConsultationServiceImpl
 
     @Override
     public ConsultationResponse completeConsultation(
-            String id) {
+            String id
+    ) {
 
         Consultation consultation =
                 findConsultation(id);
 
 
+        // -------------------------------------------------
+        // ONLY OPEN CAN COMPLETE
+        // -------------------------------------------------
+
         if (
                 consultation.getStatus() !=
-                Consultation.ConsultationStatus.OPEN
+                        Consultation.ConsultationStatus.OPEN
         ) {
 
             throw new IllegalStateException(
@@ -866,6 +994,10 @@ public class ConsultationServiceImpl
             );
         }
 
+
+        // -------------------------------------------------
+        // FINAL DIAGNOSIS
+        // -------------------------------------------------
 
         if (
                 isBlank(
@@ -879,6 +1011,10 @@ public class ConsultationServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // TREATMENT PLAN
+        // -------------------------------------------------
+
         if (
                 isBlank(
                         consultation.getTreatmentPlan()
@@ -890,6 +1026,10 @@ public class ConsultationServiceImpl
             );
         }
 
+
+        // -------------------------------------------------
+        // LABORATORY REQUIREMENTS
+        // -------------------------------------------------
 
         if (
                 consultation.isHasLaboratoryRequests()
@@ -916,6 +1056,33 @@ public class ConsultationServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // FINAL BILLING SYNCHRONIZATION
+        // -------------------------------------------------
+        //
+        // This ensures that laboratory/pharmacy charges
+        // already associated with the consultation are
+        // reflected on the consultation invoice.
+        //
+        // It does NOT create a second invoice.
+        //
+        // -------------------------------------------------
+
+        billingService
+                .syncConsultationInvoice(
+                        consultation.getId()
+                );
+
+
+        consultation.setHasBilling(
+                true
+        );
+
+
+        // -------------------------------------------------
+        // COMPLETE
+        // -------------------------------------------------
+
         consultation.setStatus(
                 Consultation.ConsultationStatus.COMPLETED
         );
@@ -939,7 +1106,8 @@ public class ConsultationServiceImpl
 
     @Override
     public ConsultationResponse cancelConsultation(
-            String id) {
+            String id
+    ) {
 
         Consultation consultation =
                 findConsultation(id);
@@ -947,7 +1115,7 @@ public class ConsultationServiceImpl
 
         if (
                 consultation.getStatus() ==
-                Consultation.ConsultationStatus.COMPLETED
+                        Consultation.ConsultationStatus.COMPLETED
         ) {
 
             throw new IllegalStateException(
@@ -958,7 +1126,7 @@ public class ConsultationServiceImpl
 
         if (
                 consultation.getStatus() ==
-                Consultation.ConsultationStatus.CANCELLED
+                        Consultation.ConsultationStatus.CANCELLED
         ) {
 
             throw new IllegalStateException(
@@ -990,7 +1158,8 @@ public class ConsultationServiceImpl
 
     @Override
     public void deleteConsultation(
-            String id) {
+            String id
+    ) {
 
         Consultation consultation =
                 findConsultation(id);
@@ -998,7 +1167,7 @@ public class ConsultationServiceImpl
 
         if (
                 consultation.getStatus() ==
-                Consultation.ConsultationStatus.COMPLETED
+                        Consultation.ConsultationStatus.COMPLETED
         ) {
 
             throw new IllegalStateException(
@@ -1018,7 +1187,8 @@ public class ConsultationServiceImpl
     // =====================================================
 
     private Consultation findConsultation(
-            String id) {
+            String id
+    ) {
 
         if (isBlank(id)) {
 
@@ -1047,7 +1217,8 @@ public class ConsultationServiceImpl
     // =====================================================
 
     private void validateRequest(
-            ConsultationRequest request) {
+            ConsultationRequest request
+    ) {
 
         if (request == null) {
 
@@ -1129,6 +1300,10 @@ public class ConsultationServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // DATE
+        // -------------------------------------------------
+
         try {
 
             LocalDate.parse(
@@ -1146,6 +1321,10 @@ public class ConsultationServiceImpl
         }
 
 
+        // -------------------------------------------------
+        // TIME
+        // -------------------------------------------------
+
         try {
 
             LocalTime.parse(
@@ -1162,6 +1341,10 @@ public class ConsultationServiceImpl
             );
         }
 
+
+        // -------------------------------------------------
+        // FOLLOW-UP DATE
+        // -------------------------------------------------
 
         String followUpDate =
                 clean(
@@ -1193,7 +1376,8 @@ public class ConsultationServiceImpl
     // =====================================================
 
     private LocalDate parseRequiredDate(
-            String value) {
+            String value
+    ) {
 
         try {
 
@@ -1216,7 +1400,8 @@ public class ConsultationServiceImpl
     // =====================================================
 
     private LocalTime parseRequiredTime(
-            String value) {
+            String value
+    ) {
 
         try {
 
@@ -1239,7 +1424,8 @@ public class ConsultationServiceImpl
     // =====================================================
 
     private LocalDate parseOptionalDate(
-            String value) {
+            String value
+    ) {
 
         String cleaned =
                 clean(value);
@@ -1272,7 +1458,8 @@ public class ConsultationServiceImpl
     // =====================================================
 
     private String clean(
-            String value) {
+            String value
+    ) {
 
         if (isBlank(value)) {
 
@@ -1288,7 +1475,8 @@ public class ConsultationServiceImpl
     // =====================================================
 
     private boolean isBlank(
-            String value) {
+            String value
+    ) {
 
         return value == null ||
                 value.trim().isEmpty();
@@ -1311,4 +1499,3 @@ public class ConsultationServiceImpl
                         .toUpperCase();
     }
 }
-

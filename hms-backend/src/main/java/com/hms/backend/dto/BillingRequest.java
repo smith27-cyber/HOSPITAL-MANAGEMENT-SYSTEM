@@ -3,10 +3,8 @@ package com.hms.backend.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +14,20 @@ import java.util.List;
  * =====================================================
  *
  * Used when creating or updating a billing invoice.
+ *
+ * Consultation billing:
+ *
+ * One consultation
+ *       |
+ *       +---- Consultation charge
+ *       +---- Laboratory charges
+ *       +---- Pharmacy charges
+ *       |
+ *       v
+ *    ONE INVOICE
+ *
+ * Saving or synchronizing billing does NOT complete
+ * the consultation.
  */
 public class BillingRequest {
 
@@ -46,12 +58,27 @@ public class BillingRequest {
 
 
     // =====================================================
+    // CONSULTATION
+    // =====================================================
+
+    /**
+     * Optional consultation identifier.
+     *
+     * For consultation-based billing this should be
+     * populated with the consultation ID.
+     */
+    private String consultationId;
+
+
+    // =====================================================
     // BILLING INFORMATION
     // =====================================================
 
     private String description;
 
-    private LocalDate dueDate;
+    private LocalDateTime billingDate;
+
+    private LocalDateTime dueDate;
 
     private String notes;
 
@@ -132,6 +159,15 @@ public class BillingRequest {
     }
 
 
+    public String getConsultationId() {
+        return consultationId;
+    }
+
+    public void setConsultationId(String consultationId) {
+        this.consultationId = consultationId;
+    }
+
+
     public String getDescription() {
         return description;
     }
@@ -141,11 +177,20 @@ public class BillingRequest {
     }
 
 
-    public LocalDate getDueDate() {
+    public LocalDateTime getBillingDate() {
+        return billingDate;
+    }
+
+    public void setBillingDate(LocalDateTime billingDate) {
+        this.billingDate = billingDate;
+    }
+
+
+    public LocalDateTime getDueDate() {
         return dueDate;
     }
 
-    public void setDueDate(LocalDate dueDate) {
+    public void setDueDate(LocalDateTime dueDate) {
         this.dueDate = dueDate;
     }
 

@@ -1,4 +1,3 @@
-
 package com.hms.backend.controller;
 
 import com.hms.backend.dto.ConsultationRequest;
@@ -17,6 +16,7 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class ConsultationController {
 
+
     private final ConsultationService consultationService;
 
 
@@ -25,15 +25,16 @@ public class ConsultationController {
     // =====================================================
 
     public ConsultationController(
-        ConsultationService consultationService
+            ConsultationService consultationService
     ) {
+
         this.consultationService =
-            consultationService;
+                consultationService;
     }
 
 
     // =====================================================
-    // GET ALL CONSULTATIONS
+    // GET ALL
     // =====================================================
 
     @GetMapping
@@ -41,94 +42,94 @@ public class ConsultationController {
     getAllConsultations() {
 
         return ResponseEntity.ok(
-            consultationService
-                .getAllConsultations()
+                consultationService
+                        .getAllConsultations()
         );
     }
 
 
     // =====================================================
-    // GET CONSULTATION BY ID
+    // GET BY ID
     // =====================================================
 
     @GetMapping("/{id}")
     public ResponseEntity<ConsultationResponse>
     getConsultationById(
-        @PathVariable String id
+            @PathVariable String id
     ) {
 
         return ResponseEntity.ok(
-            consultationService
-                .getConsultationById(id)
+                consultationService
+                        .getConsultationById(id)
         );
     }
 
 
     // =====================================================
-    // GET CONSULTATIONS BY PATIENT
+    // GET BY PATIENT
     // =====================================================
 
     @GetMapping("/patient/{patientId}")
     public ResponseEntity<List<ConsultationResponse>>
     getConsultationsByPatient(
-        @PathVariable String patientId
+            @PathVariable String patientId
     ) {
 
         return ResponseEntity.ok(
-            consultationService
-                .getConsultationsByPatient(
-                    patientId
-                )
+                consultationService
+                        .getConsultationsByPatient(
+                                patientId
+                        )
         );
     }
 
 
     // =====================================================
-    // GET CONSULTATIONS BY DOCTOR
+    // GET BY DOCTOR
     // =====================================================
 
     @GetMapping("/doctor/{doctorId}")
     public ResponseEntity<List<ConsultationResponse>>
     getConsultationsByDoctor(
-        @PathVariable String doctorId
+            @PathVariable String doctorId
     ) {
 
         return ResponseEntity.ok(
-            consultationService
-                .getConsultationsByDoctor(
-                    doctorId
-                )
+                consultationService
+                        .getConsultationsByDoctor(
+                                doctorId
+                        )
         );
     }
 
 
     // =====================================================
-    // GET CONSULTATION BY APPOINTMENT
+    // GET BY APPOINTMENT
     // =====================================================
 
     @GetMapping("/appointment/{appointmentId}")
     public ResponseEntity<ConsultationResponse>
     getConsultationByAppointment(
-        @PathVariable String appointmentId
+            @PathVariable String appointmentId
     ) {
 
         ConsultationResponse consultation =
-            consultationService
-                .getConsultationByAppointmentOrNull(
-                    appointmentId
-                );
+                consultationService
+                        .getConsultationByAppointmentOrNull(
+                                appointmentId
+                        );
 
 
         if (consultation == null) {
 
             return ResponseEntity
-                .noContent()
-                .build();
+                    .noContent()
+                    .build();
         }
 
 
         return ResponseEntity.ok(
-            consultation
+                consultation
         );
     }
 
@@ -137,33 +138,39 @@ public class ConsultationController {
     // CREATE / SAVE CONSULTATION
     // =====================================================
     //
-    // IMPORTANT:
-    // Creating a consultation only saves the consultation.
+    // Saves a new consultation.
     //
-    // It does NOT:
-    // - complete the consultation
-    // - create a laboratory request
-    // - create a prescription
-    // - create billing
+    // Initial status:
     //
-    // Initial status = OPEN.
+    // OPEN
+    //
+    // The consultation is NOT completed here.
+    //
+    // A consultation-specific invoice is created
+    // by the service.
     //
     // =====================================================
 
     @PostMapping
     public ResponseEntity<ConsultationResponse>
     createConsultation(
-        @RequestBody ConsultationRequest request
+            @RequestBody ConsultationRequest request
     ) {
 
         ConsultationResponse response =
-            consultationService
-                .createConsultation(request);
+                consultationService
+                        .createConsultation(
+                                request
+                        );
 
 
         return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(response);
+                .status(
+                        HttpStatus.CREATED
+                )
+                .body(
+                        response
+                );
     }
 
 
@@ -171,26 +178,23 @@ public class ConsultationController {
     // UPDATE / SAVE PROGRESS
     // =====================================================
     //
-    // IMPORTANT:
-    // Updating a consultation does NOT complete it.
-    //
-    // The current workflow status is preserved.
+    // Does NOT complete the consultation.
     //
     // =====================================================
 
     @PutMapping("/{id}")
     public ResponseEntity<ConsultationResponse>
     updateConsultation(
-        @PathVariable String id,
-        @RequestBody ConsultationRequest request
+            @PathVariable String id,
+            @RequestBody ConsultationRequest request
     ) {
 
         return ResponseEntity.ok(
-            consultationService
-                .updateConsultation(
-                    id,
-                    request
-                )
+                consultationService
+                        .updateConsultation(
+                                id,
+                                request
+                        )
         );
     }
 
@@ -199,12 +203,9 @@ public class ConsultationController {
     // UPDATE STATUS
     // =====================================================
     //
-    // This endpoint is for controlled non-completion
-    // status changes.
+    // COMPLETED is intentionally blocked here.
     //
-    // COMPLETED must NEVER be set here.
-    //
-    // Completion must use:
+    // Use:
     //
     // PATCH /api/consultations/{id}/complete
     //
@@ -213,16 +214,16 @@ public class ConsultationController {
     @PatchMapping("/{id}/status")
     public ResponseEntity<ConsultationResponse>
     updateStatus(
-        @PathVariable String id,
-        @RequestParam String status
+            @PathVariable String id,
+            @RequestParam String status
     ) {
 
         return ResponseEntity.ok(
-            consultationService
-                .updateStatus(
-                    id,
-                    status
-                )
+                consultationService
+                        .updateStatus(
+                                id,
+                                status
+                        )
         );
     }
 
@@ -230,38 +231,20 @@ public class ConsultationController {
     // =====================================================
     // REVIEW LABORATORY RESULTS
     // =====================================================
-    //
-    // Workflow:
-    //
-    // Laboratory request
-    //        ↓
-    // Laboratory performs test
-    //        ↓
-    // Results entered
-    //        ↓
-    // Doctor reviews results
-    //        ↓
-    // READY_FOR_REVIEW / reviewed
-    //        ↓
-    // Final diagnosis
-    //        ↓
-    // Treatment plan
-    //        ↓
-    // Complete consultation
-    //
-    // This operation does NOT complete the consultation.
-    //
-    // =====================================================
 
-    @PatchMapping("/{id}/review-laboratory-results")
+    @PatchMapping(
+            "/{id}/review-laboratory-results"
+    )
     public ResponseEntity<ConsultationResponse>
     reviewLaboratoryResults(
-        @PathVariable String id
+            @PathVariable String id
     ) {
 
         return ResponseEntity.ok(
-            consultationService
-                .reviewLaboratoryResults(id)
+                consultationService
+                        .reviewLaboratoryResults(
+                                id
+                        )
         );
     }
 
@@ -269,31 +252,18 @@ public class ConsultationController {
     // =====================================================
     // COMPLETE CONSULTATION
     // =====================================================
-    //
-    // This is the ONLY endpoint that completes
-    // a consultation.
-    //
-    // The service must verify:
-    //
-    // 1. Consultation is not cancelled
-    // 2. Consultation is not already completed
-    // 3. Required laboratory workflow is satisfied
-    // 4. Laboratory results have been reviewed
-    //    when laboratory investigations were requested
-    // 5. Final diagnosis exists
-    // 6. Treatment plan exists
-    //
-    // =====================================================
 
     @PatchMapping("/{id}/complete")
     public ResponseEntity<ConsultationResponse>
     completeConsultation(
-        @PathVariable String id
+            @PathVariable String id
     ) {
 
         return ResponseEntity.ok(
-            consultationService
-                .completeConsultation(id)
+                consultationService
+                        .completeConsultation(
+                                id
+                        )
         );
     }
 
@@ -305,39 +275,34 @@ public class ConsultationController {
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<ConsultationResponse>
     cancelConsultation(
-        @PathVariable String id
+            @PathVariable String id
     ) {
 
         return ResponseEntity.ok(
-            consultationService
-                .cancelConsultation(id)
+                consultationService
+                        .cancelConsultation(
+                                id
+                        )
         );
     }
 
 
     // =====================================================
-    // DELETE CONSULTATION
-    // =====================================================
-    //
-    // Completed consultations should not be deleted.
-    //
-    // The service controls this rule.
-    //
+    // DELETE
     // =====================================================
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void>
     deleteConsultation(
-        @PathVariable String id
+            @PathVariable String id
     ) {
 
         consultationService
-            .deleteConsultation(id);
+                .deleteConsultation(id);
 
 
         return ResponseEntity
-            .noContent()
-            .build();
+                .noContent()
+                .build();
     }
 }
-

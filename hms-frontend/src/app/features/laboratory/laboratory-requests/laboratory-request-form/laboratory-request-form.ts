@@ -1,6 +1,5 @@
-
-
 import {
+  ChangeDetectorRef,
   Component,
   OnInit
 } from '@angular/core';
@@ -125,7 +124,10 @@ export class LaboratoryRequestForm implements OnInit {
       ActivatedRoute,
 
     private router:
-      Router
+      Router,
+
+    private cdr:
+      ChangeDetectorRef
 
   ) {}
 
@@ -145,16 +147,34 @@ export class LaboratoryRequestForm implements OnInit {
         .get('id');
 
 
+    // ===================================================
+    // CREATE MODE
+    // ===================================================
+
     if (!id) {
+
+      /*
+       * Make sure the initial form is rendered
+       * immediately.
+       */
+      this.cdr.detectChanges();
 
       return;
 
     }
 
 
+    // ===================================================
+    // CONVERT ID
+    // ===================================================
+
     const numericId =
       Number(id);
 
+
+    // ===================================================
+    // VALIDATE ID
+    // ===================================================
 
     if (
       !Number.isInteger(numericId) ||
@@ -174,9 +194,25 @@ export class LaboratoryRequestForm implements OnInit {
     }
 
 
+    // ===================================================
+    // EDIT MODE
+    // ===================================================
+
     this.isEditMode = true;
 
     this.editingId = numericId;
+
+
+    /*
+     * Immediately notify Angular that edit mode
+     * has changed.
+     */
+    this.cdr.detectChanges();
+
+
+    // ===================================================
+    // LOAD REQUEST
+    // ===================================================
 
     this.loadRequest(
       numericId
@@ -193,21 +229,62 @@ export class LaboratoryRequestForm implements OnInit {
 
     this.isLoading = true;
 
+    this.errorMessage = '';
+
+
+    /*
+     * Update the UI immediately so the loading
+     * state is reflected before the HTTP request.
+     */
+    this.cdr.detectChanges();
+
+
     this.laboratoryService
       .getTests()
       .subscribe({
 
+        // =================================================
+        // SUCCESS
+        // =================================================
+
         next:
           (tests: LaboratoryTest[]) => {
 
+            /*
+             * Normalize the response.
+             */
             this.tests =
               Array.isArray(tests)
                 ? [...tests]
                 : [];
 
+
+            /*
+             * Tests have now been received.
+             */
             this.isLoading = false;
 
+
+            /*
+             * IMPORTANT:
+             *
+             * Force Angular to immediately render
+             * the received laboratory tests.
+             */
+            this.cdr.detectChanges();
+
+
+            console.log(
+              'Laboratory tests loaded:',
+              this.tests
+            );
+
           },
+
+
+        // =================================================
+        // ERROR
+        // =================================================
 
         error:
           (error: unknown) => {
@@ -217,12 +294,21 @@ export class LaboratoryRequestForm implements OnInit {
               error
             );
 
+
             this.tests = [];
 
             this.isLoading = false;
 
+
             this.errorMessage =
               'Unable to load laboratory tests.';
+
+
+            /*
+             * Force error state to render immediately.
+             */
+            this.cdr.detectChanges();
+
 
             alert(
               'Unable to load laboratory tests.'
@@ -245,9 +331,22 @@ export class LaboratoryRequestForm implements OnInit {
 
     this.isLoading = true;
 
+    this.errorMessage = '';
+
+
+    /*
+     * Immediately update loading state.
+     */
+    this.cdr.detectChanges();
+
+
     this.laboratoryService
       .getRequestById(id)
       .subscribe({
+
+        // =================================================
+        // SUCCESS
+        // =================================================
 
         next:
           (
@@ -255,22 +354,35 @@ export class LaboratoryRequestForm implements OnInit {
               LaboratoryRequest | undefined
           ) => {
 
+            // =============================================
+            // REQUEST NOT FOUND
+            // =============================================
+
             if (!existing) {
 
               this.isLoading = false;
+
+              this.cdr.detectChanges();
+
 
               alert(
                 'Laboratory request could not be found.'
               );
 
+
               this.router.navigate([
                 '/laboratory/requests'
               ]);
+
 
               return;
 
             }
 
+
+            // =============================================
+            // LOAD REQUEST DATA
+            // =============================================
 
             this.request = {
 
@@ -279,20 +391,115 @@ export class LaboratoryRequestForm implements OnInit {
               id:
                 Number(existing.id),
 
+              patientId:
+                String(
+                  existing.patientId ?? ''
+                ),
+
+              patientName:
+                String(
+                  existing.patientName ?? ''
+                ),
+
+              doctorId:
+                String(
+                  existing.doctorId ?? ''
+                ),
+
+              doctorName:
+                String(
+                  existing.doctorName ?? ''
+                ),
+
               testId:
-                Number(existing.testId),
+                Number(
+                  existing.testId || 0
+                ),
+
+              testName:
+                String(
+                  existing.testName ?? ''
+                ),
+
+              category:
+                existing.category ||
+                'Hematology',
+
+              sampleType:
+                existing.sampleType ||
+                'Blood',
+
+              status:
+                existing.status ||
+                'Pending',
+
+              result:
+                String(
+                  existing.result ?? ''
+                ),
+
+              notes:
+                String(
+                  existing.notes ?? ''
+                ),
 
               price:
                 Number(
                   existing.price || 0
-                )
+                ),
+
+              requestedAt:
+                existing.requestedAt || ''
 
             };
 
 
+            // =============================================
+            // FINISH LOADING
+            // =============================================
+
             this.isLoading = false;
 
+
+            /*
+             * IMPORTANT:
+             *
+             * Force Angular to render the loaded
+             * laboratory request immediately.
+             */
+            this.cdr.detectChanges();
+
+
+            console.log(
+              'Laboratory request loaded:',
+              this.request
+            );
+
+
+            // =============================================
+            // SYNCHRONIZE SELECTED TEST
+            // =============================================
+
+            if (
+              this.tests.length > 0 &&
+              this.request.testId > 0
+            ) {
+
+              this.testSelected();
+
+              /*
+               * Render the synchronized test values.
+               */
+              this.cdr.detectChanges();
+
+            }
+
           },
+
+
+        // =================================================
+        // ERROR
+        // =================================================
 
         error:
           (error: unknown) => {
@@ -302,14 +509,24 @@ export class LaboratoryRequestForm implements OnInit {
               error
             );
 
+
             this.isLoading = false;
+
 
             this.errorMessage =
               'Unable to load laboratory request.';
 
+
+            /*
+             * Force Angular to display the error state.
+             */
+            this.cdr.detectChanges();
+
+
             alert(
               'Unable to load laboratory request.'
             );
+
 
             this.router.navigate([
               '/laboratory/requests'
@@ -334,6 +551,10 @@ export class LaboratoryRequestForm implements OnInit {
       );
 
 
+    // ===================================================
+    // INVALID TEST
+    // ===================================================
+
     if (
       !Number.isInteger(testId) ||
       testId <= 0
@@ -351,10 +572,17 @@ export class LaboratoryRequestForm implements OnInit {
 
       this.request.price = 0;
 
+
+      this.cdr.detectChanges();
+
       return;
 
     }
 
+
+    // ===================================================
+    // FIND SELECTED TEST
+    // ===================================================
 
     const selected =
       this.tests.find(
@@ -365,6 +593,10 @@ export class LaboratoryRequestForm implements OnInit {
           testId
       );
 
+
+    // ===================================================
+    // TEST NOT YET AVAILABLE
+    // ===================================================
 
     if (!selected) {
 
@@ -393,6 +625,13 @@ export class LaboratoryRequestForm implements OnInit {
       Number(
         selected.price || 0
       );
+
+
+    /*
+     * Force the dropdown and dependent fields
+     * to update immediately.
+     */
+    this.cdr.detectChanges();
 
   }
 
@@ -423,10 +662,12 @@ export class LaboratoryRequestForm implements OnInit {
         this.request.patientId ?? ''
       ).trim();
 
+
     this.request.patientName =
       String(
         this.request.patientName ?? ''
       ).trim();
+
 
     this.request.doctorId =
       this.request.doctorId
@@ -435,6 +676,7 @@ export class LaboratoryRequestForm implements OnInit {
           ).trim()
         : '';
 
+
     this.request.doctorName =
       this.request.doctorName
         ? String(
@@ -442,12 +684,14 @@ export class LaboratoryRequestForm implements OnInit {
           ).trim()
         : '';
 
+
     this.request.result =
       this.request.result
         ? String(
             this.request.result
           ).trim()
         : '';
+
 
     this.request.notes =
       this.request.notes
@@ -465,6 +709,7 @@ export class LaboratoryRequestForm implements OnInit {
       Number(
         this.request.testId || 0
       );
+
 
     this.request.price =
       Number(
@@ -562,6 +807,10 @@ export class LaboratoryRequestForm implements OnInit {
     }
 
 
+    // ===================================================
+    // DISPLAY VALIDATION ERRORS
+    // ===================================================
+
     if (
       missingFields.length > 0
     ) {
@@ -570,6 +819,9 @@ export class LaboratoryRequestForm implements OnInit {
         'Please complete the following fields:\n\n' +
         missingFields.join('\n')
       );
+
+
+      this.cdr.detectChanges();
 
       return;
 
@@ -581,6 +833,10 @@ export class LaboratoryRequestForm implements OnInit {
     // ===================================================
 
     if (this.isEditMode) {
+
+      // ===============================================
+      // VALIDATE EDITING ID
+      // ===============================================
 
       if (
         this.editingId === null ||
@@ -598,6 +854,10 @@ export class LaboratoryRequestForm implements OnInit {
 
       }
 
+
+      // ===============================================
+      // BUILD UPDATED REQUEST
+      // ===============================================
 
       const updatedRequest:
         LaboratoryRequest = {
@@ -620,14 +880,28 @@ export class LaboratoryRequestForm implements OnInit {
       };
 
 
+      // ===============================================
+      // START SAVING
+      // ===============================================
+
       this.isSaving = true;
 
+      this.cdr.detectChanges();
+
+
+      // ===============================================
+      // UPDATE REQUEST
+      // ===============================================
 
       this.laboratoryService
         .updateRequest(
           updatedRequest
         )
         .subscribe({
+
+          // =============================================
+          // SUCCESS
+          // =============================================
 
           next:
             (
@@ -640,17 +914,27 @@ export class LaboratoryRequestForm implements OnInit {
                 savedRequest
               );
 
+
               this.isSaving = false;
+
+              this.cdr.detectChanges();
+
 
               alert(
                 'Laboratory request updated successfully.'
               );
+
 
               this.router.navigate([
                 '/laboratory/requests'
               ]);
 
             },
+
+
+          // =============================================
+          // ERROR
+          // =============================================
 
           error:
             (error: unknown) => {
@@ -660,7 +944,12 @@ export class LaboratoryRequestForm implements OnInit {
                 error
               );
 
+
               this.isSaving = false;
+
+
+              this.cdr.detectChanges();
+
 
               alert(
                 'Unable to update laboratory request.'
@@ -669,6 +958,7 @@ export class LaboratoryRequestForm implements OnInit {
             }
 
         });
+
 
       return;
 
@@ -681,7 +971,7 @@ export class LaboratoryRequestForm implements OnInit {
     //
     // IMPORTANT:
     //
-    // DO NOT send an ID.
+    // DO NOT SEND AN ID.
     //
     // PostgreSQL generates the numeric ID.
     //
@@ -740,10 +1030,17 @@ export class LaboratoryRequestForm implements OnInit {
 
 
     // ===================================================
-    // SAVE TO SPRING BOOT
+    // START SAVING
     // ===================================================
 
     this.isSaving = true;
+
+    this.cdr.detectChanges();
+
+
+    // ===================================================
+    // SAVE TO SPRING BOOT
+    // ===================================================
 
     this.laboratoryService
       .addRequest(
@@ -751,28 +1048,42 @@ export class LaboratoryRequestForm implements OnInit {
       )
       .subscribe({
 
+        // =================================================
+        // SUCCESS
+        // =================================================
+
         next:
           (
             createdRequest:
               LaboratoryRequest
-          ) => {
+            ) => {
 
             console.log(
               'Laboratory request created:',
               createdRequest
             );
 
+
             this.isSaving = false;
+
+            this.cdr.detectChanges();
+
 
             alert(
               'Laboratory request created successfully.'
             );
+
 
             this.router.navigate([
               '/laboratory/requests'
             ]);
 
           },
+
+
+        // =================================================
+        // ERROR
+        // =================================================
 
         error:
           (error: unknown) => {
@@ -782,7 +1093,11 @@ export class LaboratoryRequestForm implements OnInit {
               error
             );
 
+
             this.isSaving = false;
+
+            this.cdr.detectChanges();
+
 
             alert(
               'Unable to create laboratory request.'
@@ -808,4 +1123,3 @@ export class LaboratoryRequestForm implements OnInit {
   }
 
 }
-

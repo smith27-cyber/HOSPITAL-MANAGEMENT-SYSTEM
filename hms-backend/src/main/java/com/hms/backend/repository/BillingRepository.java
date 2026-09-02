@@ -1,35 +1,32 @@
-
 package com.hms.backend.repository;
 
 import com.hms.backend.entity.Billing;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
-/**
- * =====================================================
- * BILLING REPOSITORY
- * =====================================================
- */
 @Repository
 public interface BillingRepository
         extends JpaRepository<Billing, Long> {
 
-    /**
-     * Find all invoices belonging to a patient.
-     */
-    List<Billing> findByPatientIdOrderByBillingDateDesc(
+
+    // =====================================================
+    // PATIENT
+    // =====================================================
+
+    List<Billing>
+    findByPatientIdOrderByBillingDateDesc(
             String patientId
     );
 
 
-    /**
-     * Find the active invoice for a patient.
-     *
-     * Paid and cancelled invoices are excluded.
-     */
+    // =====================================================
+    // ACTIVE PATIENT BILL
+    // =====================================================
+
     Optional<Billing>
     findFirstByPatientIdAndStatusNotAndStatusNotOrderByBillingDateDesc(
             String patientId,
@@ -38,30 +35,49 @@ public interface BillingRepository
     );
 
 
-    /**
-     * Find invoice by invoice number.
-     */
+    // =====================================================
+    // CONSULTATION BILL
+    // =====================================================
+
+    Optional<Billing>
+    findFirstByConsultationIdAndStatusNotAndStatusNotOrderByBillingDateDesc(
+            String consultationId,
+            Billing.BillingStatus paidStatus,
+            Billing.BillingStatus cancelledStatus
+    );
+
+
+    // =====================================================
+    // CONSULTATION BILL HISTORY
+    // =====================================================
+
+    Optional<Billing>
+    findFirstByConsultationIdOrderByBillingDateDesc(
+            String consultationId
+    );
+
+
+    // =====================================================
+    // INVOICE
+    // =====================================================
+
     Optional<Billing>
     findByInvoiceNumber(
             String invoiceNumber
     );
 
 
-    /**
-     * Find invoices by billing status.
-     */
-    List<Billing>
-    findByStatusOrderByBillingDateDesc(
-            Billing.BillingStatus status
-    );
-
-
-    /**
-     * Check whether an invoice number already exists.
-     */
     boolean existsByInvoiceNumber(
             String invoiceNumber
     );
 
-}
 
+    // =====================================================
+    // STATUS
+    // =====================================================
+
+    List<Billing>
+    findByStatusOrderByBillingDateDesc(
+            Billing.BillingStatus status
+    );
+}

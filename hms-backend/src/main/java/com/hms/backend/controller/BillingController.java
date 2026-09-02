@@ -1,4 +1,3 @@
-
 package com.hms.backend.controller;
 
 import com.hms.backend.dto.BillingItemRequest;
@@ -22,6 +21,31 @@ import java.util.List;
  * Base URL:
  *
  * /api/billing
+ *
+ * =====================================================
+ * BILLING WORKFLOW
+ * =====================================================
+ *
+ * One consultation should have one invoice.
+ *
+ * Consultation
+ *      |
+ *      +---- Consultation Charge
+ *      |
+ *      +---- Laboratory Charges
+ *      |
+ *      +---- Pharmacy Charges
+ *      |
+ *      v
+ *   ONE BILL / INVOICE
+ *
+ * Example:
+ *
+ * POST /api/billing/consultation/CON-001/sync
+ *
+ * This endpoint creates the consultation invoice if it
+ * does not exist, or updates the existing invoice with
+ * any new consultation, laboratory, or pharmacy charges.
  */
 @RestController
 @RequestMapping("/api/billing")
@@ -37,18 +61,16 @@ public class BillingController {
             BillingService billingService
     ) {
 
-        this.billingService =
-                billingService;
+        this.billingService = billingService;
     }
 
 
     // =====================================================
-    // GET ALL
+    // GET ALL BILLS
     // =====================================================
 
     @GetMapping
-    public ResponseEntity<List<Billing>>
-    getAllBills() {
+    public ResponseEntity<List<Billing>> getAllBills() {
 
         return ResponseEntity.ok(
                 billingService.getAllBills()
@@ -57,20 +79,17 @@ public class BillingController {
 
 
     // =====================================================
-    // GET BY ID
+    // GET BILL BY ID
     // =====================================================
 
     @GetMapping("/{id}")
-    public ResponseEntity<Billing>
-    getBillById(
+    public ResponseEntity<Billing> getBillById(
             @PathVariable Long id
     ) {
 
         return billingService
                 .getBillById(id)
-                .map(
-                        ResponseEntity::ok
-                )
+                .map(ResponseEntity::ok)
                 .orElseGet(
                         () ->
                                 ResponseEntity
@@ -81,20 +100,18 @@ public class BillingController {
 
 
     // =====================================================
-    // GET BY PATIENT
+    // GET BILLS BY PATIENT
     // =====================================================
 
     @GetMapping("/patient/{patientId}")
-    public ResponseEntity<List<Billing>>
-    getBillsByPatient(
+    public ResponseEntity<List<Billing>> getBillsByPatient(
             @PathVariable String patientId
     ) {
 
         return ResponseEntity.ok(
-                billingService
-                        .getBillsByPatient(
-                                patientId
-                        )
+                billingService.getBillsByPatient(
+                        patientId
+                )
         );
     }
 
@@ -103,11 +120,15 @@ public class BillingController {
     // GET ACTIVE PATIENT BILL
     // =====================================================
 
-    @GetMapping(
-            "/patient/{patientId}/active"
-    )
-    public ResponseEntity<Billing>
-    getActiveBillByPatient(
+    /**
+     * Legacy/general billing endpoint.
+     *
+     * For consultation billing, prefer:
+     *
+     * GET /api/billing/consultation/{consultationId}
+     */
+    @GetMapping("/patient/{patientId}/active")
+    public ResponseEntity<Billing> getActiveBillByPatient(
             @PathVariable String patientId
     ) {
 
@@ -115,9 +136,7 @@ public class BillingController {
                 .getActiveBillByPatient(
                         patientId
                 )
-                .map(
-                        ResponseEntity::ok
-                )
+                .map(ResponseEntity::ok)
                 .orElseGet(
                         () ->
                                 ResponseEntity
@@ -128,21 +147,100 @@ public class BillingController {
 
 
     // =====================================================
-    // GET BY STATUS
+    // GET BILL BY CONSULTATION
+    // =====================================================
+
+    /**
+     * Gets the invoice belonging to a consultation.
+     *
+     * This is the preferred billing lookup for the HMS
+     * consultation workflow.
+     *
+     * Example:
+     *
+     * GET /api/billing/consultation/CON-001
+     */
+    @GetMapping("/consultation/{consultationId}")
+    public ResponseEntity<Billing> getBillByConsultation(
+            @PathVariable String consultationId
+    ) {
+
+        return billingService
+                .getBillByConsultation(
+                        consultationId
+                )
+                .map(ResponseEntity::ok)
+                .orElseGet(
+                        () ->
+                                ResponseEntity
+                                        .notFound()
+                                        .build()
+                );
+    }
+
+
+    // =====================================================
+    // SYNCHRONIZE CONSULTATION INVOICE
+    // =====================================================
+
+    /**
+     * =====================================================
+     * MAIN CONSULTATION BILLING ENDPOINT
+     * =====================================================
+     *
+     * Creates or synchronizes ONE invoice for the
+     * specified consultation.
+     *
+     * The invoice may contain:
+     *
+     * 1. Consultation charge
+     * 2. Laboratory charges
+     * 3. Pharmacy charges
+     *
+     * Repeated calls must not create duplicate charges.
+     *
+     * Example:
+     *
+     * POST /api/billing/consultation/CON-001/sync
+     *
+     * The same endpoint can be called after:
+     *
+     * - consultation is saved
+     * - laboratory request is added
+     * - laboratory result is completed
+     * - pharmacy prescription is added
+     * - additional charge is added
+     *
+     * The consultation itself is NOT completed by this
+     * endpoint.
+     */
+    @PostMapping("/consultation/{consultationId}/sync")
+    public ResponseEntity<Billing> syncConsultationInvoice(
+            @PathVariable String consultationId
+    ) {
+
+        Billing bill =
+                billingService.syncConsultationInvoice(
+                        consultationId
+                );
+
+        return ResponseEntity.ok(bill);
+    }
+
+
+    // =====================================================
+    // GET BILLS BY STATUS
     // =====================================================
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<Billing>>
-    getBillsByStatus(
-            @PathVariable
-            Billing.BillingStatus status
+    public ResponseEntity<List<Billing>> getBillsByStatus(
+            @PathVariable Billing.BillingStatus status
     ) {
 
         return ResponseEntity.ok(
-                billingService
-                        .getBillsByStatus(
-                                status
-                        )
+                billingService.getBillsByStatus(
+                        status
+                )
         );
     }
 
@@ -152,8 +250,7 @@ public class BillingController {
     // =====================================================
 
     @PostMapping
-    public ResponseEntity<Billing>
-    createBill(
+    public ResponseEntity<Billing> createBill(
             @Valid
             @RequestBody
             BillingRequest request
@@ -164,26 +261,25 @@ public class BillingController {
                         request
                 );
 
-
         return ResponseEntity
-                .status(
-                        HttpStatus.CREATED
-                )
-                .body(
-                        bill
-                );
+                .status(HttpStatus.CREATED)
+                .body(bill);
     }
 
 
     // =====================================================
-    // ADD CHARGE
+    // ADD CHARGE TO PATIENT BILL
     // =====================================================
 
-    @PostMapping(
-            "/patient/{patientId}/charge"
-    )
-    public ResponseEntity<Billing>
-    addChargeToPatientBill(
+    /**
+     * General/legacy billing endpoint.
+     *
+     * Consultation-specific charges should preferably
+     * use the consultation invoice synchronization
+     * endpoint instead.
+     */
+    @PostMapping("/patient/{patientId}/charge")
+    public ResponseEntity<Billing> addChargeToPatientBill(
 
             @PathVariable
             String patientId,
@@ -222,18 +318,16 @@ public class BillingController {
     ) {
 
         Billing bill =
-                billingService
-                        .addChargeToPatientBill(
-                                patientId,
-                                item,
-                                patientName,
-                                patientNumber,
-                                doctorId,
-                                doctorName,
-                                departmentId,
-                                departmentName
-                        );
-
+                billingService.addChargeToPatientBill(
+                        patientId,
+                        item,
+                        patientName,
+                        patientNumber,
+                        doctorId,
+                        doctorName,
+                        departmentId,
+                        departmentName
+                );
 
         return ResponseEntity.ok(
                 bill
@@ -246,8 +340,7 @@ public class BillingController {
     // =====================================================
 
     @PutMapping("/{id}")
-    public ResponseEntity<Billing>
-    updateBill(
+    public ResponseEntity<Billing> updateBill(
 
             @PathVariable
             Long id,
@@ -271,15 +364,11 @@ public class BillingController {
     // =====================================================
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void>
-    deleteBill(
+    public ResponseEntity<Void> deleteBill(
             @PathVariable Long id
     ) {
 
-        billingService.deleteBill(
-                id
-        );
-
+        billingService.deleteBill(id);
 
         return ResponseEntity
                 .noContent()
@@ -292,8 +381,7 @@ public class BillingController {
     // =====================================================
 
     @PostMapping("/{id}/payment")
-    public ResponseEntity<Billing>
-    recordPayment(
+    public ResponseEntity<Billing> recordPayment(
 
             @PathVariable
             Long id,
@@ -313,12 +401,11 @@ public class BillingController {
 
 
     // =====================================================
-    // UPDATE STATUS
+    // UPDATE BILL STATUS
     // =====================================================
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Billing>
-    updateStatus(
+    public ResponseEntity<Billing> updateStatus(
 
             @PathVariable
             Long id,
@@ -341,8 +428,7 @@ public class BillingController {
     // =====================================================
 
     @GetMapping("/statistics/count")
-    public ResponseEntity<Long>
-    getCount() {
+    public ResponseEntity<Long> getCount() {
 
         return ResponseEntity.ok(
                 billingService.countBills()
@@ -351,8 +437,7 @@ public class BillingController {
 
 
     @GetMapping("/statistics/total")
-    public ResponseEntity<BigDecimal>
-    getTotalAmount() {
+    public ResponseEntity<BigDecimal> getTotalAmount() {
 
         return ResponseEntity.ok(
                 billingService.getTotalAmount()
@@ -361,8 +446,7 @@ public class BillingController {
 
 
     @GetMapping("/statistics/paid")
-    public ResponseEntity<BigDecimal>
-    getTotalPaid() {
+    public ResponseEntity<BigDecimal> getTotalPaid() {
 
         return ResponseEntity.ok(
                 billingService.getTotalPaid()
@@ -371,8 +455,7 @@ public class BillingController {
 
 
     @GetMapping("/statistics/balance")
-    public ResponseEntity<BigDecimal>
-    getTotalBalance() {
+    public ResponseEntity<BigDecimal> getTotalBalance() {
 
         return ResponseEntity.ok(
                 billingService.getTotalBalance()
@@ -380,4 +463,3 @@ public class BillingController {
     }
 
 }
-

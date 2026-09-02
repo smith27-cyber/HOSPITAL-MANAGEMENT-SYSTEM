@@ -21,11 +21,12 @@ import java.util.List;
                         name = "idx_billing_status",
                         columnList = "status"
                 ),
-                @Index(
-                        name = "idx_billing_invoice_number",
-                        columnList = "invoice_number",
-                        unique = true
-                )
+               @Index(
+        name = "idx_billing_invoice_number",
+        columnList = "invoice_number",
+        unique = true
+),
+@Index( name = "idx_billing_consultation", columnList = "consultation_id" )
         }
 )
 public class Billing {
@@ -274,7 +275,11 @@ private List<BillingItem> items =
                 LocalDateTime.now();
 
     }
-
+@Column(
+    name = "consultation_id",
+    length = 50
+)
+private String consultationId;
 
     // =====================================================
     // ENUMS
@@ -541,7 +546,14 @@ private List<BillingItem> items =
 
     }
 
-
+public String getConsultationId() {
+    return consultationId;
+}
+public void setConsultationId(
+        String consultationId
+) {
+    this.consultationId = consultationId;
+}
     // =====================================================
     // HELPER
     // =====================================================

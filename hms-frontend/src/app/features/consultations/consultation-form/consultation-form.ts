@@ -2193,82 +2193,81 @@ export class ConsultationForm
     }
 
 
-    // ===================================================
-    // CREATE NEW
-    // ===================================================
+// =====================================================
+// CREATE NEW CONSULTATION REQUEST
+// =====================================================
 
-    const createRequest = {
+const createRequest = {
 
-      patientId:
-        this.selectedPatient.id,
+  patientId:
+    this.selectedPatient.id,
 
-      doctorId:
-        this.consultation.doctorId,
+  patientName:
+    `${this.selectedPatient.firstName} ${this.selectedPatient.lastName}`,
 
-      appointmentId:
-        this.consultation.appointmentId ||
-        undefined,
+  doctorId:
+    this.consultation.doctorId,
 
-      consultationDate:
-        this.consultation.consultationDate,
+  appointmentId:
+    this.consultation.appointmentId ||
+    undefined,
 
-      consultationTime:
-        this.consultation.consultationTime,
+  consultationDate:
+    this.consultation.consultationDate,
 
-      chiefComplaint:
-        this.consultation
-          .chiefComplaint
-          .trim(),
+  consultationTime:
+    this.consultation.consultationTime,
 
-      symptoms:
-        this.consultation
-          .symptoms
-          .trim() ||
-        undefined,
+  chiefComplaint:
+    this.consultation
+      .chiefComplaint
+      .trim(),
 
-      diagnosis:
-        this.consultation
-          .diagnosis
-          .trim() ||
-        undefined,
+  symptoms:
+    this.consultation
+      .symptoms
+      .trim() ||
+    undefined,
 
-      clinicalNotes:
-        this.consultation
-          .clinicalNotes
-          .trim() ||
-        undefined,
+  diagnosis:
+    this.consultation
+      .diagnosis
+      .trim() ||
+    undefined,
 
-      treatmentPlan:
-        this.consultation
-          .treatmentPlan
-          .trim() ||
-        undefined,
+  clinicalNotes:
+    this.consultation
+      .clinicalNotes
+      .trim() ||
+    undefined,
 
-      followUpDate:
-        this.consultation
-          .followUpDate ||
-        undefined,
+  treatmentPlan:
+    this.consultation
+      .treatmentPlan
+      .trim() ||
+    undefined,
 
-      hasLaboratoryRequests:
-        this.laboratoryRequests.length >
-        0,
+  followUpDate:
+    this.consultation
+      .followUpDate ||
+    undefined,
 
-      hasLaboratoryResults:
-        false,
+  hasLaboratoryRequests:
+    this.laboratoryRequests.length > 0,
 
-      laboratoryResultsReviewed:
-        false,
+  hasLaboratoryResults:
+    false,
 
-      hasPrescription:
-        this.prescribedMedicines.length >
-        0,
+  laboratoryResultsReviewed:
+    false,
 
-      hasBilling:
-        this.consultation.hasBilling
+  hasPrescription:
+    this.prescribedMedicines.length > 0,
 
-    };
+  hasBilling:
+    this.consultation.hasBilling
 
-
+};
     this.consultationService
       .addConsultation(
         createRequest
@@ -2613,101 +2612,100 @@ export class ConsultationForm
             // =============================================
 
             const updateRequest:
-              Consultation = {
+  Consultation = {
 
-              id:
-                existing.id,
+  id:
+    existing.id,
 
-              patientId:
-                this.consultation
-                  .patientId,
+  patientId:
+    this.consultation.patientId,
 
-              doctorId:
-                this.consultation
-                  .doctorId,
+  patientName:
+    this.getPatientName(
+      this.consultation.patientId
+    ),
 
-              appointmentId:
-                appointmentId,
+  doctorId:
+    this.consultation.doctorId,
 
-              consultationDate:
-                this.consultation
-                  .consultationDate,
+  appointmentId:
+    appointmentId,
 
-              consultationTime:
-                this.consultation
-                  .consultationTime,
+  consultationDate:
+    this.consultation.consultationDate,
 
-              chiefComplaint:
-                this.consultation
-                  .chiefComplaint
-                  .trim(),
+  consultationTime:
+    this.consultation.consultationTime,
 
-              symptoms:
-                this.consultation
-                  .symptoms
-                  .trim() ||
-                undefined,
+  chiefComplaint:
+    this.consultation
+      .chiefComplaint
+      .trim(),
 
-              diagnosis:
-                this.consultation
-                  .diagnosis
-                  .trim() ||
-                undefined,
+  symptoms:
+    this.consultation
+      .symptoms
+      .trim() ||
+    undefined,
 
-              clinicalNotes:
-                this.consultation
-                  .clinicalNotes
-                  .trim() ||
-                undefined,
+  diagnosis:
+    this.consultation
+      .diagnosis
+      .trim() ||
+    undefined,
 
-              treatmentPlan:
-                this.consultation
-                  .treatmentPlan
-                  .trim() ||
-                undefined,
+  clinicalNotes:
+    this.consultation
+      .clinicalNotes
+      .trim() ||
+    undefined,
 
-              followUpDate:
-                this.consultation
-                  .followUpDate ||
-                undefined,
+  treatmentPlan:
+    this.consultation
+      .treatmentPlan
+      .trim() ||
+    undefined,
 
-              status:
-                existing.status,
+  followUpDate:
+    this.consultation
+      .followUpDate ||
+    undefined,
 
-              createdAt:
-                existing.createdAt,
+  status:
+    existing.status,
 
-              updatedAt:
-                existing.updatedAt,
+  createdAt:
+    existing.createdAt,
 
-              completedAt:
-                existing.completedAt,
+  updatedAt:
+    existing.updatedAt,
 
-              hasLaboratoryRequests:
-                existing.hasLaboratoryRequests ??
-                this.laboratoryRequests.length >
-                  0,
+  completedAt:
+    existing.completedAt,
 
-              hasLaboratoryResults:
-                existing.hasLaboratoryResults ??
-                false,
+  hasLaboratoryRequests:
+    existing.hasLaboratoryRequests ??
+    this.laboratoryRequests.length >
+    0,
 
-              laboratoryResultsReviewed:
-                existing
-                  .laboratoryResultsReviewed ??
-                false,
+  hasLaboratoryResults:
+    existing.hasLaboratoryResults ??
+    false,
 
-              hasPrescription:
-                existing.hasPrescription ??
-                this.prescribedMedicines.length >
-                  0,
+  laboratoryResultsReviewed:
+    existing.laboratoryResultsReviewed ??
+    false,
 
-              hasBilling:
-                existing.hasBilling ??
-                false
+  hasPrescription:
+    existing.hasPrescription ??
+    this.prescribedMedicines.length >
+    0,
 
-            };
+  hasBilling:
+    existing.hasBilling ??
+    false
 
+};
 
             this.consultationService
               .updateConsultation(
