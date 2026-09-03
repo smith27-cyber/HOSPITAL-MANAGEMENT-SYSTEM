@@ -1,0 +1,1064 @@
+<div class="pharmacy-prescription-page">
+
+  <!-- ===================================================== -->
+  <!-- PAGE HEADER -->
+  <!-- ===================================================== -->
+
+  <div class="page-header">
+
+    <div class="header-left">
+
+      <button
+        type="button"
+        class="back-button"
+        (click)="goBack()"
+      >
+
+        <span class="material-symbols-outlined">
+          arrow_back
+        </span>
+
+        Back to Queue
+
+      </button>
+
+
+      <div class="page-title">
+
+        <div class="title-icon">
+
+          <span class="material-symbols-outlined">
+            prescriptions
+          </span>
+
+        </div>
+
+
+        <div>
+
+          <h1>
+            Prescription Details
+          </h1>
+
+          <p>
+            Review prescription and pharmacy processing information
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    @if (prescription) {
+
+      <span
+        class="status-badge"
+        [ngClass]="getStatusClass(prescription.status)"
+      >
+        {{ prescription.status }}
+      </span>
+
+    }
+
+  </div>
+
+
+  <!-- ===================================================== -->
+  <!-- NOT FOUND -->
+  <!-- ===================================================== -->
+
+  @if (!prescription) {
+
+    <div class="empty-state">
+
+      <div class="empty-icon">
+
+        <span class="material-symbols-outlined">
+          prescription
+        </span>
+
+      </div>
+
+      <h2>
+        Prescription Not Found
+      </h2>
+
+      <p>
+        The prescription you are looking for could not be found.
+      </p>
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="goBack()"
+      >
+        Back to Pharmacy Queue
+      </button>
+
+    </div>
+
+  }
+
+
+  <!-- ===================================================== -->
+  <!-- PRESCRIPTION CONTENT -->
+  <!-- ===================================================== -->
+
+  @if (prescription) {
+
+    <!-- =================================================== -->
+    <!-- PATIENT SUMMARY -->
+    <!-- =================================================== -->
+
+    <section class="summary-card">
+
+      <div class="summary-main">
+
+        <div class="patient-avatar">
+
+          <span class="material-symbols-outlined">
+            person
+          </span>
+
+        </div>
+
+
+        <div>
+
+          <span class="summary-label">
+            Patient
+          </span>
+
+          <h2>
+            {{ prescription.patientName }}
+          </h2>
+
+          <p>
+            Patient No:
+            {{ prescription.patientNumber || 'Not provided' }}
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="summary-details">
+
+        <div class="summary-item">
+
+          <span>
+            Prescription Number
+          </span>
+
+          <strong>
+            {{ prescription.prescriptionNumber }}
+          </strong>
+
+        </div>
+
+
+        <div class="summary-item">
+
+          <span>
+            Prescription Date
+          </span>
+
+          <strong>
+            {{ formatDate(prescription.prescriptionDate) }}
+          </strong>
+
+        </div>
+
+
+        <div class="summary-item">
+
+          <span>
+            Doctor
+          </span>
+
+          <strong>
+            {{ prescription.doctorName || 'Not specified' }}
+          </strong>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================== -->
+    <!-- WORKFLOW -->
+    <!-- =================================================== -->
+
+    <section class="process-card">
+
+      <div class="section-header">
+
+        <div>
+
+          <h2>
+            Pharmacy Workflow
+          </h2>
+
+          <p>
+            Current progress of this prescription.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="workflow">
+
+        <!-- WAITING -->
+
+        <div
+          class="workflow-step"
+          [class.completed]="
+            prescription.status !== 'Waiting' &&
+            prescription.status !== 'Cancelled'
+          "
+          [class.current]="
+            prescription.status === 'Waiting'
+          "
+        >
+
+          <div class="step-icon">
+
+            <span class="material-symbols-outlined">
+              schedule
+            </span>
+
+          </div>
+
+          <div>
+
+            <strong>
+              Waiting
+            </strong>
+
+            <span>
+              Prescription received
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- PREPARING -->
+
+        <div
+          class="workflow-step"
+          [class.completed]="
+            prescription.status === 'Awaiting Payment' ||
+            prescription.status === 'Paid' ||
+            prescription.status === 'Ready for Pickup' ||
+            prescription.status === 'Dispensed'
+          "
+          [class.current]="
+            prescription.status === 'Preparing'
+          "
+        >
+
+          <div class="step-icon">
+
+            <span class="material-symbols-outlined">
+              medication
+            </span>
+
+          </div>
+
+          <div>
+
+            <strong>
+              Preparing
+            </strong>
+
+            <span>
+              Medicines being prepared
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- PAYMENT -->
+
+        <div
+          class="workflow-step"
+          [class.completed]="
+            prescription.status === 'Paid' ||
+            prescription.status === 'Ready for Pickup' ||
+            prescription.status === 'Dispensed'
+          "
+          [class.current]="
+            prescription.status === 'Awaiting Payment'
+          "
+        >
+
+          <div class="step-icon">
+
+            <span class="material-symbols-outlined">
+              payments
+            </span>
+
+          </div>
+
+          <div>
+
+            <strong>
+              Payment
+            </strong>
+
+            <span>
+              Billing and payment
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- READY FOR PICKUP -->
+
+        <div
+          class="workflow-step"
+          [class.completed]="
+            prescription.status === 'Dispensed'
+          "
+          [class.current]="
+            prescription.status === 'Ready for Pickup'
+          "
+        >
+
+          <div class="step-icon">
+
+            <span class="material-symbols-outlined">
+              check_circle
+            </span>
+
+          </div>
+
+          <div>
+
+            <strong>
+              Ready for Pickup
+            </strong>
+
+            <span>
+              Patient can collect medicine
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- DISPENSED -->
+
+        <div
+          class="workflow-step"
+          [class.completed]="
+            prescription.status === 'Dispensed'
+          "
+          [class.current]="
+            prescription.status === 'Dispensed'
+          "
+        >
+
+          <div class="step-icon">
+
+            <span class="material-symbols-outlined">
+              done_all
+            </span>
+
+          </div>
+
+          <div>
+
+            <strong>
+              Dispensed
+            </strong>
+
+            <span>
+              Medicine handed over
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================== -->
+    <!-- MAIN CONTENT -->
+    <!-- =================================================== -->
+
+    <div class="content-grid">
+
+      <!-- ================================================= -->
+      <!-- PRESCRIBED MEDICINES -->
+      <!-- ================================================= -->
+
+      <section class="details-card medicines-card">
+
+        <div class="section-header">
+
+          <div>
+
+            <h2>
+              Prescribed Medicines
+            </h2>
+
+            <p>
+              Medicines prescribed during the consultation.
+            </p>
+
+          </div>
+
+
+          <span class="item-count">
+
+            {{ prescription.items.length }}
+
+            item{{ prescription.items.length === 1 ? '' : 's' }}
+
+          </span>
+
+        </div>
+
+
+        <div class="medicine-list">
+
+          @for (
+            medicine of prescription.items;
+            track medicine.medicineId
+          ) {
+
+            <div class="medicine-card">
+
+              <div class="medicine-main">
+
+                <div class="medicine-icon">
+
+                  <span class="material-symbols-outlined">
+                    medication
+                  </span>
+
+                </div>
+
+
+                <div>
+
+                  <h3>
+                    {{ medicine.medicineName }}
+                  </h3>
+
+                  <p>
+                    {{ medicine.itemCode || 'No item code' }}
+                  </p>
+
+                </div>
+
+              </div>
+
+
+              <div class="medicine-details">
+
+                <div>
+
+                  <span>
+                    Quantity
+                  </span>
+
+                  <strong>
+                    {{ medicine.quantity }}
+                    {{ medicine.unit }}
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    Unit Price
+                  </span>
+
+                  <strong>
+                    {{ formatCurrency(medicine.unitPrice) }}
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    Total
+                  </span>
+
+                  <strong>
+                    {{ formatCurrency(medicine.totalPrice) }}
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              @if (
+                medicine.dosage ||
+                medicine.frequency ||
+                medicine.duration ||
+                medicine.instructions
+              ) {
+
+                <div class="medicine-instructions">
+
+                  <span class="material-symbols-outlined">
+                    description
+                  </span>
+
+
+                  <div>
+
+                    <strong>
+                      Instructions
+                    </strong>
+
+                    <p>
+
+                      @if (medicine.dosage) {
+                        {{ medicine.dosage }}
+                      }
+
+                      @if (medicine.frequency) {
+                        · {{ medicine.frequency }}
+                      }
+
+                      @if (medicine.duration) {
+                        · {{ medicine.duration }}
+                      }
+
+                      @if (medicine.instructions) {
+
+                        <br>
+
+                        {{ medicine.instructions }}
+
+                      }
+
+                    </p>
+
+                  </div>
+
+                </div>
+
+              }
+
+            </div>
+
+          }
+
+        </div>
+
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- BILLING SUMMARY -->
+      <!-- ================================================= -->
+
+      <section class="details-card billing-card">
+
+        <div class="section-header">
+
+          <div>
+
+            <h2>
+              Billing Summary
+            </h2>
+
+            <p>
+              Payment status for this prescription.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="billing-summary">
+
+          <div class="billing-row">
+
+            <span>
+              Total Amount
+            </span>
+
+            <strong>
+              {{ formatCurrency(prescription.subtotal) }}
+            </strong>
+
+          </div>
+
+
+          <div class="billing-row">
+
+            <span>
+              Amount Paid
+            </span>
+
+            <strong class="paid">
+              {{ formatCurrency(prescription.amountPaid) }}
+            </strong>
+
+          </div>
+
+
+          <div class="billing-row">
+
+            <span>
+              Balance
+            </span>
+
+            <strong
+              [class.balance]="
+                prescription.balance > 0
+              "
+            >
+              {{ formatCurrency(prescription.balance) }}
+            </strong>
+
+          </div>
+
+
+          <div class="billing-row">
+
+            <span>
+              Billing Status
+            </span>
+
+            <strong>
+              {{
+                prescription.billingStatus ||
+                'Not Yet Billed'
+              }}
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <!-- PAYMENT PROGRESS -->
+
+        <div class="payment-progress">
+
+          <div class="progress-header">
+
+            <span>
+              Payment Progress
+            </span>
+
+            <strong>
+              {{ getPaymentPercentage() }}%
+            </strong>
+
+          </div>
+
+
+          <div class="progress-track">
+
+            <div
+              class="progress-bar"
+              [style.width.%]="getPaymentPercentage()"
+            ></div>
+
+          </div>
+
+        </div>
+
+
+        @if (prescription.billingId) {
+
+          <div class="billing-reference">
+
+            <span>
+              Billing Reference
+            </span>
+
+            <strong>
+              {{ prescription.billingId }}
+            </strong>
+
+          </div>
+
+        }
+
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- CLINICAL INFORMATION -->
+      <!-- ================================================= -->
+
+      <section class="details-card">
+
+        <div class="section-header">
+
+          <div>
+
+            <h2>
+              Clinical Information
+            </h2>
+
+            <p>
+              Information associated with the consultation.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="information-grid">
+
+          <div class="information-item">
+
+            <span>
+              Doctor
+            </span>
+
+            <strong>
+              {{ prescription.doctorName || 'Not specified' }}
+            </strong>
+
+          </div>
+
+
+          <div class="information-item">
+
+            <span>
+              Consultation ID
+            </span>
+
+            <strong>
+              {{ prescription.consultationId || 'Not provided' }}
+            </strong>
+
+          </div>
+
+
+          <div class="information-item">
+
+            <span>
+              Prescription Date
+            </span>
+
+            <strong>
+              {{ formatDate(prescription.prescriptionDate) }}
+            </strong>
+
+          </div>
+
+
+          <div class="information-item">
+
+            <span>
+              Prepared At
+            </span>
+
+            <strong>
+              {{ formatDateTime(prescription.preparedAt) }}
+            </strong>
+
+          </div>
+
+
+          @if (prescription.paymentDate) {
+
+            <div class="information-item">
+
+              <span>
+                Payment Date
+              </span>
+
+              <strong>
+                {{ formatDateTime(prescription.paymentDate) }}
+              </strong>
+
+            </div>
+
+          }
+
+
+          @if (prescription.dispensedAt) {
+
+            <div class="information-item">
+
+              <span>
+                Dispensed At
+              </span>
+
+              <strong>
+                {{ formatDateTime(prescription.dispensedAt) }}
+              </strong>
+
+            </div>
+
+          }
+
+
+          @if (prescription.dispensedBy) {
+
+            <div class="information-item">
+
+              <span>
+                Dispensed By
+              </span>
+
+              <strong>
+                {{ prescription.dispensedBy }}
+              </strong>
+
+            </div>
+
+          }
+
+        </div>
+
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- NOTES -->
+      <!-- ================================================= -->
+
+      @if (prescription.notes) {
+
+        <section class="details-card">
+
+          <div class="section-header">
+
+            <div>
+
+              <h2>
+                Notes
+              </h2>
+
+            </div>
+
+          </div>
+
+
+          <div class="notes">
+
+            <span class="material-symbols-outlined">
+              notes
+            </span>
+
+            <p>
+              {{ prescription.notes }}
+            </p>
+
+          </div>
+
+        </section>
+
+      }
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- ACTIONS -->
+    <!-- ================================================= -->
+
+    <section class="action-card">
+
+      <div>
+
+        <h2>
+          Pharmacy Actions
+        </h2>
+
+        <p>
+          Process this prescription according to its current status.
+        </p>
+
+      </div>
+
+
+      <div class="action-buttons">
+
+        <!-- WAITING -->
+
+        @if (
+          prescription.status === 'Waiting'
+        ) {
+
+          <button
+            type="button"
+            class="primary-button"
+            (click)="startPreparing()"
+          >
+
+            <span class="material-symbols-outlined">
+              medication
+            </span>
+
+            Start Preparing
+
+          </button>
+
+        }
+
+
+        <!-- PREPARING -->
+
+        @if (
+          prescription.status === 'Preparing'
+        ) {
+
+          <button
+            type="button"
+            class="billing-button"
+            (click)="sendToBilling()"
+          >
+
+            <span class="material-symbols-outlined">
+              payments
+            </span>
+
+            Send to Billing
+
+          </button>
+
+        }
+
+
+        <!-- AWAITING PAYMENT -->
+
+        @if (
+          prescription.status === 'Awaiting Payment'
+        ) {
+
+          <button
+            type="button"
+            class="payment-button"
+            (click)="checkPayment()"
+          >
+
+            <span class="material-symbols-outlined">
+              verified
+            </span>
+
+            Check Payment
+
+          </button>
+
+        }
+
+
+        <!-- READY FOR PICKUP -->
+
+        @if (
+          prescription.status === 'Ready for Pickup'
+        ) {
+
+          <button
+            type="button"
+            class="success-button"
+            (click)="dispense()"
+          >
+
+            <span class="material-symbols-outlined">
+              local_pharmacy
+            </span>
+
+            Dispense Medicine
+
+          </button>
+
+        }
+
+
+        <!-- DISPENSED -->
+
+        @if (
+          prescription.status === 'Dispensed'
+        ) {
+
+          <div class="completed-message">
+
+            <span class="material-symbols-outlined">
+              check_circle
+            </span>
+
+
+            <div>
+
+              <strong>
+                Prescription Dispensed
+              </strong>
+
+              <span>
+                Dispensed on
+                {{ formatDateTime(prescription.dispensedAt) }}
+              </span>
+
+            </div>
+
+          </div>
+
+        }
+
+
+        <!-- CANCELLED -->
+
+        @if (
+          prescription.status === 'Cancelled'
+        ) {
+
+          <div class="cancelled-message">
+
+            <span class="material-symbols-outlined">
+              cancel
+            </span>
+
+
+            <div>
+
+              <strong>
+                Prescription Cancelled
+              </strong>
+
+              <span>
+                This prescription can no longer be processed.
+              </span>
+
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+
+    </section>
+
+  }
+
+</div>

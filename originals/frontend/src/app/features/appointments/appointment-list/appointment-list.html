@@ -1,0 +1,1032 @@
+<!-- =====================================================
+     APPOINTMENT LIST
+     File:
+     src/app/features/appointments/appointment-list/appointment-list.html
+     ===================================================== -->
+
+<div class="appointments-page">
+
+
+  <!-- ===================================================
+       PAGE HEADER
+       =================================================== -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Appointments
+      </h1>
+
+      <p>
+        Manage and view hospital appointments
+      </p>
+
+    </div>
+
+
+    <div class="header-actions">
+
+      <button
+        class="secondary-button"
+        type="button"
+        routerLink="/appointments/queue"
+      >
+
+        <span class="material-symbols-outlined">
+          groups
+        </span>
+
+        Waiting Queue
+
+      </button>
+
+
+      <button
+        class="primary-button"
+        type="button"
+        routerLink="/appointments/register"
+      >
+
+        <span class="material-symbols-outlined">
+          add
+        </span>
+
+        New Appointment
+
+      </button>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ===================================================
+       STATISTICS
+       =================================================== -->
+
+  <div class="appointment-stats">
+
+
+    <!-- TOTAL -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        <span class="material-symbols-outlined">
+          calendar_month
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Total Appointments
+        </span>
+
+        <strong>
+          {{ totalAppointments }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- SCHEDULED -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        <span class="material-symbols-outlined">
+          schedule
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Scheduled
+        </span>
+
+        <strong>
+          {{ scheduledAppointments }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- CONFIRMED -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        <span class="material-symbols-outlined">
+          event_available
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Confirmed
+        </span>
+
+        <strong>
+          {{ confirmedAppointments }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- CHECKED IN -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        <span class="material-symbols-outlined">
+          how_to_reg
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Checked-In
+        </span>
+
+        <strong>
+          {{ checkedInAppointments }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- IN CONSULTATION -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        <span class="material-symbols-outlined">
+          clinical_notes
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          In Consultation
+        </span>
+
+        <strong>
+          {{ inConsultationAppointments }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- COMPLETED -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        <span class="material-symbols-outlined">
+          task_alt
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Completed
+        </span>
+
+        <strong>
+          {{ completedAppointments }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- CANCELLED -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        <span class="material-symbols-outlined">
+          event_busy
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Cancelled
+        </span>
+
+        <strong>
+          {{ cancelledAppointments }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- NO SHOW -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+
+        <span class="material-symbols-outlined">
+          person_off
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          No Show
+        </span>
+
+        <strong>
+          {{ noShowAppointments }}
+        </strong>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ===================================================
+       APPOINTMENTS CARD
+       =================================================== -->
+
+  <section class="appointments-card">
+
+
+    <!-- =================================================
+         TOOLBAR
+         ================================================= -->
+
+    <div class="table-toolbar">
+
+
+      <!-- SEARCH -->
+
+      <div class="search-box">
+
+        <span class="material-symbols-outlined">
+          search
+        </span>
+
+        <input
+          type="text"
+          name="search"
+          placeholder="Search patient, doctor or appointment ID..."
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange()"
+        />
+
+      </div>
+
+
+      <!-- FILTERS -->
+
+      <div class="filters">
+
+
+        <!-- DEPARTMENT -->
+
+        <select
+          name="departmentFilter"
+          [(ngModel)]="selectedDepartment"
+          (ngModelChange)="onDepartmentChange()"
+        >
+
+          <option value="">
+            All Departments
+          </option>
+
+          <option value="General Medicine">
+            General Medicine
+          </option>
+
+          <option value="Cardiology">
+            Cardiology
+          </option>
+
+          <option value="Emergency">
+            Emergency
+          </option>
+
+          <option value="Dental">
+            Dental
+          </option>
+
+          <option value="Orthopedics">
+            Orthopedics
+          </option>
+
+        </select>
+
+
+        <!-- STATUS -->
+
+        <select
+          name="statusFilter"
+          [(ngModel)]="selectedStatus"
+          (ngModelChange)="onStatusChange()"
+        >
+
+          <option value="">
+            All Status
+          </option>
+
+          <option value="Scheduled">
+            Scheduled
+          </option>
+
+          <option value="Confirmed">
+            Confirmed
+          </option>
+
+          <option value="Checked-In">
+            Checked-In
+          </option>
+
+          <option value="In Consultation">
+            In Consultation
+          </option>
+
+          <option value="Completed">
+            Completed
+          </option>
+
+          <option value="Cancelled">
+            Cancelled
+          </option>
+
+          <option value="No Show">
+            No Show
+          </option>
+
+        </select>
+
+
+        <!-- DATE -->
+
+        <input
+          type="date"
+          name="dateFilter"
+          [(ngModel)]="selectedDate"
+          (ngModelChange)="onDateChange()"
+          title="Filter by date"
+        />
+
+
+        <!-- CLEAR -->
+
+        <button
+          class="clear-button"
+          type="button"
+          (click)="clearFilters()"
+        >
+
+          <span class="material-symbols-outlined">
+            filter_alt_off
+          </span>
+
+          Clear
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- =================================================
+         LOADING
+         ================================================= -->
+
+    @if (isLoading) {
+
+      <div class="empty-state">
+
+        <span class="material-symbols-outlined">
+          sync
+        </span>
+
+        <h3>
+          Loading appointments...
+        </h3>
+
+        <p>
+          Please wait while appointments are loaded.
+        </p>
+
+      </div>
+
+    }
+
+
+
+    <!-- =================================================
+         ERROR
+         ================================================= -->
+
+    @else if (errorMessage) {
+
+      <div class="empty-state">
+
+        <span class="material-symbols-outlined">
+          error
+        </span>
+
+        <h3>
+          Unable to load appointments
+        </h3>
+
+        <p>
+          {{ errorMessage }}
+        </p>
+
+        <button
+          class="secondary-button"
+          type="button"
+          (click)="loadAppointments()"
+        >
+
+          <span class="material-symbols-outlined">
+            refresh
+          </span>
+
+          Try Again
+
+        </button>
+
+      </div>
+
+    }
+
+
+
+    <!-- =================================================
+         TABLE
+         ================================================= -->
+
+    @else if (
+      filteredAppointments.length > 0
+    ) {
+
+      <div class="table-wrapper">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Appointment
+              </th>
+
+              <th>
+                Patient
+              </th>
+
+              <th>
+                Doctor
+              </th>
+
+              <th>
+                Department
+              </th>
+
+              <th>
+                Date
+              </th>
+
+              <th>
+                Time
+              </th>
+
+              <th>
+                Type
+              </th>
+
+              <th>
+                Status
+              </th>
+
+              <th>
+                Actions
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            @for (
+              appointment of filteredAppointments;
+              track appointment.id
+            ) {
+
+              <tr>
+
+
+                <!-- APPOINTMENT ID -->
+
+                <td>
+
+                  <button
+                    class="appointment-id-button"
+                    type="button"
+                    title="View appointment"
+                    [routerLink]="[
+                      '/appointments',
+                      appointment.id
+                    ]"
+                  >
+
+                    {{ appointment.id }}
+
+                  </button>
+
+                </td>
+
+
+                <!-- PATIENT -->
+
+                <td>
+
+                  <div class="patient-cell">
+
+                    <div class="patient-avatar">
+
+                      {{
+                        appointment.patientName
+                          ? appointment.patientName
+                              .charAt(0)
+                              .toUpperCase()
+                          : '?'
+                      }}
+
+                    </div>
+
+                    <div>
+
+                      <strong>
+                        {{ appointment.patientName }}
+                      </strong>
+
+                      <span>
+                        {{ appointment.patientId }}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                </td>
+
+
+                <!-- DOCTOR -->
+
+                <td>
+
+                  <strong class="doctor-name">
+                    {{ appointment.doctorName }}
+                  </strong>
+
+                </td>
+
+
+                <!-- DEPARTMENT -->
+
+                <td>
+                  {{ appointment.department }}
+                </td>
+
+
+                <!-- DATE -->
+
+                <td>
+                  {{ appointment.appointmentDate }}
+                </td>
+
+
+                <!-- TIME -->
+
+                <td>
+                  {{ appointment.appointmentTime }}
+                </td>
+
+
+                <!-- TYPE -->
+
+                <td>
+                  {{ appointment.type }}
+                </td>
+
+
+                <!-- STATUS -->
+
+                <td>
+
+                  <span
+                    class="status"
+
+                    [class.scheduled]="
+                      appointment.status === 'Scheduled'
+                    "
+
+                    [class.confirmed]="
+                      appointment.status === 'Confirmed'
+                    "
+
+                    [class.checked-in]="
+                      appointment.status === 'Checked-In'
+                    "
+
+                    [class.in-consultation]="
+                      appointment.status === 'In Consultation'
+                    "
+
+                    [class.completed]="
+                      appointment.status === 'Completed'
+                    "
+
+                    [class.cancelled]="
+                      appointment.status === 'Cancelled'
+                    "
+
+                    [class.no-show]="
+                      appointment.status === 'No Show'
+                    "
+                  >
+
+                    {{ appointment.status }}
+
+                  </span>
+
+                </td>
+
+
+                <!-- ACTIONS -->
+
+                <td>
+
+                  <div class="action-buttons">
+
+
+                    <!-- VIEW -->
+
+                    <button
+                      class="action-button"
+                      type="button"
+                      title="View appointment"
+                      [routerLink]="[
+                        '/appointments',
+                        appointment.id
+                      ]"
+                    >
+
+                      <span class="material-symbols-outlined">
+                        visibility
+                      </span>
+
+                    </button>
+
+
+                    <!-- EDIT -->
+
+                    @if (
+                      appointment.status !== 'Cancelled' &&
+                      appointment.status !== 'Completed'
+                    ) {
+
+                      <button
+                        class="action-button"
+                        type="button"
+                        title="Edit appointment"
+                        [routerLink]="[
+                          '/appointments',
+                          appointment.id,
+                          'edit'
+                        ]"
+                      >
+
+                        <span class="material-symbols-outlined">
+                          edit
+                        </span>
+
+                      </button>
+
+                    }
+
+
+                    <!-- CONFIRM -->
+
+                    @if (
+                      appointment.status === 'Scheduled'
+                    ) {
+
+                      <button
+                        class="action-button confirm-action"
+                        type="button"
+                        title="Confirm appointment"
+                        (click)="
+                          confirmAppointment(
+                            appointment.id
+                          )
+                        "
+                      >
+
+                        <span class="material-symbols-outlined">
+                          event_available
+                        </span>
+
+                      </button>
+
+                    }
+
+
+                    <!-- CHECK IN -->
+
+                    @if (
+                      appointment.status === 'Confirmed'
+                    ) {
+
+                      <button
+                        class="action-button check-in-action"
+                        type="button"
+                        title="Check in patient"
+                        (click)="
+                          checkInAppointment(
+                            appointment.id
+                          )
+                        "
+                      >
+
+                        <span class="material-symbols-outlined">
+                          how_to_reg
+                        </span>
+
+                      </button>
+
+                    }
+
+
+                    <!-- START CONSULTATION -->
+
+                    @if (
+                      appointment.status === 'Checked-In'
+                    ) {
+
+                      <button
+                        class="action-button consultation-start-action"
+                        type="button"
+                        title="Start consultation"
+                        (click)="
+                          startConsultation(
+                            appointment.id
+                          )
+                        "
+                      >
+
+                        <span class="material-symbols-outlined">
+                          play_circle
+                        </span>
+
+                      </button>
+
+                    }
+
+
+                    <!-- OPEN CONSULTATION -->
+
+                    @if (
+                      appointment.status === 'In Consultation'
+                    ) {
+
+                      <button
+                        class="action-button consultation-action"
+                        type="button"
+                        title="Open consultation"
+                        [routerLink]="[
+                          '/appointments',
+                          appointment.id,
+                          'consultation'
+                        ]"
+                      >
+
+                        <span class="material-symbols-outlined">
+                          clinical_notes
+                        </span>
+
+                      </button>
+
+                    }
+
+
+                    <!-- COMPLETE -->
+
+                    @if (
+                      appointment.status === 'In Consultation'
+                    ) {
+
+                      <button
+                        class="action-button complete-action"
+                        type="button"
+                        title="Complete appointment"
+                        (click)="
+                          completeAppointment(
+                            appointment.id
+                          )
+                        "
+                      >
+
+                        <span class="material-symbols-outlined">
+                          task_alt
+                        </span>
+
+                      </button>
+
+                    }
+
+
+                    <!-- NO SHOW -->
+
+                    @if (
+                      appointment.status === 'Scheduled' ||
+                      appointment.status === 'Confirmed'
+                    ) {
+
+                      <button
+                        class="action-button no-show-action"
+                        type="button"
+                        title="Mark as No Show"
+                        (click)="
+                          markNoShow(
+                            appointment.id
+                          )
+                        "
+                      >
+
+                        <span class="material-symbols-outlined">
+                          person_off
+                        </span>
+
+                      </button>
+
+                    }
+
+
+                    <!-- CANCEL -->
+
+                    @if (
+                      appointment.status !== 'Cancelled' &&
+                      appointment.status !== 'Completed'
+                    ) {
+
+                      <button
+                        class="action-button cancel-action"
+                        type="button"
+                        title="Cancel appointment"
+                        (click)="
+                          cancelAppointment(
+                            appointment.id
+                          )
+                        "
+                      >
+
+                        <span class="material-symbols-outlined">
+                          cancel
+                        </span>
+
+                      </button>
+
+                    }
+
+
+                    <!-- DELETE -->
+
+                    @if (
+                      appointment.status === 'Cancelled'
+                    ) {
+
+                      <button
+                        class="action-button delete-action"
+                        type="button"
+                        title="Permanently delete appointment"
+                        (click)="
+                          deleteAppointment(
+                            appointment.id
+                          )
+                        "
+                      >
+
+                        <span class="material-symbols-outlined">
+                          delete
+                        </span>
+
+                      </button>
+
+                    }
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    }
+
+
+
+    <!-- =================================================
+         EMPTY
+         ================================================= -->
+
+    @else {
+
+      <div class="empty-state">
+
+        <span class="material-symbols-outlined">
+          event_busy
+        </span>
+
+        <h3>
+          No appointments found
+        </h3>
+
+        <p>
+          There are currently no appointments matching your filters.
+        </p>
+
+        <button
+          class="secondary-button"
+          type="button"
+          (click)="clearFilters()"
+        >
+
+          <span class="material-symbols-outlined">
+            filter_alt_off
+          </span>
+
+          Clear Filters
+
+        </button>
+
+      </div>
+
+    }
+
+  </section>
+
+</div>

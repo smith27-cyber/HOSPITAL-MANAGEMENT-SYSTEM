@@ -1,0 +1,748 @@
+<div class="pharmacy-dashboard">
+
+  <!-- ===================================================== -->
+  <!-- PAGE HEADER -->
+  <!-- ===================================================== -->
+
+  <div class="page-header">
+
+    <div class="page-title">
+
+      <div class="title-icon">
+        <span class="material-symbols-outlined">
+          medication
+        </span>
+      </div>
+
+      <div>
+
+        <h1>
+          Pharmacy
+        </h1>
+
+        <p>
+          Manage prescriptions, payments, dispensing and medicine stock
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div class="header-actions">
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="loadDashboard()"
+      >
+
+        <span class="material-symbols-outlined">
+          refresh
+        </span>
+
+        Refresh
+
+      </button>
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="openQueue()"
+      >
+
+        <span class="material-symbols-outlined">
+          queue
+        </span>
+
+        Pharmacy Queue
+
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================== -->
+  <!-- PRESCRIPTION SUMMARY -->
+  <!-- ===================================================== -->
+
+  <div class="summary-section">
+
+    <div class="summary-card">
+
+      <div class="summary-icon waiting">
+
+        <span class="material-symbols-outlined">
+          schedule
+        </span>
+
+      </div>
+
+      <div class="summary-content">
+
+        <span>
+          Waiting
+        </span>
+
+        <strong>
+          {{ waitingCount }}
+        </strong>
+
+        <small>
+          New prescriptions
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+      <div class="summary-icon preparing">
+
+        <span class="material-symbols-outlined">
+          medication
+        </span>
+
+      </div>
+
+      <div class="summary-content">
+
+        <span>
+          Preparing
+        </span>
+
+        <strong>
+          {{ preparingCount }}
+        </strong>
+
+        <small>
+          Being processed
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+      <div class="summary-icon payment">
+
+        <span class="material-symbols-outlined">
+          payments
+        </span>
+
+      </div>
+
+      <div class="summary-content">
+
+        <span>
+          Awaiting Payment
+        </span>
+
+        <strong>
+          {{ awaitingPaymentCount }}
+        </strong>
+
+        <small>
+          Pending at Billing
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+      <div class="summary-icon ready">
+
+        <span class="material-symbols-outlined">
+          check_circle
+        </span>
+
+      </div>
+
+      <div class="summary-content">
+
+        <span>
+          Ready for Pickup
+        </span>
+
+        <strong>
+          {{ readyForPickupCount }}
+        </strong>
+
+        <small>
+          Payment confirmed
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+      <div class="summary-icon dispensed">
+
+        <span class="material-symbols-outlined">
+          done_all
+        </span>
+
+      </div>
+
+      <div class="summary-content">
+
+        <span>
+          Dispensed
+        </span>
+
+        <strong>
+          {{ dispensedCount }}
+        </strong>
+
+        <small>
+          Completed prescriptions
+        </small>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================== -->
+  <!-- MEDICINE STOCK SUMMARY -->
+  <!-- ===================================================== -->
+
+  <div class="stock-section">
+
+    <div class="section-header">
+
+      <div>
+
+        <h2>
+          Medicine Stock
+        </h2>
+
+        <p>
+          Current pharmacy medicine inventory status
+        </p>
+
+      </div>
+
+      <button
+        type="button"
+        class="outline-button"
+        (click)="openStock()"
+      >
+
+        <span class="material-symbols-outlined">
+          inventory_2
+        </span>
+
+        View Stock
+
+      </button>
+
+    </div>
+
+
+    <div class="stock-grid">
+
+      <div class="stock-card">
+
+        <div class="stock-icon total">
+
+          <span class="material-symbols-outlined">
+            medication
+          </span>
+
+        </div>
+
+        <div>
+
+          <span>
+            Total Medicines
+          </span>
+
+          <strong>
+            {{ totalMedicines }}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="stock-card">
+
+        <div class="stock-icon low">
+
+          <span class="material-symbols-outlined">
+            warning
+          </span>
+
+        </div>
+
+        <div>
+
+          <span>
+            Low Stock
+          </span>
+
+          <strong>
+            {{ lowStockMedicines }}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="stock-card">
+
+        <div class="stock-icon out">
+
+          <span class="material-symbols-outlined">
+            production_quantity_limits
+          </span>
+
+        </div>
+
+        <div>
+
+          <span>
+            Out of Stock
+          </span>
+
+          <strong>
+            {{ outOfStockMedicines }}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="stock-card">
+
+        <div class="stock-icon expired">
+
+          <span class="material-symbols-outlined">
+            event_busy
+          </span>
+
+        </div>
+
+        <div>
+
+          <span>
+            Expired
+          </span>
+
+          <strong>
+            {{ expiredMedicines }}
+          </strong>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================== -->
+  <!-- RECENT PRESCRIPTIONS -->
+  <!-- ===================================================== -->
+
+  <section class="recent-section">
+
+    <div class="section-header">
+
+      <div>
+
+        <h2>
+          Recent Prescriptions
+        </h2>
+
+        <p>
+          Latest patients received from completed consultations
+        </p>
+
+      </div>
+
+      <button
+        type="button"
+        class="outline-button"
+        (click)="openQueue()"
+      >
+
+        View All
+
+        <span class="material-symbols-outlined">
+          arrow_forward
+        </span>
+
+      </button>
+
+    </div>
+
+
+    <!-- =================================================== -->
+    <!-- EMPTY STATE -->
+    <!-- =================================================== -->
+
+    @if (recentPrescriptions.length === 0) {
+
+      <div class="empty-state">
+
+        <div class="empty-icon">
+
+          <span class="material-symbols-outlined">
+            prescriptions
+          </span>
+
+        </div>
+
+        <h3>
+          No prescriptions yet
+        </h3>
+
+        <p>
+          Patients with completed consultations and prescriptions
+          will appear here.
+        </p>
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="openQueue()"
+        >
+          Open Pharmacy Queue
+        </button>
+
+      </div>
+
+    }
+
+
+    <!-- =================================================== -->
+    <!-- PRESCRIPTION LIST -->
+    <!-- =================================================== -->
+
+    @if (recentPrescriptions.length > 0) {
+
+      <div class="prescription-table">
+
+        <div class="table-header">
+
+          <span>
+            Patient
+          </span>
+
+          <span>
+            Prescription
+          </span>
+
+          <span>
+            Doctor
+          </span>
+
+          <span>
+            Medicines
+          </span>
+
+          <span>
+            Status
+          </span>
+
+          <span>
+            Date
+          </span>
+
+          <span>
+            Action
+          </span>
+
+        </div>
+
+
+        @for (
+          prescription of recentPrescriptions;
+          track prescription.id
+        ) {
+
+          <div class="table-row">
+
+            <!-- PATIENT -->
+
+            <div class="patient-cell">
+
+              <div class="patient-avatar">
+
+                <span class="material-symbols-outlined">
+                  person
+                </span>
+
+              </div>
+
+              <div>
+
+                <strong>
+                  {{ prescription.patientName }}
+                </strong>
+
+                <span>
+                  {{ prescription.patientNumber || 'No patient number' }}
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <!-- PRESCRIPTION -->
+
+            <div class="table-cell">
+
+              <strong>
+                {{ prescription.prescriptionNumber }}
+              </strong>
+
+            </div>
+
+
+            <!-- DOCTOR -->
+
+            <div class="table-cell">
+
+              <span>
+                {{ prescription.doctorName || 'Not specified' }}
+              </span>
+
+            </div>
+
+
+            <!-- MEDICINES -->
+
+            <div class="table-cell">
+
+              <span class="medicine-count">
+
+                {{ prescription.items.length }}
+
+                {{ prescription.items.length === 1
+                  ? 'Medicine'
+                  : 'Medicines'
+                }}
+
+              </span>
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div class="table-cell">
+
+              <span
+                class="status-badge"
+                [ngClass]="
+                  getStatusClass(
+                    prescription.status
+                  )
+                "
+              >
+                {{ prescription.status }}
+              </span>
+
+            </div>
+
+
+            <!-- DATE -->
+
+            <div class="table-cell">
+
+              <span>
+                {{ formatDate(prescription.prescriptionDate) }}
+              </span>
+
+            </div>
+
+
+            <!-- ACTION -->
+
+            <div class="table-cell action-cell">
+
+              <button
+                type="button"
+                class="view-button"
+                (click)="openPrescription(prescription)"
+              >
+
+                <span class="material-symbols-outlined">
+                  visibility
+                </span>
+
+                View
+
+              </button>
+
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+
+    }
+
+  </section>
+
+
+  <!-- ===================================================== -->
+  <!-- WORKFLOW INFORMATION -->
+  <!-- ===================================================== -->
+
+  <section class="workflow-card">
+
+    <div class="workflow-header">
+
+      <div class="workflow-icon">
+
+        <span class="material-symbols-outlined">
+          account_tree
+        </span>
+
+      </div>
+
+      <div>
+
+        <h2>
+          Pharmacy Workflow
+        </h2>
+
+        <p>
+          Patient prescriptions follow this process
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div class="workflow-steps">
+
+      <div class="workflow-item">
+
+        <div class="workflow-number">
+          1
+        </div>
+
+        <div>
+
+          <strong>
+            Consultation Completed
+          </strong>
+
+          <span>
+            Doctor completes consultation and prescription
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <span class="material-symbols-outlined workflow-arrow">
+        arrow_forward
+      </span>
+
+
+      <div class="workflow-item">
+
+        <div class="workflow-number">
+          2
+        </div>
+
+        <div>
+
+          <strong>
+            Pharmacy
+          </strong>
+
+          <span>
+            Prescription is reviewed and prepared
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <span class="material-symbols-outlined workflow-arrow">
+        arrow_forward
+      </span>
+
+
+      <div class="workflow-item">
+
+        <div class="workflow-number">
+          3
+        </div>
+
+        <div>
+
+          <strong>
+            Billing
+          </strong>
+
+          <span>
+            Patient makes payment for medicines
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <span class="material-symbols-outlined workflow-arrow">
+        arrow_forward
+      </span>
+
+
+      <div class="workflow-item">
+
+        <div class="workflow-number">
+          4
+        </div>
+
+        <div>
+
+          <strong>
+            Pickup
+          </strong>
+
+          <span>
+            Payment confirmed and medicine dispensed
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</div>

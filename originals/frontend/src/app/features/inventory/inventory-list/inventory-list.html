@@ -1,0 +1,512 @@
+<div class="inventory-page">
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Inventory
+      </h1>
+
+      <p>
+        Manage medicines, medical supplies, equipment and stock.
+      </p>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="primary-button"
+      (click)="registerItem()"
+    >
+
+      <span class="material-symbols-outlined">
+        add
+      </span>
+
+      Register Item
+
+    </button>
+
+  </div>
+
+
+
+  <!-- ================================================= -->
+  <!-- STATISTICS -->
+  <!-- ================================================= -->
+
+  <div class="stats-grid">
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+        <span class="material-symbols-outlined">
+          inventory_2
+        </span>
+      </div>
+
+      <div>
+
+        <span class="stat-label">
+          Total Items
+        </span>
+
+        <strong>
+          {{ totalItems }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+        <span class="material-symbols-outlined">
+          category
+        </span>
+      </div>
+
+      <div>
+
+        <span class="stat-label">
+          Total Quantity
+        </span>
+
+        <strong>
+          {{ totalQuantity }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div class="stat-card warning">
+
+      <div class="stat-icon">
+        <span class="material-symbols-outlined">
+          warning
+        </span>
+      </div>
+
+      <div>
+
+        <span class="stat-label">
+          Low Stock
+        </span>
+
+        <strong>
+          {{ lowStockItems }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div class="stat-card danger">
+
+      <div class="stat-icon">
+        <span class="material-symbols-outlined">
+          remove_shopping_cart
+        </span>
+      </div>
+
+      <div>
+
+        <span class="stat-label">
+          Out of Stock
+        </span>
+
+        <strong>
+          {{ outOfStockItems }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div class="stat-card danger">
+
+      <div class="stat-icon">
+        <span class="material-symbols-outlined">
+          event_busy
+        </span>
+      </div>
+
+      <div>
+
+        <span class="stat-label">
+          Expired
+        </span>
+
+        <strong>
+          {{ expiredItems }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-icon">
+        <span class="material-symbols-outlined">
+          payments
+        </span>
+      </div>
+
+      <div>
+
+        <span class="stat-label">
+          Stock Value
+        </span>
+
+        <strong>
+          {{ formatCurrency(totalStockValue) }}
+        </strong>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ================================================= -->
+  <!-- FILTERS -->
+  <!-- ================================================= -->
+
+  <section class="filter-card">
+
+    <div class="search-box">
+
+      <span class="material-symbols-outlined">
+        search
+      </span>
+
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()"
+        placeholder="Search inventory..."
+      />
+
+    </div>
+
+
+    <select
+      [(ngModel)]="selectedCategory"
+      (ngModelChange)="applyFilters()"
+    >
+
+      <option value="All">
+        All Categories
+      </option>
+
+      @for (
+        category of categories;
+        track category
+      ) {
+
+        <option [value]="category">
+          {{ category }}
+        </option>
+
+      }
+
+    </select>
+
+
+    <select
+      [(ngModel)]="selectedStatus"
+      (ngModelChange)="applyFilters()"
+    >
+
+      <option value="All">
+        All Statuses
+      </option>
+
+      @for (
+        status of statuses;
+        track status
+      ) {
+
+        <option [value]="status">
+          {{ status }}
+        </option>
+
+      }
+
+    </select>
+
+
+    <button
+      type="button"
+      class="clear-button"
+      (click)="clearFilters()"
+    >
+      Clear
+    </button>
+
+  </section>
+
+
+
+  <!-- ================================================= -->
+  <!-- INVENTORY TABLE -->
+  <!-- ================================================= -->
+
+  <section class="table-card">
+
+    <div class="table-header">
+
+      <div>
+
+        <h2>
+          Inventory Items
+        </h2>
+
+        <span>
+          {{ filteredItems.length }} item(s) found
+        </span>
+
+      </div>
+
+    </div>
+
+
+    @if (filteredItems.length > 0) {
+
+      <div class="table-wrapper">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Item
+              </th>
+
+              <th>
+                Category
+              </th>
+
+              <th>
+                Quantity
+              </th>
+
+              <th>
+                Unit Price
+              </th>
+
+              <th>
+                Supplier
+              </th>
+
+              <th>
+                Expiry
+              </th>
+
+              <th>
+                Status
+              </th>
+
+              <th>
+                Actions
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            @for (
+              item of filteredItems;
+              track item.id
+            ) {
+
+              <tr>
+
+                <td>
+
+                  <div class="item-info">
+
+                    <strong>
+                      {{ item.itemName }}
+                    </strong>
+
+                    <small>
+                      {{ item.itemCode }}
+                    </small>
+
+                  </div>
+
+                </td>
+
+
+                <td>
+                  {{ item.category }}
+                </td>
+
+
+                <td>
+
+                  <strong>
+                    {{ item.quantity }}
+                  </strong>
+
+                  <small>
+                    {{ item.unit }}
+                  </small>
+
+                </td>
+
+
+                <td>
+                  {{ formatCurrency(item.unitPrice) }}
+                </td>
+
+
+                <td>
+                  {{ item.supplier || '—' }}
+                </td>
+
+
+                <td>
+                  {{ formatDate(item.expiryDate) }}
+                </td>
+
+
+                <td>
+
+                  <span
+                    class="status-badge"
+                    [class]="getStatusClass(item.status)"
+                  >
+                    {{ item.status }}
+                  </span>
+
+                </td>
+
+
+                <td>
+
+                  <div class="action-buttons">
+
+                    <button
+                      type="button"
+                      title="View"
+                      (click)="viewItem(item)"
+                    >
+
+                      <span class="material-symbols-outlined">
+                        visibility
+                      </span>
+
+                    </button>
+
+
+                    <button
+                      type="button"
+                      title="Edit"
+                      (click)="editItem(item)"
+                    >
+
+                      <span class="material-symbols-outlined">
+                        edit
+                      </span>
+
+                    </button>
+
+
+                    <button
+                      type="button"
+                      title="Manage Stock"
+                      (click)="manageStock(item)"
+                    >
+
+                      <span class="material-symbols-outlined">
+                        inventory
+                      </span>
+
+                    </button>
+
+
+                    <button
+                      type="button"
+                      class="delete-action"
+                      title="Delete"
+                      (click)="deleteItem(item)"
+                    >
+
+                      <span class="material-symbols-outlined">
+                        delete
+                      </span>
+
+                    </button>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    }
+
+    @else {
+
+      <div class="empty-state">
+
+        <span class="material-symbols-outlined">
+          inventory_2
+        </span>
+
+        <h3>
+          No inventory items found
+        </h3>
+
+        <p>
+          There are no inventory items matching your current filters.
+        </p>
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="registerItem()"
+        >
+          Register First Item
+        </button>
+
+      </div>
+
+    }
+
+  </section>
+
+</div>
+
+

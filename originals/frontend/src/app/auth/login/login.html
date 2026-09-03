@@ -1,0 +1,180 @@
+
+<!-- =====================================================
+     LOGIN PAGE
+     File:
+     src/app/auth/login/login.html
+     ===================================================== -->
+
+<div class="login-page">
+
+  <div class="login-card">
+
+
+    <!-- =================================================
+         LOGO
+         ================================================= -->
+
+    <div class="login-logo">
+
+      <span class="material-symbols-outlined">
+        local_hospital
+      </span>
+
+    </div>
+
+
+    <!-- =================================================
+         TITLE
+         ================================================= -->
+
+    <h1>
+      HMS
+    </h1>
+
+    <p class="subtitle">
+      Hospital Management System
+    </p>
+
+
+    <!-- =================================================
+         ERROR MESSAGE
+         ================================================= -->
+
+    @if (errorMessage) {
+
+      <div
+        class="login-error"
+        role="alert"
+      >
+
+        {{ errorMessage }}
+
+      </div>
+
+    }
+
+
+    <!-- =================================================
+         LOGIN FORM
+         ================================================= -->
+
+    <form
+      (ngSubmit)="login()"
+      #loginForm="ngForm"
+      novalidate
+    >
+
+
+      <!-- ===============================================
+           USERNAME
+           =============================================== -->
+
+      <div class="form-group">
+
+        <label for="username">
+          Username
+        </label>
+
+        <input
+          id="username"
+          name="username"
+          type="text"
+          [(ngModel)]="username"
+          placeholder="Enter your username"
+          autocomplete="username"
+          [disabled]="loading"
+          required
+        />
+
+      </div>
+
+
+      <!-- ===============================================
+           PASSWORD
+           =============================================== -->
+
+      <div class="form-group">
+
+        <label for="password">
+          Password
+        </label>
+
+        <div class="password-wrapper">
+
+          <input
+            id="password"
+            name="password"
+            [type]="showPassword ? 'text' : 'password'"
+            [(ngModel)]="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            [disabled]="loading"
+            required
+          />
+
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePassword()"
+            [disabled]="loading"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+          >
+
+            <span class="material-symbols-outlined">
+
+              {{ showPassword ? 'visibility_off' : 'visibility' }}
+
+            </span>
+
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- =================================================
+           LOGIN BUTTON
+           ================================================= -->
+
+      <button
+        type="submit"
+        [disabled]="loading || loginForm.invalid"
+      >
+
+        @if (loading) {
+
+          <span>
+            Logging in...
+          </span>
+
+        } @else {
+
+          <span>
+            Login
+          </span>
+
+        }
+
+      </button>
+
+
+    </form>
+
+
+    <!-- =================================================
+         FORGOT PASSWORD
+         ================================================= -->
+
+    <a
+      class="forgot-password"
+      routerLink="/forgot-password"
+    >
+      Forgot password?
+    </a>
+
+
+  </div>
+
+</div>
+
