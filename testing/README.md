@@ -327,10 +327,34 @@ testing/
     └── test-results/
 ```
 
+## Code Coverage
+
+Generate and track code coverage reports from UI tests:
+
+```bash
+# Generate coverage report
+npm run test:coverage
+
+# View HTML report
+open coverage/index.html
+
+# Check coverage meets thresholds
+npm run coverage:check
+```
+
+**Coverage Targets:**
+- Lines: 75%
+- Branches: 70%
+- Functions: 75%
+- Statements: 75%
+
+See [COVERAGE.md](./COVERAGE.md) for detailed coverage documentation.
+
 ## Links
 
 - [Playwright Documentation](https://playwright.dev)
 - [Testing Plan](./TEST-PLAN.md)
+- [Coverage Guide](./COVERAGE.md)
 - [HMS Project](../)
 
 ## Quick Commands

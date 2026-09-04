@@ -8,10 +8,20 @@
     "test:debug": "playwright test --debug",
     "test:ui": "playwright test --ui",
     "test:report": "playwright show-report",
+    "test:coverage": "playwright test --reporter=list && npm run coverage:report",
+    "test:coverage:headed": "playwright test --headed --reporter=list",
+    "test:instrumented": "playwright test tests/coverage.spec.ts --reporter=list",
+    "test:instrumented:headed": "playwright test tests/coverage.spec.ts --headed --reporter=list",
     "test:ci": "playwright test --reporter=junit",
+    "coverage:report": "nyc report --reporter=html --reporter=text-summary",
+    "coverage:check": "nyc check-coverage",
+    "coverage:view": "open coverage/index.html",
     "codegen": "playwright codegen http://localhost:4200"
   },
   "devDependencies": {
-    "@playwright/test": "^1.40.0"
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.0.0",
+    "nyc": "^15.1.0",
+    "istanbul-lib-coverage": "^4.0.0"
   }
 }

@@ -1,0 +1,31 @@
+{
+  "reporter": [
+    "html",
+    "text",
+    "text-summary",
+    "json",
+    "lcov"
+  ],
+  "report-dir": "./coverage",
+  "temp-dir": "./.nyc_output",
+  "all": true,
+  "check-coverage": true,
+  "branches": 70,
+  "lines": 75,
+  "functions": 75,
+  "statements": 75,
+  "exclude": [
+    "node_modules/**",
+    "test-results/**",
+    "coverage/**",
+    "playwright-report/**",
+    "dist/**",
+    "build/**"
+  ],
+  "extension": [
+    ".ts",
+    ".tsx",
+    ".js",
+    ".jsx"
+  ]
+}
