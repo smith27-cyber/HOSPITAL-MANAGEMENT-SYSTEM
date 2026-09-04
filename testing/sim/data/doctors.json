@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "name": "Dr. John Smith",
+    "email": "john.smith@hms.local",
+    "phoneNumber": "+1111111111",
+    "licenseNumber": "LIC123456",
+    "specialization": "Cardiology",
+    "departmentId": 1,
+    "departmentName": "Cardiology",
+    "qualifications": "MD, Board Certified",
+    "createdAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": 2,
+    "name": "Dr. Sarah Davis",
+    "email": "sarah.davis@hms.local",
+    "phoneNumber": "+1111111112",
+    "licenseNumber": "LIC123457",
+    "specialization": "Pediatrics",
+    "departmentId": 2,
+    "departmentName": "Pediatrics",
+    "qualifications": "MD, PhD",
+    "createdAt": "2026-01-02T10:00:00Z"
+  },
+  {
+    "id": 3,
+    "name": "Dr. Michael Brown",
+    "email": "michael.brown@hms.local",
+    "phoneNumber": "+1111111113",
+    "licenseNumber": "LIC123458",
+    "specialization": "Orthopedics",
+    "departmentId": 3,
+    "departmentName": "Orthopedics",
+    "qualifications": "MD, Sports Medicine",
+    "createdAt": "2026-01-03T10:00:00Z"
+  }
+]

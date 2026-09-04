@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "patientId": 1,
+    "patientName": "John Doe",
+    "doctorId": 1,
+    "doctorName": "Dr. John Smith",
+    "dateTime": "2026-09-10T14:00:00Z",
+    "status": "scheduled",
+    "reason": "Regular checkup",
+    "notes": "Patient mentioned chest pain",
+    "createdAt": "2026-09-03T10:00:00Z"
+  },
+  {
+    "id": 2,
+    "patientId": 2,
+    "patientName": "Jane Smith",
+    "doctorId": 2,
+    "doctorName": "Dr. Sarah Davis",
+    "dateTime": "2026-09-11T10:00:00Z",
+    "status": "scheduled",
+    "reason": "Diabetes follow-up",
+    "notes": "Check blood sugar levels",
+    "createdAt": "2026-09-03T10:00:00Z"
+  },
+  {
+    "id": 3,
+    "patientId": 3,
+    "patientName": "Robert Johnson",
+    "doctorId": 1,
+    "doctorName": "Dr. John Smith",
+    "dateTime": "2026-09-12T15:00:00Z",
+    "status": "completed",
+    "reason": "Consultation",
+    "notes": "Follow-up visit",
+    "createdAt": "2026-09-02T10:00:00Z"
+  }
+]

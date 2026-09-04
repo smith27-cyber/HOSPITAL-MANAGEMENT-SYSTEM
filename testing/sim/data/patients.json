@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "phoneNumber": "+1234567890",
+    "dateOfBirth": "1990-01-15",
+    "gender": "Male",
+    "address": "123 Main St, City, State",
+    "medicalHistory": "Hypertension, No allergies",
+    "emergencyContact": "Jane Doe",
+    "emergencyPhone": "+1987654321",
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": 2,
+    "name": "Jane Smith",
+    "email": "jane.smith@example.com",
+    "phoneNumber": "+1234567891",
+    "dateOfBirth": "1992-05-20",
+    "gender": "Female",
+    "address": "456 Oak Ave, City, State",
+    "medicalHistory": "Diabetes Type 2",
+    "emergencyContact": "John Smith",
+    "emergencyPhone": "+1987654320",
+    "createdAt": "2026-01-02T10:00:00Z",
+    "updatedAt": "2026-01-02T10:00:00Z"
+  },
+  {
+    "id": 3,
+    "name": "Robert Johnson",
+    "email": "robert.johnson@example.com",
+    "phoneNumber": "+1234567892",
+    "dateOfBirth": "1988-03-10",
+    "gender": "Male",
+    "address": "789 Elm St, City, State",
+    "medicalHistory": "Asthma, Penicillin allergy",
+    "emergencyContact": "Mary Johnson",
+    "emergencyPhone": "+1987654319",
+    "createdAt": "2026-01-03T10:00:00Z",
+    "updatedAt": "2026-01-03T10:00:00Z"
+  }
+]
