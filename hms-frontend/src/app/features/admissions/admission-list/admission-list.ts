@@ -1,7 +1,26 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+// =====================================================
+// ADMISSION LIST COMPONENT
+// File:
+// src/app/features/admissions/admission-list/admission-list.ts
+// =====================================================
+
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit
+} from '@angular/core';
+
+import {
+  CommonModule
+} from '@angular/common';
+
+import {
+  FormsModule
+} from '@angular/forms';
+
+import {
+  Router
+} from '@angular/router';
 
 import {
   Admission,
@@ -40,6 +59,13 @@ export class AdmissionList implements OnInit {
 
 
   // =====================================================
+  // LOADING
+  // =====================================================
+
+  loading = true;
+
+
+  // =====================================================
   // SEARCH
   // =====================================================
 
@@ -66,6 +92,8 @@ export class AdmissionList implements OnInit {
 
   transferredAdmissions = 0;
 
+  cancelledAdmissions = 0;
+
 
   // =====================================================
   // STATUSES
@@ -73,13 +101,13 @@ export class AdmissionList implements OnInit {
 
   statuses: AdmissionStatus[] = [
 
-    'Admitted',
+    'ADMITTED',
 
-    'Discharged',
+    'DISCHARGED',
 
-    'Transferred',
+    'TRANSFERRED',
 
-    'Cancelled'
+    'CANCELLED'
 
   ];
 
@@ -89,8 +117,9 @@ export class AdmissionList implements OnInit {
   // =====================================================
 
   constructor(
-    private admissionService: AdmissionService,
-    private router: Router
+    private readonly admissionService: AdmissionService,
+    private readonly router: Router,
+    private readonly changeDetectorRef: ChangeDetectorRef
   ) {}
 
 
@@ -111,13 +140,140 @@ export class AdmissionList implements OnInit {
 
   loadAdmissions(): void {
 
-    this.admissions =
-      this.admissionService.getAdmissions();
+    // ---------------------------------------------------
+    // Start loading
+    // ---------------------------------------------------
+
+    this.loading = true;
 
 
-    this.updateStatistics();
+    // ---------------------------------------------------
+    // Clear stale data while loading
+    // ---------------------------------------------------
 
-    this.applyFilters();
+    this.admissions = [];
+
+    this.filteredAdmissions = [];
+
+    this.totalAdmissions = 0;
+
+    this.activeAdmissions = 0;
+
+    this.dischargedAdmissions = 0;
+
+    this.transferredAdmissions = 0;
+
+    this.cancelledAdmissions = 0;
+
+
+    // ---------------------------------------------------
+    // Force loading state into the UI
+    // ---------------------------------------------------
+
+    this.changeDetectorRef.detectChanges();
+
+
+    this.admissionService
+      .getAdmissions()
+      .subscribe({
+
+        // ===============================================
+        // SUCCESS
+        // ===============================================
+
+        next: (
+          admissions: Admission[]
+        ) => {
+
+          console.log(
+            'AdmissionList: admissions received:',
+            admissions
+          );
+
+
+          // ---------------------------------------------
+          // Store backend data
+          // ---------------------------------------------
+
+          this.admissions =
+            admissions ?? [];
+
+
+          // ---------------------------------------------
+          // Calculate statistics
+          // ---------------------------------------------
+
+          this.updateStatistics();
+
+
+          // ---------------------------------------------
+          // Apply current filters
+          // ---------------------------------------------
+
+          this.applyFilters();
+
+
+          // ---------------------------------------------
+          // Stop loading
+          // ---------------------------------------------
+
+          this.loading = false;
+
+
+          // ---------------------------------------------
+          // Immediately render the result
+          // ---------------------------------------------
+
+          this.changeDetectorRef.detectChanges();
+
+
+          console.log(
+            'AdmissionList: rendered admissions:',
+            this.filteredAdmissions
+          );
+
+        },
+
+
+        // ===============================================
+        // ERROR
+        // ===============================================
+
+        error: (
+          error: Error
+        ) => {
+
+          console.error(
+            'Failed to load admissions:',
+            error
+          );
+
+
+          this.admissions = [];
+
+          this.filteredAdmissions = [];
+
+          this.loading = false;
+
+
+          this.updateStatistics();
+
+
+          // ---------------------------------------------
+          // Render the error/empty state
+          // ---------------------------------------------
+
+          this.changeDetectorRef.detectChanges();
+
+
+          alert(
+            error.message ||
+            'Unable to load admissions.'
+          );
+
+        }
+
+      });
 
   }
 
@@ -135,24 +291,28 @@ export class AdmissionList implements OnInit {
     this.activeAdmissions =
       this.admissions.filter(
         admission =>
-          admission.status ===
-          'Admitted'
+          admission.status === 'ADMITTED'
       ).length;
 
 
     this.dischargedAdmissions =
       this.admissions.filter(
         admission =>
-          admission.status ===
-          'Discharged'
+          admission.status === 'DISCHARGED'
       ).length;
 
 
     this.transferredAdmissions =
       this.admissions.filter(
         admission =>
-          admission.status ===
-          'Transferred'
+          admission.status === 'TRANSFERRED'
+      ).length;
+
+
+    this.cancelledAdmissions =
+      this.admissions.filter(
+        admission =>
+          admission.status === 'CANCELLED'
       ).length;
 
   }
@@ -174,7 +334,6 @@ export class AdmissionList implements OnInit {
       this.admissions.filter(
         admission => {
 
-
           // ---------------------------------------------
           // SEARCH
           // ---------------------------------------------
@@ -182,11 +341,11 @@ export class AdmissionList implements OnInit {
           const matchesSearch =
             !search ||
 
-            admission.patientName
+            (admission.patientName ?? '')
               .toLowerCase()
               .includes(search) ||
 
-            admission.id
+            (admission.id ?? '')
               .toLowerCase()
               .includes(search) ||
 
@@ -202,7 +361,7 @@ export class AdmissionList implements OnInit {
               .toLowerCase()
               .includes(search) ||
 
-            admission.ward
+            (admission.ward ?? '')
               .toLowerCase()
               .includes(search) ||
 
@@ -229,6 +388,13 @@ export class AdmissionList implements OnInit {
 
         }
       );
+
+
+    // ---------------------------------------------------
+    // Explicitly refresh after filtering
+    // ---------------------------------------------------
+
+    this.changeDetectorRef.detectChanges();
 
   }
 
@@ -300,29 +466,39 @@ export class AdmissionList implements OnInit {
     }
 
 
-    const deleted =
-      this.admissionService.deleteAdmission(
-        admission.id
-      );
+    this.admissionService
+      .deleteAdmission(admission.id)
+      .subscribe({
+
+        next: () => {
+
+          alert(
+            'Admission deleted successfully.'
+          );
 
 
-    if (!deleted) {
+          this.loadAdmissions();
 
-      alert(
-        'Unable to delete admission.'
-      );
+        },
 
-      return;
+        error: (
+          error: Error
+        ) => {
 
-    }
-
-
-    alert(
-      'Admission deleted successfully.'
-    );
+          console.error(
+            'Failed to delete admission:',
+            error
+          );
 
 
-    this.loadAdmissions();
+          alert(
+            error.message ||
+            'Unable to delete admission.'
+          );
+
+        }
+
+      });
 
   }
 
@@ -352,16 +528,16 @@ export class AdmissionList implements OnInit {
 
     switch (status) {
 
-      case 'Admitted':
+      case 'ADMITTED':
         return 'admitted';
 
-      case 'Discharged':
+      case 'DISCHARGED':
         return 'discharged';
 
-      case 'Transferred':
+      case 'TRANSFERRED':
         return 'transferred';
 
-      case 'Cancelled':
+      case 'CANCELLED':
         return 'cancelled';
 
       default:
@@ -373,14 +549,59 @@ export class AdmissionList implements OnInit {
 
 
   // =====================================================
+  // STATUS LABEL
+  // =====================================================
+
+  getStatusLabel(
+    status: AdmissionStatus
+  ): string {
+
+    switch (status) {
+
+      case 'ADMITTED':
+        return 'Admitted';
+
+      case 'DISCHARGED':
+        return 'Discharged';
+
+      case 'TRANSFERRED':
+        return 'Transferred';
+
+      case 'CANCELLED':
+        return 'Cancelled';
+
+      default:
+        return status;
+
+    }
+
+  }
+
+
+  // =====================================================
   // FORMAT DATE
   // =====================================================
 
   formatDate(
-    date: string
+    date?: string
   ): string {
 
     if (!date) {
+
+      return '—';
+
+    }
+
+
+    const parsedDate =
+      new Date(date);
+
+
+    if (
+      Number.isNaN(
+        parsedDate.getTime()
+      )
+    ) {
 
       return '—';
 
@@ -395,10 +616,9 @@ export class AdmissionList implements OnInit {
         year: 'numeric'
       }
     ).format(
-      new Date(date)
+      parsedDate
     );
 
   }
-
 
 }

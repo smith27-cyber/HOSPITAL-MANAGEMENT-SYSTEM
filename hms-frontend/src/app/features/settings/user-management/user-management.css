@@ -1,0 +1,744 @@
+/* =====================================================
+   USER MANAGEMENT PAGE
+===================================================== */
+
+.user-management-page {
+  padding: 28px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+
+/* =====================================================
+   PAGE HEADER
+===================================================== */
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin: 8px 0 6px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #172033;
+}
+
+.page-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   BACK BUTTON
+===================================================== */
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  border: 0;
+  background: transparent;
+
+  padding: 0;
+
+  color: #1685a8;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.back-button:hover {
+  color: #116b87;
+}
+
+
+/* =====================================================
+   PRIMARY BUTTON
+===================================================== */
+
+.primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 42px;
+
+  padding: 0 18px;
+
+  border: 0;
+  border-radius: 9px;
+
+  background: #1685a8;
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.primary-button:hover:not(:disabled) {
+  background: #116b87;
+  transform: translateY(-1px);
+}
+
+.primary-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+
+/* =====================================================
+   TOOLBAR
+===================================================== */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 18px;
+
+  margin-bottom: 18px;
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  width: min(420px, 100%);
+
+  height: 44px;
+
+  padding: 0 13px;
+
+  border: 1px solid #d9e1e7;
+  border-radius: 9px;
+
+  background: #ffffff;
+}
+
+.search-box .material-symbols-outlined {
+  color: #8b98a5;
+  font-size: 21px;
+}
+
+.search-box input {
+  width: 100%;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+
+  color: #172033;
+
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   COUNT
+===================================================== */
+
+.user-count {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.user-count strong {
+  color: #172033;
+}
+
+
+/* =====================================================
+   TABLE CARD
+===================================================== */
+
+.table-card {
+  overflow: hidden;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+
+  background: #ffffff;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+
+  min-width: 850px;
+}
+
+thead {
+  background: #f7fafc;
+}
+
+th {
+  padding: 15px 18px;
+
+  text-align: left;
+
+  color: #667085;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.03em;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+td {
+  padding: 15px 18px;
+
+  border-bottom: 1px solid #edf0f2;
+
+  color: #475467;
+
+  font-size: 13px;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+tbody tr:hover {
+  background: #fbfdfe;
+}
+
+
+/* =====================================================
+   USER CELL
+===================================================== */
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.user-cell strong {
+  color: #172033;
+  font-size: 14px;
+}
+
+.avatar {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #eaf6fb;
+  color: #1685a8;
+
+  font-weight: 700;
+}
+
+
+/* =====================================================
+   USERNAME
+===================================================== */
+
+.username {
+  color: #344054;
+  font-family: monospace;
+}
+
+
+/* =====================================================
+   ROLE BADGE
+===================================================== */
+
+.role-badge {
+  display: inline-flex;
+
+  padding: 5px 9px;
+
+  border-radius: 7px;
+
+  background: #eef4f7;
+
+  color: #3c5965;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.status-badge {
+  display: inline-flex;
+
+  padding: 5px 9px;
+
+  border-radius: 20px;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.status-badge.active {
+  background: #e9f7ef;
+  color: #197044;
+}
+
+.status-badge.inactive {
+  background: #f3f4f6;
+  color: #667085;
+}
+
+
+/* =====================================================
+   ACTIONS
+===================================================== */
+
+.actions-column {
+  text-align: right;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.icon-button {
+  width: 34px;
+  height: 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid transparent;
+  border-radius: 7px;
+
+  background: transparent;
+  color: #667085;
+
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  border-color: #dbe5e9;
+  background: #f7fafc;
+  color: #1685a8;
+}
+
+.icon-button.danger:hover {
+  border-color: #f3d0d0;
+  background: #fff5f5;
+  color: #c03939;
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  min-height: 260px;
+
+  color: #667085;
+
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   EMPTY STATE
+===================================================== */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 300px;
+
+  padding: 30px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  text-align: center;
+}
+
+.empty-state > .material-symbols-outlined {
+  font-size: 48px;
+  color: #aab4bd;
+}
+
+.empty-state h2 {
+  margin: 14px 0 5px;
+
+  color: #172033;
+
+  font-size: 18px;
+}
+
+.empty-state p {
+  margin: 0;
+
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   MODAL BACKDROP
+===================================================== */
+
+.modal-backdrop {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(15, 23, 42, 0.48);
+}
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.modal {
+  width: min(520px, 100%);
+
+  max-height: calc(100vh - 40px);
+
+  overflow-y: auto;
+
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 24px 70px
+    rgba(15, 23, 42, 0.22);
+}
+
+
+/* =====================================================
+   MODAL HEADER
+===================================================== */
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  padding: 22px 24px;
+
+  border-bottom: 1px solid #edf0f2;
+}
+
+.modal-header h2 {
+  margin: 0 0 5px;
+
+  color: #172033;
+
+  font-size: 20px;
+}
+
+.modal-header p {
+  margin: 0;
+
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+.close-button {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
+  border-radius: 8px;
+
+  background: transparent;
+  color: #667085;
+
+  cursor: pointer;
+}
+
+.close-button:hover {
+  background: #f3f4f6;
+}
+
+
+/* =====================================================
+   FORM
+===================================================== */
+
+.modal form {
+  padding: 24px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #344054;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+
+  height: 44px;
+
+  box-sizing: border-box;
+
+  padding: 0 12px;
+
+  border: 1px solid #d9e1e7;
+  border-radius: 8px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #172033;
+
+  font-size: 14px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #1685a8;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(22, 133, 168, 0.10);
+}
+
+.form-group small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #8a96a3;
+
+  font-size: 11px;
+}
+
+
+/* =====================================================
+   ACCOUNT SUMMARY
+===================================================== */
+
+.account-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin-bottom: 20px;
+
+  padding: 13px;
+
+  border-radius: 9px;
+
+  background: #f7fafc;
+}
+
+.account-summary > .material-symbols-outlined {
+  font-size: 31px;
+  color: #1685a8;
+}
+
+.account-summary strong {
+  display: block;
+
+  color: #172033;
+
+  font-size: 14px;
+}
+
+.account-summary small {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #8a96a3;
+
+  font-size: 11px;
+}
+
+
+/* =====================================================
+   STATUS TOGGLE
+===================================================== */
+
+.status-toggle {
+  margin-bottom: 20px;
+}
+
+.status-toggle label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  color: #475467;
+
+  font-size: 13px;
+
+  cursor: pointer;
+}
+
+.status-toggle input {
+  width: 17px;
+  height: 17px;
+
+  accent-color: #1685a8;
+}
+
+
+/* =====================================================
+   FORM ACTIONS
+===================================================== */
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  margin-top: 24px;
+}
+
+.secondary-button {
+  min-height: 42px;
+
+  padding: 0 18px;
+
+  border: 1px solid #d9e1e7;
+  border-radius: 9px;
+
+  background: #ffffff;
+  color: #475467;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.secondary-button:hover {
+  background: #f7fafc;
+}
+
+
+/* =====================================================
+   SPINNER
+===================================================== */
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 700px) {
+
+  .user-management-page {
+    padding: 18px;
+  }
+
+  .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+}

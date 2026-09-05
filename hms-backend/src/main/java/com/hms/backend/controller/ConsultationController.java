@@ -1,3 +1,4 @@
+
 package com.hms.backend.controller;
 
 import com.hms.backend.dto.ConsultationRequest;
@@ -6,6 +7,8 @@ import com.hms.backend.service.ConsultationService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -36,7 +39,16 @@ public class ConsultationController {
     // =====================================================
     // GET ALL
     // =====================================================
+    //
+    // Permission:
+    //
+    // CONSULTATION_VIEW
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('CONSULTATION_VIEW')"
+    )
     @GetMapping
     public ResponseEntity<List<ConsultationResponse>>
     getAllConsultations() {
@@ -51,7 +63,16 @@ public class ConsultationController {
     // =====================================================
     // GET BY ID
     // =====================================================
+    //
+    // Permission:
+    //
+    // CONSULTATION_VIEW
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('CONSULTATION_VIEW')"
+    )
     @GetMapping("/{id}")
     public ResponseEntity<ConsultationResponse>
     getConsultationById(
@@ -68,7 +89,16 @@ public class ConsultationController {
     // =====================================================
     // GET BY PATIENT
     // =====================================================
+    //
+    // Permission:
+    //
+    // CONSULTATION_VIEW
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('CONSULTATION_VIEW')"
+    )
     @GetMapping("/patient/{patientId}")
     public ResponseEntity<List<ConsultationResponse>>
     getConsultationsByPatient(
@@ -87,7 +117,16 @@ public class ConsultationController {
     // =====================================================
     // GET BY DOCTOR
     // =====================================================
+    //
+    // Permission:
+    //
+    // CONSULTATION_VIEW
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('CONSULTATION_VIEW')"
+    )
     @GetMapping("/doctor/{doctorId}")
     public ResponseEntity<List<ConsultationResponse>>
     getConsultationsByDoctor(
@@ -106,7 +145,16 @@ public class ConsultationController {
     // =====================================================
     // GET BY APPOINTMENT
     // =====================================================
+    //
+    // Permission:
+    //
+    // CONSULTATION_VIEW
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('CONSULTATION_VIEW')"
+    )
     @GetMapping("/appointment/{appointmentId}")
     public ResponseEntity<ConsultationResponse>
     getConsultationByAppointment(
@@ -138,19 +186,17 @@ public class ConsultationController {
     // CREATE / SAVE CONSULTATION
     // =====================================================
     //
-    // Saves a new consultation.
+    // Permission:
     //
-    // Initial status:
+    // CONSULTATION_CREATE
     //
-    // OPEN
-    //
-    // The consultation is NOT completed here.
-    //
-    // A consultation-specific invoice is created
-    // by the service.
+    // Saving a consultation does NOT complete it.
     //
     // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('CONSULTATION_CREATE')"
+    )
     @PostMapping
     public ResponseEntity<ConsultationResponse>
     createConsultation(
@@ -178,10 +224,17 @@ public class ConsultationController {
     // UPDATE / SAVE PROGRESS
     // =====================================================
     //
-    // Does NOT complete the consultation.
+    // Permission:
+    //
+    // CONSULTATION_UPDATE
+    //
+    // This endpoint MUST NOT complete the consultation.
     //
     // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('CONSULTATION_UPDATE')"
+    )
     @PutMapping("/{id}")
     public ResponseEntity<ConsultationResponse>
     updateConsultation(
@@ -203,14 +256,20 @@ public class ConsultationController {
     // UPDATE STATUS
     // =====================================================
     //
-    // COMPLETED is intentionally blocked here.
+    // Permission:
     //
-    // Use:
+    // CONSULTATION_UPDATE
     //
-    // PATCH /api/consultations/{id}/complete
+    // COMPLETED is intentionally rejected by the service.
+    //
+    // Laboratory workflow statuses are also controlled
+    // by the laboratory workflow.
     //
     // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('CONSULTATION_UPDATE')"
+    )
     @PatchMapping("/{id}/status")
     public ResponseEntity<ConsultationResponse>
     updateStatus(
@@ -231,7 +290,18 @@ public class ConsultationController {
     // =====================================================
     // REVIEW LABORATORY RESULTS
     // =====================================================
+    //
+    // Permission:
+    //
+    // CONSULTATION_UPDATE
+    //
+    // The actual workflow validation remains in the service.
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('CONSULTATION_UPDATE')"
+    )
     @PatchMapping(
             "/{id}/review-laboratory-results"
     )
@@ -252,7 +322,28 @@ public class ConsultationController {
     // =====================================================
     // COMPLETE CONSULTATION
     // =====================================================
+    //
+    // Permission:
+    //
+    // CONSULTATION_COMPLETE
+    //
+    // IMPORTANT:
+    //
+    // Having CONSULTATION_UPDATE does NOT grant this action.
+    //
+    // The service separately verifies:
+    //
+    // - Consultation is OPEN
+    // - Final diagnosis exists
+    // - Treatment plan exists
+    // - Laboratory results exist when required
+    // - Laboratory results have been reviewed when required
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('CONSULTATION_COMPLETE')"
+    )
     @PatchMapping("/{id}/complete")
     public ResponseEntity<ConsultationResponse>
     completeConsultation(
@@ -271,7 +362,22 @@ public class ConsultationController {
     // =====================================================
     // CANCEL CONSULTATION
     // =====================================================
+    //
+    // There is currently no CONSULTATION_CANCEL permission
+    // in the RBAC catalog.
+    //
+    // Therefore cancellation uses:
+    //
+    // CONSULTATION_UPDATE
+    //
+    // The service still prevents cancellation of completed
+    // consultations.
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('CONSULTATION_UPDATE')"
+    )
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<ConsultationResponse>
     cancelConsultation(
@@ -290,7 +396,23 @@ public class ConsultationController {
     // =====================================================
     // DELETE
     // =====================================================
+    //
+    // Permission:
+    //
+    // CONSULTATION_DELETE
+    //
+    // This should normally be assigned only to:
+    //
+    // SUPER_ADMIN
+    // ADMIN
+    //
+    // Completed consultations are protected by the service.
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('CONSULTATION_DELETE')"
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void>
     deleteConsultation(
@@ -306,3 +428,4 @@ public class ConsultationController {
                 .build();
     }
 }
+

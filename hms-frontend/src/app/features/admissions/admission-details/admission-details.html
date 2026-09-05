@@ -1,3 +1,9 @@
+<!-- ===================================================== -->
+<!-- ADMISSION DETAILS PAGE -->
+<!-- File: -->
+<!-- src/app/features/admissions/admission-details/admission-details.html -->
+<!-- ===================================================== -->
+
 <div class="admission-details-page">
 
 
@@ -38,7 +44,40 @@
 
 
 
-  @if (admission) {
+  <!-- ================================================= -->
+  <!-- LOADING -->
+  <!-- ================================================= -->
+
+  @if (loading) {
+
+    <section class="empty-card">
+
+      <div class="empty-icon">
+
+        <span class="material-symbols-outlined">
+          progress_activity
+        </span>
+
+      </div>
+
+      <h3>
+        Loading Admission
+      </h3>
+
+      <p>
+        Please wait while the admission record is being loaded.
+      </p>
+
+    </section>
+
+  }
+
+
+  <!-- ================================================= -->
+  <!-- ADMISSION -->
+  <!-- ================================================= -->
+
+  @else if (admission) {
 
 
     <!-- ================================================= -->
@@ -72,11 +111,15 @@
           <p>
 
             @if (admission.patientNumber) {
+
               {{ admission.patientNumber }}
+
             }
 
             @else {
+
               Patient number not available
+
             }
 
           </p>
@@ -96,7 +139,9 @@
             class="status"
             [ngClass]="getStatusClass()"
           >
-            {{ admission.status }}
+
+            {{ getStatusLabel() }}
+
           </span>
 
         </div>
@@ -217,7 +262,9 @@
               admission.dischargeDate
             "
           >
+
             {{ formatDate(admission.dischargeDate) }}
+
           </strong>
 
         </div>
@@ -520,11 +567,15 @@
       <div class="status-actions">
 
 
+        <!-- ADMITTED -->
+
         <button
           type="button"
           class="status-button admitted-button"
-          [class.current]="admission.status === 'Admitted'"
-          (click)="updateStatus('Admitted')"
+          [class.current]="
+            admission.status === 'ADMITTED'
+          "
+          (click)="updateStatus('ADMITTED')"
         >
 
           <span class="material-symbols-outlined">
@@ -536,11 +587,15 @@
         </button>
 
 
+        <!-- DISCHARGED -->
+
         <button
           type="button"
           class="status-button discharged-button"
-          [class.current]="admission.status === 'Discharged'"
-          (click)="updateStatus('Discharged')"
+          [class.current]="
+            admission.status === 'DISCHARGED'
+          "
+          (click)="updateStatus('DISCHARGED')"
         >
 
           <span class="material-symbols-outlined">
@@ -552,11 +607,15 @@
         </button>
 
 
+        <!-- TRANSFERRED -->
+
         <button
           type="button"
           class="status-button transferred-button"
-          [class.current]="admission.status === 'Transferred'"
-          (click)="updateStatus('Transferred')"
+          [class.current]="
+            admission.status === 'TRANSFERRED'
+          "
+          (click)="updateStatus('TRANSFERRED')"
         >
 
           <span class="material-symbols-outlined">
@@ -568,11 +627,15 @@
         </button>
 
 
+        <!-- CANCELLED -->
+
         <button
           type="button"
           class="status-button cancelled-button"
-          [class.current]="admission.status === 'Cancelled'"
-          (click)="updateStatus('Cancelled')"
+          [class.current]="
+            admission.status === 'CANCELLED'
+          "
+          (click)="updateStatus('CANCELLED')"
         >
 
           <span class="material-symbols-outlined">
@@ -595,6 +658,8 @@
 
     <div class="page-actions">
 
+
+      <!-- BACK -->
 
       <button
         type="button"

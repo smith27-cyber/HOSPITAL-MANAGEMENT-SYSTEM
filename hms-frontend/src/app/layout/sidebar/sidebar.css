@@ -1,22 +1,18 @@
-
-/* =========================================================
+/* =====================================================
    HMS SIDEBAR
-   ========================================================= */
+   ===================================================== */
 
 .sidebar {
-
   width: 260px;
-
   height: 100vh;
+  min-height: 100vh;
 
   position: sticky;
-
   top: 0;
 
   flex-shrink: 0;
 
   display: flex;
-
   flex-direction: column;
 
   background: #ffffff;
@@ -27,19 +23,19 @@
 
   overflow: hidden;
 
+  box-sizing: border-box;
+
   transition:
     width 0.25s ease,
     transform 0.25s ease;
-
 }
 
 
-/* =========================================================
+/* =====================================================
    BRAND
-   ========================================================= */
+   ===================================================== */
 
 .sidebar-brand {
-
   height: 76px;
   min-height: 76px;
 
@@ -48,13 +44,17 @@
   display: flex;
   align-items: center;
 
+  background: #ffffff;
+
   border-bottom: 1px solid #e5e7eb;
 
+  box-sizing: border-box;
 }
 
-.brand-link {
 
+.brand-link {
   width: 100%;
+  min-width: 0;
 
   display: flex;
   align-items: center;
@@ -64,19 +64,24 @@
   text-decoration: none;
 
   color: inherit;
-
 }
 
-.brand-icon {
 
+/* =====================================================
+   BRAND ICON / LOGO CONTAINER
+   ===================================================== */
+
+.brand-icon {
   width: 42px;
   height: 42px;
 
-  flex-shrink: 0;
+  flex: 0 0 42px;
 
   display: flex;
   align-items: center;
   justify-content: center;
+
+  overflow: hidden;
 
   border-radius: 12px;
 
@@ -85,112 +90,179 @@
   color: #ffffff;
 
   box-shadow:
-    0 4px 10px rgba(15, 118, 110, 0.18);
+    0 4px 12px rgba(15, 118, 110, 0.18);
 
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
+
+
+.brand-link:hover .brand-icon {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 6px 16px rgba(15, 118, 110, 0.24);
+}
+
+
+/* =====================================================
+   DEFAULT HOSPITAL ICON
+   ===================================================== */
 
 .brand-icon .material-symbols-outlined {
-
   font-size: 24px;
 
+  font-weight: 500;
+
+  line-height: 1;
 }
 
-.brand-text {
 
+/* =====================================================
+   HOSPITAL LOGO
+   ===================================================== */
+
+.hospital-logo {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  border-radius: 12px;
+
+  background: #ffffff;
+}
+
+
+/* =====================================================
+   BRAND TEXT
+   ===================================================== */
+
+.brand-text {
   min-width: 0;
+
+  flex: 1;
 
   display: flex;
   flex-direction: column;
 
+  overflow: hidden;
 }
 
-.brand-text h2 {
 
+.brand-text h2 {
   margin: 0;
+
+  max-width: 100%;
 
   color: #111827;
 
-  font-size: 20px;
+  font-size: 17px;
+
   font-weight: 800;
 
-  line-height: 1.1;
+  line-height: 1.15;
 
+  letter-spacing: -0.02em;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
 }
 
+
 .brand-text span {
+  display: block;
+
+  max-width: 100%;
 
   margin-top: 4px;
 
   color: #9ca3af;
 
   font-size: 9px;
-  font-weight: 500;
+
+  font-weight: 600;
+
+  line-height: 1.2;
+
+  letter-spacing: 0.06em;
+
+  text-transform: uppercase;
 
   white-space: nowrap;
 
+  overflow: hidden;
+
+  text-overflow: ellipsis;
 }
 
 
-/* =========================================================
+/* =====================================================
    NAVIGATION
-   ========================================================= */
+   ===================================================== */
 
 .sidebar-nav {
-
   flex: 1;
 
   padding: 18px 12px;
 
   overflow-y: auto;
+
   overflow-x: hidden;
+
+  box-sizing: border-box;
 
   scrollbar-width: thin;
 
   scrollbar-color:
     #d1d5db
     transparent;
-
 }
+
 
 .sidebar-nav::-webkit-scrollbar {
-
   width: 5px;
-
 }
+
 
 .sidebar-nav::-webkit-scrollbar-track {
-
   background: transparent;
-
 }
 
-.sidebar-nav::-webkit-scrollbar-thumb {
 
+.sidebar-nav::-webkit-scrollbar-thumb {
   background: #d1d5db;
 
   border-radius: 10px;
-
 }
 
 
-/* =========================================================
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+
+/* =====================================================
    NAVIGATION SECTIONS
-   ========================================================= */
+   ===================================================== */
 
 .nav-section {
-
   margin-bottom: 26px;
-
 }
+
 
 .nav-section:last-child {
-
   margin-bottom: 0;
-
 }
 
-.section-title {
 
+.section-title {
   display: block;
 
   padding: 0 12px;
@@ -203,22 +275,25 @@
 
   font-weight: 800;
 
+  line-height: 1.2;
+
   letter-spacing: 0.12em;
 
+  user-select: none;
 }
 
 
-/* =========================================================
+/* =====================================================
    NAV ITEM
-   ========================================================= */
+   ===================================================== */
 
 .nav-item {
-
   position: relative;
 
   min-height: 44px;
 
   display: flex;
+
   align-items: center;
 
   gap: 12px;
@@ -234,39 +309,51 @@
   text-decoration: none;
 
   font-size: 13px;
+
   font-weight: 500;
+
+  line-height: 1.2;
 
   cursor: pointer;
 
-  transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
+  box-sizing: border-box;
 
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.nav-item:hover {
 
+.nav-item:hover {
   background: #f0fdfa;
 
   color: #0f766e;
 
   transform: translateX(2px);
-
 }
 
 
-/* =========================================================
+.nav-item:focus-visible {
+  outline: 2px solid #14b8a6;
+
+  outline-offset: 2px;
+}
+
+
+/* =====================================================
    NAV ICON
-   ========================================================= */
+   ===================================================== */
 
 .nav-icon {
-
   width: 22px;
+  height: 22px;
 
-  flex-shrink: 0;
+  flex: 0 0 22px;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
@@ -274,52 +361,59 @@
 
   font-size: 21px;
 
-  transition: color 0.2s ease;
-
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
+
 
 .nav-item:hover .nav-icon {
-
   color: #0f766e;
 
+  transform: scale(1.04);
 }
 
 
-/* =========================================================
+/* =====================================================
    NAV LABEL
-   ========================================================= */
+   ===================================================== */
 
 .nav-label {
-
   flex: 1;
+
+  min-width: 0;
 
   white-space: nowrap;
 
+  overflow: hidden;
+
+  text-overflow: ellipsis;
 }
 
 
-/* =========================================================
+/* =====================================================
    ACTIVE NAV ITEM
-   ========================================================= */
+   ===================================================== */
 
 .nav-item.active {
-
   background: #ccfbf1;
 
   color: #0f766e;
 
   font-weight: 700;
 
+  box-shadow:
+    inset 0 0 0 1px
+    rgba(15, 118, 110, 0.05);
 }
+
 
 .nav-item.active .nav-icon {
-
   color: #0f766e;
-
 }
 
-.nav-item.active::before {
 
+.nav-item.active::before {
   content: "";
 
   position: absolute;
@@ -327,39 +421,40 @@
   left: 0;
 
   top: 8px;
+
   bottom: 8px;
 
   width: 3px;
 
-  border-radius: 0 4px 4px 0;
+  border-radius:
+    0 4px 4px 0;
 
   background: #0f766e;
-
 }
 
 
-/* =========================================================
+/* =====================================================
    SIDEBAR FOOTER
-   ========================================================= */
+   ===================================================== */
 
 .sidebar-footer {
-
   padding: 12px;
-
-  border-top: 1px solid #e5e7eb;
 
   background: #ffffff;
 
+  border-top: 1px solid #e5e7eb;
+
+  box-sizing: border-box;
 }
 
 
-/* =========================================================
+/* =====================================================
    SYSTEM STATUS
-   ========================================================= */
+   ===================================================== */
 
 .system-status {
-
   display: flex;
+
   align-items: center;
 
   gap: 10px;
@@ -372,14 +467,15 @@
 
   background: #f8fafc;
 
+  border: 1px solid #f1f5f9;
 }
 
-.status-indicator {
 
+.status-indicator {
   width: 9px;
   height: 9px;
 
-  flex-shrink: 0;
+  flex: 0 0 9px;
 
   border-radius: 50%;
 
@@ -387,45 +483,55 @@
 
   box-shadow:
     0 0 0 4px #d1fae5;
-
 }
 
-.system-status div {
+
+.system-status > div {
+  min-width: 0;
 
   display: flex;
-  flex-direction: column;
 
+  flex-direction: column;
 }
 
-.system-status strong {
 
+.system-status strong {
   color: #374151;
 
   font-size: 11px;
+
   font-weight: 700;
 
+  line-height: 1.3;
+
+  white-space: nowrap;
 }
 
-.system-status span:not(.status-indicator) {
 
+.system-status div span:not(.status-indicator) {
   margin-top: 2px;
 
   color: #9ca3af;
 
   font-size: 9px;
 
+  font-weight: 500;
+
+  line-height: 1.3;
+
+  white-space: nowrap;
 }
 
 
-/* =========================================================
+/* =====================================================
    LOGOUT
-   ========================================================= */
+   ===================================================== */
 
 .logout-button {
-
   width: 100%;
 
   display: flex;
+
   align-items: center;
 
   gap: 12px;
@@ -433,6 +539,7 @@
   padding: 11px 12px;
 
   border: none;
+
   border-radius: 10px;
 
   background: transparent;
@@ -442,103 +549,222 @@
   font-family: inherit;
 
   font-size: 13px;
+
   font-weight: 500;
+
+  line-height: 1.2;
 
   cursor: pointer;
 
   text-align: left;
 
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
+  box-sizing: border-box;
 
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
-.logout-button:hover {
 
+.logout-button:hover {
   background: #fef2f2;
 
   color: #dc2626;
 
+  transform: translateX(2px);
 }
 
+
+.logout-button:active {
+  transform:
+    translateX(2px)
+    scale(0.99);
+}
+
+
+.logout-button:focus-visible {
+  outline: 2px solid #ef4444;
+
+  outline-offset: 2px;
+}
+
+
 .logout-button .material-symbols-outlined {
+  width: 22px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
 
   font-size: 20px;
 
+  flex-shrink: 0;
 }
 
 
-/* =========================================================
+/* =====================================================
    TABLET
-   ========================================================= */
+   ===================================================== */
 
 @media (max-width: 900px) {
 
   .sidebar {
-
     width: 230px;
-
   }
 
-  .nav-item {
 
+  .sidebar-brand {
+    padding: 0 15px;
+  }
+
+
+  .sidebar-nav {
+    padding-left: 10px;
+
+    padding-right: 10px;
+  }
+
+
+  .nav-item {
     font-size: 12px;
 
+    gap: 10px;
+  }
+
+
+  .brand-text h2 {
+    font-size: 15px;
+  }
+
+
+  .brand-text span {
+    font-size: 8px;
   }
 
 }
 
 
-/* =========================================================
+/* =====================================================
    MOBILE SIDEBAR
-   ========================================================= */
+   ===================================================== */
 
 @media (max-width: 700px) {
 
   .sidebar {
-
     position: fixed;
 
     left: 0;
+
     top: 0;
 
     width: 260px;
 
     height: 100vh;
 
-    transform: translateX(-105%);
+    transform:
+      translateX(-105%);
 
     box-shadow:
-      12px 0 35px rgba(0, 0, 0, 0.15);
+      12px 0 35px
+      rgba(0, 0, 0, 0.15);
 
     transition:
       transform 0.28s ease;
 
+    z-index: 1100;
   }
 
 
-  /* THIS IS THE IMPORTANT PART */
-
   .sidebar.mobile-open {
+    transform:
+      translateX(0);
+  }
 
-    transform: translateX(0);
 
+  .sidebar-brand {
+    height: 64px;
+
+    min-height: 64px;
+  }
+
+
+  .brand-icon {
+    width: 38px;
+
+    height: 38px;
+
+    flex-basis: 38px;
+
+    border-radius: 10px;
+  }
+
+
+  .brand-icon .material-symbols-outlined {
+    font-size: 22px;
+  }
+
+
+  .brand-text h2 {
+    font-size: 15px;
   }
 
 }
 
 
-/* =========================================================
+/* =====================================================
    SMALL MOBILE
-   ========================================================= */
+   ===================================================== */
 
 @media (max-width: 480px) {
 
   .sidebar {
-
     width: 280px;
+  }
 
+
+  .sidebar-brand {
+    padding: 0 18px;
+  }
+
+
+  .nav-item {
+    min-height: 46px;
+
+    padding: 11px 12px;
+  }
+
+
+  .section-title {
+    padding-left: 12px;
+  }
+
+
+  .brand-text h2 {
+    font-size: 15px;
+  }
+
+
+  .brand-text span {
+    font-size: 8px;
+  }
+
+}
+
+
+/* =====================================================
+   REDUCED MOTION
+   ===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .sidebar,
+  .brand-icon,
+  .nav-item,
+  .nav-icon,
+  .logout-button {
+    transition: none;
   }
 
 }

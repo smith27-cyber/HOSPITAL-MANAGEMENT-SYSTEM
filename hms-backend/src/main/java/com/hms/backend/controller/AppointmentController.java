@@ -1,3 +1,9 @@
+// =====================================================
+// HMS APPOINTMENT CONTROLLER
+// File:
+// src/main/java/com/hms/backend/controller/AppointmentController.java
+// =====================================================
+
 package com.hms.backend.controller;
 
 import com.hms.backend.dto.AppointmentRequest;
@@ -6,27 +12,18 @@ import com.hms.backend.service.AppointmentService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
-
-// =====================================================
-// APPOINTMENT CONTROLLER
-// File:
-// src/main/java/com/hms/backend/controller/AppointmentController.java
-// =====================================================
-
 @RestController
 @RequestMapping("/api/appointments")
 @CrossOrigin(origins = "http://localhost:4200")
 public class AppointmentController {
-
-
-    // =====================================================
-    // SERVICE
-    // =====================================================
 
     private final AppointmentService appointmentService;
 
@@ -41,7 +38,6 @@ public class AppointmentController {
 
         this.appointmentService =
                 appointmentService;
-
     }
 
 
@@ -49,6 +45,7 @@ public class AppointmentController {
     // CREATE APPOINTMENT
     // =====================================================
 
+    @PreAuthorize("hasAuthority('APPOINTMENT_CREATE')")
     @PostMapping
     public ResponseEntity<AppointmentResponse> createAppointment(
             @RequestBody AppointmentRequest request
@@ -62,7 +59,6 @@ public class AppointmentController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
-
     }
 
 
@@ -70,6 +66,7 @@ public class AppointmentController {
     // GET ALL APPOINTMENTS
     // =====================================================
 
+    @PreAuthorize("hasAuthority('APPOINTMENT_VIEW')")
     @GetMapping
     public ResponseEntity<List<AppointmentResponse>> getAllAppointments() {
 
@@ -79,7 +76,6 @@ public class AppointmentController {
         return ResponseEntity.ok(
                 appointments
         );
-
     }
 
 
@@ -87,6 +83,7 @@ public class AppointmentController {
     // GET APPOINTMENT BY ID
     // =====================================================
 
+    @PreAuthorize("hasAuthority('APPOINTMENT_VIEW')")
     @GetMapping("/{id}")
     public ResponseEntity<AppointmentResponse> getAppointmentById(
             @PathVariable String id
@@ -104,7 +101,6 @@ public class AppointmentController {
                                 .notFound()
                                 .build()
                 );
-
     }
 
 
@@ -112,6 +108,7 @@ public class AppointmentController {
     // UPDATE APPOINTMENT
     // =====================================================
 
+    @PreAuthorize("hasAuthority('APPOINTMENT_UPDATE')")
     @PutMapping("/{id}")
     public ResponseEntity<AppointmentResponse> updateAppointment(
             @PathVariable String id,
@@ -127,14 +124,14 @@ public class AppointmentController {
         return ResponseEntity.ok(
                 response
         );
-
     }
 
 
     // =====================================================
-    // UPDATE STATUS
+    // UPDATE APPOINTMENT STATUS
     // =====================================================
 
+    @PreAuthorize("hasAuthority('APPOINTMENT_UPDATE')")
     @PatchMapping("/{id}/status")
     public ResponseEntity<AppointmentResponse> updateStatus(
             @PathVariable String id,
@@ -150,7 +147,6 @@ public class AppointmentController {
         return ResponseEntity.ok(
                 response
         );
-
     }
 
 
@@ -158,6 +154,7 @@ public class AppointmentController {
     // CANCEL APPOINTMENT
     // =====================================================
 
+    @PreAuthorize("hasAuthority('APPOINTMENT_CANCEL')")
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<AppointmentResponse> cancelAppointment(
             @PathVariable String id
@@ -171,7 +168,6 @@ public class AppointmentController {
         return ResponseEntity.ok(
                 response
         );
-
     }
 
 
@@ -179,6 +175,7 @@ public class AppointmentController {
     // DELETE APPOINTMENT
     // =====================================================
 
+    @PreAuthorize("hasAuthority('APPOINTMENT_CANCEL')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAppointment(
             @PathVariable String id
@@ -191,7 +188,5 @@ public class AppointmentController {
         return ResponseEntity
                 .noContent()
                 .build();
-
     }
-
 }

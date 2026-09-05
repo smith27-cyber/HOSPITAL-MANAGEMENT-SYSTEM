@@ -41,6 +41,22 @@
 
 
 /* =========================================================
+   GENERAL BUTTON BASE
+   ========================================================= */
+
+button {
+  font-family: inherit;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+
+/* =========================================================
    FORM CARDS
    ========================================================= */
 
@@ -195,17 +211,23 @@
 .form-group textarea {
   width: 100%;
   box-sizing: border-box;
+
   border: 1px solid #d1d5db;
   border-radius: 8px;
+
   background: #ffffff;
   color: #1f2937;
+
   font-family: inherit;
   font-size: 13px;
+
   outline: none;
+
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
-    background-color 0.2s ease;
+    background-color 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .form-group input,
@@ -226,9 +248,9 @@
   color: #9ca3af;
 }
 
-.form-group input:hover,
-.form-group select:hover,
-.form-group textarea:hover {
+.form-group input:hover:not(:disabled),
+.form-group select:hover:not(:disabled),
+.form-group textarea:hover:not(:disabled) {
   border-color: #9ca3af;
 }
 
@@ -243,6 +265,13 @@
   background: #f8fafc;
   color: #64748b;
   cursor: default;
+}
+
+.form-group input:disabled,
+.form-group select:disabled,
+.form-group textarea:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
 }
 
 
@@ -355,10 +384,13 @@
   width: 42px;
   height: 42px;
   flex-shrink: 0;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   border-radius: 10px;
+
   background: #ede9fe;
   color: #7c3aed;
 }
@@ -415,25 +447,33 @@
   align-items: center;
   justify-content: center;
   gap: 7px;
+
   min-height: 40px;
+
   padding: 9px 15px;
+
   border: 0;
   border-radius: 8px;
+
   color: #ffffff;
+
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
+
   cursor: pointer;
+
   transition:
     background-color 0.2s ease,
-    transform 0.15s ease;
+    transform 0.15s ease,
+    opacity 0.2s ease;
 }
 
 .add-laboratory-button {
   background: #7c3aed;
 }
 
-.add-laboratory-button:hover {
+.add-laboratory-button:hover:not(:disabled) {
   background: #6d28d9;
   transform: translateY(-1px);
 }
@@ -485,10 +525,14 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
   padding: 35px 20px;
+
   border: 1px dashed #d1d5db;
   border-radius: 10px;
+
   background: #fafafa;
+
   text-align: center;
 }
 
@@ -523,15 +567,19 @@
 .laboratory-table {
   width: 100%;
   overflow-x: auto;
+
   border: 1px solid #e5e7eb;
   border-radius: 10px;
+
   background: #ffffff;
 }
 
 .laboratory-table-header,
 .laboratory-table-row {
   min-width: 780px;
+
   display: grid;
+
   grid-template-columns:
     2fr
     1.2fr
@@ -539,12 +587,15 @@
     1fr
     1fr
     65px;
+
   align-items: center;
 }
 
 .laboratory-table-header {
   padding: 12px 14px;
+
   border-bottom: 1px solid #e5e7eb;
+
   background: #f8fafc;
 }
 
@@ -574,11 +625,15 @@
 .laboratory-test-icon {
   width: 38px;
   height: 38px;
+
   flex-shrink: 0;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   border-radius: 9px;
+
   background: #ede9fe;
   color: #7c3aed;
 }
@@ -589,17 +644,24 @@
 
 .laboratory-test-cell strong {
   display: block;
+
   overflow: hidden;
+
   color: #1f2937;
+
   font-size: 12px;
+
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .laboratory-test-cell span {
   display: block;
+
   margin-top: 3px;
+
   color: #9ca3af;
+
   font-size: 10px;
 }
 
@@ -615,23 +677,42 @@
 
 
 /* =========================================================
-   LAB STATUS
+   LABORATORY STATUS
    ========================================================= */
 
 .laboratory-status {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   padding: 5px 9px;
+
   border-radius: 999px;
+
   font-size: 9px;
   font-weight: 700;
+
   white-space: nowrap;
 }
 
 .laboratory-status.pending {
   background: #fef3c7;
   color: #92400e;
+}
+
+.laboratory-status.in-progress {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.laboratory-status.completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.laboratory-status.cancelled {
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
 
@@ -649,20 +730,39 @@
 .remove-medicine-button {
   width: 34px;
   height: 34px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   border: 1px solid #fecaca;
   border-radius: 8px;
+
   background: #ffffff;
   color: #dc2626;
+
   cursor: pointer;
-  transition: background-color 0.2s ease;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
 }
 
-.remove-laboratory-button:hover,
-.remove-medicine-button:hover {
+.remove-laboratory-button:hover:not(:disabled),
+.remove-medicine-button:hover:not(:disabled) {
   background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+
+/* =========================================================
+   READONLY ACTION
+   ========================================================= */
+
+.readonly-action {
+  color: #9ca3af;
+  font-size: 16px;
 }
 
 
@@ -675,17 +775,21 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
+
   margin-top: 18px;
   padding: 14px;
+
   border-radius: 10px;
 }
 
 .laboratory-workflow-notice {
   background: #f5f3ff;
+  border: 1px solid #ddd6fe;
 }
 
 .pharmacy-workflow-notice {
   background: #ecfdf5;
+  border: 1px solid #bbf7d0;
 }
 
 .laboratory-workflow-notice > .material-symbols-outlined {
@@ -713,7 +817,9 @@
 .laboratory-workflow-notice p,
 .pharmacy-workflow-notice p {
   margin: 4px 0 0;
+
   color: #4b5563;
+
   font-size: 11px;
   line-height: 1.6;
 }
@@ -730,19 +836,23 @@
 
 .prescription-entry {
   padding: 18px;
+
   border: 1px solid #e5e7eb;
   border-radius: 12px;
+
   background: #ffffff;
 }
 
 .prescription-entry-grid {
   display: grid;
+
   grid-template-columns:
     1.5fr
     0.7fr
     1fr
     1fr
     1fr;
+
   gap: 15px;
 }
 
@@ -760,7 +870,7 @@
   background: #059669;
 }
 
-.add-medicine-button:hover {
+.add-medicine-button:hover:not(:disabled) {
   background: #047857;
   transform: translateY(-1px);
 }
@@ -778,6 +888,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 15px;
   margin-bottom: 12px;
 }
@@ -795,15 +906,19 @@
 .prescription-table {
   width: 100%;
   overflow-x: auto;
+
   border: 1px solid #e5e7eb;
   border-radius: 10px;
+
   background: #ffffff;
 }
 
 .prescription-table-header,
 .prescription-table-row {
   min-width: 1000px;
+
   display: grid;
+
   grid-template-columns:
     2fr
     0.8fr
@@ -812,12 +927,15 @@
     1fr
     1fr
     65px;
+
   align-items: center;
 }
 
 .prescription-table-header {
   padding: 12px 14px;
+
   border-bottom: 1px solid #e5e7eb;
+
   background: #f8fafc;
 }
 
@@ -852,11 +970,15 @@
 .prescription-medicine-icon {
   width: 38px;
   height: 38px;
+
   flex-shrink: 0;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   border-radius: 9px;
+
   background: #dcfce7;
   color: #059669;
 }
@@ -867,17 +989,24 @@
 
 .prescription-medicine strong {
   display: block;
+
   overflow: hidden;
+
   color: #1f2937;
+
   font-size: 12px;
+
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .prescription-medicine span {
   display: block;
+
   margin-top: 3px;
+
   color: #9ca3af;
+
   font-size: 10px;
 }
 
@@ -932,9 +1061,12 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+
   padding: 15px;
+
   border: 1px solid #e5e7eb;
   border-radius: 10px;
+
   background: #f8fafc;
 }
 
@@ -971,9 +1103,12 @@
   display: flex;
   align-items: flex-start;
   gap: 9px;
+
   margin-top: 15px;
   padding: 12px;
+
   border-radius: 9px;
+
   background: #f8fafc;
 }
 
@@ -985,9 +1120,177 @@
 
 .billing-summary-notice p {
   margin: 0;
+
   color: #6b7280;
+
   font-size: 11px;
   line-height: 1.6;
+}
+
+
+/* =========================================================
+   PERMISSION NOTICE
+   ========================================================= */
+
+.permission-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+
+  margin-bottom: 15px;
+  padding: 12px 14px;
+
+  background: #f9fafb;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 9px;
+
+  color: #6b7280;
+
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.permission-notice > .material-symbols-outlined {
+  flex-shrink: 0;
+  color: #9ca3af;
+  font-size: 18px;
+}
+
+
+/* =========================================================
+   WORKFLOW ACTION MESSAGE
+   ========================================================= */
+
+.workflow-action-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  max-width: 100%;
+
+  padding: 12px 14px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 9px;
+
+  box-sizing: border-box;
+}
+
+.workflow-action-message > .material-symbols-outlined {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: #64748b;
+  font-size: 20px;
+}
+
+.workflow-action-message > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.workflow-action-message strong {
+  color: #374151;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.workflow-action-message span {
+  color: #6b7280;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   COMPLETED MESSAGE
+   ========================================================= */
+
+.completed-message {
+  background: #ecfdf5;
+  border-color: #bbf7d0;
+}
+
+.completed-message > .material-symbols-outlined {
+  color: #059669;
+}
+
+.completed-message strong {
+  color: #047857;
+}
+
+
+/* =========================================================
+   CANCELLED MESSAGE
+   ========================================================= */
+
+.cancelled-message {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.cancelled-message > .material-symbols-outlined {
+  color: #dc2626;
+}
+
+.cancelled-message strong {
+  color: #b91c1c;
+}
+
+
+/* =========================================================
+   COMPLETION REQUIREMENTS
+   ========================================================= */
+
+.completion-requirements {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  flex: 1;
+  min-width: 280px;
+
+  margin-left: 4px;
+  padding: 14px 16px;
+
+  background: #fffbeb;
+
+  border: 1px solid #fde68a;
+  border-radius: 9px;
+
+  color: #92400e;
+
+  box-sizing: border-box;
+}
+
+.completion-requirements > .material-symbols-outlined {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #d97706;
+  font-size: 21px;
+}
+
+.completion-requirements strong {
+  display: block;
+  margin-bottom: 7px;
+  color: #92400e;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.completion-requirements ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #57534e;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.completion-requirements li {
+  margin-bottom: 2px;
 }
 
 
@@ -1000,48 +1303,208 @@
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
+
+  flex-wrap: wrap;
+
   padding: 5px 0 30px;
 }
 
-.cancel-button,
-.save-button {
+
+/* =========================================================
+   CANCEL BUTTON
+   ========================================================= */
+
+.cancel-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+
   min-height: 42px;
+
   padding: 10px 18px;
+
+  border: 1px solid #d1d5db;
   border-radius: 8px;
+
+  background: #ffffff;
+  color: #4b5563;
+
   font-family: inherit;
   font-size: 13px;
   font-weight: 600;
+
   cursor: pointer;
+
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease,
     transform 0.15s ease;
 }
 
-.cancel-button {
-  border: 1px solid #d1d5db;
-  background: #ffffff;
-  color: #4b5563;
-}
-
-.cancel-button:hover {
+.cancel-button:hover:not(:disabled) {
   background: #f9fafb;
   border-color: #9ca3af;
+  transform: translateY(-1px);
 }
+
+
+/* =========================================================
+   SAVE BUTTON
+   ========================================================= */
 
 .save-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 42px;
+
+  padding: 10px 18px;
+
   border: 1px solid #0284c7;
+  border-radius: 8px;
+
   background: #0284c7;
   color: #ffffff;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
   box-shadow: 0 2px 6px rgba(2, 132, 199, 0.2);
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease,
+    opacity 0.2s ease;
 }
 
-.save-button:hover {
+.save-button:hover:not(:disabled) {
   background: #0369a1;
+  border-color: #0369a1;
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   COMPLETE BUTTON
+   ========================================================= */
+
+.form-actions .complete-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 42px;
+
+  padding: 10px 18px;
+
+  border: 1px solid #16a34a;
+  border-radius: 8px;
+
+  background: #16a34a;
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  box-shadow: 0 2px 6px rgba(22, 163, 74, 0.18);
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease,
+    opacity 0.2s ease;
+}
+
+.form-actions .complete-button:hover:not(:disabled) {
+  background: #15803d;
+  border-color: #15803d;
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   REVIEW BUTTON
+   ========================================================= */
+
+.review-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 40px;
+
+  padding: 9px 15px;
+
+  border: 1px solid #2563eb;
+  border-radius: 8px;
+
+  background: #2563eb;
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.review-button:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   REVIEW LABORATORY BUTTON
+   ========================================================= */
+
+.review-laboratory-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  margin-top: 12px;
+
+  min-height: 40px;
+
+  padding: 9px 15px;
+
+  border: 1px solid #2563eb;
+  border-radius: 8px;
+
+  background: #2563eb;
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.review-laboratory-button:hover:not(:disabled) {
+  background: #1d4ed8;
   transform: translateY(-1px);
 }
 
@@ -1050,19 +1513,12 @@
    BUTTON ICONS
    ========================================================= */
 
-.secondary-button,
-.cancel-button,
-.save-button,
-.add-laboratory-button,
-.add-medicine-button,
-.remove-laboratory-button,
-.remove-medicine-button {
-  font-family: inherit;
-}
-
 .secondary-button .material-symbols-outlined,
 .cancel-button .material-symbols-outlined,
 .save-button .material-symbols-outlined,
+.complete-button .material-symbols-outlined,
+.review-button .material-symbols-outlined,
+.review-laboratory-button .material-symbols-outlined,
 .add-laboratory-button .material-symbols-outlined,
 .add-medicine-button .material-symbols-outlined,
 .remove-laboratory-button .material-symbols-outlined,
@@ -1091,7 +1547,8 @@ textarea:focus-visible {
 @media (max-width: 1000px) {
 
   .patient-summary-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
   }
 
   .summary-item-wide {
@@ -1108,8 +1565,10 @@ textarea:focus-visible {
   }
 
   .consultation-summary-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
   }
+
 }
 
 
@@ -1145,6 +1604,18 @@ textarea:focus-visible {
     max-width: none;
     box-sizing: border-box;
   }
+
+  .form-actions {
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
+  .completion-requirements {
+    width: 100%;
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+
 }
 
 
@@ -1241,13 +1712,22 @@ textarea:focus-visible {
 
   .form-actions {
     align-items: stretch;
-    flex-direction: column-reverse;
+    flex-direction: column;
   }
 
   .cancel-button,
-  .save-button {
+  .save-button,
+  .form-actions .complete-button,
+  .form-actions .review-button {
     width: 100%;
   }
+
+  .completion-requirements {
+    width: 100%;
+    min-width: 0;
+    flex-basis: auto;
+  }
+
 }
 
 
@@ -1301,4 +1781,18 @@ textarea:focus-visible {
   .pharmacy-workflow-notice {
     padding: 11px;
   }
+
+  .workflow-action-message {
+    padding: 11px;
+  }
+
+  .completion-requirements {
+    padding: 12px;
+  }
+
+  .completion-requirements ul {
+    font-size: 11px;
+  }
+
 }
+

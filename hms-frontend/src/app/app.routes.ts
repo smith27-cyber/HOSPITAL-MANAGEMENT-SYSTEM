@@ -1,4 +1,3 @@
-
 // =====================================================
 // APPLICATION ROUTES
 // File:
@@ -8,6 +7,7 @@
 import { Routes } from '@angular/router';
 
 import { authGuard } from './core/guards/auth.guard';
+import { permissionGuard } from './core/guards/permission.guard';
 
 
 // =====================================================
@@ -22,9 +22,7 @@ export const routes: Routes = [
 
   {
     path: '',
-
     redirectTo: 'login',
-
     pathMatch: 'full'
   },
 
@@ -39,15 +37,13 @@ export const routes: Routes = [
 
     loadComponent: () =>
       import('./auth/login/login')
-        .then(
-          m => m.Login
-        )
+        .then(m => m.Login)
   },
 
 
   // =====================================================
   // MAIN APPLICATION LAYOUT
-  // PROTECTED ROUTE
+  // AUTHENTICATED USERS ONLY
   // =====================================================
 
   {
@@ -59,27 +55,28 @@ export const routes: Routes = [
 
     loadComponent: () =>
       import('./layout/main-layout/main-layout')
-        .then(
-          m => m.MainLayout
-        ),
+        .then(m => m.MainLayout),
 
     children: [
 
       // ===================================================
       // DASHBOARD
-      // URL: /dashboard
       // ===================================================
 
       {
         path: 'dashboard',
 
+        canActivate: [
+          permissionGuard
+        ],
+
+        data: {
+          permission: 'DASHBOARD_VIEW'
+        },
+
         loadComponent: () =>
-          import(
-            './features/dashboard/dashboard'
-          )
-            .then(
-              m => m.Dashboard
-            )
+          import('./features/dashboard/dashboard')
+            .then(m => m.Dashboard)
       },
 
 
@@ -92,71 +89,80 @@ export const routes: Routes = [
 
         children: [
 
-          // -------------------------------------------------
           // /patients
-          // -------------------------------------------------
-
           {
             path: '',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'PATIENT_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/patients/patient-list/patient-list'
               )
-                .then(
-                  m => m.PatientList
-                )
+                .then(m => m.PatientList)
           },
 
-
-          // -------------------------------------------------
           // /patients/register
-          // -------------------------------------------------
-
           {
             path: 'register',
 
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'PATIENT_CREATE'
+            },
+
             loadComponent: () =>
               import(
                 './features/patients/patient-form/patient-form'
               )
-                .then(
-                  m => m.PatientForm
-                )
+                .then(m => m.PatientForm)
           },
 
-
-          // -------------------------------------------------
           // /patients/:id/edit
-          // -------------------------------------------------
-
           {
             path: ':id/edit',
 
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'PATIENT_UPDATE'
+            },
+
             loadComponent: () =>
               import(
                 './features/patients/patient-form/patient-form'
               )
-                .then(
-                  m => m.PatientForm
-                )
+                .then(m => m.PatientForm)
           },
 
-
-          // -------------------------------------------------
           // /patients/:id
-          // -------------------------------------------------
-
           {
             path: ':id',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'PATIENT_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/patients/patient-profile/patient-profile'
               )
-                .then(
-                  m => m.PatientProfile
-                )
+                .then(m => m.PatientProfile)
           }
 
         ]
@@ -172,71 +178,80 @@ export const routes: Routes = [
 
         children: [
 
-          // -------------------------------------------------
           // /doctors
-          // -------------------------------------------------
-
           {
             path: '',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'DOCTOR_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/doctors/doctor-list/doctor-list'
               )
-                .then(
-                  m => m.DoctorList
-                )
+                .then(m => m.DoctorList)
           },
 
-
-          // -------------------------------------------------
           // /doctors/register
-          // -------------------------------------------------
-
           {
             path: 'register',
 
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'DOCTOR_CREATE'
+            },
+
             loadComponent: () =>
               import(
                 './features/doctors/doctor-form/doctor-form'
               )
-                .then(
-                  m => m.DoctorForm
-                )
+                .then(m => m.DoctorForm)
           },
 
-
-          // -------------------------------------------------
           // /doctors/:id/edit
-          // -------------------------------------------------
-
           {
             path: ':id/edit',
 
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'DOCTOR_UPDATE'
+            },
+
             loadComponent: () =>
               import(
                 './features/doctors/doctor-form/doctor-form'
               )
-                .then(
-                  m => m.DoctorForm
-                )
+                .then(m => m.DoctorForm)
           },
 
-
-          // -------------------------------------------------
           // /doctors/:id
-          // -------------------------------------------------
-
           {
             path: ':id',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'DOCTOR_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/doctors/doctor-profile/doctor-profile'
               )
-                .then(
-                  m => m.DoctorProfile
-                )
+                .then(m => m.DoctorProfile)
           }
 
         ]
@@ -252,71 +267,80 @@ export const routes: Routes = [
 
         children: [
 
-          // -------------------------------------------------
           // /departments
-          // -------------------------------------------------
-
           {
             path: '',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'DEPARTMENT_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/departments/department-list/department-list'
               )
-                .then(
-                  m => m.DepartmentList
-                )
+                .then(m => m.DepartmentList)
           },
 
-
-          // -------------------------------------------------
           // /departments/register
-          // -------------------------------------------------
-
           {
             path: 'register',
 
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'DEPARTMENT_CREATE'
+            },
+
             loadComponent: () =>
               import(
                 './features/departments/department-form/department-form'
               )
-                .then(
-                  m => m.DepartmentForm
-                )
+                .then(m => m.DepartmentForm)
           },
 
-
-          // -------------------------------------------------
           // /departments/:id/edit
-          // -------------------------------------------------
-
           {
             path: ':id/edit',
 
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'DEPARTMENT_UPDATE'
+            },
+
             loadComponent: () =>
               import(
                 './features/departments/department-form/department-form'
               )
-                .then(
-                  m => m.DepartmentForm
-                )
+                .then(m => m.DepartmentForm)
           },
 
-
-          // -------------------------------------------------
           // /departments/:id
-          // -------------------------------------------------
-
           {
             path: ':id',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'DEPARTMENT_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/departments/department-profile/department-profile'
               )
-                .then(
-                  m => m.DepartmentProfile
-                )
+                .then(m => m.DepartmentProfile)
           }
 
         ]
@@ -332,105 +356,118 @@ export const routes: Routes = [
 
         children: [
 
-          // -------------------------------------------------
           // /appointments
-          // -------------------------------------------------
-
           {
             path: '',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'APPOINTMENT_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/appointments/appointment-list/appointment-list'
               )
-                .then(
-                  m => m.AppointmentList
-                )
+                .then(m => m.AppointmentList)
           },
 
-
-          // -------------------------------------------------
           // /appointments/register
-          // -------------------------------------------------
-
           {
             path: 'register',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'APPOINTMENT_CREATE'
+            },
 
             loadComponent: () =>
               import(
                 './features/appointments/appointment-register/appointment-register'
               )
-                .then(
-                  m => m.AppointmentRegister
-                )
+                .then(m => m.AppointmentRegister)
           },
 
-
-          // -------------------------------------------------
           // /appointments/queue
-          // -------------------------------------------------
-
           {
             path: 'queue',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'APPOINTMENT_QUEUE_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/appointments/appointment-queue/appointment-queue'
               )
-                .then(
-                  m => m.AppointmentQueue
-                )
+                .then(m => m.AppointmentQueue)
           },
 
-
-          // -------------------------------------------------
           // /appointments/:id/edit
-          // -------------------------------------------------
-
           {
             path: ':id/edit',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'APPOINTMENT_UPDATE'
+            },
 
             loadComponent: () =>
               import(
                 './features/appointments/appointment-register/appointment-register'
               )
-                .then(
-                  m => m.AppointmentRegister
-                )
+                .then(m => m.AppointmentRegister)
           },
 
-
-          // -------------------------------------------------
           // /appointments/:id/consultation
-          // -------------------------------------------------
-
           {
             path: ':id/consultation',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'CONSULTATION_CREATE'
+            },
 
             loadComponent: () =>
               import(
                 './features/consultations/consultation-form/consultation-form'
               )
-                .then(
-                  m => m.ConsultationForm
-                )
+                .then(m => m.ConsultationForm)
           },
 
-
-          // -------------------------------------------------
           // /appointments/:id
-          // -------------------------------------------------
-
           {
             path: ':id',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'APPOINTMENT_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/appointments/appointment-details/appointment-details'
               )
-                .then(
-                  m => m.AppointmentDetails
-                )
+                .then(m => m.AppointmentDetails)
           }
 
         ]
@@ -446,71 +483,80 @@ export const routes: Routes = [
 
         children: [
 
-          // -------------------------------------------------
           // /consultations
-          // -------------------------------------------------
-
           {
             path: '',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'CONSULTATION_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/consultations/consultation-list/consultation-list'
               )
-                .then(
-                  m => m.ConsultationList
-                )
+                .then(m => m.ConsultationList)
           },
 
-
-          // -------------------------------------------------
           // /consultations/register
-          // -------------------------------------------------
-
           {
             path: 'register',
 
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'CONSULTATION_CREATE'
+            },
+
             loadComponent: () =>
               import(
                 './features/consultations/consultation-form/consultation-form'
               )
-                .then(
-                  m => m.ConsultationForm
-                )
+                .then(m => m.ConsultationForm)
           },
 
-
-          // -------------------------------------------------
           // /consultations/:id/edit
-          // -------------------------------------------------
-
           {
             path: ':id/edit',
 
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'CONSULTATION_UPDATE'
+            },
+
             loadComponent: () =>
               import(
                 './features/consultations/consultation-form/consultation-form'
               )
-                .then(
-                  m => m.ConsultationForm
-                )
+                .then(m => m.ConsultationForm)
           },
 
-
-          // -------------------------------------------------
           // /consultations/:id
-          // -------------------------------------------------
-
           {
             path: ':id',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'CONSULTATION_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/consultations/consultation-profile/consultation-profile'
               )
-                .then(
-                  m => m.ConsultationProfile
-                )
+                .then(m => m.ConsultationProfile)
           }
 
         ]
@@ -526,71 +572,80 @@ export const routes: Routes = [
 
         children: [
 
-          // -------------------------------------------------
           // /pharmacy
-          // -------------------------------------------------
-
           {
             path: '',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'PHARMACY_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/pharmacy/pharmacy-dashboard/pharmacy-dashboard'
               )
-                .then(
-                  m => m.PharmacyDashboard
-                )
+                .then(m => m.PharmacyDashboard)
           },
 
-
-          // -------------------------------------------------
           // /pharmacy/queue
-          // -------------------------------------------------
-
           {
             path: 'queue',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'PHARMACY_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/pharmacy/pharmacy-queue/pharmacy-queue'
               )
-                .then(
-                  m => m.PharmacyQueue
-                )
+                .then(m => m.PharmacyQueue)
           },
 
-
-          // -------------------------------------------------
           // /pharmacy/stock
-          // -------------------------------------------------
-
           {
             path: 'stock',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'PHARMACY_STOCK_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/pharmacy/pharmacy-stock/pharmacy-stock'
               )
-                .then(
-                  m => m.PharmacyStock
-                )
+                .then(m => m.PharmacyStock)
           },
 
-
-          // -------------------------------------------------
           // /pharmacy/prescriptions/:id
-          // -------------------------------------------------
-
           {
             path: 'prescriptions/:id',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'PHARMACY_PRESCRIPTION_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/pharmacy/pharmacy-prescription/pharmacy-prescription'
               )
-                .then(
-                  m => m.PharmacyPrescription
-                )
+                .then(m => m.PharmacyPrescription)
           }
 
         ]
@@ -607,44 +662,54 @@ export const routes: Routes = [
         children: [
 
           // -------------------------------------------------
-          // LABORATORY TESTS
-          // -------------------------------------------------
-
           // /laboratory
+          // -------------------------------------------------
 
           {
             path: '',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'LABORATORY_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/laboratory/laboratory-list/laboratory-list'
               )
-                .then(
-                  m => m.LaboratoryList
-                )
+                .then(m => m.LaboratoryList)
           },
 
 
+          // -------------------------------------------------
           // /laboratory/register
+          // -------------------------------------------------
 
           {
             path: 'register',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'LABORATORY_TEST_CREATE'
+            },
 
             loadComponent: () =>
               import(
                 './features/laboratory/laboratory-register/laboratory-register'
               )
-                .then(
-                  m => m.LaboratoryRegister
-                )
+                .then(m => m.LaboratoryRegister)
           },
 
 
-          // -------------------------------------------------
+          // =================================================
           // LABORATORY REQUESTS
-          // -------------------------------------------------
-
-          // /laboratory/requests
+          // =================================================
 
           {
             path: 'requests',
@@ -652,62 +717,79 @@ export const routes: Routes = [
             children: [
 
               // /laboratory/requests
-
               {
                 path: '',
+
+                canActivate: [
+                  permissionGuard
+                ],
+
+                data: {
+                  permission: 'LABORATORY_REQUEST_VIEW'
+                },
 
                 loadComponent: () =>
                   import(
                     './features/laboratory/laboratory-requests/laboratory-request-list/laboratory-request-list'
                   )
-                    .then(
-                      m => m.LaboratoryRequestList
-                    )
+                    .then(m => m.LaboratoryRequestList)
               },
 
-
               // /laboratory/requests/register
-
               {
                 path: 'register',
 
+                canActivate: [
+                  permissionGuard
+                ],
+
+                data: {
+                  permission: 'LABORATORY_REQUEST_CREATE'
+                },
+
                 loadComponent: () =>
                   import(
                     './features/laboratory/laboratory-requests/laboratory-request-form/laboratory-request-form'
                   )
-                    .then(
-                      m => m.LaboratoryRequestForm
-                    )
+                    .then(m => m.LaboratoryRequestForm)
               },
 
-
               // /laboratory/requests/:id/edit
-
               {
                 path: ':id/edit',
 
+                canActivate: [
+                  permissionGuard
+                ],
+
+                data: {
+                  permission: 'LABORATORY_REQUEST_UPDATE'
+                },
+
                 loadComponent: () =>
                   import(
                     './features/laboratory/laboratory-requests/laboratory-request-form/laboratory-request-form'
                   )
-                    .then(
-                      m => m.LaboratoryRequestForm
-                    )
+                    .then(m => m.LaboratoryRequestForm)
               },
 
-
               // /laboratory/requests/:id
-
               {
                 path: ':id',
+
+                canActivate: [
+                  permissionGuard
+                ],
+
+                data: {
+                  permission: 'LABORATORY_REQUEST_VIEW'
+                },
 
                 loadComponent: () =>
                   import(
                     './features/laboratory/laboratory-requests/laboratory-request-details/laboratory-request-details'
                   )
-                    .then(
-                      m => m.LaboratoryRequestDetails
-                    )
+                    .then(m => m.LaboratoryRequestDetails)
               }
 
             ]
@@ -715,40 +797,48 @@ export const routes: Routes = [
 
 
           // -------------------------------------------------
-          // LABORATORY TEST EDIT
-          // -------------------------------------------------
-
           // /laboratory/:id/edit
+          // -------------------------------------------------
 
           {
             path: ':id/edit',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'LABORATORY_TEST_UPDATE'
+            },
 
             loadComponent: () =>
               import(
                 './features/laboratory/laboratory-register/laboratory-register'
               )
-                .then(
-                  m => m.LaboratoryRegister
-                )
+                .then(m => m.LaboratoryRegister)
           },
 
 
           // -------------------------------------------------
-          // LABORATORY TEST DETAILS
-          // -------------------------------------------------
-
           // /laboratory/:id
+          // -------------------------------------------------
 
           {
             path: ':id',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'LABORATORY_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/laboratory/laboratory-details/laboratory-details'
               )
-                .then(
-                  m => m.LaboratoryDetails
-                )
+                .then(m => m.LaboratoryDetails)
           }
 
         ]
@@ -764,71 +854,80 @@ export const routes: Routes = [
 
         children: [
 
-          // -------------------------------------------------
           // /admissions
-          // -------------------------------------------------
-
           {
             path: '',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'ADMISSION_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/admissions/admission-list/admission-list'
               )
-                .then(
-                  m => m.AdmissionList
-                )
+                .then(m => m.AdmissionList)
           },
 
-
-          // -------------------------------------------------
           // /admissions/register
-          // -------------------------------------------------
-
           {
             path: 'register',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'ADMISSION_CREATE'
+            },
 
             loadComponent: () =>
               import(
                 './features/admissions/admission-register/admission-register'
               )
-                .then(
-                  m => m.AdmissionRegister
-                )
+                .then(m => m.AdmissionRegister)
           },
 
-
-          // -------------------------------------------------
           // /admissions/:id/edit
-          // -------------------------------------------------
-
           {
             path: ':id/edit',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'ADMISSION_UPDATE'
+            },
 
             loadComponent: () =>
               import(
                 './features/admissions/admission-edit/admission-edit'
               )
-                .then(
-                  m => m.AdmissionEdit
-                )
+                .then(m => m.AdmissionEdit)
           },
 
-
-          // -------------------------------------------------
           // /admissions/:id
-          // -------------------------------------------------
-
           {
             path: ':id',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'ADMISSION_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/admissions/admission-details/admission-details'
               )
-                .then(
-                  m => m.AdmissionDetails
-                )
+                .then(m => m.AdmissionDetails)
           }
 
         ]
@@ -844,71 +943,80 @@ export const routes: Routes = [
 
         children: [
 
-          // -------------------------------------------------
           // /billing
-          // -------------------------------------------------
-
           {
             path: '',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'BILLING_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/billing/billing-list/billing-list'
               )
-                .then(
-                  m => m.BillingList
-                )
+                .then(m => m.BillingList)
           },
 
-
-          // -------------------------------------------------
           // /billing/register
-          // -------------------------------------------------
-
           {
             path: 'register',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'BILLING_CREATE'
+            },
 
             loadComponent: () =>
               import(
                 './features/billing/billing-register/billing-register'
               )
-                .then(
-                  m => m.BillingRegister
-                )
+                .then(m => m.BillingRegister)
           },
 
-
-          // -------------------------------------------------
           // /billing/:id/edit
-          // -------------------------------------------------
-
           {
             path: ':id/edit',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'BILLING_UPDATE'
+            },
 
             loadComponent: () =>
               import(
                 './features/billing/billing-edit/billing-edit'
               )
-                .then(
-                  m => m.BillingEdit
-                )
+                .then(m => m.BillingEdit)
           },
 
-
-          // -------------------------------------------------
           // /billing/:id
-          // -------------------------------------------------
-
           {
             path: ':id',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'BILLING_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/billing/billing-details/billing-details'
               )
-                .then(
-                  m => m.BillingDetails
-                )
+                .then(m => m.BillingDetails)
           }
 
         ]
@@ -924,88 +1032,99 @@ export const routes: Routes = [
 
         children: [
 
-          // -------------------------------------------------
           // /inventory
-          // -------------------------------------------------
-
           {
             path: '',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'INVENTORY_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/inventory/inventory-list/inventory-list'
               )
-                .then(
-                  m => m.InventoryList
-                )
+                .then(m => m.InventoryList)
           },
 
-
-          // -------------------------------------------------
           // /inventory/register
-          // -------------------------------------------------
-
           {
             path: 'register',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'INVENTORY_CREATE'
+            },
 
             loadComponent: () =>
               import(
                 './features/inventory/inventory-register/inventory-register'
               )
-                .then(
-                  m => m.InventoryRegister
-                )
+                .then(m => m.InventoryRegister)
           },
 
-
-          // -------------------------------------------------
           // /inventory/stock
-          // -------------------------------------------------
-
           {
             path: 'stock',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'INVENTORY_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/inventory/inventory-stock/inventory-stock'
               )
-                .then(
-                  m => m.InventoryStock
-                )
+                .then(m => m.InventoryStock)
           },
 
-
-          // -------------------------------------------------
           // /inventory/:id/edit
-          // -------------------------------------------------
-
           {
             path: ':id/edit',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'INVENTORY_UPDATE'
+            },
 
             loadComponent: () =>
               import(
                 './features/inventory/inventory-edit/inventory-edit'
               )
-                .then(
-                  m => m.InventoryEdit
-                )
+                .then(m => m.InventoryEdit)
           },
 
-
-          // -------------------------------------------------
           // /inventory/:id
-          // -------------------------------------------------
-
           {
             path: ':id',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'INVENTORY_VIEW'
+            },
 
             loadComponent: () =>
               import(
                 './features/inventory/inventory-details/inventory-details'
               )
-                .then(
-                  m => m.InventoryDetails
-                )
+                .then(m => m.InventoryDetails)
           }
 
         ]
@@ -1019,13 +1138,19 @@ export const routes: Routes = [
       {
         path: 'reports',
 
+        canActivate: [
+          permissionGuard
+        ],
+
+        data: {
+          permission: 'REPORT_VIEW'
+        },
+
         loadComponent: () =>
           import(
             './features/reports/report/report'
           )
-            .then(
-              m => m.ReportComponent
-            )
+            .then(m => m.ReportComponent)
       },
 
 
@@ -1039,19 +1164,48 @@ export const routes: Routes = [
         children: [
 
           // -------------------------------------------------
+          // /settings
+          // -------------------------------------------------
+
+          {
+            path: '',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'SETTINGS_VIEW'
+            },
+
+            loadComponent: () =>
+              import(
+                './features/settings/settings/settings'
+              )
+                .then(m => m.Settings)
+          },
+
+
+          // -------------------------------------------------
           // /settings/hospital
           // -------------------------------------------------
 
           {
             path: 'hospital',
 
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'SETTINGS_HOSPITAL_VIEW'
+            },
+
             loadComponent: () =>
               import(
                 './features/settings/hospital-settings/hospital-settings'
               )
-                .then(
-                  m => m.HospitalSettingsComponent
-                )
+                .then(m => m.HospitalSettingsComponent)
           },
 
 
@@ -1062,13 +1216,19 @@ export const routes: Routes = [
           {
             path: 'system',
 
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'SETTINGS_SYSTEM_VIEW'
+            },
+
             loadComponent: () =>
               import(
                 './features/settings/system-preferences/system-preferences'
               )
-                .then(
-                  m => m.SystemPreferencesComponent
-                )
+                .then(m => m.SystemPreferencesComponent)
           },
 
 
@@ -1079,14 +1239,64 @@ export const routes: Routes = [
           {
             path: 'notifications',
 
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'SETTINGS_NOTIFICATION_VIEW'
+            },
+
             loadComponent: () =>
               import(
                 './features/settings/notification-settings/notification-settings'
               )
-                .then(
-                  m => m.NotificationSettingsComponent
-                )
-          }
+                .then(m => m.NotificationSettingsComponent)
+          },
+
+// -------------------------------------------------
+// /settings/users
+// USER MANAGEMENT
+// -------------------------------------------------
+
+{
+  path: 'users',
+
+  canActivate: [
+    permissionGuard
+  ],
+
+  data: {
+    permission: 'SETTINGS_USER_MANAGE'
+  },
+
+  loadComponent: () =>
+    import(
+      './features/settings/user-management/user-management'
+    )
+      .then(m => m.UserManagementComponent)
+},// -------------------------------------------------
+// /settings/profile
+// PROFILE SETTINGS
+// -------------------------------------------------
+
+{
+  path: 'profile',
+
+  canActivate: [
+    permissionGuard
+  ],
+
+  data: {
+    permission: 'SETTINGS_VIEW'
+  },
+
+  loadComponent: () =>
+    import(
+      './features/settings/profile-settings/profile-settings'
+    )
+      .then(m => m.ProfileSettings)
+},
 
         ]
       }
@@ -1101,9 +1311,7 @@ export const routes: Routes = [
 
   {
     path: '**',
-
     redirectTo: 'login'
   }
 
 ];
-

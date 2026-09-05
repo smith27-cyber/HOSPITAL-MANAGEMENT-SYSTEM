@@ -1,4 +1,3 @@
-
 // =====================================================
 // AUTHENTICATION SERVICE
 // File:
@@ -25,8 +24,11 @@ import {
 // =====================================================
 
 export interface LoginRequest {
+
   username: string;
+
   password: string;
+
 }
 
 
@@ -35,10 +37,19 @@ export interface LoginRequest {
 // =====================================================
 
 export interface LoginResponse {
+
   token: string;
+
   username: string;
+
   fullName: string;
+
   role: string;
+
+  roles: string[];
+
+  permissions: string[];
+
 }
 
 
@@ -50,6 +61,7 @@ export interface LoginResponse {
   providedIn: 'root'
 })
 export class AuthService {
+
 
   // ===================================================
   // API
@@ -93,34 +105,72 @@ export class AuthService {
       )
       .pipe(
 
-        tap((response: LoginResponse) => {
+        tap(
+          (response: LoginResponse) => {
 
-          // ===========================================
-          // SAVE JWT TOKEN FOR THIS BROWSER SESSION
-          // ===========================================
+            // =========================================
+            // SAVE JWT TOKEN
+            // =========================================
 
-          sessionStorage.setItem(
-            this.TOKEN_KEY,
-            response.token
-          );
+            sessionStorage.setItem(
+              this.TOKEN_KEY,
+              response.token
+            );
 
 
-          // ===========================================
-          // SAVE USER INFORMATION FOR THIS SESSION
-          // ===========================================
+            // =========================================
+            // SAVE COMPLETE USER SESSION
+            // =========================================
 
-          sessionStorage.setItem(
-            this.USER_KEY,
-            JSON.stringify({
-              username: response.username,
-              fullName: response.fullName,
-              role: response.role
-            })
-          );
+            sessionStorage.setItem(
+              this.USER_KEY,
+              JSON.stringify({
 
-        })
+                username:
+                  response.username,
+
+                fullName:
+                  response.fullName,
+
+                role:
+                  response.role,
+
+                roles:
+                  response.roles ?? [],
+
+                permissions:
+                  response.permissions ?? []
+
+              })
+            );
+
+
+            // =========================================
+            // DEBUG
+            // =========================================
+
+            console.log(
+              'HMS user authenticated:',
+              {
+                username:
+                  response.username,
+
+                role:
+                  response.role,
+
+                roles:
+                  response.roles,
+
+                permissions:
+                  response.permissions
+              }
+            );
+
+          }
+        )
 
       );
+
   }
 
 
@@ -133,6 +183,7 @@ export class AuthService {
     return sessionStorage.getItem(
       this.TOKEN_KEY
     );
+
   }
 
 
@@ -147,27 +198,58 @@ export class AuthService {
         this.USER_KEY
       );
 
+
     if (!user) {
+
       return null;
+
     }
+
 
     try {
 
       const parsedUser =
         JSON.parse(user);
 
+
       return {
-        token: this.getToken() ?? '',
-        username: parsedUser.username,
-        fullName: parsedUser.fullName,
-        role: parsedUser.role
+
+        token:
+          this.getToken() ?? '',
+
+        username:
+          parsedUser.username ?? '',
+
+        fullName:
+          parsedUser.fullName ?? '',
+
+        role:
+          parsedUser.role ?? '',
+
+        roles:
+          Array.isArray(
+            parsedUser.roles
+          )
+            ? parsedUser.roles
+            : [],
+
+        permissions:
+          Array.isArray(
+            parsedUser.permissions
+          )
+            ? parsedUser.permissions
+            : []
+
       };
 
-    } catch {
+    }
+
+    catch {
 
       return null;
 
     }
+
   }
 
 
@@ -177,7 +259,10 @@ export class AuthService {
 
   getUsername(): string | null {
 
-    return this.getUser()?.username ?? null;
+    return this
+      .getUser()
+      ?.username ?? null;
+
   }
 
 
@@ -187,17 +272,139 @@ export class AuthService {
 
   getFullName(): string | null {
 
-    return this.getUser()?.fullName ?? null;
+    return this
+      .getUser()
+      ?.fullName ?? null;
+
   }
 
 
   // ===================================================
-  // GET ROLE
+  // GET PRIMARY ROLE
   // ===================================================
 
   getRole(): string | null {
 
-    return this.getUser()?.role ?? null;
+    return this
+      .getUser()
+      ?.role ?? null;
+
+  }
+
+
+  // ===================================================
+  // GET ALL ROLES
+  // ===================================================
+
+  getRoles(): string[] {
+
+    return this
+      .getUser()
+      ?.roles ?? [];
+
+  }
+
+
+  // ===================================================
+  // GET ALL PERMISSIONS
+  // ===================================================
+
+  getPermissions(): string[] {
+
+    return this
+      .getUser()
+      ?.permissions ?? [];
+
+  }
+
+
+  // ===================================================
+  // CHECK ROLE
+  // ===================================================
+
+  hasRole(
+    role: string
+  ): boolean {
+
+    const normalizedRole =
+      role
+        .trim()
+        .toUpperCase();
+
+
+    return this
+      .getRoles()
+      .some(
+        currentRole =>
+          currentRole
+            .trim()
+            .toUpperCase() ===
+          normalizedRole
+      );
+
+  }
+
+
+  // ===================================================
+  // CHECK PERMISSION
+  // ===================================================
+
+  hasPermission(
+    permission: string
+  ): boolean {
+
+    const normalizedPermission =
+      permission
+        .trim()
+        .toUpperCase();
+
+
+    return this
+      .getPermissions()
+      .some(
+        currentPermission =>
+          currentPermission
+            .trim()
+            .toUpperCase() ===
+          normalizedPermission
+      );
+
+  }
+
+
+  // ===================================================
+  // CHECK ANY PERMISSION
+  // ===================================================
+
+  hasAnyPermission(
+    permissions: string[]
+  ): boolean {
+
+    return permissions.some(
+      permission =>
+        this.hasPermission(
+          permission
+        )
+    );
+
+  }
+
+
+  // ===================================================
+  // CHECK ALL PERMISSIONS
+  // ===================================================
+
+  hasAllPermissions(
+    permissions: string[]
+  ): boolean {
+
+    return permissions.every(
+      permission =>
+        this.hasPermission(
+          permission
+        )
+    );
+
   }
 
 
@@ -213,6 +420,7 @@ export class AuthService {
     const user =
       this.getUser();
 
+
     return !!token && !!user;
 
   }
@@ -220,7 +428,7 @@ export class AuthService {
 
   // ===================================================
   // LOGOUT
-  // =====================================================
+  // ===================================================
 
   logout(): void {
 
@@ -235,4 +443,3 @@ export class AuthService {
   }
 
 }
-

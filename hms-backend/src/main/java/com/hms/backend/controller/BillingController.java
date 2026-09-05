@@ -1,3 +1,4 @@
+
 package com.hms.backend.controller;
 
 import com.hms.backend.dto.BillingItemRequest;
@@ -5,9 +6,14 @@ import com.hms.backend.dto.BillingRequest;
 import com.hms.backend.dto.PaymentRequest;
 import com.hms.backend.entity.Billing;
 import com.hms.backend.service.BillingService;
+
 import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -43,9 +49,8 @@ import java.util.List;
  *
  * POST /api/billing/consultation/CON-001/sync
  *
- * This endpoint creates the consultation invoice if it
- * does not exist, or updates the existing invoice with
- * any new consultation, laboratory, or pharmacy charges.
+ * This endpoint creates or synchronizes the invoice
+ * belonging to the consultation.
  */
 @RestController
 @RequestMapping("/api/billing")
@@ -54,23 +59,39 @@ import java.util.List;
 )
 public class BillingController {
 
+
     private final BillingService billingService;
 
+
+    // =====================================================
+    // CONSTRUCTOR
+    // =====================================================
 
     public BillingController(
             BillingService billingService
     ) {
 
-        this.billingService = billingService;
+        this.billingService =
+                billingService;
     }
 
 
     // =====================================================
     // GET ALL BILLS
     // =====================================================
+    //
+    // Permission:
+    //
+    // BILLING_VIEW
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('BILLING_VIEW')"
+    )
     @GetMapping
-    public ResponseEntity<List<Billing>> getAllBills() {
+    public ResponseEntity<List<Billing>>
+    getAllBills() {
 
         return ResponseEntity.ok(
                 billingService.getAllBills()
@@ -81,9 +102,19 @@ public class BillingController {
     // =====================================================
     // GET BILL BY ID
     // =====================================================
+    //
+    // Permission:
+    //
+    // BILLING_VIEW
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('BILLING_VIEW')"
+    )
     @GetMapping("/{id}")
-    public ResponseEntity<Billing> getBillById(
+    public ResponseEntity<Billing>
+    getBillById(
             @PathVariable Long id
     ) {
 
@@ -102,9 +133,19 @@ public class BillingController {
     // =====================================================
     // GET BILLS BY PATIENT
     // =====================================================
+    //
+    // Permission:
+    //
+    // BILLING_VIEW
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('BILLING_VIEW')"
+    )
     @GetMapping("/patient/{patientId}")
-    public ResponseEntity<List<Billing>> getBillsByPatient(
+    public ResponseEntity<List<Billing>>
+    getBillsByPatient(
             @PathVariable String patientId
     ) {
 
@@ -119,16 +160,19 @@ public class BillingController {
     // =====================================================
     // GET ACTIVE PATIENT BILL
     // =====================================================
+    //
+    // Permission:
+    //
+    // BILLING_VIEW
+    //
+    // =====================================================
 
-    /**
-     * Legacy/general billing endpoint.
-     *
-     * For consultation billing, prefer:
-     *
-     * GET /api/billing/consultation/{consultationId}
-     */
+    @PreAuthorize(
+            "hasAuthority('BILLING_VIEW')"
+    )
     @GetMapping("/patient/{patientId}/active")
-    public ResponseEntity<Billing> getActiveBillByPatient(
+    public ResponseEntity<Billing>
+    getActiveBillByPatient(
             @PathVariable String patientId
     ) {
 
@@ -149,19 +193,21 @@ public class BillingController {
     // =====================================================
     // GET BILL BY CONSULTATION
     // =====================================================
+    //
+    // Permission:
+    //
+    // BILLING_VIEW
+    //
+    // =====================================================
 
-    /**
-     * Gets the invoice belonging to a consultation.
-     *
-     * This is the preferred billing lookup for the HMS
-     * consultation workflow.
-     *
-     * Example:
-     *
-     * GET /api/billing/consultation/CON-001
-     */
-    @GetMapping("/consultation/{consultationId}")
-    public ResponseEntity<Billing> getBillByConsultation(
+    @PreAuthorize(
+            "hasAuthority('BILLING_VIEW')"
+    )
+    @GetMapping(
+            "/consultation/{consultationId}"
+    )
+    public ResponseEntity<Billing>
+    getBillByConsultation(
             @PathVariable String consultationId
     ) {
 
@@ -182,40 +228,36 @@ public class BillingController {
     // =====================================================
     // SYNCHRONIZE CONSULTATION INVOICE
     // =====================================================
+    //
+    // Permission:
+    //
+    // BILLING_UPDATE
+    //
+    // This endpoint synchronizes the single invoice
+    // associated with a consultation.
+    //
+    // It may add:
+    //
+    // - Consultation charges
+    // - Laboratory charges
+    // - Pharmacy charges
+    //
+    // Repeated calls must remain idempotent.
+    //
+    // IMPORTANT:
+    //
+    // This does NOT complete the consultation.
+    //
+    // =====================================================
 
-    /**
-     * =====================================================
-     * MAIN CONSULTATION BILLING ENDPOINT
-     * =====================================================
-     *
-     * Creates or synchronizes ONE invoice for the
-     * specified consultation.
-     *
-     * The invoice may contain:
-     *
-     * 1. Consultation charge
-     * 2. Laboratory charges
-     * 3. Pharmacy charges
-     *
-     * Repeated calls must not create duplicate charges.
-     *
-     * Example:
-     *
-     * POST /api/billing/consultation/CON-001/sync
-     *
-     * The same endpoint can be called after:
-     *
-     * - consultation is saved
-     * - laboratory request is added
-     * - laboratory result is completed
-     * - pharmacy prescription is added
-     * - additional charge is added
-     *
-     * The consultation itself is NOT completed by this
-     * endpoint.
-     */
-    @PostMapping("/consultation/{consultationId}/sync")
-    public ResponseEntity<Billing> syncConsultationInvoice(
+    @PreAuthorize(
+            "hasAuthority('BILLING_UPDATE')"
+    )
+    @PostMapping(
+            "/consultation/{consultationId}/sync"
+    )
+    public ResponseEntity<Billing>
+    syncConsultationInvoice(
             @PathVariable String consultationId
     ) {
 
@@ -224,16 +266,28 @@ public class BillingController {
                         consultationId
                 );
 
-        return ResponseEntity.ok(bill);
+        return ResponseEntity.ok(
+                bill
+        );
     }
 
 
     // =====================================================
     // GET BILLS BY STATUS
     // =====================================================
+    //
+    // Permission:
+    //
+    // BILLING_VIEW
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('BILLING_VIEW')"
+    )
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<Billing>> getBillsByStatus(
+    public ResponseEntity<List<Billing>>
+    getBillsByStatus(
             @PathVariable Billing.BillingStatus status
     ) {
 
@@ -248,9 +302,19 @@ public class BillingController {
     // =====================================================
     // CREATE BILL
     // =====================================================
+    //
+    // Permission:
+    //
+    // BILLING_CREATE
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('BILLING_CREATE')"
+    )
     @PostMapping
-    public ResponseEntity<Billing> createBill(
+    public ResponseEntity<Billing>
+    createBill(
             @Valid
             @RequestBody
             BillingRequest request
@@ -262,24 +326,39 @@ public class BillingController {
                 );
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(bill);
+                .status(
+                        HttpStatus.CREATED
+                )
+                .body(
+                        bill
+                );
     }
 
 
     // =====================================================
     // ADD CHARGE TO PATIENT BILL
     // =====================================================
+    //
+    // Permission:
+    //
+    // BILLING_CREATE
+    //
+    // This is a general/legacy billing endpoint.
+    //
+    // Consultation-specific billing should preferably
+    // use the consultation invoice synchronization
+    // endpoint.
+    //
+    // =====================================================
 
-    /**
-     * General/legacy billing endpoint.
-     *
-     * Consultation-specific charges should preferably
-     * use the consultation invoice synchronization
-     * endpoint instead.
-     */
-    @PostMapping("/patient/{patientId}/charge")
-    public ResponseEntity<Billing> addChargeToPatientBill(
+    @PreAuthorize(
+            "hasAuthority('BILLING_CREATE')"
+    )
+    @PostMapping(
+            "/patient/{patientId}/charge"
+    )
+    public ResponseEntity<Billing>
+    addChargeToPatientBill(
 
             @PathVariable
             String patientId,
@@ -338,9 +417,19 @@ public class BillingController {
     // =====================================================
     // UPDATE BILL
     // =====================================================
+    //
+    // Permission:
+    //
+    // BILLING_UPDATE
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('BILLING_UPDATE')"
+    )
     @PutMapping("/{id}")
-    public ResponseEntity<Billing> updateBill(
+    public ResponseEntity<Billing>
+    updateBill(
 
             @PathVariable
             Long id,
@@ -362,9 +451,30 @@ public class BillingController {
     // =====================================================
     // DELETE BILL
     // =====================================================
+    //
+    // Permission:
+    //
+    // BILLING_UPDATE
+    //
+    // NOTE:
+    //
+    // There is currently no BILLING_DELETE permission
+    // in the RBAC catalog.
+    //
+    // Therefore this endpoint is restricted to users
+    // who have BILLING_UPDATE.
+    //
+    // The service should continue to protect invoices
+    // that must not be deleted.
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('BILLING_UPDATE')"
+    )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBill(
+    public ResponseEntity<Void>
+    deleteBill(
             @PathVariable Long id
     ) {
 
@@ -379,9 +489,24 @@ public class BillingController {
     // =====================================================
     // RECORD PAYMENT
     // =====================================================
+    //
+    // Permission:
+    //
+    // BILLING_RECORD_PAYMENT
+    //
+    // This is deliberately separate from BILLING_UPDATE.
+    //
+    // A user who can edit an invoice does not automatically
+    // receive authority to record a payment.
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('BILLING_RECORD_PAYMENT')"
+    )
     @PostMapping("/{id}/payment")
-    public ResponseEntity<Billing> recordPayment(
+    public ResponseEntity<Billing>
+    recordPayment(
 
             @PathVariable
             Long id,
@@ -403,9 +528,26 @@ public class BillingController {
     // =====================================================
     // UPDATE BILL STATUS
     // =====================================================
+    //
+    // Permission:
+    //
+    // BILLING_UPDATE
+    //
+    // The billing service remains responsible for
+    // validating whether the requested status transition
+    // is actually allowed.
+    //
+    // If cancellation needs to be exposed as a dedicated
+    // operation later, it should use BILLING_CANCEL.
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('BILLING_UPDATE')"
+    )
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Billing> updateStatus(
+    public ResponseEntity<Billing>
+    updateStatus(
 
             @PathVariable
             Long id,
@@ -424,11 +566,21 @@ public class BillingController {
 
 
     // =====================================================
-    // STATISTICS
+    // STATISTICS - COUNT
+    // =====================================================
+    //
+    // Permission:
+    //
+    // BILLING_VIEW
+    //
     // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('BILLING_VIEW')"
+    )
     @GetMapping("/statistics/count")
-    public ResponseEntity<Long> getCount() {
+    public ResponseEntity<Long>
+    getCount() {
 
         return ResponseEntity.ok(
                 billingService.countBills()
@@ -436,8 +588,22 @@ public class BillingController {
     }
 
 
+    // =====================================================
+    // STATISTICS - TOTAL
+    // =====================================================
+    //
+    // Permission:
+    //
+    // BILLING_VIEW
+    //
+    // =====================================================
+
+    @PreAuthorize(
+            "hasAuthority('BILLING_VIEW')"
+    )
     @GetMapping("/statistics/total")
-    public ResponseEntity<BigDecimal> getTotalAmount() {
+    public ResponseEntity<BigDecimal>
+    getTotalAmount() {
 
         return ResponseEntity.ok(
                 billingService.getTotalAmount()
@@ -445,8 +611,22 @@ public class BillingController {
     }
 
 
+    // =====================================================
+    // STATISTICS - PAID
+    // =====================================================
+    //
+    // Permission:
+    //
+    // BILLING_VIEW
+    //
+    // =====================================================
+
+    @PreAuthorize(
+            "hasAuthority('BILLING_VIEW')"
+    )
     @GetMapping("/statistics/paid")
-    public ResponseEntity<BigDecimal> getTotalPaid() {
+    public ResponseEntity<BigDecimal>
+    getTotalPaid() {
 
         return ResponseEntity.ok(
                 billingService.getTotalPaid()
@@ -454,12 +634,26 @@ public class BillingController {
     }
 
 
+    // =====================================================
+    // STATISTICS - BALANCE
+    // =====================================================
+    //
+    // Permission:
+    //
+    // BILLING_VIEW
+    //
+    // =====================================================
+
+    @PreAuthorize(
+            "hasAuthority('BILLING_VIEW')"
+    )
     @GetMapping("/statistics/balance")
-    public ResponseEntity<BigDecimal> getTotalBalance() {
+    public ResponseEntity<BigDecimal>
+    getTotalBalance() {
 
         return ResponseEntity.ok(
                 billingService.getTotalBalance()
         );
     }
-
 }
+

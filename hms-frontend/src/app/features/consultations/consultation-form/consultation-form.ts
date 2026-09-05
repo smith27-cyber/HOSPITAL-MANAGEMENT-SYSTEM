@@ -46,6 +46,10 @@ import {
 } from '../../../core/services/laboratory.service';
 
 import {
+  AuthService
+} from '../../../core/services/auth.service';
+
+import {
   Consultation,
   ConsultationStatus
 } from '../../../shared/models/consultation.model';
@@ -366,10 +370,295 @@ export class ConsultationForm
     private readonly laboratoryService:
       LaboratoryService,
 
+    private readonly authService:
+      AuthService,
+
     private readonly cdr:
       ChangeDetectorRef
 
   ) {}
+
+
+  // =====================================================
+  // RBAC
+  // =====================================================
+
+  hasPermission(
+    permission:
+      string
+  ): boolean {
+
+    return this.authService.hasPermission(
+      permission
+    );
+
+  }
+
+
+  hasAnyPermission(
+    permissions:
+      string[]
+  ): boolean {
+
+    return this.authService.hasAnyPermission(
+      permissions
+    );
+
+  }
+
+
+  // =====================================================
+  // CAN CREATE CONSULTATION
+  // =====================================================
+
+  get canCreateConsultation():
+    boolean {
+
+    return this.hasPermission(
+      'CONSULTATION_CREATE'
+    );
+
+  }
+
+
+  // =====================================================
+  // CAN UPDATE CONSULTATION
+  // =====================================================
+
+  get canUpdateConsultation():
+    boolean {
+
+    return this.hasPermission(
+      'CONSULTATION_UPDATE'
+    );
+
+  }
+
+
+  // =====================================================
+  // CAN SAVE CONSULTATION
+  // =====================================================
+
+  get canSaveConsultation():
+    boolean {
+
+    if (
+      this.isEditMode
+    ) {
+
+      return this.hasPermission(
+        'CONSULTATION_UPDATE'
+      );
+
+    }
+
+
+    return this.hasPermission(
+      'CONSULTATION_CREATE'
+    );
+
+  }
+
+
+  // =====================================================
+  // CAN SEE COMPLETE BUTTON
+  //
+  // IMPORTANT:
+  // Keep the button visible when editing an OPEN
+  // consultation. The button itself becomes disabled
+  // until all requirements are satisfied.
+  // =====================================================
+
+  get canSeeCompleteButton():
+    boolean {
+
+    return (
+      this.isEditMode &&
+      this.consultation.status ===
+        'Open'
+    );
+
+  }
+
+
+  // =====================================================
+  // CAN REVIEW LABORATORY RESULTS
+  // =====================================================
+
+  get canReviewLaboratoryResults():
+    boolean {
+
+    return (
+      this.hasPermission(
+        'CONSULTATION_UPDATE'
+      ) &&
+
+      this.consultation.status ===
+        'Ready For Review' &&
+
+      !!this.consultationId &&
+
+      this.consultation
+        .hasLaboratoryResults &&
+
+      !this.consultation
+        .laboratoryResultsReviewed &&
+
+      !this.isSaving
+    );
+
+  }
+
+
+  // =====================================================
+  // HAS UNSAVED LABORATORY REQUESTS
+  // =====================================================
+
+  get hasUnsavedLaboratoryRequests():
+    boolean {
+
+    return this.laboratoryRequests.some(
+      (
+        request:
+          LaboratoryRequest
+      ) =>
+        typeof request.id !==
+        'number'
+    );
+
+  }
+
+
+  // =====================================================
+  // CAN COMPLETE CONSULTATION
+  // =====================================================
+
+  get canCompleteConsultation():
+    boolean {
+
+    // ---------------------------------------------------
+    // PERMISSION
+    // ---------------------------------------------------
+
+    if (
+      !this.hasPermission(
+        'CONSULTATION_COMPLETE'
+      )
+    ) {
+
+      return false;
+    }
+
+
+    // ---------------------------------------------------
+    // SAVED CONSULTATION
+    // ---------------------------------------------------
+
+    if (
+      !this.consultationId
+    ) {
+
+      return false;
+    }
+
+
+    // ---------------------------------------------------
+    // PROCESSING
+    // ---------------------------------------------------
+
+    if (
+      this.isSaving
+    ) {
+
+      return false;
+    }
+
+
+    // ---------------------------------------------------
+    // ONLY OPEN
+    // ---------------------------------------------------
+
+    if (
+      this.consultation.status !==
+      'Open'
+    ) {
+
+      return false;
+    }
+
+
+    // ---------------------------------------------------
+    // FINAL DIAGNOSIS
+    // ---------------------------------------------------
+
+    if (
+      !this.consultation
+        .diagnosis
+        ?.trim()
+    ) {
+
+      return false;
+    }
+
+
+    // ---------------------------------------------------
+    // FINAL TREATMENT PLAN
+    // ---------------------------------------------------
+
+    if (
+      !this.consultation
+        .treatmentPlan
+        ?.trim()
+    ) {
+
+      return false;
+    }
+
+
+    // ---------------------------------------------------
+    // LABORATORY
+    // ---------------------------------------------------
+
+    if (
+      this.consultation
+        .hasLaboratoryRequests
+    ) {
+
+      if (
+        !this.consultation
+          .hasLaboratoryResults
+      ) {
+
+        return false;
+      }
+
+
+      if (
+        !this.consultation
+          .laboratoryResultsReviewed
+      ) {
+
+        return false;
+      }
+
+    }
+
+
+    // ---------------------------------------------------
+    // UNSAVED LABORATORY REQUESTS
+    // ---------------------------------------------------
+
+    if (
+      this.hasUnsavedLaboratoryRequests
+    ) {
+
+      return false;
+    }
+
+
+    return true;
+
+  }
 
 
   // =====================================================
@@ -1006,6 +1295,8 @@ export class ConsultationForm
                 }
 
 
+                this.refreshLocalWorkflowFlags();
+
                 this.finishLoading();
 
               },
@@ -1026,6 +1317,8 @@ export class ConsultationForm
                 this.errorMessage =
                   'Consultation loaded, but some related information could not be loaded.';
 
+
+                this.refreshLocalWorkflowFlags();
 
                 this.finishLoading();
 
@@ -1366,8 +1659,12 @@ export class ConsultationForm
           patient:
             Patient
         ) =>
-          String(patient.id) ===
-          String(patientId)
+          String(
+            patient.id
+          ) ===
+          String(
+            patientId
+          )
       );
 
   }
@@ -1399,7 +1696,9 @@ export class ConsultationForm
           patient:
             Patient
         ) =>
-          String(patient.id) ===
+          String(
+            patient.id
+          ) ===
           String(
             this.consultation.patientId
           )
@@ -1433,8 +1732,12 @@ export class ConsultationForm
           doctor:
             Doctor
         ) =>
-          String(doctor.id) ===
-          String(doctorId)
+          String(
+            doctor.id
+          ) ===
+          String(
+            doctorId
+          )
       );
 
   }
@@ -1466,7 +1769,9 @@ export class ConsultationForm
           doctor:
             Doctor
         ) =>
-          String(doctor.id) ===
+          String(
+            doctor.id
+          ) ===
           String(
             this.consultation.doctorId
           )
@@ -1495,7 +1800,9 @@ export class ConsultationForm
         medicine:
           Medicine
       ) =>
-        String(medicine.id) ===
+        String(
+          medicine.id
+        ) ===
         String(
           this.selectedMedicineId
         )
@@ -1509,6 +1816,46 @@ export class ConsultationForm
   // =====================================================
 
   addMedicine(): void {
+
+    if (
+      !this.hasPermission(
+        'CONSULTATION_UPDATE'
+      )
+    ) {
+
+      alert(
+        'You do not have permission to modify consultation prescriptions.'
+      );
+
+      return;
+    }
+
+
+    if (
+      this.consultation.status ===
+      'Completed'
+    ) {
+
+      alert(
+        'Completed consultations cannot be modified.'
+      );
+
+      return;
+    }
+
+
+    if (
+      this.consultation.status ===
+      'Cancelled'
+    ) {
+
+      alert(
+        'Cancelled consultations must be reopened before editing.'
+      );
+
+      return;
+    }
+
 
     const medicine =
       this.getSelectedMedicine();
@@ -1559,12 +1906,18 @@ export class ConsultationForm
           item:
             PharmacyPrescriptionItem
         ) =>
-          String(item.medicineId) ===
-          String(medicine.id)
+          String(
+            item.medicineId
+          ) ===
+          String(
+            medicine.id
+          )
       );
 
 
-    if (alreadyAdded) {
+    if (
+      alreadyAdded
+    ) {
 
       alert(
         'This medicine has already been added to the prescription.'
@@ -1652,6 +2005,42 @@ export class ConsultationForm
     medicineId:
       string
   ): void {
+
+    if (
+      !this.hasPermission(
+        'CONSULTATION_UPDATE'
+      )
+    ) {
+
+      alert(
+        'You do not have permission to modify consultation prescriptions.'
+      );
+
+      return;
+    }
+
+
+    if (
+      this.consultation.status ===
+      'Completed'
+    ) {
+
+      alert(
+        'Completed consultations cannot be modified.'
+      );
+
+      return;
+    }
+
+
+    if (
+      this.consultation.status ===
+      'Cancelled'
+    ) {
+
+      return;
+    }
+
 
     this.prescribedMedicines =
       this.prescribedMedicines.filter(
@@ -1786,7 +2175,9 @@ export class ConsultationForm
         test:
           LaboratoryTest
       ) =>
-        String(test.id) ===
+        String(
+          test.id
+        ) ===
         String(
           this.selectedLaboratoryTestId
         )
@@ -1800,6 +2191,46 @@ export class ConsultationForm
   // =====================================================
 
   addLaboratoryTest(): void {
+
+    if (
+      !this.hasPermission(
+        'CONSULTATION_UPDATE'
+      )
+    ) {
+
+      alert(
+        'You do not have permission to create laboratory requests.'
+      );
+
+      return;
+    }
+
+
+    if (
+      this.consultation.status ===
+      'Completed'
+    ) {
+
+      alert(
+        'Completed consultations cannot be modified.'
+      );
+
+      return;
+    }
+
+
+    if (
+      this.consultation.status ===
+      'Cancelled'
+    ) {
+
+      alert(
+        'Cancelled consultations must be reopened before editing.'
+      );
+
+      return;
+    }
+
 
     const test =
       this.getSelectedLaboratoryTest();
@@ -1833,12 +2264,18 @@ export class ConsultationForm
           request:
             LaboratoryRequest
         ) =>
-          String(request.testId) ===
-          String(test.id)
+          String(
+            request.testId
+          ) ===
+          String(
+            test.id
+          )
       );
 
 
-    if (alreadyAdded) {
+    if (
+      alreadyAdded
+    ) {
 
       alert(
         'This laboratory test has already been added.'
@@ -1942,6 +2379,20 @@ export class ConsultationForm
   ): void {
 
     if (
+      !this.hasPermission(
+        'CONSULTATION_UPDATE'
+      )
+    ) {
+
+      alert(
+        'You do not have permission to modify laboratory requests.'
+      );
+
+      return;
+    }
+
+
+    if (
       requestId ===
       undefined
     ) {
@@ -2041,19 +2492,27 @@ export class ConsultationForm
   // =====================================================
   //
   // IMPORTANT:
-  //
-  // SAVE PROGRESS NEVER COMPLETES THE CONSULTATION.
-  //
-  // It may save:
-  // - consultation data
-  // - new laboratory requests
-  // - prescription
-  //
-  // Completion is always a separate action.
+  // SAVE NEVER COMPLETES THE CONSULTATION.
   //
   // =====================================================
 
   saveConsultation(): void {
+
+    // ===================================================
+    // RBAC
+    // ===================================================
+
+    if (
+      !this.canSaveConsultation
+    ) {
+
+      alert(
+        'You do not have permission to save or update consultations.'
+      );
+
+      return;
+    }
+
 
     if (
       this.isSaving
@@ -2130,7 +2589,7 @@ export class ConsultationForm
 
 
     // ===================================================
-    // PROTECT FINAL STATES
+    // PROTECT COMPLETED / CANCELLED
     // ===================================================
 
     if (
@@ -2193,81 +2652,85 @@ export class ConsultationForm
     }
 
 
-// =====================================================
-// CREATE NEW CONSULTATION REQUEST
-// =====================================================
+    // ===================================================
+    // CREATE NEW
+    // ===================================================
 
-const createRequest = {
+    const createRequest = {
 
-  patientId:
-    this.selectedPatient.id,
+      patientId:
+        this.selectedPatient.id,
 
-  patientName:
-    `${this.selectedPatient.firstName} ${this.selectedPatient.lastName}`,
+      patientName:
+        `${this.selectedPatient.firstName} ${this.selectedPatient.lastName}`,
 
-  doctorId:
-    this.consultation.doctorId,
+      doctorId:
+        this.consultation.doctorId,
 
-  appointmentId:
-    this.consultation.appointmentId ||
-    undefined,
+      appointmentId:
+        this.consultation.appointmentId ||
+        undefined,
 
-  consultationDate:
-    this.consultation.consultationDate,
+      consultationDate:
+        this.consultation.consultationDate,
 
-  consultationTime:
-    this.consultation.consultationTime,
+      consultationTime:
+        this.consultation.consultationTime,
 
-  chiefComplaint:
-    this.consultation
-      .chiefComplaint
-      .trim(),
+      chiefComplaint:
+        this.consultation
+          .chiefComplaint
+          .trim(),
 
-  symptoms:
-    this.consultation
-      .symptoms
-      .trim() ||
-    undefined,
+      symptoms:
+        this.consultation
+          .symptoms
+          .trim() ||
+        undefined,
 
-  diagnosis:
-    this.consultation
-      .diagnosis
-      .trim() ||
-    undefined,
+      diagnosis:
+        this.consultation
+          .diagnosis
+          .trim() ||
+        undefined,
 
-  clinicalNotes:
-    this.consultation
-      .clinicalNotes
-      .trim() ||
-    undefined,
+      clinicalNotes:
+        this.consultation
+          .clinicalNotes
+          .trim() ||
+        undefined,
 
-  treatmentPlan:
-    this.consultation
-      .treatmentPlan
-      .trim() ||
-    undefined,
+      treatmentPlan:
+        this.consultation
+          .treatmentPlan
+          .trim() ||
+        undefined,
 
-  followUpDate:
-    this.consultation
-      .followUpDate ||
-    undefined,
+      followUpDate:
+        this.consultation
+          .followUpDate ||
+        undefined,
 
-  hasLaboratoryRequests:
-    this.laboratoryRequests.length > 0,
+      hasLaboratoryRequests:
+        this.laboratoryRequests.length >
+        0,
 
-  hasLaboratoryResults:
-    false,
+      hasLaboratoryResults:
+        false,
 
-  laboratoryResultsReviewed:
-    false,
+      laboratoryResultsReviewed:
+        false,
 
-  hasPrescription:
-    this.prescribedMedicines.length > 0,
+      hasPrescription:
+        this.prescribedMedicines.length >
+        0,
 
-  hasBilling:
-    this.consultation.hasBilling
+      hasBilling:
+        this.consultation.hasBilling
 
-};
+    };
+
+
     this.consultationService
       .addConsultation(
         createRequest
@@ -2290,7 +2753,7 @@ const createRequest = {
 
 
             // =============================================
-            // ATTACH CONSULTATION ID TO TEMPORARY LABS
+            // ATTACH CONSULTATION ID
             // =============================================
 
             this.laboratoryRequests =
@@ -2528,6 +2991,23 @@ const createRequest = {
   private updateExistingConsultation(): void {
 
     if (
+      !this.hasPermission(
+        'CONSULTATION_UPDATE'
+      )
+    ) {
+
+      this.isSaving =
+        false;
+
+      alert(
+        'You do not have permission to update consultations.'
+      );
+
+      return;
+    }
+
+
+    if (
       !this.consultationId
     ) {
 
@@ -2550,7 +3030,9 @@ const createRequest = {
               Consultation
           ) => {
 
-            if (!existing) {
+            if (
+              !existing
+            ) {
 
               this.isSaving =
                 false;
@@ -2562,10 +3044,6 @@ const createRequest = {
               return;
             }
 
-
-            // =============================================
-            // PROTECT FINAL RECORDS
-            // =============================================
 
             if (
               existing.status ===
@@ -2599,113 +3077,106 @@ const createRequest = {
             }
 
 
-            const appointmentId =
-              this.consultation
-                .appointmentId ||
-              undefined;
-
-
-            // =============================================
-            // IMPORTANT:
-            //
-            // Preserve backend workflow state.
-            // =============================================
-
             const updateRequest:
-  Consultation = {
+              Consultation = {
 
-  id:
-    existing.id,
+              id:
+                existing.id,
 
-  patientId:
-    this.consultation.patientId,
+              patientId:
+                this.consultation.patientId,
 
-  patientName:
-    this.getPatientName(
-      this.consultation.patientId
-    ),
+              patientName:
+                this.getPatientName(
+                  this.consultation.patientId
+                ),
 
-  doctorId:
-    this.consultation.doctorId,
+              doctorId:
+                this.consultation.doctorId,
 
-  appointmentId:
-    appointmentId,
+              appointmentId:
+                this.consultation
+                  .appointmentId ||
+                undefined,
 
-  consultationDate:
-    this.consultation.consultationDate,
+              consultationDate:
+                this.consultation
+                  .consultationDate,
 
-  consultationTime:
-    this.consultation.consultationTime,
+              consultationTime:
+                this.consultation
+                  .consultationTime,
 
-  chiefComplaint:
-    this.consultation
-      .chiefComplaint
-      .trim(),
+              chiefComplaint:
+                this.consultation
+                  .chiefComplaint
+                  .trim(),
 
-  symptoms:
-    this.consultation
-      .symptoms
-      .trim() ||
-    undefined,
+              symptoms:
+                this.consultation
+                  .symptoms
+                  .trim() ||
+                undefined,
 
-  diagnosis:
-    this.consultation
-      .diagnosis
-      .trim() ||
-    undefined,
+              diagnosis:
+                this.consultation
+                  .diagnosis
+                  .trim() ||
+                undefined,
 
-  clinicalNotes:
-    this.consultation
-      .clinicalNotes
-      .trim() ||
-    undefined,
+              clinicalNotes:
+                this.consultation
+                  .clinicalNotes
+                  .trim() ||
+                undefined,
 
-  treatmentPlan:
-    this.consultation
-      .treatmentPlan
-      .trim() ||
-    undefined,
+              treatmentPlan:
+                this.consultation
+                  .treatmentPlan
+                  .trim() ||
+                undefined,
 
-  followUpDate:
-    this.consultation
-      .followUpDate ||
-    undefined,
+              followUpDate:
+                this.consultation
+                  .followUpDate ||
+                undefined,
 
-  status:
-    existing.status,
+              status:
+                existing.status,
 
-  createdAt:
-    existing.createdAt,
+              createdAt:
+                existing.createdAt,
 
-  updatedAt:
-    existing.updatedAt,
+              updatedAt:
+                existing.updatedAt,
 
-  completedAt:
-    existing.completedAt,
+              completedAt:
+                existing.completedAt,
 
-  hasLaboratoryRequests:
-    existing.hasLaboratoryRequests ??
-    this.laboratoryRequests.length >
-    0,
+              hasLaboratoryRequests:
+                existing.hasLaboratoryRequests ??
+                this.laboratoryRequests.length >
+                0,
 
-  hasLaboratoryResults:
-    existing.hasLaboratoryResults ??
-    false,
+              hasLaboratoryResults:
+                existing.hasLaboratoryResults ??
+                false,
 
-  laboratoryResultsReviewed:
-    existing.laboratoryResultsReviewed ??
-    false,
+              laboratoryResultsReviewed:
+                existing.laboratoryResultsReviewed ??
+                false,
 
-  hasPrescription:
-    existing.hasPrescription ??
-    this.prescribedMedicines.length >
-    0,
+              hasPrescription:
+                existing.hasPrescription ??
+                this.prescribedMedicines.length >
+                0,
 
-  hasBilling:
-    existing.hasBilling ??
-    false
+              hasBilling:
+                existing.hasBilling ??
+                false
 
-};
+            };
+
 
             this.consultationService
               .updateConsultation(
@@ -2727,10 +3198,6 @@ const createRequest = {
                       savedConsultation
                     );
 
-
-                    // ===================================
-                    // ATTACH REAL CONSULTATION ID
-                    // ===================================
 
                     this.laboratoryRequests =
                       this.laboratoryRequests.map(
@@ -2761,19 +3228,11 @@ const createRequest = {
                       );
 
 
-                    // ===================================
-                    // SAVE NEW LAB REQUESTS
-                    // ===================================
-
                     const laboratorySave$ =
                       this.createLaboratoryRequests(
                         savedConsultation
                       );
 
-
-                    // ===================================
-                    // SAVE PRESCRIPTION
-                    // ===================================
 
                     const pharmacySave$ =
                       this.savePharmacyPrescription(
@@ -2921,203 +3380,206 @@ const createRequest = {
   }
 
 
+  // =====================================================
+  // SAVE / UPDATE PHARMACY PRESCRIPTION
+  // =====================================================
 
-// =====================================================
-// SAVE OR UPDATE PHARMACY PRESCRIPTION
-// =====================================================
+  private savePharmacyPrescription(
+    consultation:
+      Consultation
+  ):
+    Observable<
+      PharmacyPrescription | null
+    > {
+
+    if (
+      !consultation ||
+      !consultation.id
+    ) {
+
+      return of(null);
+
+    }
 
 
-private savePharmacyPrescription(
-  consultation:
-    Consultation
-):
-  Observable<
-    PharmacyPrescription | null
-  > {
+    // Do not touch pharmacy processing unless
+    // there is actually a prescription on the form.
+    if (
+      this.prescribedMedicines.length ===
+      0
+    ) {
 
-  if (
-    !consultation ||
-    !consultation.id ||
-    this.prescribedMedicines.length === 0
-  ) {
+      return of(null);
 
-    return of(null);
+    }
+
+
+    const prescriptionData = {
+
+      patientId:
+        consultation.patientId,
+
+      patientName:
+        this.getPatientName(
+          consultation.patientId
+        ),
+
+      patientNumber:
+        this.getPatientNumber(
+          consultation.patientId
+        ),
+
+      consultationId:
+        consultation.id,
+
+      doctorId:
+        consultation.doctorId,
+
+      doctorName:
+        this.getDoctorName(
+          consultation.doctorId
+        ),
+
+      items:
+        [
+          ...this.prescribedMedicines
+        ],
+
+      notes:
+        this.pharmacyNotes
+          .trim() ||
+        undefined
+
+    };
+
+
+    return this.pharmacyService
+      .getCurrentPrescriptionByConsultation(
+        consultation.id
+      )
+      .pipe(
+
+        switchMap(
+          (
+            existingPrescription:
+              PharmacyPrescription | null
+          ) => {
+
+            // =========================================
+            // NO PRESCRIPTION
+            // =========================================
+
+            if (
+              !existingPrescription
+            ) {
+
+              return this.pharmacyService
+                .createPrescription(
+                  prescriptionData
+                );
+
+            }
+
+
+            // =========================================
+            // CANCELLED PRESCRIPTION
+            // =========================================
+
+            if (
+              existingPrescription.status ===
+              'Cancelled'
+            ) {
+
+              return this.pharmacyService
+                .createPrescription(
+                  prescriptionData
+                );
+
+            }
+
+
+            // =========================================
+            // WAITING PRESCRIPTION
+            // =========================================
+
+            if (
+              existingPrescription.status ===
+              'Waiting'
+            ) {
+
+              const updatedPrescription:
+                PharmacyPrescription = {
+
+                ...existingPrescription,
+
+                patientId:
+                  prescriptionData.patientId,
+
+                patientName:
+                  prescriptionData.patientName,
+
+                patientNumber:
+                  prescriptionData.patientNumber,
+
+                consultationId:
+                  prescriptionData.consultationId,
+
+                doctorId:
+                  prescriptionData.doctorId,
+
+                doctorName:
+                  prescriptionData.doctorName,
+
+                items:
+                  prescriptionData.items,
+
+                notes:
+                  prescriptionData.notes
+
+              };
+
+
+              return this.pharmacyService
+                .updatePrescription(
+                  updatedPrescription
+                );
+
+            }
+
+
+            // =========================================
+            // ALREADY PROCESSING
+            // =========================================
+
+            console.warn(
+              'Prescription is already being processed by pharmacy:',
+              {
+                prescriptionId:
+                  existingPrescription.id,
+
+                prescriptionNumber:
+                  existingPrescription.prescriptionNumber,
+
+                status:
+                  existingPrescription.status,
+
+                consultationId:
+                  consultation.id
+              }
+            );
+
+
+            return of(
+              existingPrescription
+            );
+
+          }
+
+        )
+
+      );
 
   }
-
-
-  const prescriptionData = {
-
-    patientId:
-      consultation.patientId,
-
-    patientName:
-      this.getPatientName(
-        consultation.patientId
-      ),
-
-    patientNumber:
-      consultation.patientId,
-
-    consultationId:
-      consultation.id,
-
-    doctorId:
-      consultation.doctorId,
-
-    doctorName:
-      this.getDoctorName(
-        consultation.doctorId
-      ),
-
-    items:
-      [
-        ...this.prescribedMedicines
-      ],
-
-    notes:
-      this.pharmacyNotes.trim() ||
-      undefined
-
-  };
-
-
-  // ===================================================
-  // FIND CURRENT PRESCRIPTION
-  // ===================================================
-
-  return this.pharmacyService
-    .getCurrentPrescriptionByConsultation(
-      consultation.id
-    )
-    .pipe(
-
-      switchMap(
-        (
-          existingPrescription:
-            PharmacyPrescription | null
-        ) => {
-
-          // =========================================
-          // NO PRESCRIPTION
-          // =========================================
-
-          if (
-            !existingPrescription
-          ) {
-
-            return this.pharmacyService
-              .createPrescription(
-                prescriptionData
-              );
-
-          }
-
-
-          // =========================================
-          // CANCELLED PRESCRIPTION
-          // =========================================
-
-          if (
-            existingPrescription.status ===
-            'Cancelled'
-          ) {
-
-            return this.pharmacyService
-              .createPrescription(
-                prescriptionData
-              );
-
-          }
-
-
-          // =========================================
-          // WAITING PRESCRIPTION
-          //
-          // Doctor can still modify it.
-          // =========================================
-
-          if (
-            existingPrescription.status ===
-            'Waiting'
-          ) {
-
-            const updatedPrescription:
-              PharmacyPrescription = {
-
-              ...existingPrescription,
-
-              patientId:
-                prescriptionData.patientId,
-
-              patientName:
-                prescriptionData.patientName,
-
-              patientNumber:
-                prescriptionData.patientNumber,
-
-              consultationId:
-                prescriptionData.consultationId,
-
-              doctorId:
-                prescriptionData.doctorId,
-
-              doctorName:
-                prescriptionData.doctorName,
-
-              items:
-                prescriptionData.items,
-
-              notes:
-                prescriptionData.notes
-
-            };
-
-
-            return this.pharmacyService
-              .updatePrescription(
-                updatedPrescription
-              );
-
-          }
-
-
-          // =========================================
-          // ALREADY IN PHARMACY WORKFLOW
-          //
-          // Do NOT update.
-          // Do NOT create another prescription.
-          // =========================================
-
-          console.warn(
-            'Prescription is already being processed by pharmacy:',
-            {
-              prescriptionId:
-                existingPrescription.id,
-
-              prescriptionNumber:
-                existingPrescription.prescriptionNumber,
-
-              status:
-                existingPrescription.status,
-
-              consultationId:
-                consultation.id
-            }
-          );
-
-
-          return of(
-            existingPrescription
-          );
-
-        }
-
-      )
-
-    );
-
-}
 
 
   // =====================================================
@@ -3179,7 +3641,7 @@ private savePharmacyPrescription(
     this.consultation
       .hasLaboratoryRequests =
       this.laboratoryRequests.length >
-      0 ||
+        0 ||
       this.consultation
         .hasLaboratoryRequests;
 
@@ -3187,9 +3649,29 @@ private savePharmacyPrescription(
     this.consultation
       .hasPrescription =
       this.prescribedMedicines.length >
-      0 ||
+        0 ||
       this.consultation
         .hasPrescription;
+
+
+    if (
+      this.laboratoryRequests.length >
+      0
+    ) {
+
+      this.consultation
+        .hasLaboratoryResults =
+        this.laboratoryRequests.every(
+          (
+            request:
+              LaboratoryRequest
+          ) =>
+            request.status ===
+              'Completed' &&
+            !!request.result
+        );
+
+    }
 
   }
 
@@ -3199,6 +3681,24 @@ private savePharmacyPrescription(
   // =====================================================
 
   reviewLaboratoryResults(): void {
+
+    // ===================================================
+    // RBAC
+    // ===================================================
+
+    if (
+      !this.hasPermission(
+        'CONSULTATION_UPDATE'
+      )
+    ) {
+
+      alert(
+        'You do not have permission to review laboratory results.'
+      );
+
+      return;
+    }
+
 
     if (
       this.isSaving
@@ -3350,6 +3850,24 @@ private savePharmacyPrescription(
 
   completeConsultation(): void {
 
+    // ===================================================
+    // RBAC
+    // ===================================================
+
+    if (
+      !this.hasPermission(
+        'CONSULTATION_COMPLETE'
+      )
+    ) {
+
+      alert(
+        'You do not have permission to complete consultations.'
+      );
+
+      return;
+    }
+
+
     if (
       this.isSaving
     ) {
@@ -3424,22 +3942,11 @@ private savePharmacyPrescription(
 
 
     // ===================================================
-    // UNSAVED LABORATORY REQUESTS
+    // UNSAVED LAB REQUESTS
     // ===================================================
 
-    const hasUnsavedLabRequests =
-      this.laboratoryRequests.some(
-        (
-          request:
-            LaboratoryRequest
-        ) =>
-          typeof request.id !==
-          'number'
-      );
-
-
     if (
-      hasUnsavedLabRequests
+      this.hasUnsavedLaboratoryRequests
     ) {
 
       alert(
@@ -3451,7 +3958,7 @@ private savePharmacyPrescription(
 
 
     // ===================================================
-    // LABORATORY REQUIREMENTS
+    // LABORATORY
     // ===================================================
 
     if (
@@ -3478,7 +3985,7 @@ private savePharmacyPrescription(
       ) {
 
         alert(
-          'Laboratory results must be reviewed by the doctor before completing the consultation.'
+          'Laboratory results must be reviewed before completing the consultation.'
         );
 
         return;
@@ -3673,108 +4180,210 @@ private savePharmacyPrescription(
 
 
   // =====================================================
-  // ERROR MESSAGE
+  // CANCEL
   // =====================================================
 
-  private extractErrorMessage(
-    error:
-      unknown,
+  cancel(): void {
 
-    fallback:
+    if (
+      this.isSaving
+    ) {
+
+      return;
+    }
+
+
+    if (
+      this.appointmentId
+    ) {
+
+      this.router.navigate([
+        '/appointments',
+        this.appointmentId
+      ]);
+
+      return;
+    }
+
+
+    if (
+      this.isEditMode &&
+      this.consultationId
+    ) {
+
+      this.router.navigate([
+        '/consultations',
+        this.consultationId
+      ]);
+
+      return;
+    }
+
+
+    this.router.navigate([
+      '/consultations'
+    ]);
+
+  }
+
+
+  // =====================================================
+  // PATIENT NAME
+  // =====================================================
+
+  getPatientName(
+    patientId:
       string
   ): string {
 
+    const patient =
+      this.patients.find(
+        (
+          item:
+            Patient
+        ) =>
+          String(
+            item.id
+          ) ===
+          String(
+            patientId
+          )
+      );
+
+
     if (
-      typeof error !==
-      'object' ||
-      error ===
-      null
+      !patient
     ) {
 
-      return fallback;
-    }
-
-
-    const response =
-      error as {
-
-        error?:
-          unknown;
-
-        message?:
-          string;
-
-      };
-
-
-    // DIRECT MESSAGE
-    if (
-      typeof response.message ===
-        'string' &&
-      response.message.trim()
-    ) {
-
-      return response.message.trim();
+      return (
+        patientId ||
+        'Unknown Patient'
+      );
 
     }
 
 
-    // STRING ERROR
+    return (
+      `${patient.firstName} ` +
+      `${patient.lastName}`
+    );
+
+  }
+
+
+  // =====================================================
+  // PATIENT NUMBER
+  // =====================================================
+
+  getPatientNumber(
+    patientId:
+      string
+  ): string {
+
+    const patient =
+      this.patients.find(
+        (
+          item:
+            Patient
+        ) =>
+          String(
+            item.id
+          ) ===
+          String(
+            patientId
+          )
+      );
+
+
     if (
-      typeof response.error ===
-        'string' &&
-      response.error.trim()
+      !patient
     ) {
 
-      return response.error.trim();
+      return (
+        patientId ||
+        '—'
+      );
 
     }
 
 
-    // OBJECT ERROR
+    return patient.id;
+
+  }
+
+
+  // =====================================================
+  // DOCTOR NAME
+  // =====================================================
+
+  getDoctorName(
+    doctorId:
+      string
+  ): string {
+
+    const doctor =
+      this.doctors.find(
+        (
+          item:
+            Doctor
+        ) =>
+          String(
+            item.id
+          ) ===
+          String(
+            doctorId
+          )
+      );
+
+
     if (
-      typeof response.error ===
-        'object' &&
-      response.error !== null
+      !doctor
     ) {
 
-      const body =
-        response.error as {
+      return (
+        doctorId ||
+        'Unknown Doctor'
+      );
 
-          message?:
-            string;
-
-          error?:
-            string;
-
-        };
+    }
 
 
-      if (
-        typeof body.message ===
-          'string' &&
-        body.message.trim()
-      ) {
+    return (
+      `Dr. ${doctor.firstName} ` +
+      `${doctor.lastName}`
+    );
 
-        return body.message.trim();
+  }
+
+
+  // =====================================================
+  // FORMAT CURRENCY
+  // =====================================================
+
+  formatCurrency(
+    amount:
+      number
+  ): string {
+
+    return new Intl.NumberFormat(
+      'en-UG',
+      {
+        style:
+          'currency',
+
+        currency:
+          'UGX',
+
+        maximumFractionDigits:
+          0
 
       }
-
-
-      if (
-        typeof body.error ===
-          'string' &&
-        body.error.trim()
-      ) {
-
-        return body.error.trim();
-
-      }
-
-    }
-
-
-    return fallback;
+    ).format(
+      Number(
+        amount ||
+        0
+      )
+    );
 
   }
 
@@ -3839,300 +4448,106 @@ private savePharmacyPrescription(
 
 
   // =====================================================
-  // CAN COMPLETE
+  // ERROR MESSAGE
   // =====================================================
 
-  get canCompleteConsultation():
-    boolean {
+  private extractErrorMessage(
+    error:
+      unknown,
+
+    fallback:
+      string
+  ): string {
 
     if (
-      this.isSaving ||
-      !this.consultationId
+      typeof error !==
+      'object' ||
+      error ===
+      null
     ) {
 
-      return false;
+      return fallback;
+    }
+
+
+    const response =
+      error as {
+
+        error?:
+          unknown;
+
+        message?:
+          string;
+
+      };
+
+
+    if (
+      typeof response.message ===
+        'string' &&
+      response.message.trim()
+    ) {
+
+      return response.message.trim();
+
     }
 
 
     if (
-      this.consultation.status !==
-      'Open'
+      typeof response.error ===
+        'string' &&
+      response.error.trim()
     ) {
 
-      return false;
+      return response.error.trim();
+
     }
 
 
     if (
-      !this.consultation
-        .diagnosis
-        .trim()
+      typeof response.error ===
+        'object' &&
+      response.error !==
+        null
     ) {
 
-      return false;
-    }
+      const body =
+        response.error as {
 
+          message?:
+            string;
 
-    if (
-      !this.consultation
-        .treatmentPlan
-        .trim()
-    ) {
+          error?:
+            string;
 
-      return false;
-    }
+        };
 
-
-    // =============================================
-    // LABORATORY
-    // =============================================
-
-    if (
-      this.consultation
-        .hasLaboratoryRequests
-    ) {
 
       if (
-        !this.consultation
-          .hasLaboratoryResults
+        typeof body.message ===
+          'string' &&
+        body.message.trim()
       ) {
 
-        return false;
+        return body.message.trim();
+
       }
 
 
       if (
-        !this.consultation
-          .laboratoryResultsReviewed
+        typeof body.error ===
+          'string' &&
+        body.error.trim()
       ) {
 
-        return false;
+        return body.error.trim();
+
       }
 
     }
 
 
-    // =============================================
-    // UNSAVED LAB REQUESTS
-    // =============================================
-
-    const hasUnsavedLabRequests =
-      this.laboratoryRequests.some(
-        (
-          request:
-            LaboratoryRequest
-        ) =>
-          typeof request.id !==
-          'number'
-      );
-
-
-    if (
-      hasUnsavedLabRequests
-    ) {
-
-      return false;
-    }
-
-
-    return true;
-
-  }
-
-
-  // =====================================================
-  // CANCEL FORM
-  // =====================================================
-
-  cancel(): void {
-
-    if (
-      this.isSaving
-    ) {
-
-      return;
-    }
-
-
-    if (
-      this.appointmentId
-    ) {
-
-      this.router.navigate([
-        '/appointments',
-        this.appointmentId
-      ]);
-
-      return;
-    }
-
-
-    if (
-      this.isEditMode &&
-      this.consultationId
-    ) {
-
-      this.router.navigate([
-        '/consultations',
-        this.consultationId
-      ]);
-
-      return;
-    }
-
-
-    this.router.navigate([
-      '/consultations'
-    ]);
-
-  }
-
-
-  // =====================================================
-  // PATIENT NAME
-  // =====================================================
-
-  getPatientName(
-    patientId:
-      string
-  ): string {
-
-    const patient =
-      this.patients.find(
-        (
-          item:
-            Patient
-        ) =>
-          String(item.id) ===
-          String(patientId)
-      );
-
-
-    if (
-      !patient
-    ) {
-
-      return (
-        patientId ||
-        'Unknown Patient'
-      );
-
-    }
-
-
-    return (
-      `${patient.firstName} ` +
-      `${patient.lastName}`
-    );
-
-  }
-
-
-  // =====================================================
-  // PATIENT NUMBER
-  // =====================================================
-
-  getPatientNumber(
-    patientId:
-      string
-  ): string {
-
-    const patient =
-      this.patients.find(
-        (
-          item:
-            Patient
-        ) =>
-          String(item.id) ===
-          String(patientId)
-      );
-
-
-    if (
-      !patient
-    ) {
-
-      return (
-        patientId ||
-        '—'
-      );
-
-    }
-
-
-    return patient.id;
-
-  }
-
-
-  // =====================================================
-  // DOCTOR NAME
-  // =====================================================
-
-  getDoctorName(
-    doctorId:
-      string
-  ): string {
-
-    const doctor =
-      this.doctors.find(
-        (
-          item:
-            Doctor
-        ) =>
-          String(item.id) ===
-          String(doctorId)
-      );
-
-
-    if (
-      !doctor
-    ) {
-
-      return (
-        doctorId ||
-        'Unknown Doctor'
-      );
-
-    }
-
-
-    return (
-      `Dr. ${doctor.firstName} ` +
-      `${doctor.lastName}`
-    );
-
-  }
-
-
-  // =====================================================
-  // FORMAT CURRENCY
-  // =====================================================
-
-  formatCurrency(
-    amount:
-      number
-  ): string {
-
-    return new Intl.NumberFormat(
-      'en-UG',
-      {
-        style:
-          'currency',
-
-        currency:
-          'UGX',
-
-        maximumFractionDigits:
-          0
-
-      }
-    ).format(
-      Number(
-        amount ||
-        0
-      )
-    );
+    return fallback;
 
   }
 

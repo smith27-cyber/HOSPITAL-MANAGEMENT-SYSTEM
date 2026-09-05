@@ -1,3 +1,4 @@
+
 // =====================================================
 // INVENTORY CONTROLLER
 // File:
@@ -11,23 +12,21 @@ import com.hms.backend.service.InventoryService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 
 @RestController
 @RequestMapping("/api/inventory")
 @CrossOrigin(origins = "http://localhost:4200")
 public class InventoryController {
 
-
     // =====================================================
     // SERVICE
     // =====================================================
 
     private final InventoryService inventoryService;
-
 
     // =====================================================
     // CONSTRUCTOR
@@ -36,33 +35,29 @@ public class InventoryController {
     public InventoryController(
             InventoryService inventoryService
     ) {
-
-        this.inventoryService =
-                inventoryService;
-
+        this.inventoryService = inventoryService;
     }
-
 
     // =====================================================
     // GET ALL INVENTORY
     // GET /api/inventory
     // =====================================================
 
+    @PreAuthorize("hasAuthority('INVENTORY_VIEW')")
     @GetMapping
     public ResponseEntity<List<Inventory>> getAllItems() {
 
         return ResponseEntity.ok(
                 inventoryService.getAllItems()
         );
-
     }
-
 
     // =====================================================
     // GET INVENTORY ITEM BY ID
     // GET /api/inventory/{id}
     // =====================================================
 
+    @PreAuthorize("hasAuthority('INVENTORY_VIEW')")
     @GetMapping("/{id}")
     public ResponseEntity<Inventory> getItemById(
             @PathVariable String id
@@ -71,15 +66,14 @@ public class InventoryController {
         return ResponseEntity.ok(
                 inventoryService.getItemById(id)
         );
-
     }
-
 
     // =====================================================
     // SEARCH INVENTORY
     // GET /api/inventory/search?term=paracetamol
     // =====================================================
 
+    @PreAuthorize("hasAuthority('INVENTORY_VIEW')")
     @GetMapping("/search")
     public ResponseEntity<List<Inventory>> searchItems(
             @RequestParam(
@@ -94,15 +88,14 @@ public class InventoryController {
                         searchTerm
                 )
         );
-
     }
-
 
     // =====================================================
     // ADD INVENTORY ITEM
     // POST /api/inventory
     // =====================================================
 
+    @PreAuthorize("hasAuthority('INVENTORY_CREATE')")
     @PostMapping
     public ResponseEntity<Inventory> addItem(
             @RequestBody Inventory inventory
@@ -113,19 +106,17 @@ public class InventoryController {
                         inventory
                 );
 
-
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(savedInventory);
-
     }
-
 
     // =====================================================
     // UPDATE INVENTORY ITEM
     // PUT /api/inventory/{id}
     // =====================================================
 
+    @PreAuthorize("hasAuthority('INVENTORY_UPDATE')")
     @PutMapping("/{id}")
     public ResponseEntity<Inventory> updateItem(
             @PathVariable String id,
@@ -138,36 +129,32 @@ public class InventoryController {
                         inventory
                 )
         );
-
     }
-
 
     // =====================================================
     // DELETE INVENTORY ITEM
     // DELETE /api/inventory/{id}
     // =====================================================
 
+    @PreAuthorize("hasAuthority('INVENTORY_DELETE')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteItem(
             @PathVariable String id
     ) {
 
-        inventoryService.deleteItem(
-                id
-        );
+        inventoryService.deleteItem(id);
 
-
-        return ResponseEntity.noContent()
+        return ResponseEntity
+                .noContent()
                 .build();
-
     }
-
 
     // =====================================================
     // UPDATE INVENTORY STATUS
     // PATCH /api/inventory/{id}/status
     // =====================================================
 
+    @PreAuthorize("hasAuthority('INVENTORY_UPDATE')")
     @PatchMapping("/{id}/status")
     public ResponseEntity<Inventory> updateItemStatus(
             @PathVariable String id,
@@ -180,15 +167,14 @@ public class InventoryController {
                         status
                 )
         );
-
     }
-
 
     // =====================================================
     // UPDATE STOCK QUANTITY
     // PATCH /api/inventory/{id}/quantity
     // =====================================================
 
+    @PreAuthorize("hasAuthority('INVENTORY_UPDATE')")
     @PatchMapping("/{id}/quantity")
     public ResponseEntity<Inventory> updateQuantity(
             @PathVariable String id,
@@ -201,7 +187,6 @@ public class InventoryController {
                         quantity
                 )
         );
-
     }
-
 }
+

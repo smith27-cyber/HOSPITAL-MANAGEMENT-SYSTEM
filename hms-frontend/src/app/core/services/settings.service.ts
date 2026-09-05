@@ -1,11 +1,34 @@
-
-import { Injectable } from '@angular/core';
+// =====================================================
+// SETTINGS SERVICE
+// File:
+// src/app/core/services/settings.service.ts
+// =====================================================
 
 import {
-  HMSSettings,
+  Injectable
+} from '@angular/core';
+
+import {
+  HttpClient
+} from '@angular/common/http';
+
+import {
+  Observable,
+  BehaviorSubject,
+  throwError
+} from 'rxjs';
+
+import {
+  catchError,
+  map,
+  tap
+} from 'rxjs/operators';
+
+import {
   HospitalSettings,
   SystemSettings,
-  UserProfileSettings
+  UserProfileSettings,
+  HMSSettings
 } from '../../shared/models/settings.model';
 
 
@@ -15,22 +38,74 @@ import {
 export class SettingsService {
 
   // =====================================================
-  // STORAGE KEY
+  // API
   // =====================================================
 
-  private readonly storageKey =
-    'hms_settings';
+  private readonly API_URL =
+    'http://localhost:8081/api/settings';
 
 
   // =====================================================
-  // DEFAULT SETTINGS
+  // DEFAULT SYSTEM SETTINGS
   // =====================================================
 
-  private settings: HMSSettings = {
+  private readonly defaultSystemSettings: SystemSettings = {
 
-    hospital: {
+    theme: 'Light',
 
-      hospitalName: 'Hospital Management System',
+    dateFormat: 'DD/MM/YYYY',
+
+    timeFormat: '24-hour',
+
+    currency: 'UGX',
+
+    currencySymbol: 'UGX',
+
+    language: 'English',
+
+    timezone: 'Africa/Kampala',
+
+    enableNotifications: true,
+
+    enableEmailNotifications: true,
+
+    enableSmsNotifications: false
+
+  };
+
+
+  // =====================================================
+  // DEFAULT PROFILE SETTINGS
+  // =====================================================
+
+  private readonly defaultProfileSettings:
+    UserProfileSettings = {
+
+      firstName: '',
+
+      lastName: '',
+
+      email: '',
+
+      phone: '',
+
+      role: 'Administrator',
+
+      department: '',
+
+      username: ''
+
+    };
+
+
+  // =====================================================
+  // DEFAULT HOSPITAL SETTINGS
+  // =====================================================
+
+  private readonly defaultHospitalSettings:
+    HospitalSettings = {
+
+      hospitalName: '',
 
       registrationNumber: '',
 
@@ -48,47 +123,49 @@ export class SettingsService {
 
       logoUrl: ''
 
-    },
+    };
 
 
-    system: {
+  // =====================================================
+  // CURRENT HOSPITAL SETTINGS
+  // =====================================================
 
-      theme: 'Light',
-
-      dateFormat: 'DD/MM/YYYY',
-
-      timeFormat: '24-hour',
-
-      currency: 'UGX',
-
-      currencySymbol: 'UGX',
-
-      language: 'English',
-
-      timezone: 'Africa/Kampala',
-
-      enableNotifications: true,
-
-      enableEmailNotifications: true,
-
-      enableSmsNotifications: false
-
-    },
+  private hospitalSettingsSubject =
+    new BehaviorSubject<HospitalSettings>(
+      {
+        ...this.defaultHospitalSettings
+      }
+    );
 
 
-    profile: {
+  /**
+   * Public observable.
+   *
+   * Any component can subscribe to this and immediately
+   * receive the current hospital information.
+   */
+  readonly hospitalSettings$ =
+    this.hospitalSettingsSubject.asObservable();
 
-      firstName: '',
 
-      lastName: '',
+  // =====================================================
+  // CURRENT SYSTEM SETTINGS
+  // =====================================================
 
-      email: '',
+  private systemSettings: SystemSettings = {
 
-      phone: '',
+    ...this.defaultSystemSettings
 
-      role: 'Administrator'
+  };
 
-    }
+
+  // =====================================================
+  // CURRENT PROFILE SETTINGS
+  // =====================================================
+
+  private profileSettings: UserProfileSettings = {
+
+    ...this.defaultProfileSettings
 
   };
 
@@ -97,60 +174,174 @@ export class SettingsService {
   // CONSTRUCTOR
   // =====================================================
 
-  constructor() {
-
-    this.loadSettings();
-
-  }
-
-
-  // =====================================================
-  // GET ALL SETTINGS
-  // =====================================================
-
-  getSettings(): HMSSettings {
-
-    return {
-
-      hospital: {
-        ...this.settings.hospital
-      },
-
-      system: {
-        ...this.settings.system
-      },
-
-      profile: {
-        ...this.settings.profile
-      }
-
-    };
-
-  }
+  constructor(
+    private readonly http: HttpClient
+  ) {}
 
 
   // =====================================================
   // HOSPITAL SETTINGS
   // =====================================================
 
-  getHospitalSettings(): HospitalSettings {
+  getHospitalSettings():
+    Observable<HospitalSettings> {
 
-    return {
-      ...this.settings.hospital
-    };
+    return this.http
+      .get<HospitalSettings>(
+        `${this.API_URL}/hospital`
+      )
+      .pipe(
+
+        map(settings =>
+          this.normalizeHospitalSettings(settings)
+        ),
+
+        tap(settings => {
+
+          this.hospitalSettingsSubject.next(
+            settings
+          );
+
+        }),
+
+        catchError(error => {
+
+          console.error(
+            'Failed to load hospital settings:',
+            error
+          );
+
+          return throwError(
+            () => error
+          );
+
+        })
+
+      );
 
   }
 
 
+  // =====================================================
+  // UPDATE HOSPITAL SETTINGS
+  // =====================================================
+
   updateHospitalSettings(
     settings: HospitalSettings
-  ): void {
+  ): Observable<HospitalSettings> {
 
-    this.settings.hospital = {
-      ...settings
+    const payload =
+      this.cleanHospitalSettings(settings);
+
+
+    return this.http
+      .put<HospitalSettings>(
+        `${this.API_URL}/hospital`,
+        payload
+      )
+      .pipe(
+
+        map(updatedSettings =>
+          this.normalizeHospitalSettings(
+            updatedSettings
+          )
+        ),
+
+        tap(updatedSettings => {
+
+          // ------------------------------------------------
+          // IMPORTANT
+          // Update the application-wide hospital state.
+          // ------------------------------------------------
+
+          this.hospitalSettingsSubject.next(
+            updatedSettings
+          );
+
+          console.log(
+            'Hospital settings updated:',
+            updatedSettings
+          );
+
+        }),
+
+        catchError(error => {
+
+          console.error(
+            'Failed to update hospital settings:',
+            error
+          );
+
+          return throwError(
+            () => error
+          );
+
+        })
+
+      );
+
+  }
+
+
+  // =====================================================
+  // RESET HOSPITAL SETTINGS
+  // =====================================================
+
+  resetHospitalSettings():
+    Observable<HospitalSettings> {
+
+    return this.http
+      .post<HospitalSettings>(
+        `${this.API_URL}/hospital/reset`,
+        {}
+      )
+      .pipe(
+
+        map(settings =>
+          this.normalizeHospitalSettings(settings)
+        ),
+
+        tap(settings => {
+
+          this.hospitalSettingsSubject.next(
+            settings
+          );
+
+          console.log(
+            'Hospital settings reset:',
+            settings
+          );
+
+        }),
+
+        catchError(error => {
+
+          console.error(
+            'Failed to reset hospital settings:',
+            error
+          );
+
+          return throwError(
+            () => error
+          );
+
+        })
+
+      );
+
+  }
+
+
+  // =====================================================
+  // GET CURRENT HOSPITAL VALUE
+  // =====================================================
+
+  getCurrentHospitalSettings():
+    HospitalSettings {
+
+    return {
+      ...this.hospitalSettingsSubject.value
     };
-
-    this.saveSettings();
 
   }
 
@@ -159,10 +350,11 @@ export class SettingsService {
   // SYSTEM SETTINGS
   // =====================================================
 
-  getSystemSettings(): SystemSettings {
+  getSystemSettings():
+    SystemSettings {
 
     return {
-      ...this.settings.system
+      ...this.systemSettings
     };
 
   }
@@ -170,13 +362,35 @@ export class SettingsService {
 
   updateSystemSettings(
     settings: SystemSettings
-  ): void {
+  ): SystemSettings {
 
-    this.settings.system = {
+    this.systemSettings = {
+
+      ...this.defaultSystemSettings,
+
       ...settings
+
     };
 
-    this.saveSettings();
+    return {
+      ...this.systemSettings
+    };
+
+  }
+
+
+  resetSystemSettings():
+    SystemSettings {
+
+    this.systemSettings = {
+
+      ...this.defaultSystemSettings
+
+    };
+
+    return {
+      ...this.systemSettings
+    };
 
   }
 
@@ -185,10 +399,11 @@ export class SettingsService {
   // PROFILE SETTINGS
   // =====================================================
 
-  getProfileSettings(): UserProfileSettings {
+  getProfileSettings():
+    UserProfileSettings {
 
     return {
-      ...this.settings.profile
+      ...this.profileSettings
     };
 
   }
@@ -196,184 +411,253 @@ export class SettingsService {
 
   updateProfileSettings(
     settings: UserProfileSettings
-  ): void {
+  ): UserProfileSettings {
 
-    this.settings.profile = {
+    this.profileSettings = {
+
+      ...this.defaultProfileSettings,
+
       ...settings
+
     };
 
-    this.saveSettings();
+    return {
+      ...this.profileSettings
+    };
 
   }
 
 
-  // =====================================================
-  // RESET SETTINGS
-  // =====================================================
+  resetProfileSettings():
+    UserProfileSettings {
 
-  resetSettings(): void {
+    this.profileSettings = {
 
-    localStorage.removeItem(
-      this.storageKey
-    );
+      ...this.defaultProfileSettings
 
-    this.settings = {
+    };
 
-      hospital: {
-        hospitalName:
-          'Hospital Management System',
-
-        registrationNumber: '',
-
-        phone: '',
-
-        email: '',
-
-        address: '',
-
-        city: '',
-
-        country: 'Uganda',
-
-        website: '',
-
-        logoUrl: ''
-      },
-
-      system: {
-
-        theme: 'Light',
-
-        dateFormat: 'DD/MM/YYYY',
-
-        timeFormat: '24-hour',
-
-        currency: 'UGX',
-
-        currencySymbol: 'UGX',
-
-        language: 'English',
-
-        timezone: 'Africa/Kampala',
-
-        enableNotifications: true,
-
-        enableEmailNotifications: true,
-
-        enableSmsNotifications: false
-
-      },
-
-      profile: {
-
-        firstName: '',
-
-        lastName: '',
-
-        email: '',
-
-        phone: '',
-
-        role: 'Administrator'
-
-      }
-
+    return {
+      ...this.profileSettings
     };
 
   }
 
 
   // =====================================================
-  // SAVE
+  // ALL SETTINGS
   // =====================================================
 
-  private saveSettings(): void {
+  getSettings():
+    Observable<HMSSettings> {
 
-    localStorage.setItem(
+    return this.getHospitalSettings()
+      .pipe(
 
-      this.storageKey,
+        map(hospital => ({
 
-      JSON.stringify(
-        this.settings
-      )
+          hospital,
 
+          system: {
+            ...this.systemSettings
+          },
+
+          profile: {
+            ...this.profileSettings
+          }
+
+        }))
+
+      );
+
+  }
+
+
+  // =====================================================
+  // SAVE ALL SETTINGS
+  // =====================================================
+
+  saveSettings(
+    settings: HMSSettings
+  ): Observable<HospitalSettings> {
+
+    this.systemSettings = {
+
+      ...this.defaultSystemSettings,
+
+      ...settings.system
+
+    };
+
+
+    this.profileSettings = {
+
+      ...this.defaultProfileSettings,
+
+      ...settings.profile
+
+    };
+
+
+    return this.updateHospitalSettings(
+      settings.hospital
     );
 
   }
 
 
   // =====================================================
-  // LOAD
+  // RESET ALL SETTINGS
   // =====================================================
 
-  private loadSettings(): void {
+  resetSettings():
+    Observable<HospitalSettings> {
 
-    const stored =
-      localStorage.getItem(
-        this.storageKey
-      );
+    this.systemSettings = {
+
+      ...this.defaultSystemSettings
+
+    };
 
 
-    if (!stored) {
+    this.profileSettings = {
 
-      return;
+      ...this.defaultProfileSettings
+
+    };
+
+
+    return this.resetHospitalSettings();
+
+  }
+
+
+  // =====================================================
+  // NORMALIZE HOSPITAL SETTINGS
+  // =====================================================
+
+  private normalizeHospitalSettings(
+    settings: HospitalSettings
+  ): HospitalSettings {
+
+    return {
+
+      hospitalName:
+        settings?.hospitalName?.trim() ?? '',
+
+      registrationNumber:
+        settings?.registrationNumber?.trim() ?? '',
+
+      phone:
+        settings?.phone?.trim() ?? '',
+
+      email:
+        settings?.email?.trim() ?? '',
+
+      address:
+        settings?.address?.trim() ?? '',
+
+      city:
+        settings?.city?.trim() ?? '',
+
+      country:
+        settings?.country?.trim() || 'Uganda',
+
+      website:
+        settings?.website?.trim() ?? '',
+
+      logoUrl:
+        settings?.logoUrl?.trim() ?? ''
+
+    };
+
+  }
+
+
+  // =====================================================
+  // CLEAN HOSPITAL SETTINGS
+  // =====================================================
+
+  private cleanHospitalSettings(
+    settings: HospitalSettings
+  ): HospitalSettings {
+
+    return {
+
+      hospitalName:
+        settings.hospitalName?.trim() ?? '',
+
+      registrationNumber:
+        this.cleanValue(
+          settings.registrationNumber
+        ) ?? '',
+
+      phone:
+        this.cleanValue(
+          settings.phone
+        ) ?? '',
+
+      email:
+        this.cleanValue(
+          settings.email
+        ) ?? '',
+
+      address:
+        this.cleanValue(
+          settings.address
+        ) ?? '',
+
+      city:
+        this.cleanValue(
+          settings.city
+        ) ?? '',
+
+      country:
+        this.cleanValue(
+          settings.country
+        ) || 'Uganda',
+
+      website:
+        this.cleanValue(
+          settings.website
+        ) ?? '',
+
+      logoUrl:
+        this.cleanValue(
+          settings.logoUrl
+        ) ?? ''
+
+    };
+
+  }
+
+
+  // =====================================================
+  // CLEAN VALUE
+  // =====================================================
+
+  private cleanValue(
+    value?: string | null
+  ): string | undefined {
+
+    if (
+      value === null ||
+      value === undefined
+    ) {
+
+      return undefined;
 
     }
 
 
-    try {
-
-      const parsed =
-        JSON.parse(stored);
+    const cleaned =
+      value.trim();
 
 
-      if (!parsed) {
-
-        return;
-
-      }
-
-
-      this.settings = {
-
-        hospital: {
-
-          ...this.settings.hospital,
-
-          ...(parsed.hospital ?? {})
-
-        },
-
-        system: {
-
-          ...this.settings.system,
-
-          ...(parsed.system ?? {})
-
-        },
-
-        profile: {
-
-          ...this.settings.profile,
-
-          ...(parsed.profile ?? {})
-
-        }
-
-      };
-
-    }
-
-    catch (error) {
-
-      console.error(
-        'Failed to load HMS settings:',
-        error
-      );
-
-    }
+    return cleaned.length > 0
+      ? cleaned
+      : undefined;
 
   }
 
 }
-

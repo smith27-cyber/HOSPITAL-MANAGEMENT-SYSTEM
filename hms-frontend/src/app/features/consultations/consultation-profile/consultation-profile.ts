@@ -16,7 +16,6 @@ import {
 
 import {
   catchError,
-  forkJoin,
   of
 } from 'rxjs';
 
@@ -35,6 +34,10 @@ import {
 import {
   LaboratoryService
 } from '../../../core/services/laboratory.service';
+
+import {
+  AuthService
+} from '../../../core/services/auth.service';
 
 import {
   Consultation
@@ -154,6 +157,9 @@ export class ConsultationProfile
     private readonly laboratoryService:
       LaboratoryService,
 
+    private readonly authService:
+      AuthService,
+
     private readonly cdr:
       ChangeDetectorRef
 
@@ -192,6 +198,316 @@ export class ConsultationProfile
     this.loadConsultation(
       routeId.trim()
     );
+
+  }
+
+
+  // =====================================================
+  // RBAC
+  // =====================================================
+
+  hasPermission(
+    permission: string
+  ): boolean {
+
+    return this.authService.hasPermission(
+      permission
+    );
+
+  }
+
+
+  // -----------------------------------------------------
+  // UPDATE PERMISSION
+  // -----------------------------------------------------
+
+  get canUpdateConsultation(): boolean {
+
+    return this.hasPermission(
+      'CONSULTATION_UPDATE'
+    );
+
+  }
+
+
+  // -----------------------------------------------------
+  // COMPLETE PERMISSION
+  // -----------------------------------------------------
+
+  get canCompleteConsultationPermission(): boolean {
+
+    return this.hasPermission(
+      'CONSULTATION_COMPLETE'
+    );
+
+  }
+
+
+  // -----------------------------------------------------
+  // DELETE PERMISSION
+  // -----------------------------------------------------
+
+  get canDeleteConsultation(): boolean {
+
+    return this.hasPermission(
+      'CONSULTATION_DELETE'
+    );
+
+  }
+
+
+  // -----------------------------------------------------
+  // EDIT
+  // -----------------------------------------------------
+
+  get canEditConsultation(): boolean {
+
+    if (
+      !this.consultation ||
+      this.isProcessing
+    ) {
+
+      return false;
+    }
+
+
+    if (
+      !this.canUpdateConsultation
+    ) {
+
+      return false;
+    }
+
+
+    if (
+      this.consultation.status ===
+      'Completed'
+    ) {
+
+      return false;
+    }
+
+
+    if (
+      this.consultation.status ===
+      'Cancelled'
+    ) {
+
+      return false;
+    }
+
+
+    return true;
+
+  }
+
+
+  // -----------------------------------------------------
+  // REVIEW LABORATORY RESULTS
+  // -----------------------------------------------------
+
+  get canReviewLaboratoryResults(): boolean {
+
+    if (
+      !this.consultation ||
+      this.isProcessing
+    ) {
+
+      return false;
+    }
+
+
+    if (
+      !this.canUpdateConsultation
+    ) {
+
+      return false;
+    }
+
+
+    if (
+      this.consultation.status !==
+      'Ready For Review'
+    ) {
+
+      return false;
+    }
+
+
+    if (
+      !this.consultation.hasLaboratoryResults
+    ) {
+
+      return false;
+    }
+
+
+    if (
+      this.consultation.laboratoryResultsReviewed
+    ) {
+
+      return false;
+    }
+
+
+    return true;
+
+  }
+
+
+  // -----------------------------------------------------
+  // CANCEL
+  // -----------------------------------------------------
+
+  get canCancelConsultation(): boolean {
+
+    if (
+      !this.consultation ||
+      this.isProcessing
+    ) {
+
+      return false;
+    }
+
+
+    if (
+      !this.canUpdateConsultation
+    ) {
+
+      return false;
+    }
+
+
+    if (
+      this.consultation.status ===
+      'Completed'
+    ) {
+
+      return false;
+    }
+
+
+    if (
+      this.consultation.status ===
+      'Cancelled'
+    ) {
+
+      return false;
+    }
+
+
+    return true;
+
+  }
+
+
+  // -----------------------------------------------------
+  // REOPEN
+  // -----------------------------------------------------
+
+  get canReopenConsultation(): boolean {
+
+    if (
+      !this.consultation ||
+      this.isProcessing
+    ) {
+
+      return false;
+    }
+
+
+    if (
+      !this.canUpdateConsultation
+    ) {
+
+      return false;
+    }
+
+
+    return (
+      this.consultation.status ===
+      'Cancelled'
+    );
+
+  }
+
+
+  // -----------------------------------------------------
+  // COMPLETE
+  // -----------------------------------------------------
+
+  get canCompleteConsultation(): boolean {
+
+    if (
+      !this.consultation ||
+      this.isProcessing
+    ) {
+
+      return false;
+    }
+
+
+    if (
+      !this.canCompleteConsultationPermission
+    ) {
+
+      return false;
+    }
+
+
+    if (
+      this.consultation.status !==
+      'Open'
+    ) {
+
+      return false;
+    }
+
+
+    const hasDiagnosis =
+      !!this.consultation
+        .diagnosis
+        ?.trim();
+
+
+    const hasTreatmentPlan =
+      !!this.consultation
+        .treatmentPlan
+        ?.trim();
+
+
+    if (
+      !hasDiagnosis ||
+      !hasTreatmentPlan
+    ) {
+
+      return false;
+    }
+
+
+    if (
+      this.consultation.hasLaboratoryRequests
+    ) {
+
+      if (
+        !this.consultation.hasLaboratoryResults
+      ) {
+
+        return false;
+      }
+
+
+      if (
+        !this.consultation.laboratoryResultsReviewed
+      ) {
+
+        return false;
+      }
+
+    }
+
+
+    return true;
 
   }
 
@@ -266,10 +582,9 @@ export class ConsultationProfile
           // =============================================
           // IMPORTANT
           //
-          // Show the main profile immediately.
+          // Render consultation immediately.
           //
-          // Do NOT wait for patient, doctor or laboratory
-          // requests before releasing the profile.
+          // Related data loads independently.
           // =============================================
 
           this.consultation =
@@ -887,102 +1202,27 @@ export class ConsultationProfile
 
 
   // =====================================================
-  // CAN COMPLETE
+  // FORMAT CURRENCY
   // =====================================================
 
-  get canCompleteConsultation(): boolean {
+  formatCurrency(
+    amount: number
+  ): string {
 
-    if (
-      !this.consultation ||
-      this.isProcessing
-    ) {
-
-      return false;
-    }
-
-
-    if (
-      this.consultation.status !==
-      'Open'
-    ) {
-
-      return false;
-    }
-
-
-    const hasDiagnosis =
-      !!this.consultation
-        .diagnosis
-        ?.trim();
-
-
-    const hasTreatmentPlan =
-      !!this.consultation
-        .treatmentPlan
-        ?.trim();
-
-
-    if (
-      !hasDiagnosis ||
-      !hasTreatmentPlan
-    ) {
-
-      return false;
-    }
-
-
-    if (
-      this.consultation
-        .hasLaboratoryRequests
-    ) {
-
-      if (
-        !this.consultation
-          .hasLaboratoryResults
-      ) {
-
-        return false;
+    return new Intl.NumberFormat(
+      'en-UG',
+      {
+        style: 'currency',
+        currency: 'UGX',
+        maximumFractionDigits: 0
       }
-
-
-      if (
-        !this.consultation
-          .laboratoryResultsReviewed
-      ) {
-
-        return false;
-      }
-
-    }
-
-
-    return true;
+    ).format(
+      Number(
+        amount || 0
+      )
+    );
 
   }
-
-
-// =====================================================
-// FORMAT CURRENCY
-// =====================================================
-
-formatCurrency(
-  amount: number
-): string {
-
-  return new Intl.NumberFormat(
-    'en-UG',
-    {
-      style: 'currency',
-      currency: 'UGX',
-      maximumFractionDigits: 0
-    }
-  ).format(
-    Number(
-      amount || 0
-    )
-  );
-
-}
 
 
   // =====================================================
@@ -995,6 +1235,18 @@ formatCurrency(
       !this.consultation ||
       this.isProcessing
     ) {
+
+      return;
+    }
+
+
+    if (
+      !this.canUpdateConsultation
+    ) {
+
+      alert(
+        'You do not have permission to edit consultations.'
+      );
 
       return;
     }
@@ -1019,7 +1271,7 @@ formatCurrency(
     ) {
 
       alert(
-        'Cancelled consultations cannot be edited.'
+        'Cancelled consultations must be reopened before editing.'
       );
 
       return;
@@ -1045,6 +1297,22 @@ formatCurrency(
       !this.consultation ||
       this.isProcessing
     ) {
+
+      return;
+    }
+
+
+    // ---------------------------------------------------
+    // PERMISSION
+    // ---------------------------------------------------
+
+    if (
+      !this.canCompleteConsultationPermission
+    ) {
+
+      alert(
+        'You do not have permission to complete consultations.'
+      );
 
       return;
     }
@@ -1110,13 +1378,11 @@ formatCurrency(
     // ---------------------------------------------------
 
     if (
-      this.consultation
-        .hasLaboratoryRequests
+      this.consultation.hasLaboratoryRequests
     ) {
 
       if (
-        !this.consultation
-          .hasLaboratoryResults
+        !this.consultation.hasLaboratoryResults
       ) {
 
         alert(
@@ -1128,8 +1394,7 @@ formatCurrency(
 
 
       if (
-        !this.consultation
-          .laboratoryResultsReviewed
+        !this.consultation.laboratoryResultsReviewed
       ) {
 
         alert(
@@ -1237,6 +1502,26 @@ formatCurrency(
     }
 
 
+    // ---------------------------------------------------
+    // PERMISSION
+    // ---------------------------------------------------
+
+    if (
+      !this.canUpdateConsultation
+    ) {
+
+      alert(
+        'You do not have permission to review laboratory results.'
+      );
+
+      return;
+    }
+
+
+    // ---------------------------------------------------
+    // STATUS
+    // ---------------------------------------------------
+
     if (
       this.consultation.status !==
       'Ready For Review'
@@ -1249,6 +1534,10 @@ formatCurrency(
       return;
     }
 
+
+    // ---------------------------------------------------
+    // RESULTS
+    // ---------------------------------------------------
 
     if (
       !this.consultation
@@ -1263,6 +1552,10 @@ formatCurrency(
     }
 
 
+    // ---------------------------------------------------
+    // ALREADY REVIEWED
+    // ---------------------------------------------------
+
     if (
       this.consultation
         .laboratoryResultsReviewed
@@ -1275,6 +1568,10 @@ formatCurrency(
       return;
     }
 
+
+    // ---------------------------------------------------
+    // CONFIRM
+    // ---------------------------------------------------
 
     const confirmed =
       window.confirm(
@@ -1367,6 +1664,26 @@ formatCurrency(
     }
 
 
+    // ---------------------------------------------------
+    // PERMISSION
+    // ---------------------------------------------------
+
+    if (
+      !this.canUpdateConsultation
+    ) {
+
+      alert(
+        'You do not have permission to cancel consultations.'
+      );
+
+      return;
+    }
+
+
+    // ---------------------------------------------------
+    // COMPLETED
+    // ---------------------------------------------------
+
     if (
       this.consultation.status ===
       'Completed'
@@ -1380,6 +1697,10 @@ formatCurrency(
     }
 
 
+    // ---------------------------------------------------
+    // ALREADY CANCELLED
+    // ---------------------------------------------------
+
     if (
       this.consultation.status ===
       'Cancelled'
@@ -1388,6 +1709,10 @@ formatCurrency(
       return;
     }
 
+
+    // ---------------------------------------------------
+    // CONFIRM
+    // ---------------------------------------------------
 
     const confirmed =
       window.confirm(
@@ -1475,6 +1800,22 @@ formatCurrency(
       !this.consultation ||
       this.isProcessing
     ) {
+
+      return;
+    }
+
+
+    // ---------------------------------------------------
+    // PERMISSION
+    // ---------------------------------------------------
+
+    if (
+      !this.canUpdateConsultation
+    ) {
+
+      alert(
+        'You do not have permission to reopen consultations.'
+      );
 
       return;
     }
@@ -1580,9 +1921,29 @@ formatCurrency(
     }
 
 
+    // ---------------------------------------------------
+    // PERMISSION
+    // ---------------------------------------------------
+
+    if (
+      !this.canDeleteConsultation
+    ) {
+
+      alert(
+        'You do not have permission to delete consultations.'
+      );
+
+      return;
+    }
+
+
     const id =
       this.consultation.id;
 
+
+    // ---------------------------------------------------
+    // CONFIRM
+    // ---------------------------------------------------
 
     const confirmed =
       window.confirm(
@@ -1822,3 +2183,4 @@ formatCurrency(
   }
 
 }
+

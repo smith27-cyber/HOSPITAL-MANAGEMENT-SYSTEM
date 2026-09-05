@@ -1,4 +1,3 @@
-
 // =====================================================
 // SIDEBAR COMPONENT
 // File:
@@ -6,8 +5,11 @@
 // =====================================================
 
 import {
+  ChangeDetectorRef,
   Component,
   EventEmitter,
+  OnDestroy,
+  OnInit,
   Output,
   inject
 } from '@angular/core';
@@ -19,8 +21,17 @@ import {
 } from '@angular/router';
 
 import {
+  Subject,
+  takeUntil
+} from 'rxjs';
+
+import {
   AuthService
 } from '../../core/services/auth.service';
+
+import {
+  SettingsService
+} from '../../core/services/settings.service';
 
 
 // =====================================================
@@ -41,7 +52,7 @@ import {
 
   styleUrl: './sidebar.css'
 })
-export class Sidebar {
+export class Sidebar implements OnInit, OnDestroy {
 
   // ===================================================
   // SIDEBAR EVENT
@@ -62,6 +73,148 @@ export class Sidebar {
   private readonly authService =
     inject(AuthService);
 
+  private readonly settingsService =
+    inject(SettingsService);
+
+  private readonly changeDetectorRef =
+    inject(ChangeDetectorRef);
+
+
+  // ===================================================
+  // COMPONENT CLEANUP
+  // ===================================================
+
+  private readonly destroy$ =
+    new Subject<void>();
+
+
+  // ===================================================
+  // HOSPITAL IDENTITY
+  // ===================================================
+
+  hospitalName =
+    'Hospital Management System';
+
+  hospitalCity =
+    '';
+
+  hospitalLogo =
+    '';
+
+
+  // ===================================================
+  // LIFECYCLE
+  // ===================================================
+
+  ngOnInit(): void {
+
+    this.loadHospitalIdentity();
+
+  }
+
+
+  // ===================================================
+  // LOAD HOSPITAL IDENTITY
+  // ===================================================
+
+
+  private loadHospitalIdentity(): void {
+
+    this.settingsService.hospitalSettings$
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+
+        next: settings => {
+
+          this.hospitalName =
+            settings.hospitalName?.trim()
+            || 'Hospital Management System';
+
+          this.hospitalCity =
+            settings.city?.trim()
+            || '';
+
+          this.hospitalLogo =
+            settings.logoUrl?.trim()
+            || '';
+
+
+          // ==========================================
+          // FORCE UI UPDATE
+          // ==========================================
+
+          this.changeDetectorRef.detectChanges();
+
+        },
+
+        error: error => {
+
+          console.error(
+            'Failed to read hospital identity:',
+            error
+          );
+
+          this.changeDetectorRef.detectChanges();
+
+        }
+
+      });
+
+  }
+
+
+  // ===================================================
+  // HOSPITAL LOGO ERROR
+  // ===================================================
+
+  onLogoError(
+    event: Event
+  ): void {
+
+    const image =
+      event.target as HTMLImageElement;
+
+    if (image) {
+
+      image.style.display =
+        'none';
+
+    }
+
+  }
+
+
+  // ===================================================
+  // PERMISSION CHECK
+  // ===================================================
+
+  hasPermission(
+    permission: string
+  ): boolean {
+
+    return this.authService.hasPermission(
+      permission
+    );
+
+  }
+
+
+  /**
+   * Checks whether the user has at least one of the
+   * supplied permissions.
+   */
+  hasAnyPermission(
+    permissions: string[]
+  ): boolean {
+
+    return this.authService.hasAnyPermission(
+      permissions
+    );
+
+  }
+
 
   // ===================================================
   // NAVIGATION
@@ -81,12 +234,7 @@ export class Sidebar {
   // LOGOUT
   // ===================================================
 
-  /**
-   * Logs the user out of the HMS.
-   *
-   * Authentication data is removed from sessionStorage
-   * and the user is redirected to the login page.
-   */
+  
   logout(): void {
 
     // ================================================
@@ -116,5 +264,17 @@ export class Sidebar {
 
   }
 
-}
 
+  // ===================================================
+  // DESTROY
+  // ===================================================
+
+  ngOnDestroy(): void {
+
+    this.destroy$.next();
+
+    this.destroy$.complete();
+
+  }
+
+}

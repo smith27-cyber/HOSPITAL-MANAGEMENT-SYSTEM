@@ -1,4 +1,3 @@
-
 package com.hms.backend.controller;
 
 import com.hms.backend.entity.Department;
@@ -6,6 +5,7 @@ import com.hms.backend.service.DepartmentService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,7 +15,6 @@ import java.util.Map;
 @RequestMapping("/api/departments")
 @CrossOrigin(origins = "http://localhost:4200")
 public class DepartmentController {
-
 
     private final DepartmentService departmentService;
 
@@ -38,6 +37,7 @@ public class DepartmentController {
     // =====================================================
 
     @GetMapping
+    @PreAuthorize("hasAuthority('DEPARTMENT_VIEW')")
     public ResponseEntity<List<Department>> getAllDepartments() {
 
         return ResponseEntity.ok(
@@ -50,11 +50,13 @@ public class DepartmentController {
     // GET ACTIVE DEPARTMENTS
     // =====================================================
 
-    // IMPORTANT:
-    // This must appear before /{id}
-    // so "active" is not treated as a department ID.
+    /*
+     * This must appear before /{id}
+     * so "active" is not treated as a department ID.
+     */
 
     @GetMapping("/active")
+    @PreAuthorize("hasAuthority('DEPARTMENT_VIEW')")
     public ResponseEntity<List<Department>> getActiveDepartments() {
 
         return ResponseEntity.ok(
@@ -68,6 +70,7 @@ public class DepartmentController {
     // =====================================================
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('DEPARTMENT_VIEW')")
     public ResponseEntity<Department> getDepartmentById(
             @PathVariable String id
     ) {
@@ -83,6 +86,7 @@ public class DepartmentController {
     // =====================================================
 
     @PostMapping
+    @PreAuthorize("hasAuthority('DEPARTMENT_CREATE')")
     public ResponseEntity<Department> addDepartment(
             @RequestBody Department department
     ) {
@@ -103,6 +107,7 @@ public class DepartmentController {
     // =====================================================
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('DEPARTMENT_UPDATE')")
     public ResponseEntity<Department> updateDepartment(
             @PathVariable String id,
             @RequestBody Department department
@@ -122,6 +127,7 @@ public class DepartmentController {
     // =====================================================
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('DEPARTMENT_DELETE')")
     public ResponseEntity<Void> deleteDepartment(
             @PathVariable String id
     ) {
@@ -139,6 +145,7 @@ public class DepartmentController {
     // =====================================================
 
     @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAuthority('DEPARTMENT_UPDATE')")
     public ResponseEntity<Department> updateDepartmentStatus(
             @PathVariable String id,
             @RequestBody Map<String, String> request
@@ -174,4 +181,3 @@ public class DepartmentController {
         );
     }
 }
-

@@ -1,7 +1,26 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+// =====================================================
+// ADMISSION REGISTER COMPONENT
+// File:
+// src/app/features/admissions/admission-register/admission-register.ts
+// =====================================================
+
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit
+} from '@angular/core';
+
+import {
+  CommonModule
+} from '@angular/common';
+
+import {
+  FormsModule
+} from '@angular/forms';
+
+import {
+  Router
+} from '@angular/router';
 
 import {
   Admission,
@@ -10,8 +29,16 @@ import {
 } from '../../../shared/models/admission.model';
 
 import {
+  Patient
+} from '../../../shared/models/patient.model';
+
+import {
   AdmissionService
 } from '../../../core/services/admission.service';
+
+import {
+  PatientService
+} from '../../../core/services/patient.service';
 
 
 @Component({
@@ -28,7 +55,25 @@ import {
 
   styleUrl: './admission-register.css'
 })
-export class AdmissionRegister {
+export class AdmissionRegister implements OnInit {
+
+
+  // =====================================================
+  // PATIENTS
+  // =====================================================
+
+  patients: Patient[] = [];
+
+  loadingPatients = true;
+
+  patientLoadError = false;
+
+
+  // =====================================================
+  // SELECTED PATIENT
+  // =====================================================
+
+  selectedPatientId = '';
 
 
   // =====================================================
@@ -37,12 +82,12 @@ export class AdmissionRegister {
 
   admissionTypes: AdmissionType[] = [
 
-    'Emergency',
-    'Routine',
-    'Referral',
-    'Surgical',
-    'Maternity',
-    'Other'
+    'EMERGENCY',
+    'ROUTINE',
+    'REFERRAL',
+    'SURGICAL',
+    'MATERNITY',
+    'OTHER'
 
   ];
 
@@ -53,16 +98,23 @@ export class AdmissionRegister {
 
   wards: WardType[] = [
 
-    'General',
-    'Private',
-    'Pediatric',
-    'Maternity',
-    'Surgical',
+    'GENERAL',
+    'PRIVATE',
+    'PEDIATRIC',
+    'MATERNITY',
+    'SURGICAL',
     'ICU',
-    'Emergency',
-    'Other'
+    'EMERGENCY',
+    'OTHER'
 
   ];
+
+
+  // =====================================================
+  // SAVING
+  // =====================================================
+
+  saving = false;
 
 
   // =====================================================
@@ -87,11 +139,11 @@ export class AdmissionRegister {
 
     departmentName: '',
 
-    ward: 'General',
+    ward: 'GENERAL',
 
     bedNumber: '',
 
-    admissionType: 'Routine',
+    admissionType: 'ROUTINE',
 
     admissionDate: '',
 
@@ -105,7 +157,7 @@ export class AdmissionRegister {
 
     notes: '',
 
-    status: 'Admitted',
+    status: 'ADMITTED',
 
     createdAt: ''
 
@@ -117,9 +169,308 @@ export class AdmissionRegister {
   // =====================================================
 
   constructor(
-    private admissionService: AdmissionService,
-    private router: Router
+    private readonly admissionService: AdmissionService,
+    private readonly patientService: PatientService,
+    private readonly router: Router,
+    private readonly changeDetectorRef: ChangeDetectorRef
   ) {}
+
+
+  // =====================================================
+  // INITIALIZE
+  // =====================================================
+
+  ngOnInit(): void {
+
+    this.loadPatients();
+
+  }
+
+
+  // =====================================================
+  // LOAD REGISTERED PATIENTS
+  // =====================================================
+
+  loadPatients(): void {
+
+    this.loadingPatients = true;
+
+    this.patientLoadError = false;
+
+
+    // ---------------------------------------------------
+    // Immediately update the view
+    // ---------------------------------------------------
+
+    this.changeDetectorRef.detectChanges();
+
+
+    this.patientService
+      .getPatients()
+      .subscribe({
+
+        // ===============================================
+        // SUCCESS
+        // ===============================================
+
+        next: (patients: Patient[]) => {
+
+          console.log(
+            'AdmissionRegister: patients received:',
+            patients
+          );
+
+
+          // ---------------------------------------------
+          // Only active registered patients
+          // ---------------------------------------------
+
+          this.patients =
+            patients
+              .filter(
+                patient =>
+                  patient.status === 'Active'
+              )
+              .sort(
+                (a, b) =>
+                  this.getPatientDisplayName(a)
+                    .localeCompare(
+                      this.getPatientDisplayName(b)
+                    )
+              );
+
+
+          console.log(
+            'AdmissionRegister: active patients:',
+            this.patients
+          );
+
+
+          // ---------------------------------------------
+          // Update loading state
+          // ---------------------------------------------
+
+          this.loadingPatients = false;
+
+          this.patientLoadError = false;
+
+
+          // ---------------------------------------------
+          // Force immediate UI refresh
+          // ---------------------------------------------
+
+          this.changeDetectorRef.detectChanges();
+
+        },
+
+
+        // ===============================================
+        // ERROR
+        // ===============================================
+
+        error: (error) => {
+
+          console.error(
+            'AdmissionRegister: failed to load patients:',
+            error
+          );
+
+
+          this.patients = [];
+
+          this.loadingPatients = false;
+
+          this.patientLoadError = true;
+
+
+          // ---------------------------------------------
+          // Force error state into the UI
+          // ---------------------------------------------
+
+          this.changeDetectorRef.detectChanges();
+
+
+          alert(
+            'Unable to load registered patients. ' +
+            'Please make sure the Patients API is available.'
+          );
+
+        }
+
+      });
+
+  }
+
+
+  // =====================================================
+  // RETRY
+  // =====================================================
+
+  retryLoadPatients(): void {
+
+    this.loadPatients();
+
+  }
+
+
+  // =====================================================
+  // PATIENT SELECTED
+  // =====================================================
+
+  onPatientSelected(): void {
+
+    if (!this.selectedPatientId) {
+
+      this.clearSelectedPatient();
+
+      this.changeDetectorRef.detectChanges();
+
+      return;
+
+    }
+
+
+    const selectedPatient =
+      this.patients.find(
+        patient =>
+          patient.id ===
+          this.selectedPatientId
+      );
+
+
+    if (!selectedPatient) {
+
+      this.clearSelectedPatient();
+
+      this.changeDetectorRef.detectChanges();
+
+      return;
+
+    }
+
+
+    // ---------------------------------------------
+    // Populate admission from registered patient
+    // ---------------------------------------------
+
+    this.admission.patientId =
+      selectedPatient.id;
+
+    this.admission.patientName =
+      this.getPatientDisplayName(
+        selectedPatient
+      );
+
+    this.admission.patientNumber =
+      this.getPatientNumber(
+        selectedPatient
+      );
+
+
+    // ---------------------------------------------
+    // Force selected patient details into view
+    // ---------------------------------------------
+
+    this.changeDetectorRef.detectChanges();
+
+  }
+
+
+  // =====================================================
+  // CLEAR SELECTED PATIENT
+  // =====================================================
+
+  private clearSelectedPatient(): void {
+
+    this.admission.patientId = '';
+
+    this.admission.patientName = '';
+
+    this.admission.patientNumber = '';
+
+  }
+
+
+  // =====================================================
+  // PATIENT DISPLAY NAME
+  // =====================================================
+
+  getPatientDisplayName(
+    patient: Patient
+  ): string {
+
+    return [
+      patient.firstName,
+      patient.lastName
+    ]
+      .filter(
+        value =>
+          !!value?.trim()
+      )
+      .join(' ')
+      .trim();
+
+  }
+
+
+  // =====================================================
+  // PATIENT NUMBER
+  // =====================================================
+  //
+  // The current Patient model has no dedicated
+  // patientNumber property.
+  //
+  // Until that field is added to the Patient module,
+  // we use the registered patient ID.
+  // =====================================================
+
+  getPatientNumber(
+    patient: Patient
+  ): string {
+
+    return patient.id;
+
+  }
+
+
+  // =====================================================
+  // GET SELECTED PATIENT
+  // =====================================================
+
+  getSelectedPatient(): Patient | undefined {
+
+    if (!this.selectedPatientId) {
+
+      return undefined;
+
+    }
+
+
+    return this.patients.find(
+      patient =>
+        patient.id ===
+        this.selectedPatientId
+    );
+
+  }
+
+
+  // =====================================================
+  // FORMAT PATIENT OPTION
+  // =====================================================
+
+  formatPatientOption(
+    patient: Patient
+  ): string {
+
+    const name =
+      this.getPatientDisplayName(
+        patient
+      );
+
+    return `${name} — ${patient.id}`;
+
+  }
 
 
   // =====================================================
@@ -128,30 +479,53 @@ export class AdmissionRegister {
 
   saveAdmission(): void {
 
+    if (this.saving) {
+
+      return;
+
+    }
+
+
+    // ===================================================
+    // PATIENT VALIDATION
+    // ===================================================
+
+    if (!this.selectedPatientId) {
+
+      alert(
+        'Please select a registered patient.'
+      );
+
+      return;
+
+    }
+
+
+    const selectedPatient =
+      this.getSelectedPatient();
+
+
+    if (!selectedPatient) {
+
+      alert(
+        'The selected patient could not be found.'
+      );
+
+      return;
+
+    }
+
+
     // ---------------------------------------------------
+    // Ensure admission contains the selected patient
+    // ---------------------------------------------------
+
+    this.onPatientSelected();
+
+
+    // ===================================================
     // CLEAN TEXT
-    // ---------------------------------------------------
-
-    this.admission.patientId =
-      this.admission.patientId.trim();
-
-    this.admission.patientName =
-      this.admission.patientName.trim();
-
-    this.admission.patientNumber =
-      this.admission.patientNumber?.trim();
-
-    this.admission.doctorId =
-      this.admission.doctorId?.trim();
-
-    this.admission.doctorName =
-      this.admission.doctorName?.trim();
-
-    this.admission.departmentId =
-      this.admission.departmentId?.trim();
-
-    this.admission.departmentName =
-      this.admission.departmentName?.trim();
+    // ===================================================
 
     this.admission.bedNumber =
       this.admission.bedNumber?.trim();
@@ -168,7 +542,7 @@ export class AdmissionRegister {
 
     // ===================================================
     // VALIDATION
-    // ===================================================
+    // =====================================================
 
     const missingFields: string[] = [];
 
@@ -176,16 +550,7 @@ export class AdmissionRegister {
     if (!this.admission.patientId) {
 
       missingFields.push(
-        'Patient ID'
-      );
-
-    }
-
-
-    if (!this.admission.patientName) {
-
-      missingFields.push(
-        'Patient Name'
+        'Patient'
       );
 
     }
@@ -227,10 +592,6 @@ export class AdmissionRegister {
     }
 
 
-    // ===================================================
-    // SHOW VALIDATION
-    // ===================================================
-
     if (missingFields.length > 0) {
 
       alert(
@@ -254,7 +615,7 @@ export class AdmissionRegister {
 
 
     if (
-      isNaN(
+      Number.isNaN(
         admissionDate.getTime()
       )
     ) {
@@ -283,7 +644,7 @@ export class AdmissionRegister {
 
 
       if (
-        isNaN(
+        Number.isNaN(
           expectedDate.getTime()
         )
       ) {
@@ -313,56 +674,99 @@ export class AdmissionRegister {
 
 
     // ===================================================
-    // GENERATE ID
+    // PREPARE REQUEST
     // ===================================================
 
-    this.admission.id =
-      this.generateAdmissionId();
+    const request: Admission = {
 
+      ...this.admission,
 
-    // ===================================================
-    // CREATED DATE
-    // ===================================================
+      // Backend generates ID
 
-    this.admission.createdAt =
-      new Date().toISOString();
+      id: '',
 
+      // Backend generates timestamp
 
-    // ===================================================
-    // DEFAULT STATUS
-    // ===================================================
+      createdAt: '',
 
-    this.admission.status =
-      'Admitted';
+      // New admissions start as ADMITTED
+
+      status: 'ADMITTED',
+
+      // No discharge date at registration
+
+      dischargeDate: undefined
+
+    };
 
 
     // ===================================================
     // SAVE
     // ===================================================
 
-    this.admissionService.addAdmission({
-
-      ...this.admission
-
-    });
+    this.saving = true;
 
 
-    // ===================================================
-    // SUCCESS
-    // ===================================================
-
-    alert(
-      'Patient admission registered successfully.'
-    );
+    this.changeDetectorRef.detectChanges();
 
 
-    // ===================================================
-    // RETURN
-    // ===================================================
+    this.admissionService
+      .addAdmission(request)
+      .subscribe({
 
-    this.router.navigate([
-      '/admissions'
-    ]);
+        // ===============================================
+        // SUCCESS
+        // ===============================================
+
+        next: (
+          createdAdmission: Admission
+        ) => {
+
+          this.saving = false;
+
+
+          this.changeDetectorRef.detectChanges();
+
+
+          alert(
+            'Patient admission registered successfully.\n\n' +
+            `Admission ID: ${createdAdmission.id}`
+          );
+
+
+          this.router.navigate([
+            '/admissions'
+          ]);
+
+        },
+
+
+        // ===============================================
+        // ERROR
+        // ===============================================
+
+        error: (error: Error) => {
+
+          this.saving = false;
+
+
+          this.changeDetectorRef.detectChanges();
+
+
+          console.error(
+            'Failed to create admission:',
+            error
+          );
+
+
+          alert(
+            error.message ||
+            'Unable to register the admission.'
+          );
+
+        }
+
+      });
 
   }
 
@@ -373,26 +777,16 @@ export class AdmissionRegister {
 
   cancel(): void {
 
+    if (this.saving) {
+
+      return;
+
+    }
+
+
     this.router.navigate([
       '/admissions'
     ]);
-
-  }
-
-
-  // =====================================================
-  // GENERATE ADMISSION ID
-  // =====================================================
-
-  private generateAdmissionId(): string {
-
-    const timestamp =
-      Date.now()
-        .toString()
-        .slice(-7);
-
-
-    return `ADM-${timestamp}`;
 
   }
 

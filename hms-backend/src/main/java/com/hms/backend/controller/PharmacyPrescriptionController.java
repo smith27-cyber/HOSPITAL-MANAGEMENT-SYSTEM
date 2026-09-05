@@ -1,4 +1,3 @@
-
 package com.hms.backend.controller;
 
 import com.hms.backend.entity.PharmacyPrescription;
@@ -6,6 +5,8 @@ import com.hms.backend.service.PharmacyPrescriptionService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +39,7 @@ public class PharmacyPrescriptionController {
     // =====================================================
 
     @GetMapping
+    @PreAuthorize("hasAuthority('PHARMACY_PRESCRIPTION_VIEW')")
     public ResponseEntity<List<PharmacyPrescription>>
     getAllPrescriptions() {
 
@@ -53,6 +55,7 @@ public class PharmacyPrescriptionController {
     // =====================================================
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('PHARMACY_PRESCRIPTION_VIEW')")
     public ResponseEntity<PharmacyPrescription>
     getPrescriptionById(
             @PathVariable Long id
@@ -70,6 +73,7 @@ public class PharmacyPrescriptionController {
     // =====================================================
 
     @GetMapping("/patient/{patientId}")
+    @PreAuthorize("hasAuthority('PHARMACY_PRESCRIPTION_VIEW')")
     public ResponseEntity<List<PharmacyPrescription>>
     getPrescriptionsByPatient(
             @PathVariable String patientId
@@ -89,6 +93,7 @@ public class PharmacyPrescriptionController {
     // =====================================================
 
     @GetMapping("/consultation/{consultationId}")
+    @PreAuthorize("hasAuthority('PHARMACY_PRESCRIPTION_VIEW')")
     public ResponseEntity<List<PharmacyPrescription>>
     getPrescriptionsByConsultation(
             @PathVariable String consultationId
@@ -108,6 +113,7 @@ public class PharmacyPrescriptionController {
     // =====================================================
 
     @GetMapping("/consultation/{consultationId}/current")
+    @PreAuthorize("hasAuthority('PHARMACY_PRESCRIPTION_VIEW')")
     public ResponseEntity<PharmacyPrescription>
     getCurrentPrescriptionByConsultation(
             @PathVariable String consultationId
@@ -139,6 +145,7 @@ public class PharmacyPrescriptionController {
     // =====================================================
 
     @GetMapping("/status/{status}")
+    @PreAuthorize("hasAuthority('PHARMACY_PRESCRIPTION_VIEW')")
     public ResponseEntity<List<PharmacyPrescription>>
     getPrescriptionsByStatus(
             @PathVariable String status
@@ -154,10 +161,18 @@ public class PharmacyPrescriptionController {
 
 
     // =====================================================
-    // CREATE
+    // CREATE PRESCRIPTION
     // =====================================================
 
+    /*
+     * Doctor creates the prescription during consultation.
+     *
+     * PHARMACY_PRESCRIPTION_CREATE is intentionally
+     * separate from PHARMACY_DISPENSE.
+     */
+
     @PostMapping
+    @PreAuthorize("hasAuthority('PHARMACY_PRESCRIPTION_CREATE')")
     public ResponseEntity<PharmacyPrescription>
     createPrescription(
             @RequestBody PharmacyPrescription prescription
@@ -181,10 +196,19 @@ public class PharmacyPrescriptionController {
 
 
     // =====================================================
-    // UPDATE
+    // UPDATE PRESCRIPTION
     // =====================================================
 
+    /*
+     * Only prescriptions that are still editable
+     * should be updated.
+     *
+     * The service layer already protects the business
+     * rule that only WAITING prescriptions can be modified.
+     */
+
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('PHARMACY_PRESCRIPTION_UPDATE')")
     public ResponseEntity<PharmacyPrescription>
     updatePrescription(
             @PathVariable Long id,
@@ -205,7 +229,18 @@ public class PharmacyPrescriptionController {
     // START PREPARING
     // =====================================================
 
+    /*
+     * Pharmacy workflow:
+     *
+     * WAITING
+     *    ↓
+     * PREPARING
+     *
+     * This is a pharmacy processing operation.
+     */
+
     @PatchMapping("/{id}/prepare")
+    @PreAuthorize("hasAuthority('PHARMACY_DISPENSE')")
     public ResponseEntity<PharmacyPrescription>
     startPreparing(
             @PathVariable Long id
@@ -221,14 +256,20 @@ public class PharmacyPrescriptionController {
     // =====================================================
     // SEND TO BILLING
     // =====================================================
-    //
-    // Frontend endpoint:
-    //
-    // PATCH /api/pharmacy/prescriptions/{id}/send-to-billing
-    //
-    // =====================================================
+
+    /*
+     * Pharmacy workflow:
+     *
+     * PREPARING
+     *    ↓
+     * AWAITING PAYMENT
+     *
+     * The pharmacy service creates/synchronizes
+     * the pharmacy charge with billing.
+     */
 
     @PatchMapping("/{id}/send-to-billing")
+    @PreAuthorize("hasAuthority('PHARMACY_DISPENSE')")
     public ResponseEntity<PharmacyPrescription>
     sendToBilling(
             @PathVariable Long id
@@ -241,31 +282,48 @@ public class PharmacyPrescriptionController {
     }
 
 
-  
-// =====================================================
-// CHECK PAYMENT
-// =====================================================
+    // =====================================================
+    // CHECK PAYMENT
+    // =====================================================
 
-@PatchMapping("/{id}/check-payment")
-public ResponseEntity<PharmacyPrescription>
-checkPayment(
-        @PathVariable Long id
-) {
+    /*
+     * Pharmacy checks whether the pharmacy bill
+     * has been paid before allowing collection.
+     *
+     * A successful payment changes the prescription
+     * to READY FOR PICKUP.
+     */
 
-    return ResponseEntity.ok(
-            prescriptionService
-                    .checkPayment(id)
-    );
-}
+    @PatchMapping("/{id}/check-payment")
+    @PreAuthorize("hasAuthority('PHARMACY_DISPENSE')")
+    public ResponseEntity<PharmacyPrescription>
+    checkPayment(
+            @PathVariable Long id
+    ) {
 
-
+        return ResponseEntity.ok(
+                prescriptionService
+                        .checkPayment(id)
+        );
+    }
 
 
     // =====================================================
     // DISPENSE
     // =====================================================
 
+    /*
+     * Pharmacy workflow:
+     *
+     * READY FOR PICKUP
+     *       ↓
+     * DISPENSED
+     *
+     * This is restricted to pharmacy dispensing staff.
+     */
+
     @PatchMapping("/{id}/dispense")
+    @PreAuthorize("hasAuthority('PHARMACY_DISPENSE')")
     public ResponseEntity<PharmacyPrescription>
     dispense(
             @PathVariable Long id,
@@ -300,7 +358,13 @@ checkPayment(
     // CANCEL
     // =====================================================
 
+    /*
+     * Cancellation is intentionally separate from
+     * general prescription update permission.
+     */
+
     @PatchMapping("/{id}/cancel")
+    @PreAuthorize("hasAuthority('PHARMACY_PRESCRIPTION_CANCEL')")
     public ResponseEntity<PharmacyPrescription>
     cancelPrescription(
             @PathVariable Long id
@@ -317,7 +381,18 @@ checkPayment(
     // DELETE
     // =====================================================
 
+    /*
+     * There is currently no dedicated
+     * PHARMACY_PRESCRIPTION_DELETE permission.
+     *
+     * Therefore UPDATE is used temporarily.
+     *
+     * The service layer already prevents deletion
+     * of DISPENSED prescriptions.
+     */
+
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('PHARMACY_PRESCRIPTION_UPDATE')")
     public ResponseEntity<Void>
     deletePrescription(
             @PathVariable Long id
@@ -333,4 +408,3 @@ checkPayment(
     }
 
 }
-

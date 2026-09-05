@@ -47,7 +47,7 @@
 
 
   <!-- ================================================= -->
-  <!-- ERROR MESSAGE -->
+  <!-- ERROR -->
   <!-- ================================================= -->
 
   @if (errorMessage) {
@@ -89,10 +89,13 @@
 
 
   <!-- ================================================= -->
-  <!-- APPOINTMENT / PATIENT SUMMARY -->
+  <!-- APPOINTMENT SUMMARY -->
   <!-- ================================================= -->
 
-  @if (!isLoading && appointment) {
+  @if (
+    !isLoading &&
+    appointment
+  ) {
 
     <section class="form-card patient-summary-card">
 
@@ -296,7 +299,7 @@
               </h2>
 
               <p>
-                The consultation status is controlled by the clinical workflow.
+                Consultation status is controlled by the clinical workflow.
               </p>
 
             </div>
@@ -305,6 +308,9 @@
 
 
           <div class="workflow-status-display">
+
+
+            <!-- CURRENT STATUS -->
 
             <div class="workflow-status-main">
 
@@ -338,12 +344,43 @@
 
 
             <!-- ======================================== -->
+            <!-- OPEN -->
+            <!-- ======================================== -->
+
+            @if (
+              consultation.status === 'Open'
+            ) {
+
+              <div class="workflow-status-message">
+
+                <span class="material-symbols-outlined">
+                  edit_note
+                </span>
+
+                <div>
+
+                  <strong>
+                    Consultation In Progress
+                  </strong>
+
+                  <p>
+                    Continue documenting the patient's
+                    clinical information and treatment plan.
+                  </p>
+
+                </div>
+
+              </div>
+
+            }
+
+
+            <!-- ======================================== -->
             <!-- PENDING RESULTS -->
             <!-- ======================================== -->
 
             @if (
-              consultation.status ===
-              'Pending Results'
+              consultation.status === 'Pending Results'
             ) {
 
               <div class="workflow-status-message">
@@ -359,8 +396,8 @@
                   </strong>
 
                   <p>
-                    Laboratory tests associated with this
-                    consultation are still being processed.
+                    Laboratory tests are still being processed.
+                    The consultation cannot be completed yet.
                   </p>
 
                 </div>
@@ -375,8 +412,7 @@
             <!-- ======================================== -->
 
             @if (
-              consultation.status ===
-              'Ready For Review'
+              consultation.status === 'Ready For Review'
             ) {
 
               <div class="workflow-status-message">
@@ -392,33 +428,45 @@
                   </strong>
 
                   <p>
-                    All requested laboratory tests have been
-                    completed. Review the results before
-                    continuing the consultation.
+                    All requested laboratory tests are complete.
+                    Review the results before continuing.
                   </p>
 
-                  <button
-                    type="button"
-                    class="review-laboratory-button"
-                    (click)="reviewLaboratoryResults()"
-                    [disabled]="isSaving"
-                  >
 
-                    <span class="material-symbols-outlined">
-                      fact_check
-                    </span>
+                  @if (
+                    canReviewLaboratoryResults
+                  ) {
 
-                    @if (isSaving) {
+                    <button
+                      type="button"
+                      class="review-laboratory-button"
+                      (click)="reviewLaboratoryResults()"
+                      [disabled]="isSaving"
+                    >
 
-                      Reviewing...
-
-                    } @else {
+                      <span class="material-symbols-outlined">
+                        fact_check
+                      </span>
 
                       Review Laboratory Results
 
-                    }
+                    </button>
 
-                  </button>
+                  } @else {
+
+                    <div class="permission-notice">
+
+                      <span class="material-symbols-outlined">
+                        lock
+                      </span>
+
+                      <span>
+                        You do not have permission to review laboratory results.
+                      </span>
+
+                    </div>
+
+                  }
 
                 </div>
 
@@ -432,11 +480,10 @@
             <!-- ======================================== -->
 
             @if (
-              consultation.status ===
-              'Completed'
+              consultation.status === 'Completed'
             ) {
 
-              <div class="workflow-status-message">
+              <div class="workflow-status-message completed-message">
 
                 <span class="material-symbols-outlined">
                   task_alt
@@ -449,7 +496,7 @@
                   </strong>
 
                   <p>
-                    This consultation is now a final clinical record.
+                    This consultation has been finalized as a clinical record.
                   </p>
 
                 </div>
@@ -464,11 +511,10 @@
             <!-- ======================================== -->
 
             @if (
-              consultation.status ===
-              'Cancelled'
+              consultation.status === 'Cancelled'
             ) {
 
-              <div class="workflow-status-message">
+              <div class="workflow-status-message cancelled-message">
 
                 <span class="material-symbols-outlined">
                   cancel
@@ -481,8 +527,7 @@
                   </strong>
 
                   <p>
-                    This consultation has been cancelled and
-                    cannot be edited until it is reopened.
+                    Reopen the consultation before making changes.
                   </p>
 
                 </div>
@@ -521,13 +566,7 @@
             </h2>
 
             <p>
-
-              {{
-                appointment
-                  ? 'Patient and doctor information has been loaded from the appointment'
-                  : 'Select the patient and attending doctor'
-              }}
-
+              Patient and doctor information for this consultation.
             </p>
 
           </div>
@@ -559,8 +598,14 @@
               <select
                 name="patientId"
                 [(ngModel)]="consultation.patientId"
+                (ngModelChange)="onPatientChange()"
                 required
-                [disabled]="isSaving"
+                [disabled]="
+                  isSaving ||
+                  !canSaveConsultation ||
+                  consultation.status === 'Completed' ||
+                  consultation.status === 'Cancelled'
+                "
               >
 
                 <option value="">
@@ -630,8 +675,14 @@
               <select
                 name="doctorId"
                 [(ngModel)]="consultation.doctorId"
+                (ngModelChange)="onDoctorChange()"
                 required
-                [disabled]="isSaving"
+                [disabled]="
+                  isSaving ||
+                  !canSaveConsultation ||
+                  consultation.status === 'Completed' ||
+                  consultation.status === 'Cancelled'
+                "
               >
 
                 <option value="">
@@ -698,7 +749,7 @@
           </div>
 
 
-          <!-- CONSULTATION DATE -->
+          <!-- DATE -->
 
           <div class="form-group">
 
@@ -711,13 +762,18 @@
               name="consultationDate"
               [(ngModel)]="consultation.consultationDate"
               required
-              [disabled]="isSaving"
+              [disabled]="
+                isSaving ||
+                !canSaveConsultation ||
+                consultation.status === 'Completed' ||
+                consultation.status === 'Cancelled'
+              "
             />
 
           </div>
 
 
-          <!-- CONSULTATION TIME -->
+          <!-- TIME -->
 
           <div class="form-group">
 
@@ -730,7 +786,12 @@
               name="consultationTime"
               [(ngModel)]="consultation.consultationTime"
               required
-              [disabled]="isSaving"
+              [disabled]="
+                isSaving ||
+                !canSaveConsultation ||
+                consultation.status === 'Completed' ||
+                consultation.status === 'Cancelled'
+              "
             />
 
           </div>
@@ -800,7 +861,7 @@
 
               <p>
                 Consultation, laboratory and pharmacy charges
-                are handled through their respective billing workflow.
+                are consolidated through the shared billing workflow.
               </p>
 
             </div>
@@ -835,7 +896,7 @@
             </h2>
 
             <p>
-              Record the patient's clinical presentation.
+              Record and update the patient's clinical presentation.
             </p>
 
           </div>
@@ -862,6 +923,7 @@
               required
               [disabled]="
                 isSaving ||
+                !canSaveConsultation ||
                 consultation.status === 'Completed' ||
                 consultation.status === 'Cancelled'
               "
@@ -885,6 +947,7 @@
               rows="4"
               [disabled]="
                 isSaving ||
+                !canSaveConsultation ||
                 consultation.status === 'Completed' ||
                 consultation.status === 'Cancelled'
               "
@@ -908,6 +971,7 @@
               rows="3"
               [disabled]="
                 isSaving ||
+                !canSaveConsultation ||
                 consultation.status === 'Completed' ||
                 consultation.status === 'Cancelled'
               "
@@ -931,6 +995,7 @@
               rows="5"
               [disabled]="
                 isSaving ||
+                !canSaveConsultation ||
                 consultation.status === 'Completed' ||
                 consultation.status === 'Cancelled'
               "
@@ -954,6 +1019,7 @@
               rows="4"
               [disabled]="
                 isSaving ||
+                !canSaveConsultation ||
                 consultation.status === 'Completed' ||
                 consultation.status === 'Cancelled'
               "
@@ -997,12 +1063,26 @@
         </div>
 
 
+        @if (!canUpdateConsultation) {
+
+          <div class="permission-notice">
+
+            <span class="material-symbols-outlined">
+              lock
+            </span>
+
+            <span>
+              You do not have permission to modify laboratory requests.
+            </span>
+
+          </div>
+
+        }
+
+
         <div class="laboratory-entry">
 
           <div class="laboratory-entry-grid">
-
-
-            <!-- TEST -->
 
             <div class="form-group laboratory-test-field">
 
@@ -1015,6 +1095,7 @@
                 [(ngModel)]="selectedLaboratoryTestId"
                 [disabled]="
                   isSaving ||
+                  !canUpdateConsultation ||
                   consultation.status === 'Completed' ||
                   consultation.status === 'Cancelled'
                 "
@@ -1050,8 +1131,6 @@
             </div>
 
 
-            <!-- NOTES -->
-
             <div class="form-group laboratory-notes-field">
 
               <label>
@@ -1065,6 +1144,7 @@
                 placeholder="Reason for test or special instructions..."
                 [disabled]="
                   isSaving ||
+                  !canUpdateConsultation ||
                   consultation.status === 'Completed' ||
                   consultation.status === 'Cancelled'
                 "
@@ -1074,14 +1154,10 @@
 
           </div>
 
-
-          <!-- SELECTED TEST -->
-
-          @if (
-            getSelectedLaboratoryTest();
-            as selectedTest
-          ) {
-
+@if (
+  getSelectedLaboratoryTest();
+  as selectedTest
+) {
             <div class="selected-laboratory-test">
 
               <div class="selected-test-icon">
@@ -1118,17 +1194,13 @@
 
 
               <strong class="selected-test-price">
-
                 {{ formatCurrency(selectedTest.price) }}
-
               </strong>
 
             </div>
 
           }
 
-
-          <!-- ADD TEST -->
 
           <div class="laboratory-entry-actions">
 
@@ -1138,6 +1210,7 @@
               (click)="addLaboratoryTest()"
               [disabled]="
                 isSaving ||
+                !canUpdateConsultation ||
                 consultation.status === 'Completed' ||
                 consultation.status === 'Cancelled'
               "
@@ -1156,8 +1229,6 @@
         </div>
 
 
-        <!-- REQUESTED TESTS -->
-
         <div class="laboratory-list">
 
           <div class="laboratory-list-header">
@@ -1169,15 +1240,12 @@
               </h3>
 
               <p>
-
                 {{ laboratoryRequests.length }}
-
                 test{{
                   laboratoryRequests.length === 1
                     ? ''
                     : 's'
                 }}
-
               </p>
 
             </div>
@@ -1188,10 +1256,8 @@
             ) {
 
               <strong class="laboratory-total">
-
                 Total:
                 {{ formatCurrency(laboratoryTotal) }}
-
               </strong>
 
             }
@@ -1264,7 +1330,6 @@
 
                 <div class="laboratory-table-row">
 
-
                   <div class="laboratory-test-cell">
 
                     <div class="laboratory-test-icon">
@@ -1322,15 +1387,19 @@
 
                     <span
                       class="laboratory-status"
+
                       [class.pending]="
                         request.status === 'Pending'
                       "
+
                       [class.in-progress]="
                         request.status === 'In Progress'
                       "
+
                       [class.completed]="
                         request.status === 'Completed'
                       "
+
                       [class.cancelled]="
                         request.status === 'Cancelled'
                       "
@@ -1345,24 +1414,33 @@
 
                   <div class="laboratory-table-action">
 
-                    <button
-                      type="button"
-                      class="remove-laboratory-button"
-                      (click)="removeLaboratoryTest(request.id)"
-                      [disabled]="
-                        isSaving ||
-                        typeof request.id === 'number' ||
-                        consultation.status === 'Completed' ||
-                        consultation.status === 'Cancelled'
-                      "
-                      title="Remove laboratory test"
-                    >
+                    @if (
+                      canUpdateConsultation &&
+                      request.id !== undefined &&
+                      typeof request.id !== 'number'
+                    ) {
 
-                      <span class="material-symbols-outlined">
-                        delete
+                      <button
+                        type="button"
+                        class="remove-laboratory-button"
+                        (click)="removeLaboratoryTest(request.id)"
+                        [disabled]="isSaving"
+                        title="Remove laboratory test"
+                      >
+
+                        <span class="material-symbols-outlined">
+                          delete
+                        </span>
+
+                      </button>
+
+                    } @else {
+
+                      <span class="readonly-action">
+                        —
                       </span>
 
-                    </button>
+                    }
 
                   </div>
 
@@ -1376,8 +1454,6 @@
 
         </div>
 
-
-        <!-- LAB WORKFLOW NOTICE -->
 
         @if (
           laboratoryRequests.length > 0
@@ -1397,8 +1473,8 @@
 
               <p>
                 Saved laboratory requests are sent to the
-                Laboratory Queue. When all requested tests are
-                completed, the consultation becomes
+                Laboratory Queue. When all requested tests
+                are completed, the consultation becomes
                 <strong>Ready For Review</strong>.
               </p>
 
@@ -1412,7 +1488,7 @@
 
 
       <!-- ============================================== -->
-      <!-- PRESCRIPTION / PHARMACY -->
+      <!-- PRESCRIPTION -->
       <!-- ============================================== -->
 
       <section class="form-card pharmacy-prescription-card">
@@ -1442,7 +1518,22 @@
         </div>
 
 
-        <!-- ADD MEDICINE -->
+        @if (!canUpdateConsultation) {
+
+          <div class="permission-notice">
+
+            <span class="material-symbols-outlined">
+              lock
+            </span>
+
+            <span>
+              You do not have permission to modify the prescription.
+            </span>
+
+          </div>
+
+        }
+
 
         <div class="prescription-entry">
 
@@ -1462,6 +1553,7 @@
                 [(ngModel)]="selectedMedicineId"
                 [disabled]="
                   isSaving ||
+                  !canUpdateConsultation ||
                   consultation.status === 'Completed' ||
                   consultation.status === 'Cancelled'
                 "
@@ -1514,6 +1606,7 @@
                 step="1"
                 [disabled]="
                   isSaving ||
+                  !canUpdateConsultation ||
                   consultation.status === 'Completed' ||
                   consultation.status === 'Cancelled'
                 "
@@ -1537,6 +1630,7 @@
                 placeholder="e.g. 1 tablet"
                 [disabled]="
                   isSaving ||
+                  !canUpdateConsultation ||
                   consultation.status === 'Completed' ||
                   consultation.status === 'Cancelled'
                 "
@@ -1560,6 +1654,7 @@
                 placeholder="e.g. Twice daily"
                 [disabled]="
                   isSaving ||
+                  !canUpdateConsultation ||
                   consultation.status === 'Completed' ||
                   consultation.status === 'Cancelled'
                 "
@@ -1583,6 +1678,7 @@
                 placeholder="e.g. 5 days"
                 [disabled]="
                   isSaving ||
+                  !canUpdateConsultation ||
                   consultation.status === 'Completed' ||
                   consultation.status === 'Cancelled'
                 "
@@ -1606,6 +1702,7 @@
                 placeholder="Special instructions for the patient..."
                 [disabled]="
                   isSaving ||
+                  !canUpdateConsultation ||
                   consultation.status === 'Completed' ||
                   consultation.status === 'Cancelled'
                 "
@@ -1624,6 +1721,7 @@
               (click)="addMedicine()"
               [disabled]="
                 isSaving ||
+                !canUpdateConsultation ||
                 consultation.status === 'Completed' ||
                 consultation.status === 'Cancelled'
               "
@@ -1642,8 +1740,6 @@
         </div>
 
 
-        <!-- PRESCRIBED MEDICINES -->
-
         <div class="prescription-list">
 
           <div class="prescription-list-header">
@@ -1655,15 +1751,12 @@
               </h3>
 
               <p>
-
                 {{ prescribedMedicines.length }}
-
                 medicine{{
                   prescribedMedicines.length === 1
                     ? ''
                     : 's'
                 }}
-
               </p>
 
             </div>
@@ -1755,8 +1848,6 @@
                 <div class="prescription-table-row">
 
 
-                  <!-- MEDICINE -->
-
                   <div class="prescription-medicine">
 
                     <div class="prescription-medicine-icon">
@@ -1786,8 +1877,6 @@
                   </div>
 
 
-                  <!-- QUANTITY -->
-
                   <div class="prescription-table-cell">
 
                     <strong>
@@ -1801,8 +1890,6 @@
                   </div>
 
 
-                  <!-- DOSAGE -->
-
                   <div class="prescription-table-cell">
 
                     <span>
@@ -1811,8 +1898,6 @@
 
                   </div>
 
-
-                  <!-- FREQUENCY -->
 
                   <div class="prescription-table-cell">
 
@@ -1823,8 +1908,6 @@
                   </div>
 
 
-                  <!-- DURATION -->
-
                   <div class="prescription-table-cell">
 
                     <span>
@@ -1833,8 +1916,6 @@
 
                   </div>
 
-
-                  <!-- TOTAL -->
 
                   <div class="prescription-table-cell">
 
@@ -1845,27 +1926,37 @@
                   </div>
 
 
-                  <!-- ACTION -->
-
                   <div class="prescription-table-action">
 
-                    <button
-                      type="button"
-                      class="remove-medicine-button"
-                      (click)="removeMedicine(medicine.medicineId)"
-                      [disabled]="
-                        isSaving ||
-                        consultation.status === 'Completed' ||
-                        consultation.status === 'Cancelled'
-                      "
-                      title="Remove medicine"
-                    >
+                    @if (
+                      canUpdateConsultation
+                    ) {
 
-                      <span class="material-symbols-outlined">
-                        delete
+                      <button
+                        type="button"
+                        class="remove-medicine-button"
+                        (click)="removeMedicine(medicine.medicineId)"
+                        [disabled]="
+                          isSaving ||
+                          consultation.status === 'Completed' ||
+                          consultation.status === 'Cancelled'
+                        "
+                        title="Remove medicine"
+                      >
+
+                        <span class="material-symbols-outlined">
+                          delete
+                        </span>
+
+                      </button>
+
+                    } @else {
+
+                      <span class="readonly-action">
+                        —
                       </span>
 
-                    </button>
+                    }
 
                   </div>
 
@@ -1895,6 +1986,7 @@
             rows="3"
             [disabled]="
               isSaving ||
+              !canUpdateConsultation ||
               consultation.status === 'Completed' ||
               consultation.status === 'Cancelled'
             "
@@ -1981,6 +2073,7 @@
               [(ngModel)]="consultation.followUpDate"
               [disabled]="
                 isSaving ||
+                !canSaveConsultation ||
                 consultation.status === 'Completed' ||
                 consultation.status === 'Cancelled'
               "
@@ -2107,13 +2200,15 @@
 
 
       <!-- ============================================== -->
-      <!-- ACTIONS -->
+      <!-- FINAL ACTIONS -->
       <!-- ============================================== -->
 
       <div class="form-actions">
 
 
+        <!-- ============================================ -->
         <!-- CANCEL -->
+        <!-- ============================================ -->
 
         <button
           type="button"
@@ -2136,6 +2231,7 @@
         <!-- ============================================ -->
 
         @if (
+          canSaveConsultation &&
           consultation.status !== 'Completed' &&
           consultation.status !== 'Cancelled'
         ) {
@@ -2157,7 +2253,11 @@
 
             } @else {
 
-              Save Progress
+              {{
+                isEditMode
+                  ? 'Save Progress'
+                  : 'Save Consultation'
+              }}
 
             }
 
@@ -2167,17 +2267,19 @@
 
 
         <!-- ============================================ -->
-        <!-- COMPLETE -->
+        <!-- COMPLETE CONSULTATION -->
         <!-- ============================================ -->
 
         @if (
-          consultation.status === 'Open'
+          canSeeCompleteButton
         ) {
 
           <button
             type="button"
             class="complete-button"
+
             (click)="completeConsultation()"
+
             [disabled]="
               isSaving ||
               !canCompleteConsultation
@@ -2188,9 +2290,118 @@
               check_circle
             </span>
 
-            Complete Consultation
+            @if (isSaving) {
+
+              Completing...
+
+            } @else {
+
+              Complete Consultation
+
+            }
 
           </button>
+
+        }
+
+
+        <!-- ============================================ -->
+        <!-- COMPLETION REQUIREMENTS -->
+        <!-- ============================================ -->
+
+        @if (
+          canSeeCompleteButton &&
+          !canCompleteConsultation
+        ) {
+
+          <div class="completion-requirements">
+
+            <span class="material-symbols-outlined">
+              info
+            </span>
+
+            <div>
+
+              <strong>
+                Consultation Not Ready for Completion
+              </strong>
+
+              <ul>
+
+                @if (
+                  !hasPermission('CONSULTATION_COMPLETE')
+                ) {
+
+                  <li>
+                    Your account does not have permission
+                    to complete consultations.
+                  </li>
+
+                }
+
+
+                @if (
+                  !consultation.diagnosis.trim()
+                ) {
+
+                  <li>
+                    Final diagnosis is required.
+                  </li>
+
+                }
+
+
+                @if (
+                  !consultation.treatmentPlan.trim()
+                ) {
+
+                  <li>
+                    Final treatment plan is required.
+                  </li>
+
+                }
+
+
+                @if (
+                  consultation.hasLaboratoryRequests &&
+                  !consultation.hasLaboratoryResults
+                ) {
+
+                  <li>
+                    Laboratory results must be available.
+                  </li>
+
+                }
+
+
+                @if (
+                  consultation.hasLaboratoryRequests &&
+                  consultation.hasLaboratoryResults &&
+                  !consultation.laboratoryResultsReviewed
+                ) {
+
+                  <li>
+                    Laboratory results must be reviewed.
+                  </li>
+
+                }
+
+
+                @if (
+                  hasUnsavedLaboratoryRequests
+                ) {
+
+                  <li>
+                    Save Progress before completing the consultation.
+                  </li>
+
+                }
+
+              </ul>
+
+            </div>
+
+          </div>
 
         }
 
@@ -2200,8 +2411,7 @@
         <!-- ============================================ -->
 
         @if (
-          consultation.status ===
-          'Ready For Review'
+          consultation.status === 'Ready For Review'
         ) {
 
           <div class="workflow-action-message">
@@ -2217,7 +2427,8 @@
               </strong>
 
               <span>
-                Review the laboratory results above.
+                Review the laboratory results above before continuing
+                to final diagnosis and treatment.
               </span>
 
             </div>
@@ -2232,8 +2443,7 @@
         <!-- ============================================ -->
 
         @if (
-          consultation.status ===
-          'Pending Results'
+          consultation.status === 'Pending Results'
         ) {
 
           <div class="workflow-action-message">
@@ -2249,8 +2459,8 @@
               </strong>
 
               <span>
-                The consultation will continue after all requested
-                laboratory tests are completed.
+                The consultation cannot be completed until the
+                requested laboratory tests are completed.
               </span>
 
             </div>
@@ -2265,8 +2475,7 @@
         <!-- ============================================ -->
 
         @if (
-          consultation.status ===
-          'Completed'
+          consultation.status === 'Completed'
         ) {
 
           <div class="workflow-action-message completed-message">
@@ -2297,8 +2506,7 @@
         <!-- ============================================ -->
 
         @if (
-          consultation.status ===
-          'Cancelled'
+          consultation.status === 'Cancelled'
         ) {
 
           <div class="workflow-action-message cancelled-message">
@@ -2314,7 +2522,7 @@
               </strong>
 
               <span>
-                This consultation is cancelled.
+                Reopen the consultation before making changes.
               </span>
 
             </div>

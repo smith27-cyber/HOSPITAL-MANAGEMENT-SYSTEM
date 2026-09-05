@@ -1,8 +1,29 @@
+// =====================================================
+// ADMISSION SERVICE
+// File:
+// src/app/features/admissions/services/admission.service.ts
+// =====================================================
+
 import { Injectable } from '@angular/core';
 
 import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpParams
+} from '@angular/common/http';
+
+import {
+  Observable,
+  catchError,
+  forkJoin,
+  throwError
+} from 'rxjs';
+
+import {
   Admission,
-  AdmissionStatus
+  AdmissionStatus,
+  AdmissionType,
+  WardType
 } from '../../shared/models/admission.model';
 
 
@@ -13,55 +34,51 @@ export class AdmissionService {
 
 
   // =====================================================
-  // STORAGE KEY
+  // API URL
   // =====================================================
 
-  private readonly storageKey =
-    'hms_admissions';
-
-
-  // =====================================================
-  // DATA
-  // =====================================================
-
-  private admissions: Admission[] = [];
+  private readonly API_URL =
+    'http://localhost:8081/api/admissions';
 
 
   // =====================================================
   // CONSTRUCTOR
   // =====================================================
 
-  constructor() {
-
-    this.loadAdmissions();
-
-  }
+  constructor(
+    private readonly http: HttpClient
+  ) {}
 
 
   // =====================================================
   // GET ALL ADMISSIONS
+  // GET /api/admissions
   // =====================================================
 
-  getAdmissions(): Admission[] {
+  getAdmissions(): Observable<Admission[]> {
 
-    return [
-      ...this.admissions
-    ];
+    return this.http.get<Admission[]>(
+      this.API_URL
+    ).pipe(
+      catchError(this.handleError)
+    );
 
   }
 
 
   // =====================================================
   // GET ADMISSION BY ID
+  // GET /api/admissions/{id}
   // =====================================================
 
   getAdmissionById(
     id: string
-  ): Admission | undefined {
+  ): Observable<Admission> {
 
-    return this.admissions.find(
-      admission =>
-        admission.id === id
+    return this.http.get<Admission>(
+      `${this.API_URL}/${encodeURIComponent(id)}`
+    ).pipe(
+      catchError(this.handleError)
     );
 
   }
@@ -69,284 +86,365 @@ export class AdmissionService {
 
   // =====================================================
   // ADD ADMISSION
+  // POST /api/admissions
   // =====================================================
 
   addAdmission(
     admission: Admission
-  ): void {
+  ): Observable<Admission> {
 
-    this.admissions.push({
-      ...admission
-    });
-
-    this.saveAdmissions();
+    return this.http.post<Admission>(
+      this.API_URL,
+      admission
+    ).pipe(
+      catchError(this.handleError)
+    );
 
   }
 
 
   // =====================================================
   // UPDATE ADMISSION
+  // PUT /api/admissions/{id}
   // =====================================================
 
   updateAdmission(
-    updatedAdmission: Admission
-  ): boolean {
+    admission: Admission
+  ): Observable<Admission> {
 
-    const index =
-      this.admissions.findIndex(
-        admission =>
-          admission.id ===
-          updatedAdmission.id
-      );
-
-
-    if (index === -1) {
-
-      return false;
-
-    }
-
-
-    this.admissions[index] = {
-
-      ...updatedAdmission,
-
-      updatedAt:
-        new Date().toISOString()
-
-    };
-
-
-    this.saveAdmissions();
-
-
-    return true;
+    return this.http.put<Admission>(
+      `${this.API_URL}/${encodeURIComponent(admission.id)}`,
+      admission
+    ).pipe(
+      catchError(this.handleError)
+    );
 
   }
 
 
   // =====================================================
   // DELETE ADMISSION
+  // DELETE /api/admissions/{id}
   // =====================================================
 
   deleteAdmission(
     id: string
-  ): boolean {
+  ): Observable<void> {
 
-    const originalLength =
-      this.admissions.length;
-
-
-    this.admissions =
-      this.admissions.filter(
-        admission =>
-          admission.id !== id
-      );
-
-
-    if (
-      this.admissions.length ===
-      originalLength
-    ) {
-
-      return false;
-
-    }
-
-
-    this.saveAdmissions();
-
-
-    return true;
+    return this.http.delete<void>(
+      `${this.API_URL}/${encodeURIComponent(id)}`
+    ).pipe(
+      catchError(this.handleError)
+    );
 
   }
 
 
   // =====================================================
   // UPDATE STATUS
+  // PATCH /api/admissions/{id}/status
   // =====================================================
 
   updateAdmissionStatus(
     id: string,
     status: AdmissionStatus
-  ): boolean {
+  ): Observable<Admission> {
 
-    const admission =
-      this.getAdmissionById(id);
+    const params =
+      new HttpParams().set(
+        'status',
+        status
+      );
+
+    return this.http.patch<Admission>(
+      `${this.API_URL}/${encodeURIComponent(id)}/status`,
+      null,
+      { params }
+    ).pipe(
+      catchError(this.handleError)
+    );
+
+  }
 
 
-    if (!admission) {
+  // =====================================================
+  // DISCHARGE ADMISSION
+  // PATCH /api/admissions/{id}/discharge
+  // =====================================================
 
-      return false;
+  dischargeAdmission(
+    id: string
+  ): Observable<Admission> {
+
+    return this.http.patch<Admission>(
+      `${this.API_URL}/${encodeURIComponent(id)}/discharge`,
+      null
+    ).pipe(
+      catchError(this.handleError)
+    );
+
+  }
+
+
+  // =====================================================
+  // TRANSFER ADMISSION
+  // PATCH /api/admissions/{id}/transfer
+  // =====================================================
+
+  transferAdmission(
+    id: string,
+    ward: WardType,
+    bedNumber?: string
+  ): Observable<Admission> {
+
+    let params =
+      new HttpParams().set(
+        'ward',
+        ward
+      );
+
+    if (bedNumber?.trim()) {
+
+      params =
+        params.set(
+          'bedNumber',
+          bedNumber.trim()
+        );
 
     }
 
+    return this.http.patch<Admission>(
+      `${this.API_URL}/${encodeURIComponent(id)}/transfer`,
+      null,
+      { params }
+    ).pipe(
+      catchError(this.handleError)
+    );
 
-    admission.status =
-      status;
-
-
-    if (
-      status === 'Discharged'
-    ) {
-
-      admission.dischargeDate =
-        new Date().toISOString();
-
-    }
+  }
 
 
-    this.saveAdmissions();
+  // =====================================================
+  // CANCEL ADMISSION
+  // PATCH /api/admissions/{id}/cancel
+  // =====================================================
 
+  cancelAdmission(
+    id: string
+  ): Observable<Admission> {
 
-    return true;
+    return this.http.patch<Admission>(
+      `${this.API_URL}/${encodeURIComponent(id)}/cancel`,
+      null
+    ).pipe(
+      catchError(this.handleError)
+    );
 
   }
 
 
   // =====================================================
   // GET BY PATIENT
+  // GET /api/admissions/patient/{patientId}
   // =====================================================
 
   getAdmissionsByPatient(
     patientId: string
-  ): Admission[] {
+  ): Observable<Admission[]> {
 
-    return this.admissions.filter(
-      admission =>
-        admission.patientId ===
-        patientId
+    return this.http.get<Admission[]>(
+      `${this.API_URL}/patient/${encodeURIComponent(patientId)}`
+    ).pipe(
+      catchError(this.handleError)
     );
 
   }
 
 
   // =====================================================
-  // GET ACTIVE ADMISSIONS
+  // GET ACTIVE ADMISSION BY PATIENT
+  // GET /api/admissions/patient/{patientId}/active
   // =====================================================
 
-  getActiveAdmissions(): Admission[] {
+  getActiveAdmission(
+    patientId: string
+  ): Observable<Admission> {
 
-    return this.admissions.filter(
-      admission =>
-        admission.status ===
-        'Admitted'
+    return this.http.get<Admission>(
+      `${this.API_URL}/patient/${encodeURIComponent(patientId)}/active`
+    ).pipe(
+      catchError(this.handleError)
     );
 
   }
 
 
   // =====================================================
-  // GET DISCHARGED
+  // GET BY STATUS
+  // GET /api/admissions/status/{status}
   // =====================================================
 
-  getDischargedAdmissions(): Admission[] {
+  getAdmissionsByStatus(
+    status: AdmissionStatus
+  ): Observable<Admission[]> {
 
-    return this.admissions.filter(
-      admission =>
-        admission.status ===
-        'Discharged'
+    return this.http.get<Admission[]>(
+      `${this.API_URL}/status/${status}`
+    ).pipe(
+      catchError(this.handleError)
     );
 
   }
 
 
   // =====================================================
-  // GET TRANSFERRED
+  // GET BY DOCTOR
+  // GET /api/admissions/doctor/{doctorId}
   // =====================================================
 
-  getTransferredAdmissions(): Admission[] {
+  getAdmissionsByDoctor(
+    doctorId: string
+  ): Observable<Admission[]> {
 
-    return this.admissions.filter(
-      admission =>
-        admission.status ===
-        'Transferred'
+    return this.http.get<Admission[]>(
+      `${this.API_URL}/doctor/${encodeURIComponent(doctorId)}`
+    ).pipe(
+      catchError(this.handleError)
     );
 
   }
 
 
   // =====================================================
-  // GET CANCELLED
+  // GET BY DEPARTMENT
+  // GET /api/admissions/department/{departmentId}
   // =====================================================
 
-  getCancelledAdmissions(): Admission[] {
+  getAdmissionsByDepartment(
+    departmentId: string
+  ): Observable<Admission[]> {
 
-    return this.admissions.filter(
-      admission =>
-        admission.status ===
-        'Cancelled'
+    return this.http.get<Admission[]>(
+      `${this.API_URL}/department/${encodeURIComponent(departmentId)}`
+    ).pipe(
+      catchError(this.handleError)
     );
 
   }
 
 
   // =====================================================
-  // SAVE
+  // GET ACTIVE ADMISSIONS BY WARD
+  // GET /api/admissions/ward/{ward}/active
   // =====================================================
 
-  private saveAdmissions(): void {
+  getActiveAdmissionsByWard(
+    ward: WardType
+  ): Observable<Admission[]> {
 
-    localStorage.setItem(
-      this.storageKey,
-      JSON.stringify(
-        this.admissions
-      )
+    return this.http.get<Admission[]>(
+      `${this.API_URL}/ward/${ward}/active`
+    ).pipe(
+      catchError(this.handleError)
     );
 
   }
 
+// =====================================================
+// GET ADMISSION STATISTICS
+// =====================================================
+
+getStatistics(): Observable<{
+  total: number;
+  active: number;
+  discharged: number;
+  transferred: number;
+  cancelled: number;
+}> {
+
+  return forkJoin({
+    total: this.http.get<number>(
+      `${this.API_URL}/statistics/count`
+    ),
+
+    active: this.http.get<number>(
+      `${this.API_URL}/statistics/active`
+    ),
+
+    discharged: this.http.get<number>(
+      `${this.API_URL}/statistics/discharged`
+    ),
+
+    transferred: this.http.get<number>(
+      `${this.API_URL}/statistics/transferred`
+    ),
+
+    cancelled: this.http.get<number>(
+      `${this.API_URL}/statistics/cancelled`
+    )
+  }).pipe(
+    catchError(this.handleError)
+  );
+
+}
 
   // =====================================================
-  // LOAD
+  // ERROR HANDLER
   // =====================================================
 
-  private loadAdmissions(): void {
+  private handleError(
+    error: HttpErrorResponse
+  ) {
 
-    const stored =
-      localStorage.getItem(
-        this.storageKey
-      );
+    let message =
+      'An unexpected error occurred.';
 
+    if (error.error instanceof ErrorEvent) {
 
-    if (!stored) {
+      message =
+        `Network error: ${error.error.message}`;
 
-      this.admissions = [];
+    } else if (error.status === 0) {
 
-      return;
+      message =
+        'Unable to connect to the HMS backend. ' +
+        'Please make sure Spring Boot is running on port 8081.';
+
+    } else if (error.error?.message) {
+
+      message =
+        error.error.message;
+
+    } else if (typeof error.error === 'string') {
+
+      message =
+        error.error;
+
+    } else if (error.status === 404) {
+
+      message =
+        'Admission record was not found.';
+
+    } else if (error.status === 409) {
+
+      message =
+        'The admission request conflicts with existing data.';
+
+    } else if (error.status >= 400) {
+
+      message =
+        `Request failed with HTTP ${error.status}.`;
 
     }
 
+    console.error(
+      'AdmissionService error:',
+      error
+    );
 
-    try {
-
-      const parsed =
-        JSON.parse(stored);
-
-
-      if (
-        Array.isArray(parsed)
-      ) {
-
-        this.admissions =
-          parsed;
-
-      } else {
-
-        this.admissions = [];
-
-      }
-
-    } catch (error) {
-
-      console.error(
-        'Failed to load admissions:',
-        error
-      );
-
-      this.admissions = [];
-
-    }
+    return throwError(
+      () => new Error(message)
+    );
 
   }
 

@@ -7,6 +7,8 @@ import com.hms.backend.service.LaboratoryRequestService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,7 +26,8 @@ public class LaboratoryRequestController {
     // =====================================================
 
     public LaboratoryRequestController(
-            LaboratoryRequestService laboratoryRequestService) {
+            LaboratoryRequestService laboratoryRequestService
+    ) {
 
         this.laboratoryRequestService =
                 laboratoryRequestService;
@@ -34,7 +37,16 @@ public class LaboratoryRequestController {
     // =====================================================
     // GET ALL REQUESTS
     // =====================================================
+    //
+    // Permission:
+    //
+    // LABORATORY_REQUEST_VIEW
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('LABORATORY_REQUEST_VIEW')"
+    )
     @GetMapping
     public ResponseEntity<List<LaboratoryRequest>>
     getAllRequests() {
@@ -49,11 +61,21 @@ public class LaboratoryRequestController {
     // =====================================================
     // GET REQUEST BY ID
     // =====================================================
+    //
+    // Permission:
+    //
+    // LABORATORY_REQUEST_VIEW
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('LABORATORY_REQUEST_VIEW')"
+    )
     @GetMapping("/{id}")
     public ResponseEntity<LaboratoryRequest>
     getRequestById(
-            @PathVariable Long id) {
+            @PathVariable Long id
+    ) {
 
         return laboratoryRequestService
                 .getRequestById(id)
@@ -69,11 +91,21 @@ public class LaboratoryRequestController {
     // =====================================================
     // CREATE REQUEST
     // =====================================================
+    //
+    // Permission:
+    //
+    // LABORATORY_REQUEST_CREATE
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('LABORATORY_REQUEST_CREATE')"
+    )
     @PostMapping
     public ResponseEntity<LaboratoryRequest>
     createRequest(
-            @RequestBody LaboratoryRequest request) {
+            @RequestBody LaboratoryRequest request
+    ) {
 
         try {
 
@@ -97,12 +129,22 @@ public class LaboratoryRequestController {
     // =====================================================
     // UPDATE REQUEST
     // =====================================================
+    //
+    // Permission:
+    //
+    // LABORATORY_REQUEST_UPDATE
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('LABORATORY_REQUEST_UPDATE')"
+    )
     @PutMapping("/{id}")
     public ResponseEntity<LaboratoryRequest>
     updateRequest(
             @PathVariable Long id,
-            @RequestBody LaboratoryRequest request) {
+            @RequestBody LaboratoryRequest request
+    ) {
 
         try {
 
@@ -142,19 +184,21 @@ public class LaboratoryRequestController {
     // UPDATE REQUEST STATUS
     // =====================================================
     //
-    // Returns the UPDATED LaboratoryRequest directly.
+    // Permission:
     //
-    // PATCH:
-    //
-    // /api/laboratory/requests/{id}/status?status=In%20Progress
+    // LABORATORY_REQUEST_UPDATE
     //
     // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('LABORATORY_REQUEST_UPDATE')"
+    )
     @PatchMapping("/{id}/status")
     public ResponseEntity<LaboratoryRequest>
     updateRequestStatus(
             @PathVariable Long id,
-            @RequestParam String status) {
+            @RequestParam String status
+    ) {
 
         try {
 
@@ -201,21 +245,28 @@ public class LaboratoryRequestController {
     // COMPLETE REQUEST
     // =====================================================
     //
-    // Dedicated laboratory completion endpoint.
+    // Permission:
     //
-    // PATCH:
+    // LABORATORY_REQUEST_UPDATE
     //
-    // /api/laboratory/requests/{id}/complete
+    // NOTE:
     //
-    // The service verifies that a result exists before
-    // completing the laboratory request.
+    // Completion is not the same as entering the result.
+    //
+    // The result-entry endpoint should separately require:
+    //
+    // LABORATORY_RESULT_ENTER
     //
     // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('LABORATORY_REQUEST_UPDATE')"
+    )
     @PatchMapping("/{id}/complete")
     public ResponseEntity<LaboratoryRequest>
     completeRequest(
-            @PathVariable Long id) {
+            @PathVariable Long id
+    ) {
 
         try {
 
@@ -251,11 +302,23 @@ public class LaboratoryRequestController {
     // =====================================================
     // DELETE REQUEST
     // =====================================================
+    //
+    // Permission:
+    //
+    // LABORATORY_REQUEST_UPDATE
+    //
+    // The service still protects completed requests.
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('LABORATORY_REQUEST_UPDATE')"
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void>
     deleteRequest(
-            @PathVariable Long id) {
+            @PathVariable Long id
+    ) {
 
         try {
 
@@ -284,11 +347,21 @@ public class LaboratoryRequestController {
     // =====================================================
     // GET REQUESTS BY PATIENT
     // =====================================================
+    //
+    // Permission:
+    //
+    // LABORATORY_REQUEST_VIEW
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('LABORATORY_REQUEST_VIEW')"
+    )
     @GetMapping("/patient/{patientId}")
     public ResponseEntity<List<LaboratoryRequest>>
     getRequestsByPatient(
-            @PathVariable String patientId) {
+            @PathVariable String patientId
+    ) {
 
         return ResponseEntity.ok(
                 laboratoryRequestService
@@ -302,11 +375,21 @@ public class LaboratoryRequestController {
     // =====================================================
     // GET REQUESTS BY CONSULTATION
     // =====================================================
+    //
+    // Permission:
+    //
+    // LABORATORY_REQUEST_VIEW
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('LABORATORY_REQUEST_VIEW')"
+    )
     @GetMapping("/consultation/{consultationId}")
     public ResponseEntity<List<LaboratoryRequest>>
     getRequestsByConsultation(
-            @PathVariable String consultationId) {
+            @PathVariable String consultationId
+    ) {
 
         return ResponseEntity.ok(
                 laboratoryRequestService
@@ -320,11 +403,21 @@ public class LaboratoryRequestController {
     // =====================================================
     // GET REQUESTS BY STATUS
     // =====================================================
+    //
+    // Permission:
+    //
+    // LABORATORY_REQUEST_VIEW
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('LABORATORY_REQUEST_VIEW')"
+    )
     @GetMapping("/status/{status}")
     public ResponseEntity<List<LaboratoryRequest>>
     getRequestsByStatus(
-            @PathVariable String status) {
+            @PathVariable String status
+    ) {
 
         return ResponseEntity.ok(
                 laboratoryRequestService
@@ -338,11 +431,21 @@ public class LaboratoryRequestController {
     // =====================================================
     // GET COMPLETED REQUESTS BY PATIENT
     // =====================================================
+    //
+    // Permission:
+    //
+    // LABORATORY_REQUEST_VIEW
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('LABORATORY_REQUEST_VIEW')"
+    )
     @GetMapping("/patient/{patientId}/completed")
     public ResponseEntity<List<LaboratoryRequest>>
     getCompletedRequestsByPatient(
-            @PathVariable String patientId) {
+            @PathVariable String patientId
+    ) {
 
         return ResponseEntity.ok(
                 laboratoryRequestService
@@ -356,11 +459,21 @@ public class LaboratoryRequestController {
     // =====================================================
     // GET COMPLETED REQUESTS BY CONSULTATION
     // =====================================================
+    //
+    // Permission:
+    //
+    // LABORATORY_REQUEST_VIEW
+    //
+    // =====================================================
 
+    @PreAuthorize(
+            "hasAuthority('LABORATORY_REQUEST_VIEW')"
+    )
     @GetMapping("/consultation/{consultationId}/completed")
     public ResponseEntity<List<LaboratoryRequest>>
     getCompletedRequestsByConsultation(
-            @PathVariable String consultationId) {
+            @PathVariable String consultationId
+    ) {
 
         return ResponseEntity.ok(
                 laboratoryRequestService

@@ -1,5 +1,13 @@
+<!-- =====================================================
+     HEADER
+     ===================================================== -->
 
 <header class="header">
+
+
+  <!-- ===================================================
+       LEFT
+       =================================================== -->
 
   <div class="header-left">
 
@@ -20,11 +28,11 @@
     <div class="page-title">
 
       <h1>
-        Dashboard
+        Hospital Management System
       </h1>
 
       <span>
-        Welcome back, Administrator
+        Welcome back, {{ fullName }}
       </span>
 
     </div>
@@ -32,7 +40,17 @@
   </div>
 
 
+
+  <!-- ===================================================
+       RIGHT
+       =================================================== -->
+
   <div class="header-right">
+
+
+    <!-- ================================================ -->
+    <!-- NOTIFICATIONS -->
+    <!-- ================================================ -->
 
     <button
       type="button"
@@ -49,31 +67,41 @@
     </button>
 
 
-    <div class="user-profile">
 
-      <div class="avatar">
-        A
-      </div>
+ <!-- ================================================ -->
+<!-- USER PROFILE -->
+<!-- ================================================ -->
 
-      <div class="user-info">
+<button
+  type="button"
+  class="user-profile"
+  aria-label="Open profile settings"
+  (click)="openProfileSettings()"
+>
 
-        <strong>
-          Administrator
-        </strong>
+  <div class="avatar">
+    {{ avatarInitials }}
+  </div>
 
-        <span>
-          System Admin
-        </span>
 
-      </div>
+  <div class="user-info">
 
-      <span class="material-symbols-outlined">
-        expand_more
-      </span>
+    <strong>
+      {{ fullName }}
+    </strong>
 
-    </div>
+    <span>
+      {{ role }}
+    </span>
 
   </div>
 
-</header>
 
+  <span class="material-symbols-outlined">
+    expand_more
+  </span>
+
+</button>
+  </div>
+
+</header>

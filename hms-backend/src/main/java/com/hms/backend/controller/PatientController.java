@@ -1,3 +1,9 @@
+// =====================================================
+// HMS PATIENT CONTROLLER
+// File:
+// src/main/java/com/hms/backend/controller/PatientController.java
+// =====================================================
+
 package com.hms.backend.controller;
 
 import com.hms.backend.entity.Patient;
@@ -5,6 +11,9 @@ import com.hms.backend.service.PatientService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +42,7 @@ public class PatientController {
     // GET ALL PATIENTS
     // =====================================================
 
+    @PreAuthorize("hasAuthority('PATIENT_VIEW')")
     @GetMapping
     public ResponseEntity<List<Patient>> getAllPatients() {
 
@@ -46,6 +56,7 @@ public class PatientController {
     // GET PATIENT BY ID
     // =====================================================
 
+    @PreAuthorize("hasAuthority('PATIENT_VIEW')")
     @GetMapping("/{id}")
     public ResponseEntity<Patient> getPatientById(
             @PathVariable String id
@@ -61,6 +72,7 @@ public class PatientController {
     // ADD PATIENT
     // =====================================================
 
+    @PreAuthorize("hasAuthority('PATIENT_CREATE')")
     @PostMapping
     public ResponseEntity<Patient> addPatient(
             @RequestBody Patient patient
@@ -79,6 +91,7 @@ public class PatientController {
     // UPDATE PATIENT
     // =====================================================
 
+    @PreAuthorize("hasAuthority('PATIENT_UPDATE')")
     @PutMapping("/{id}")
     public ResponseEntity<Patient> updatePatient(
             @PathVariable String id,
@@ -98,6 +111,7 @@ public class PatientController {
     // DELETE PATIENT
     // =====================================================
 
+    @PreAuthorize("hasAuthority('PATIENT_DELETE')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePatient(
             @PathVariable String id
@@ -115,6 +129,7 @@ public class PatientController {
     // UPDATE PATIENT STATUS
     // =====================================================
 
+    @PreAuthorize("hasAuthority('PATIENT_UPDATE')")
     @PatchMapping("/{id}/status")
     public ResponseEntity<Patient> updatePatientStatus(
             @PathVariable String id,
@@ -143,5 +158,4 @@ public class PatientController {
                 )
         );
     }
-
 }

@@ -1,6 +1,13 @@
+/* =====================================================
+   ADMISSION REGISTER PAGE
+   File:
+   src/app/features/admissions/admission-register/admission-register.css
+   ===================================================== */
+
 .admission-register-page {
   max-width: 1200px;
   margin: 0 auto;
+  padding-bottom: 30px;
 }
 
 
@@ -12,6 +19,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 20px;
 
   margin-bottom: 24px;
 }
@@ -23,6 +31,7 @@
 
   font-size: 26px;
   font-weight: 700;
+  line-height: 1.25;
 }
 
 .page-header p {
@@ -31,6 +40,18 @@
   color: #6b7280;
 
   font-size: 14px;
+  line-height: 1.5;
+}
+
+
+/* =====================================================
+   ADMISSION FORM
+   ===================================================== */
+
+.admission-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 
@@ -46,6 +67,10 @@
   border-radius: 12px;
 
   overflow: hidden;
+
+  box-shadow:
+    0 1px 2px
+    rgba(0, 0, 0, 0.03);
 }
 
 
@@ -57,6 +82,8 @@
   padding: 20px;
 
   border-bottom: 1px solid #f0f0f0;
+
+  background: #ffffff;
 }
 
 .card-header h2 {
@@ -65,27 +92,29 @@
   color: #111827;
 
   font-size: 17px;
+  font-weight: 700;
+  line-height: 1.4;
 }
 
-.card-header span {
-  display: block;
-
-  margin-top: 5px;
+.card-header p {
+  margin: 5px 0 0;
 
   color: #9ca3af;
 
   font-size: 12px;
+  line-height: 1.5;
 }
 
 
 /* =====================================================
-   FORM BODY
+   FORM GRID
    ===================================================== */
 
-.form-body {
+.form-grid {
   display: grid;
 
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
 
   gap: 20px;
 
@@ -101,7 +130,14 @@
   display: flex;
 
   flex-direction: column;
+
+  min-width: 0;
 }
+
+
+/* =====================================================
+   FULL WIDTH
+   ===================================================== */
 
 .full-width {
   grid-column: 1 / -1;
@@ -120,9 +156,18 @@
   font-size: 12px;
 
   font-weight: 600;
+
+  line-height: 1.4;
 }
 
-.form-group label span {
+
+/* =====================================================
+   REQUIRED FIELD
+   ===================================================== */
+
+.required {
+  margin-left: 2px;
+
   color: #dc2626;
 }
 
@@ -153,9 +198,15 @@
   outline: none;
 
   transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
+
+
+/* =====================================================
+   INPUT / SELECT HEIGHT
+   ===================================================== */
 
 .form-group input,
 .form-group select {
@@ -164,13 +215,25 @@
   padding: 0 12px;
 }
 
+
+/* =====================================================
+   TEXTAREA
+   ===================================================== */
+
 .form-group textarea {
+  min-height: 90px;
+
   padding: 11px 12px;
 
   resize: vertical;
 
   line-height: 1.5;
 }
+
+
+/* =====================================================
+   INPUT FOCUS
+   ===================================================== */
 
 .form-group input:focus,
 .form-group select:focus,
@@ -180,6 +243,21 @@
   box-shadow:
     0 0 0 3px
     rgba(15, 118, 110, 0.08);
+}
+
+
+/* =====================================================
+   DISABLED FIELDS
+   ===================================================== */
+
+.form-group input:disabled,
+.form-group select:disabled,
+.form-group textarea:disabled {
+  background: #f9fafb;
+
+  color: #6b7280;
+
+  cursor: not-allowed;
 }
 
 
@@ -197,33 +275,209 @@
    HELP TEXT
    ===================================================== */
 
-.form-group small {
-  margin-top: 5px;
+.field-help {
+  display: block;
+
+  margin-top: 6px;
 
   color: #9ca3af;
 
   font-size: 11px;
+
+  line-height: 1.45;
 }
 
 
 /* =====================================================
-   ACTIONS
+   ERROR TEXT
    ===================================================== */
 
-.form-actions {
+.error-text {
+  color: #dc2626;
+}
+
+
+/* =====================================================
+   LOADING FIELD
+   ===================================================== */
+
+.loading-field {
   display: flex;
 
   align-items: center;
 
-  justify-content: flex-end;
-
   gap: 10px;
 
-  padding: 18px 24px;
+  min-height: 42px;
 
-  border-top: 1px solid #f0f0f0;
+  margin: 24px;
+
+  padding: 0 14px;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 7px;
+
+  background: #f9fafb;
+
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+.loading-field .material-symbols-outlined {
+  font-size: 18px;
+
+  animation:
+    admission-spin 1s linear infinite;
+}
+
+
+/* =====================================================
+   PATIENT SELECT AREA
+   ===================================================== */
+
+.form-card > .form-group {
+  margin: 24px;
+}
+
+
+/* =====================================================
+   SELECTED PATIENT CARD
+   ===================================================== */
+
+.selected-patient-card {
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  margin: 0 24px 24px;
+
+  padding: 16px;
+
+  border: 1px solid #cfe8e5;
+
+  border-radius: 10px;
+
+  background: #f0fdfa;
+}
+
+
+/* =====================================================
+   PATIENT ICON
+   ===================================================== */
+
+.patient-icon {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  width: 44px;
+  height: 44px;
+
+  border-radius: 50%;
+
+  background: #ccfbf1;
+
+  color: #0f766e;
+}
+
+.patient-icon .material-symbols-outlined {
+  font-size: 22px;
+}
+
+
+/* =====================================================
+   SELECTED PATIENT INFO
+   ===================================================== */
+
+.selected-patient-info {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.selected-patient-info strong {
+  color: #134e4a;
+
+  font-size: 14px;
+
+  font-weight: 700;
+}
+
+.selected-patient-info span {
+  color: #5f6f72;
+
+  font-size: 11px;
+
+  line-height: 1.4;
+}
+
+
+/* =====================================================
+   EMPTY PATIENT STATE
+   ===================================================== */
+
+.empty-patient-state {
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  margin: 24px;
+
+  padding: 16px;
+
+  border: 1px dashed #d1d5db;
+
+  border-radius: 10px;
 
   background: #fafafa;
+}
+
+.empty-patient-state > .material-symbols-outlined {
+  flex-shrink: 0;
+
+  font-size: 28px;
+
+  color: #9ca3af;
+}
+
+.empty-patient-state > div {
+  flex: 1;
+
+  min-width: 0;
+}
+
+.empty-patient-state strong {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: #374151;
+
+  font-size: 13px;
+}
+
+.empty-patient-state p {
+  margin: 0;
+
+  color: #9ca3af;
+
+  font-size: 11px;
+
+  line-height: 1.5;
 }
 
 
@@ -253,8 +507,21 @@
 
   font-weight: 600;
 
+  white-space: nowrap;
+
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
 }
+
+
+/* =====================================================
+   PRIMARY BUTTON
+   ===================================================== */
 
 .primary-button {
   border: 1px solid #0f766e;
@@ -264,9 +531,24 @@
   color: #ffffff;
 }
 
-.primary-button:hover {
+.primary-button:hover:not(:disabled) {
+  border-color: #115e59;
+
   background: #115e59;
 }
+
+.primary-button:focus-visible {
+  outline: none;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(15, 118, 110, 0.18);
+}
+
+
+/* =====================================================
+   SECONDARY BUTTON
+   ===================================================== */
 
 .secondary-button {
   border: 1px solid #d1d5db;
@@ -276,13 +558,87 @@
   color: #374151;
 }
 
-.secondary-button:hover {
+.secondary-button:hover:not(:disabled) {
   background: #f9fafb;
+
+  border-color: #9ca3af;
 }
+
+.secondary-button:focus-visible {
+  outline: none;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(107, 114, 128, 0.12);
+}
+
+
+/* =====================================================
+   DISABLED BUTTON
+   ===================================================== */
+
+.primary-button:disabled,
+.secondary-button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+
+/* =====================================================
+   BUTTON ICONS
+   ===================================================== */
 
 .primary-button .material-symbols-outlined,
 .secondary-button .material-symbols-outlined {
   font-size: 18px;
+}
+
+
+/* =====================================================
+   PAGE ACTIONS
+   ===================================================== */
+
+.page-actions {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  padding: 18px 24px;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 12px;
+
+  background: #fafafa;
+}
+
+
+/* =====================================================
+   FORM CARD ACTION SUPPORT
+   ===================================================== */
+
+.admission-form > .page-actions {
+  margin-top: 0;
+}
+
+
+/* =====================================================
+   SPINNING ICON
+   ===================================================== */
+
+@keyframes admission-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 
@@ -292,7 +648,7 @@
 
 @media (max-width: 800px) {
 
-  .form-body {
+  .form-grid {
     grid-template-columns: 1fr;
   }
 
@@ -303,7 +659,16 @@
 }
 
 
+/* =====================================================
+   TABLET / MOBILE
+   ===================================================== */
+
 @media (max-width: 600px) {
+
+  .admission-register-page {
+    padding-bottom: 20px;
+  }
+
 
   .page-header {
     align-items: flex-start;
@@ -313,15 +678,46 @@
     gap: 14px;
   }
 
+
   .page-header button {
     width: 100%;
   }
 
-  .form-body {
+
+  .form-grid {
     padding: 18px;
   }
 
-  .form-actions {
+
+  .card-header {
+    padding: 18px;
+  }
+
+
+  .form-card > .form-group {
+    margin: 18px;
+  }
+
+
+  .loading-field {
+    margin: 18px;
+  }
+
+
+  .selected-patient-card {
+    margin:
+      0 18px 18px;
+  }
+
+
+  .empty-patient-state {
+    align-items: flex-start;
+
+    margin: 18px;
+  }
+
+
+  .page-actions {
     flex-direction: column-reverse;
 
     align-items: stretch;
@@ -329,8 +725,32 @@
     padding: 16px 18px;
   }
 
-  .form-actions button {
+
+  .page-actions button {
     width: 100%;
+  }
+
+}
+
+
+/* =====================================================
+   VERY SMALL SCREENS
+   ===================================================== */
+
+@media (max-width: 400px) {
+
+  .page-header h1 {
+    font-size: 22px;
+  }
+
+
+  .page-header p {
+    font-size: 13px;
+  }
+
+
+  .selected-patient-card {
+    align-items: flex-start;
   }
 
 }

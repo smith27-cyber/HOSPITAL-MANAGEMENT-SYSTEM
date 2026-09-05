@@ -1,4 +1,3 @@
-
 <div class="settings-page">
 
   <!-- ================================================= -->
@@ -92,6 +91,46 @@
         <p>
           Update your name, email, phone number
           and account information.
+        </p>
+
+      </div>
+
+      <span class="material-symbols-outlined arrow">
+        chevron_right
+      </span>
+
+    </button>
+
+
+    <!-- ================================================= -->
+    <!-- USER MANAGEMENT -->
+    <!-- ADMIN ONLY -->
+    <!-- ================================================= -->
+
+    <button
+      *ngIf="canManageUsers()"
+      type="button"
+      class="settings-card"
+      (click)="openUserManagement()"
+    >
+
+      <div class="settings-icon users">
+
+        <span class="material-symbols-outlined">
+          manage_accounts
+        </span>
+
+      </div>
+
+      <div class="settings-content">
+
+        <h2>
+          User Management
+        </h2>
+
+        <p>
+          Create, update, activate, deactivate and
+          manage hospital system user accounts.
         </p>
 
       </div>
@@ -254,6 +293,7 @@
 
     </button>
 
+
   </div>
 
 
@@ -287,4 +327,3 @@
   </section>
 
 </div>
-

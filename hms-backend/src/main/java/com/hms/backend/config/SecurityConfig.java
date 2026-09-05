@@ -1,5 +1,12 @@
+// =====================================================
+// HMS SECURITY CONFIGURATION
+// File:
+// src/main/java/com/hms/backend/config/SecurityConfig.java
+// =====================================================
 
 package com.hms.backend.config;
+
+import com.hms.backend.auth.security.JwtAuthenticationFilter;
 
 import java.util.List;
 
@@ -8,18 +15,53 @@ import org.springframework.context.annotation.Configuration;
 
 import org.springframework.http.HttpMethod;
 
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+
+import org.springframework.security.config.http.SessionCreationPolicy;
 
 import org.springframework.security.web.SecurityFilterChain;
 
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import org.springframework.web.cors.CorsConfiguration;
+
 import org.springframework.web.cors.CorsConfigurationSource;
+
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 
+// =====================================================
+// CONFIGURATION
+// =====================================================
+
 @Configuration
+
+@EnableMethodSecurity
 public class SecurityConfig {
+
+
+    // =====================================================
+    // JWT FILTER
+    // =====================================================
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+
+    // =====================================================
+    // CONSTRUCTOR
+    // =====================================================
+
+    public SecurityConfig(
+        JwtAuthenticationFilter jwtAuthenticationFilter
+    ) {
+
+        this.jwtAuthenticationFilter =
+            jwtAuthenticationFilter;
+    }
 
 
     // =====================================================
@@ -28,10 +70,11 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http
+        HttpSecurity http
     ) throws Exception {
 
         http
+
 
             // =================================================
             // CSRF
@@ -55,14 +98,31 @@ public class SecurityConfig {
 
 
             // =================================================
+            // SESSION MANAGEMENT
+            // =================================================
+            //
+            // HMS uses JWT authentication.
+            // No server-side HTTP session is required.
+            // =================================================
+
+            .sessionManagement(
+                session ->
+                    session.sessionCreationPolicy(
+                        SessionCreationPolicy.STATELESS
+                    )
+            )
+
+
+            // =================================================
             // AUTHORIZATION
             // =================================================
 
             .authorizeHttpRequests(
                 auth -> auth
 
+
                     // -----------------------------------------
-                    // AUTHENTICATION
+                    // PUBLIC AUTHENTICATION ENDPOINTS
                     // -----------------------------------------
 
                     .requestMatchers(
@@ -83,33 +143,37 @@ public class SecurityConfig {
 
 
                     // -----------------------------------------
-                    // HMS API
+                    // PUBLIC HEALTH CHECK
                     // -----------------------------------------
 
                     .requestMatchers(
-                        "/api/health",
-                        "/api/dashboard/**",
-                        "/api/patients/**",
-                        "/api/appointments/**",
-                        "/api/doctors/**",
-                        "/api/departments/**",
-                        "/api/inventory/**",
-                        "/api/laboratory/**",
-                        "/api/pharmacy/**",
-                        "/api/consultations/**",
-                        "/api/billing/**",
-                        "/api/admissions/**",
-                        "/api/reports/**"
+                        "/api/health"
                     )
                     .permitAll()
 
 
                     // -----------------------------------------
-                    // OTHER REQUESTS
+                    // EVERYTHING ELSE
+                    // -----------------------------------------
+                    //
+                    // A valid JWT is required.
+                    //
+                    // Fine-grained authorization is handled
+                    // separately with @PreAuthorize.
                     // -----------------------------------------
 
                     .anyRequest()
-                    .permitAll()
+                    .authenticated()
+            )
+
+
+            // =================================================
+            // JWT AUTHENTICATION FILTER
+            // =================================================
+
+            .addFilterBefore(
+                jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class
             );
 
 
@@ -129,7 +193,7 @@ public class SecurityConfig {
 
 
         // =================================================
-        // FRONTEND ORIGIN
+        // FRONTEND
         // =================================================
 
         configuration.setAllowedOrigins(
@@ -140,7 +204,7 @@ public class SecurityConfig {
 
 
         // =================================================
-        // ALLOWED METHODS
+        // METHODS
         // =================================================
 
         configuration.setAllowedMethods(
@@ -156,11 +220,13 @@ public class SecurityConfig {
 
 
         // =================================================
-        // ALLOWED HEADERS
+        // HEADERS
         // =================================================
 
         configuration.setAllowedHeaders(
-            List.of("*")
+            List.of(
+                "*"
+            )
         );
 
 
@@ -195,7 +261,7 @@ public class SecurityConfig {
 
 
         // =================================================
-        // REGISTER GLOBAL CORS
+        // REGISTER CORS
         // =================================================
 
         UrlBasedCorsConfigurationSource source =
@@ -211,4 +277,3 @@ public class SecurityConfig {
         return source;
     }
 }
-

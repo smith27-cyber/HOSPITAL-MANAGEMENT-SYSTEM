@@ -1,40 +1,50 @@
 // =====================================================
+// ADMISSION MODEL
+// File:
+// src/app/shared/models/admission.model.ts
+// =====================================================
+
+
+// =====================================================
 // ADMISSION STATUS
+// Must match Spring Boot AdmissionStatus enum
 // =====================================================
 
 export type AdmissionStatus =
-  | 'Admitted'
-  | 'Discharged'
-  | 'Transferred'
-  | 'Cancelled';
+  | 'ADMITTED'
+  | 'DISCHARGED'
+  | 'TRANSFERRED'
+  | 'CANCELLED';
 
 
 // =====================================================
 // ADMISSION TYPE
+// Must match Spring Boot AdmissionType enum
 // =====================================================
 
 export type AdmissionType =
-  | 'Emergency'
-  | 'Routine'
-  | 'Referral'
-  | 'Surgical'
-  | 'Maternity'
-  | 'Other';
+  | 'EMERGENCY'
+  | 'ROUTINE'
+  | 'REFERRAL'
+  | 'SURGICAL'
+  | 'MATERNITY'
+  | 'OTHER';
 
 
 // =====================================================
 // WARD TYPE
+// Must match Spring Boot WardType enum
 // =====================================================
 
 export type WardType =
-  | 'General'
-  | 'Private'
-  | 'Pediatric'
-  | 'Maternity'
-  | 'Surgical'
+  | 'GENERAL'
+  | 'PRIVATE'
+  | 'PEDIATRIC'
+  | 'MATERNITY'
+  | 'SURGICAL'
   | 'ICU'
-  | 'Emergency'
-  | 'Other';
+  | 'EMERGENCY'
+  | 'OTHER';
 
 
 // =====================================================

@@ -1,7 +1,27 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+// =====================================================
+// ADMISSION EDIT COMPONENT
+// File:
+// src/app/features/admissions/admission-edit/admission-edit.ts
+// =====================================================
+
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit
+} from '@angular/core';
+
+import {
+  CommonModule
+} from '@angular/common';
+
+import {
+  FormsModule
+} from '@angular/forms';
+
+import {
+  ActivatedRoute,
+  Router
+} from '@angular/router';
 
 import {
   Admission,
@@ -40,41 +60,55 @@ export class AdmissionEdit implements OnInit {
 
 
   // =====================================================
+  // LOADING
+  // =====================================================
+
+  loading = true;
+
+
+  // =====================================================
+  // SAVING
+  // =====================================================
+
+  saving = false;
+
+
+  // =====================================================
   // OPTIONS
   // =====================================================
 
   admissionTypes: AdmissionType[] = [
 
-    'Emergency',
-    'Routine',
-    'Referral',
-    'Surgical',
-    'Maternity',
-    'Other'
+    'EMERGENCY',
+    'ROUTINE',
+    'REFERRAL',
+    'SURGICAL',
+    'MATERNITY',
+    'OTHER'
 
   ];
 
 
   wards: WardType[] = [
 
-    'General',
-    'Private',
-    'Pediatric',
-    'Maternity',
-    'Surgical',
+    'GENERAL',
+    'PRIVATE',
+    'PEDIATRIC',
+    'MATERNITY',
+    'SURGICAL',
     'ICU',
-    'Emergency',
-    'Other'
+    'EMERGENCY',
+    'OTHER'
 
   ];
 
 
   statuses: AdmissionStatus[] = [
 
-    'Admitted',
-    'Discharged',
-    'Transferred',
-    'Cancelled'
+    'ADMITTED',
+    'DISCHARGED',
+    'TRANSFERRED',
+    'CANCELLED'
 
   ];
 
@@ -84,9 +118,10 @@ export class AdmissionEdit implements OnInit {
   // =====================================================
 
   constructor(
-    private admissionService: AdmissionService,
-    private route: ActivatedRoute,
-    private router: Router
+    private readonly admissionService: AdmissionService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly changeDetectorRef: ChangeDetectorRef
   ) {}
 
 
@@ -115,28 +150,124 @@ export class AdmissionEdit implements OnInit {
     }
 
 
-    const existingAdmission =
-      this.admissionService.getAdmissionById(id);
+    this.loadAdmission(id);
+
+  }
 
 
-    if (!existingAdmission) {
+  // =====================================================
+  // LOAD ADMISSION
+  // =====================================================
 
-      alert(
-        'Admission could not be found.'
-      );
+  private loadAdmission(
+    id: string
+  ): void {
 
-      this.router.navigate([
-        '/admissions'
-      ]);
+    this.loading = true;
 
-      return;
+    this.admission = null;
+
+
+    // ---------------------------------------------------
+    // Render loading state immediately
+    // ---------------------------------------------------
+
+    this.changeDetectorRef.detectChanges();
+
+
+    this.admissionService
+      .getAdmissionById(id)
+      .subscribe({
+
+        // ===============================================
+        // SUCCESS
+        // ===============================================
+
+        next: (
+          existingAdmission: Admission
+        ) => {
+
+          console.log(
+            'AdmissionEdit: admission received:',
+            existingAdmission
+          );
+
+
+          this.admission = {
+            ...existingAdmission
+          };
+
+
+          this.loading = false;
+
+
+          this.changeDetectorRef.detectChanges();
+
+
+          console.log(
+            'AdmissionEdit: admission rendered:',
+            this.admission
+          );
+
+        },
+
+
+        // ===============================================
+        // ERROR
+        // ===============================================
+
+        error: (
+          error: Error
+        ) => {
+
+          console.error(
+            'Failed to load admission:',
+            error
+          );
+
+
+          this.admission = null;
+
+          this.loading = false;
+
+
+          this.changeDetectorRef.detectChanges();
+
+
+          alert(
+            error.message ||
+            'Admission could not be found.'
+          );
+
+
+          this.router.navigate([
+            '/admissions'
+          ]);
+
+        }
+
+      });
+
+  }
+
+
+  // =====================================================
+  // CHECK WHETHER ADMISSION CAN BE EDITED
+  // =====================================================
+
+  canEdit(): boolean {
+
+    if (!this.admission) {
+
+      return false;
 
     }
 
 
-    this.admission = {
-      ...existingAdmission
-    };
+    return (
+      this.admission.status !== 'DISCHARGED' &&
+      this.admission.status !== 'CANCELLED'
+    );
 
   }
 
@@ -147,19 +278,85 @@ export class AdmissionEdit implements OnInit {
 
   saveAdmission(): void {
 
-    if (!this.admission) {
+    if (
+      !this.admission ||
+      this.saving ||
+      !this.canEdit()
+    ) {
 
       return;
 
     }
 
 
-    // ---------------------------------------------
+    // ===================================================
+    // CLEAN TEXT
+    // ===================================================
+
+    this.admission.patientId =
+      this.admission.patientId
+        ?.trim() ?? '';
+
+    this.admission.patientName =
+      this.admission.patientName
+        ?.trim() ?? '';
+
+    this.admission.patientNumber =
+      this.admission.patientNumber
+        ?.trim();
+
+    this.admission.doctorId =
+      this.admission.doctorId
+        ?.trim();
+
+    this.admission.doctorName =
+      this.admission.doctorName
+        ?.trim();
+
+    this.admission.departmentId =
+      this.admission.departmentId
+        ?.trim();
+
+    this.admission.departmentName =
+      this.admission.departmentName
+        ?.trim();
+
+    this.admission.bedNumber =
+      this.admission.bedNumber
+        ?.trim();
+
+    this.admission.reason =
+      this.admission.reason
+        ?.trim() ?? '';
+
+    this.admission.diagnosis =
+      this.admission.diagnosis
+        ?.trim();
+
+    this.admission.notes =
+      this.admission.notes
+        ?.trim();
+
+
+    // ===================================================
     // VALIDATION
-    // ---------------------------------------------
+    // ===================================================
 
     if (
-      !this.admission.patientName.trim()
+      !this.admission.patientId
+    ) {
+
+      alert(
+        'Patient ID is required.'
+      );
+
+      return;
+
+    }
+
+
+    if (
+      !this.admission.patientName
     ) {
 
       alert(
@@ -211,7 +408,7 @@ export class AdmissionEdit implements OnInit {
 
 
     if (
-      !this.admission.reason.trim()
+      !this.admission.reason
     ) {
 
       alert(
@@ -223,31 +420,24 @@ export class AdmissionEdit implements OnInit {
     }
 
 
-    // ---------------------------------------------
-    // UPDATE
-    // ---------------------------------------------
+    // ===================================================
+    // VALIDATE ADMISSION DATE
+    // ===================================================
 
-    const updated =
-      this.admissionService.updateAdmission(
-        {
-          ...this.admission,
-
-          patientName:
-            this.admission.patientName.trim(),
-
-          reason:
-            this.admission.reason.trim(),
-
-          updatedAt:
-            new Date().toISOString()
-        }
+    const admissionDate =
+      new Date(
+        this.admission.admissionDate
       );
 
 
-    if (!updated) {
+    if (
+      Number.isNaN(
+        admissionDate.getTime()
+      )
+    ) {
 
       alert(
-        'Unable to update admission.'
+        'Please enter a valid admission date.'
       );
 
       return;
@@ -255,15 +445,143 @@ export class AdmissionEdit implements OnInit {
     }
 
 
-    alert(
-      'Admission updated successfully.'
-    );
+    // ===================================================
+    // VALIDATE EXPECTED DISCHARGE DATE
+    // ===================================================
+
+    if (
+      this.admission.expectedDischargeDate
+    ) {
+
+      const expectedDate =
+        new Date(
+          this.admission.expectedDischargeDate
+        );
 
 
-    this.router.navigate([
-      '/admissions',
-      this.admission.id
-    ]);
+      if (
+        Number.isNaN(
+          expectedDate.getTime()
+        )
+      ) {
+
+        alert(
+          'Please enter a valid expected discharge date.'
+        );
+
+        return;
+
+      }
+
+
+      if (
+        expectedDate < admissionDate
+      ) {
+
+        alert(
+          'Expected discharge date cannot be before the admission date.'
+        );
+
+        return;
+
+      }
+
+    }
+
+
+    // ===================================================
+    // PREPARE UPDATE
+    // =====================================================
+
+    const updatedAdmission: Admission = {
+
+      ...this.admission,
+
+      updatedAt: undefined
+
+    };
+
+
+    // ===================================================
+    // START SAVING
+    // ===================================================
+
+    this.saving = true;
+
+
+    this.changeDetectorRef.detectChanges();
+
+
+    // ===================================================
+    // UPDATE BACKEND
+    // ===================================================
+
+    this.admissionService
+      .updateAdmission(
+        updatedAdmission
+      )
+      .subscribe({
+
+        // ===============================================
+        // SUCCESS
+        // ===============================================
+
+        next: (
+          savedAdmission: Admission
+        ) => {
+
+          this.saving = false;
+
+
+          this.admission = {
+            ...savedAdmission
+          };
+
+
+          this.changeDetectorRef.detectChanges();
+
+
+          alert(
+            'Admission updated successfully.'
+          );
+
+
+          this.router.navigate([
+            '/admissions',
+            savedAdmission.id
+          ]);
+
+        },
+
+
+        // ===============================================
+        // ERROR
+        // ===============================================
+
+        error: (
+          error: Error
+        ) => {
+
+          this.saving = false;
+
+
+          this.changeDetectorRef.detectChanges();
+
+
+          console.error(
+            'Failed to update admission:',
+            error
+          );
+
+
+          alert(
+            error.message ||
+            'Unable to update admission.'
+          );
+
+        }
+
+      });
 
   }
 
@@ -273,6 +591,13 @@ export class AdmissionEdit implements OnInit {
   // =====================================================
 
   cancel(): void {
+
+    if (this.saving) {
+
+      return;
+
+    }
+
 
     if (!this.admission) {
 
@@ -299,7 +624,10 @@ export class AdmissionEdit implements OnInit {
 
   deleteAdmission(): void {
 
-    if (!this.admission) {
+    if (
+      !this.admission ||
+      this.saving
+    ) {
 
       return;
 
@@ -319,31 +647,178 @@ export class AdmissionEdit implements OnInit {
     }
 
 
-    const deleted =
-      this.admissionService.deleteAdmission(
+    this.saving = true;
+
+
+    this.changeDetectorRef.detectChanges();
+
+
+    this.admissionService
+      .deleteAdmission(
         this.admission.id
-      );
+      )
+      .subscribe({
+
+        // ===============================================
+        // SUCCESS
+        // ===============================================
+
+        next: () => {
+
+          this.saving = false;
 
 
-    if (!deleted) {
+          this.changeDetectorRef.detectChanges();
 
-      alert(
-        'Unable to delete admission.'
-      );
 
-      return;
+          alert(
+            'Admission deleted successfully.'
+          );
+
+
+          this.router.navigate([
+            '/admissions'
+          ]);
+
+        },
+
+
+        // ===============================================
+        // ERROR
+        // ===============================================
+
+        error: (
+          error: Error
+        ) => {
+
+          this.saving = false;
+
+
+          this.changeDetectorRef.detectChanges();
+
+
+          console.error(
+            'Failed to delete admission:',
+            error
+          );
+
+
+          alert(
+            error.message ||
+            'Unable to delete admission.'
+          );
+
+        }
+
+      });
+
+  }
+
+
+  // =====================================================
+  // STATUS LABEL
+  // =====================================================
+
+  getStatusLabel(
+    status: AdmissionStatus
+  ): string {
+
+    switch (status) {
+
+      case 'ADMITTED':
+        return 'Admitted';
+
+      case 'DISCHARGED':
+        return 'Discharged';
+
+      case 'TRANSFERRED':
+        return 'Transferred';
+
+      case 'CANCELLED':
+        return 'Cancelled';
+
+      default:
+        return status;
 
     }
 
-
-    alert(
-      'Admission deleted successfully.'
-    );
+  }
 
 
-    this.router.navigate([
-      '/admissions'
-    ]);
+  // =====================================================
+  // TYPE LABEL
+  // =====================================================
+
+  getAdmissionTypeLabel(
+    type: AdmissionType
+  ): string {
+
+    switch (type) {
+
+      case 'EMERGENCY':
+        return 'Emergency';
+
+      case 'ROUTINE':
+        return 'Routine';
+
+      case 'REFERRAL':
+        return 'Referral';
+
+      case 'SURGICAL':
+        return 'Surgical';
+
+      case 'MATERNITY':
+        return 'Maternity';
+
+      case 'OTHER':
+        return 'Other';
+
+      default:
+        return type;
+
+    }
+
+  }
+
+
+  // =====================================================
+  // WARD LABEL
+  // =====================================================
+
+  getWardLabel(
+    ward: WardType
+  ): string {
+
+    switch (ward) {
+
+      case 'GENERAL':
+        return 'General';
+
+      case 'PRIVATE':
+        return 'Private';
+
+      case 'PEDIATRIC':
+        return 'Pediatric';
+
+      case 'MATERNITY':
+        return 'Maternity';
+
+      case 'SURGICAL':
+        return 'Surgical';
+
+      case 'ICU':
+        return 'ICU';
+
+      case 'EMERGENCY':
+        return 'Emergency';
+
+      case 'OTHER':
+        return 'Other';
+
+      default:
+        return ward;
+
+    }
 
   }
 

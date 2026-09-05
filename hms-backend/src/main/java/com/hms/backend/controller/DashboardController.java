@@ -1,10 +1,11 @@
-
+  
 package com.hms.backend.controller;
 
 import com.hms.backend.dto.DashboardResponse;
 import com.hms.backend.service.DashboardService;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +25,6 @@ public class DashboardController {
 
     private final DashboardService dashboardService;
 
-
     // =====================================================
     // CONSTRUCTOR
     // =====================================================
@@ -32,16 +32,14 @@ public class DashboardController {
     public DashboardController(
             DashboardService dashboardService
     ) {
-
-        this.dashboardService =
-                dashboardService;
+        this.dashboardService = dashboardService;
     }
-
 
     // =====================================================
     // GET DASHBOARD
     // =====================================================
 
+    @PreAuthorize("hasAuthority('DASHBOARD_VIEW')")
     @GetMapping
     public ResponseEntity<DashboardResponse>
     getDashboard() {

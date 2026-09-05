@@ -1,3 +1,4 @@
+
 <div class="consultation-profile-page">
 
   @if (consultation) {
@@ -27,6 +28,7 @@
           type="button"
           class="secondary-button"
           (click)="backToConsultations()"
+          [disabled]="isProcessing"
         >
 
           <span class="material-symbols-outlined">
@@ -38,19 +40,24 @@
         </button>
 
 
-        <button
-          type="button"
-          class="edit-button"
-          (click)="editConsultation()"
-        >
+        @if (canEditConsultation) {
 
-          <span class="material-symbols-outlined">
-            edit
-          </span>
+          <button
+            type="button"
+            class="edit-button"
+            (click)="editConsultation()"
+            [disabled]="isProcessing"
+          >
 
-          Edit
+            <span class="material-symbols-outlined">
+              edit
+            </span>
 
-        </button>
+            Edit
+
+          </button>
+
+        }
 
       </div>
 
@@ -84,6 +91,12 @@
             [class.status-open]="
               consultation.status === 'Open'
             "
+            [class.status-pending]="
+              consultation.status === 'Pending Results'
+            "
+            [class.status-ready]="
+              consultation.status === 'Ready For Review'
+            "
             [class.status-completed]="
               consultation.status === 'Completed'
             "
@@ -103,44 +116,252 @@
 
       <div class="status-actions">
 
+
+        <!-- ================================================= -->
+        <!-- OPEN -->
+        <!-- ================================================= -->
+
         @if (
           consultation.status === 'Open'
         ) {
 
-          <button
-            type="button"
-            class="complete-button"
-            (click)="completeConsultation()"
-          >
+          @if (canCompleteConsultation) {
 
-            <span class="material-symbols-outlined">
-              check_circle
-            </span>
+            <button
+              type="button"
+              class="complete-button"
+              (click)="completeConsultation()"
+              [disabled]="isProcessing"
+            >
 
-            Complete
+              <span class="material-symbols-outlined">
+                check_circle
+              </span>
 
-          </button>
+              Complete
+
+            </button>
+
+          }
 
 
-          <button
-            type="button"
-            class="cancel-status-button"
-            (click)="cancelConsultation()"
-          >
+          @if (canCancelConsultation) {
 
-            <span class="material-symbols-outlined">
-              cancel
-            </span>
+            <button
+              type="button"
+              class="cancel-status-button"
+              (click)="cancelConsultation()"
+              [disabled]="isProcessing"
+            >
 
-            Cancel
+              <span class="material-symbols-outlined">
+                cancel
+              </span>
 
-          </button>
+              Cancel
+
+            </button>
+
+          }
+
+        }
+
+
+        <!-- ================================================= -->
+        <!-- READY FOR REVIEW -->
+        <!-- ================================================= -->
+
+        @if (
+          consultation.status === 'Ready For Review'
+        ) {
+
+          @if (canReviewLaboratoryResults) {
+
+            <button
+              type="button"
+              class="review-button"
+              (click)="reviewLaboratoryResults()"
+              [disabled]="isProcessing"
+            >
+
+              <span class="material-symbols-outlined">
+                fact_check
+              </span>
+
+              Review Laboratory Results
+
+            </button>
+
+          }
+
+        }
+
+
+        <!-- ================================================= -->
+        <!-- CANCELLED -->
+        <!-- ================================================= -->
+
+        @if (
+          consultation.status === 'Cancelled'
+        ) {
+
+          @if (canReopenConsultation) {
+
+            <button
+              type="button"
+              class="reopen-button"
+              (click)="reopenConsultation()"
+              [disabled]="isProcessing"
+            >
+
+              <span class="material-symbols-outlined">
+                refresh
+              </span>
+
+              Reopen
+
+            </button>
+
+          }
 
         }
 
       </div>
 
     </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- WORKFLOW INFORMATION -->
+    <!-- ================================================= -->
+
+    @if (
+      consultation.status === 'Pending Results'
+    ) {
+
+      <section class="workflow-notice pending-notice">
+
+        <span class="material-symbols-outlined">
+          hourglass_top
+        </span>
+
+        <div>
+
+          <strong>
+            Waiting for Laboratory Results
+          </strong>
+
+          <p>
+            Laboratory tests associated with this consultation
+            are still being processed. Completion is unavailable
+            until all required results are available.
+          </p>
+
+        </div>
+
+      </section>
+
+    }
+
+
+    @if (
+      consultation.status === 'Ready For Review'
+    ) {
+
+      <section class="workflow-notice ready-notice">
+
+        <span class="material-symbols-outlined">
+          clinical_notes
+        </span>
+
+        <div>
+
+          <strong>
+            Laboratory Results Ready for Review
+          </strong>
+
+          <p>
+            The requested laboratory tests have been completed.
+            Review the results before finalizing the consultation.
+          </p>
+
+
+          @if (!canReviewLaboratoryResults) {
+
+            <span class="permission-inline-message">
+
+              <span class="material-symbols-outlined">
+                lock
+              </span>
+
+              Review permission is required.
+
+            </span>
+
+          }
+
+        </div>
+
+      </section>
+
+    }
+
+
+    @if (
+      consultation.status === 'Completed'
+    ) {
+
+      <section class="workflow-notice completed-notice">
+
+        <span class="material-symbols-outlined">
+          task_alt
+        </span>
+
+        <div>
+
+          <strong>
+            Consultation Completed
+          </strong>
+
+          <p>
+            This consultation has been finalized as a clinical record.
+            Clinical information should no longer be modified.
+          </p>
+
+        </div>
+
+      </section>
+
+    }
+
+
+    @if (
+      consultation.status === 'Cancelled'
+    ) {
+
+      <section class="workflow-notice cancelled-notice">
+
+        <span class="material-symbols-outlined">
+          cancel
+        </span>
+
+        <div>
+
+          <strong>
+            Consultation Cancelled
+          </strong>
+
+          <p>
+            This consultation is cancelled. Reopen it before
+            making further changes.
+          </p>
+
+        </div>
+
+      </section>
+
+    }
 
 
 
@@ -225,7 +446,10 @@
           </span>
 
           <strong>
-            {{ consultation.consultationDate | date:'mediumDate' }}
+            {{
+              consultation.consultationDate
+                | date:'mediumDate'
+            }}
           </strong>
 
         </div>
@@ -287,7 +511,7 @@
 
       <div class="clinical-text">
 
-        {{ consultation.chiefComplaint }}
+        {{ consultation.chiefComplaint || '—' }}
 
       </div>
 
@@ -428,7 +652,8 @@
             </h2>
 
             <p>
-              Laboratory requests and results associated with this consultation.
+              Laboratory requests and results associated
+              with this consultation.
             </p>
 
           </div>
@@ -587,7 +812,10 @@
                         </span>
 
                         <strong>
-                          {{ request.requestedAt | date:'medium' }}
+                          {{
+                            request.requestedAt
+                              | date:'medium'
+                          }}
                         </strong>
 
                       </div>
@@ -602,7 +830,10 @@
                         <strong>
                           {{
                             request.completedAt
-                              ? (request.completedAt | date:'medium')
+                              ? (
+                                  request.completedAt
+                                  | date:'medium'
+                                )
                               : '—'
                           }}
                         </strong>
@@ -617,7 +848,11 @@
                         </span>
 
                         <strong>
-                          {{ formatCurrency(request.price) }}
+                          {{
+                            formatCurrency(
+                              request.price
+                            )
+                          }}
                         </strong>
 
                       </div>
@@ -671,6 +906,7 @@
                         type="button"
                         class="view-lab-button"
                         (click)="viewLaboratoryRequest(request)"
+                        [disabled]="isProcessing"
                       >
 
                         <span class="material-symbols-outlined">
@@ -726,6 +962,9 @@
 
             <div class="laboratory-pending-list">
 
+
+              <!-- PENDING -->
+
               @for (
                 request of pendingLaboratoryRequests;
                 track request.id
@@ -766,6 +1005,7 @@
                     type="button"
                     class="view-lab-button"
                     (click)="viewLaboratoryRequest(request)"
+                    [disabled]="isProcessing"
                   >
 
                     <span class="material-symbols-outlined">
@@ -780,6 +1020,8 @@
 
               }
 
+
+              <!-- IN PROGRESS -->
 
               @for (
                 request of inProgressLaboratoryRequests;
@@ -821,6 +1063,98 @@
                     type="button"
                     class="view-lab-button"
                     (click)="viewLaboratoryRequest(request)"
+                    [disabled]="isProcessing"
+                  >
+
+                    <span class="material-symbols-outlined">
+                      visibility
+                    </span>
+
+                    View
+
+                  </button>
+
+                </div>
+
+              }
+
+            </div>
+
+          </div>
+
+        }
+
+
+        <!-- ================================================= -->
+        <!-- CANCELLED LABORATORY REQUESTS -->
+        <!-- ================================================= -->
+
+        @if (
+          cancelledLaboratoryRequests.length > 0
+        ) {
+
+          <div class="laboratory-section">
+
+            <div class="laboratory-section-header">
+
+              <div>
+
+                <h3>
+                  Cancelled Laboratory Requests
+                </h3>
+
+                <p>
+                  Tests that were cancelled.
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div class="laboratory-pending-list">
+
+              @for (
+                request of cancelledLaboratoryRequests;
+                track request.id
+              ) {
+
+                <div class="laboratory-pending-item">
+
+                  <div class="laboratory-pending-icon">
+
+                    <span class="material-symbols-outlined">
+                      cancel
+                    </span>
+
+                  </div>
+
+
+                  <div class="laboratory-pending-content">
+
+                    <strong>
+                      {{ request.testName }}
+                    </strong>
+
+                    <span>
+                      {{ request.category }}
+                      ·
+                      {{ request.sampleType }}
+                    </span>
+
+                  </div>
+
+
+                  <span class="lab-status cancelled">
+                    Cancelled
+                  </span>
+
+
+                  <button
+                    type="button"
+                    class="view-lab-button"
+                    (click)="viewLaboratoryRequest(request)"
+                    [disabled]="isProcessing"
                   >
 
                     <span class="material-symbols-outlined">
@@ -862,8 +1196,8 @@
               </strong>
 
               <p>
-                Review the completed laboratory results above before
-                prescribing medication or updating the treatment plan.
+                Review the completed laboratory results above
+                before finalizing the diagnosis and treatment plan.
               </p>
 
             </div>
@@ -896,24 +1230,183 @@
           </h2>
 
           <p>
-            No laboratory tests have been requested for this consultation.
+            No laboratory tests have been requested for
+            this consultation.
           </p>
 
-          <button
-            type="button"
-            class="edit-button"
-            (click)="editConsultation()"
-          >
 
-            <span class="material-symbols-outlined">
-              add
-            </span>
+          @if (canEditConsultation) {
 
-            Add Laboratory Request
+            <button
+              type="button"
+              class="edit-button"
+              (click)="editConsultation()"
+              [disabled]="isProcessing"
+            >
 
-          </button>
+              <span class="material-symbols-outlined">
+                add
+              </span>
+
+              Add Laboratory Request
+
+            </button>
+
+          }
 
         </div>
+
+      </section>
+
+    }
+
+
+
+    <!-- ================================================= -->
+    <!-- LABORATORY REVIEW STATUS -->
+    <!-- ================================================= -->
+
+    @if (
+      consultation.hasLaboratoryRequests
+    ) {
+
+      <section class="profile-card laboratory-workflow-card">
+
+        <div class="card-header">
+
+          <div>
+
+            <h2>
+              Laboratory Workflow Status
+            </h2>
+
+            <p>
+              Current laboratory state for this consultation.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="workflow-details-grid">
+
+
+          <div class="workflow-detail">
+
+            <span>
+              Laboratory Requests
+            </span>
+
+            <strong>
+              {{
+                consultation.hasLaboratoryRequests
+                  ? 'Yes'
+                  : 'No'
+              }}
+            </strong>
+
+          </div>
+
+
+          <div class="workflow-detail">
+
+            <span>
+              Laboratory Results
+            </span>
+
+            <strong>
+              {{
+                consultation.hasLaboratoryResults
+                  ? 'Available'
+                  : 'Pending'
+              }}
+            </strong>
+
+          </div>
+
+
+          <div class="workflow-detail">
+
+            <span>
+              Results Reviewed
+            </span>
+
+            <strong>
+              {{
+                consultation.laboratoryResultsReviewed
+                  ? 'Yes'
+                  : 'No'
+              }}
+            </strong>
+
+          </div>
+
+
+          <div class="workflow-detail">
+
+            <span>
+              Consultation Status
+            </span>
+
+            <strong>
+              {{ consultation.status }}
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        @if (
+          consultation.status === 'Ready For Review' &&
+          consultation.hasLaboratoryResults &&
+          !consultation.laboratoryResultsReviewed
+        ) {
+
+          @if (canReviewLaboratoryResults) {
+
+            <div class="workflow-action-area">
+
+              <button
+                type="button"
+                class="review-button"
+                (click)="reviewLaboratoryResults()"
+                [disabled]="isProcessing"
+              >
+
+                <span class="material-symbols-outlined">
+                  fact_check
+                </span>
+
+                Review Laboratory Results
+
+              </button>
+
+            </div>
+
+          }
+
+        }
+
+
+        @if (
+          consultation.laboratoryResultsReviewed
+        ) {
+
+          <div class="reviewed-status">
+
+            <span class="material-symbols-outlined">
+              verified
+            </span>
+
+            <span>
+              Laboratory results have been reviewed.
+            </span>
+
+          </div>
+
+        }
 
       </section>
 
@@ -1019,24 +1512,272 @@
 
 
     <!-- ================================================= -->
+    <!-- ACTION SUMMARY -->
+    <!-- ================================================= -->
+
+    <section class="profile-card action-summary-card">
+
+      <div class="card-header">
+
+        <div>
+
+          <h2>
+            Available Actions
+          </h2>
+
+          <p>
+            Actions available for the current consultation state.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="action-summary">
+
+
+        <!-- EDIT -->
+
+        @if (canEditConsultation) {
+
+          <div class="action-summary-item">
+
+            <span class="material-symbols-outlined">
+              edit
+            </span>
+
+            <div>
+
+              <strong>
+                Edit Consultation
+              </strong>
+
+              <span>
+                Save progress and update the clinical record.
+              </span>
+
+            </div>
+
+          </div>
+
+        }
+
+
+        <!-- REVIEW -->
+
+        @if (canReviewLaboratoryResults) {
+
+          <div class="action-summary-item">
+
+            <span class="material-symbols-outlined">
+              fact_check
+            </span>
+
+            <div>
+
+              <strong>
+                Review Laboratory Results
+              </strong>
+
+              <span>
+                Review completed laboratory results before finalization.
+              </span>
+
+            </div>
+
+          </div>
+
+        }
+
+
+        <!-- COMPLETE -->
+
+        @if (canCompleteConsultation) {
+
+          <div class="action-summary-item">
+
+            <span class="material-symbols-outlined">
+              check_circle
+            </span>
+
+            <div>
+
+              <strong>
+                Complete Consultation
+              </strong>
+
+              <span>
+                Finalize the consultation as a clinical record.
+              </span>
+
+            </div>
+
+          </div>
+
+        }
+
+
+        <!-- CANCEL -->
+
+        @if (canCancelConsultation) {
+
+          <div class="action-summary-item">
+
+            <span class="material-symbols-outlined">
+              cancel
+            </span>
+
+            <div>
+
+              <strong>
+                Cancel Consultation
+              </strong>
+
+              <span>
+                Cancel this consultation before completion.
+              </span>
+
+            </div>
+
+          </div>
+
+        }
+
+
+        <!-- REOPEN -->
+
+        @if (canReopenConsultation) {
+
+          <div class="action-summary-item">
+
+            <span class="material-symbols-outlined">
+              refresh
+            </span>
+
+            <div>
+
+              <strong>
+                Reopen Consultation
+              </strong>
+
+              <span>
+                Return the cancelled consultation to the active workflow.
+              </span>
+
+            </div>
+
+          </div>
+
+        }
+
+
+        <!-- NO ACTIONS -->
+
+        @if (
+          !canEditConsultation &&
+          !canReviewLaboratoryResults &&
+          !canCompleteConsultation &&
+          !canCancelConsultation &&
+          !canReopenConsultation
+        ) {
+
+          <div class="no-actions-message">
+
+            <span class="material-symbols-outlined">
+              lock
+            </span>
+
+            <div>
+
+              <strong>
+                No workflow actions available
+              </strong>
+
+              <span>
+                Your current permissions do not allow changes to
+                this consultation.
+              </span>
+
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
     <!-- DELETE -->
     <!-- ================================================= -->
 
-    <div class="danger-zone">
+    @if (canDeleteConsultation) {
 
-      <button
-        type="button"
-        class="delete-button"
-        (click)="deleteConsultation()"
-      >
+      <div class="danger-zone">
 
-        <span class="material-symbols-outlined">
-          delete
-        </span>
+        <div class="danger-zone-content">
 
-        Delete Consultation
+          <div>
 
-      </button>
+            <strong>
+              Delete Consultation
+            </strong>
+
+            <p>
+              Permanently remove this consultation record.
+              This action cannot be undone.
+            </p>
+
+          </div>
+
+
+          <button
+            type="button"
+            class="delete-button"
+            (click)="deleteConsultation()"
+            [disabled]="isProcessing"
+          >
+
+            <span class="material-symbols-outlined">
+              delete
+            </span>
+
+            Delete Consultation
+
+          </button>
+
+        </div>
+
+      </div>
+
+    }
+
+  }
+
+
+  @else if (isLoading) {
+
+    <!-- ================================================= -->
+    <!-- LOADING -->
+    <!-- ================================================= -->
+
+    <div class="empty-state loading-state">
+
+      <span class="material-symbols-outlined">
+        progress_activity
+      </span>
+
+      <h2>
+        Loading Consultation
+      </h2>
+
+      <p>
+        Loading the consultation record and related information.
+      </p>
 
     </div>
 
@@ -1046,7 +1787,7 @@
   @else {
 
     <!-- ================================================= -->
-    <!-- NOT FOUND -->
+    <!-- ERROR / NOT FOUND -->
     <!-- ================================================= -->
 
     <div class="empty-state">
@@ -1060,7 +1801,10 @@
       </h2>
 
       <p>
-        The consultation you are looking for does not exist.
+        {{
+          errorMessage ||
+          'The consultation you are looking for does not exist.'
+        }}
       </p>
 
 
@@ -1068,7 +1812,12 @@
         type="button"
         class="secondary-button"
         (click)="backToConsultations()"
+        [disabled]="isProcessing"
       >
+
+        <span class="material-symbols-outlined">
+          arrow_back
+        </span>
 
         Back to Consultations
 
@@ -1079,3 +1828,4 @@
   }
 
 </div>
+

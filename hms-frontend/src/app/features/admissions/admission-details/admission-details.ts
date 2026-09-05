@@ -1,6 +1,23 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+// =====================================================
+// ADMISSION DETAILS COMPONENT
+// File:
+// src/app/features/admissions/admission-details/admission-details.ts
+// =====================================================
+
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit
+} from '@angular/core';
+
+import {
+  CommonModule
+} from '@angular/common';
+
+import {
+  ActivatedRoute,
+  Router
+} from '@angular/router';
 
 import {
   Admission,
@@ -36,13 +53,35 @@ export class AdmissionDetails implements OnInit {
 
 
   // =====================================================
+  // LOADING
+  // =====================================================
+
+  loading = true;
+
+
+  // =====================================================
+  // DELETING
+  // =====================================================
+
+  deleting = false;
+
+
+  // =====================================================
+  // UPDATING STATUS
+  // =====================================================
+
+  updatingStatus = false;
+
+
+  // =====================================================
   // CONSTRUCTOR
   // =====================================================
 
   constructor(
-    private admissionService: AdmissionService,
-    private route: ActivatedRoute,
-    private router: Router
+    private readonly admissionService: AdmissionService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly changeDetectorRef: ChangeDetectorRef
   ) {}
 
 
@@ -71,22 +110,106 @@ export class AdmissionDetails implements OnInit {
     }
 
 
-    this.admission =
-      this.admissionService.getAdmissionById(id)
-      ?? null;
+    this.loadAdmission(id);
+
+  }
 
 
-    if (!this.admission) {
+  // =====================================================
+  // LOAD ADMISSION
+  // =====================================================
 
-      alert(
-        'Admission could not be found.'
-      );
+  private loadAdmission(
+    id: string
+  ): void {
 
-      this.router.navigate([
-        '/admissions'
-      ]);
+    this.loading = true;
 
-    }
+    this.admission = null;
+
+
+    // ---------------------------------------------------
+    // Show loading state immediately
+    // ---------------------------------------------------
+
+    this.changeDetectorRef.detectChanges();
+
+
+    this.admissionService
+      .getAdmissionById(id)
+      .subscribe({
+
+        // ===============================================
+        // SUCCESS
+        // ===============================================
+
+        next: (
+          admission: Admission
+        ) => {
+
+          console.log(
+            'AdmissionDetails: admission received:',
+            admission
+          );
+
+
+          this.admission =
+            admission;
+
+
+          this.loading = false;
+
+
+          // ------------------------------------------------
+          // Force view update immediately
+          // ------------------------------------------------
+
+          this.changeDetectorRef.detectChanges();
+
+
+          console.log(
+            'AdmissionDetails: admission rendered:',
+            this.admission
+          );
+
+        },
+
+
+        // ===============================================
+        // ERROR
+        // ===============================================
+
+        error: (
+          error: Error
+        ) => {
+
+          console.error(
+            'Failed to load admission:',
+            error
+          );
+
+
+          this.admission = null;
+
+          this.loading = false;
+
+
+          this.changeDetectorRef.detectChanges();
+
+
+          alert(
+            error.message ||
+            'Admission could not be found.'
+          );
+
+
+          this.router.navigate([
+            '/admissions'
+          ]);
+
+        }
+
+      });
 
   }
 
@@ -108,20 +231,57 @@ export class AdmissionDetails implements OnInit {
       this.admission.status
     ) {
 
-      case 'Admitted':
+      case 'ADMITTED':
         return 'admitted';
 
-      case 'Discharged':
+      case 'DISCHARGED':
         return 'discharged';
 
-      case 'Transferred':
+      case 'TRANSFERRED':
         return 'transferred';
 
-      case 'Cancelled':
+      case 'CANCELLED':
         return 'cancelled';
 
       default:
         return '';
+
+    }
+
+  }
+
+
+  // =====================================================
+  // STATUS LABEL
+  // =====================================================
+
+  getStatusLabel(): string {
+
+    if (!this.admission) {
+
+      return '';
+
+    }
+
+
+    switch (
+      this.admission.status
+    ) {
+
+      case 'ADMITTED':
+        return 'Admitted';
+
+      case 'DISCHARGED':
+        return 'Discharged';
+
+      case 'TRANSFERRED':
+        return 'Transferred';
+
+      case 'CANCELLED':
+        return 'Cancelled';
+
+      default:
+        return this.admission.status;
 
     }
 
@@ -134,7 +294,11 @@ export class AdmissionDetails implements OnInit {
 
   editAdmission(): void {
 
-    if (!this.admission) {
+    if (
+      !this.admission ||
+      this.deleting ||
+      this.updatingStatus
+    ) {
 
       return;
 
@@ -156,7 +320,11 @@ export class AdmissionDetails implements OnInit {
 
   deleteAdmission(): void {
 
-    if (!this.admission) {
+    if (
+      !this.admission ||
+      this.deleting ||
+      this.updatingStatus
+    ) {
 
       return;
 
@@ -176,31 +344,70 @@ export class AdmissionDetails implements OnInit {
     }
 
 
-    const deleted =
-      this.admissionService.deleteAdmission(
+    this.deleting = true;
+
+
+    this.changeDetectorRef.detectChanges();
+
+
+    this.admissionService
+      .deleteAdmission(
         this.admission.id
-      );
+      )
+      .subscribe({
+
+        // ===============================================
+        // SUCCESS
+        // ===============================================
+
+        next: () => {
+
+          this.deleting = false;
 
 
-    if (!deleted) {
-
-      alert(
-        'Unable to delete admission.'
-      );
-
-      return;
-
-    }
+          this.changeDetectorRef.detectChanges();
 
 
-    alert(
-      'Admission deleted successfully.'
-    );
+          alert(
+            'Admission deleted successfully.'
+          );
 
 
-    this.router.navigate([
-      '/admissions'
-    ]);
+          this.router.navigate([
+            '/admissions'
+          ]);
+
+        },
+
+
+        // ===============================================
+        // ERROR
+        // ===============================================
+
+        error: (
+          error: Error
+        ) => {
+
+          this.deleting = false;
+
+
+          this.changeDetectorRef.detectChanges();
+
+
+          console.error(
+            'Failed to delete admission:',
+            error
+          );
+
+
+          alert(
+            error.message ||
+            'Unable to delete admission.'
+          );
+
+        }
+
+      });
 
   }
 
@@ -213,41 +420,135 @@ export class AdmissionDetails implements OnInit {
     status: AdmissionStatus
   ): void {
 
-    if (!this.admission) {
+    if (
+      !this.admission ||
+      this.updatingStatus ||
+      this.deleting
+    ) {
 
       return;
 
     }
 
 
-    const updated =
-      this.admissionService.updateAdmissionStatus(
+    if (
+      this.admission.status === status
+    ) {
+
+      return;
+
+    }
+
+
+    const confirmed =
+      confirm(
+        `Change admission status to ${this.getStatusLabelFor(status)}?`
+      );
+
+
+    if (!confirmed) {
+
+      return;
+
+    }
+
+
+    this.updatingStatus = true;
+
+
+    this.changeDetectorRef.detectChanges();
+
+
+    this.admissionService
+      .updateAdmissionStatus(
         this.admission.id,
         status
-      );
+      )
+      .subscribe({
+
+        // ===============================================
+        // SUCCESS
+        // ===============================================
+
+        next: (
+          updatedAdmission: Admission
+        ) => {
+
+          this.admission =
+            updatedAdmission;
 
 
-    if (!updated) {
+          this.updatingStatus = false;
 
-      alert(
-        'Unable to update admission status.'
-      );
 
-      return;
+          this.changeDetectorRef.detectChanges();
+
+
+          alert(
+            `Admission status changed to ${this.getStatusLabel()}.`
+          );
+
+        },
+
+
+        // ===============================================
+        // ERROR
+        // ===============================================
+
+        error: (
+          error: Error
+        ) => {
+
+          this.updatingStatus = false;
+
+
+          this.changeDetectorRef.detectChanges();
+
+
+          console.error(
+            'Failed to update admission status:',
+            error
+          );
+
+
+          alert(
+            error.message ||
+            'Unable to update admission status.'
+          );
+
+        }
+
+      });
+
+  }
+
+
+  // =====================================================
+  // STATUS LABEL HELPER
+  // =====================================================
+
+  private getStatusLabelFor(
+    status: AdmissionStatus
+  ): string {
+
+    switch (status) {
+
+      case 'ADMITTED':
+        return 'Admitted';
+
+      case 'DISCHARGED':
+        return 'Discharged';
+
+      case 'TRANSFERRED':
+        return 'Transferred';
+
+      case 'CANCELLED':
+        return 'Cancelled';
+
+      default:
+        return status;
 
     }
-
-
-    this.admission =
-      this.admissionService.getAdmissionById(
-        this.admission.id
-      )
-      ?? null;
-
-
-    alert(
-      `Admission status changed to ${status}.`
-    );
 
   }
 
@@ -267,6 +568,21 @@ export class AdmissionDetails implements OnInit {
     }
 
 
+    const parsedDate =
+      new Date(date);
+
+
+    if (
+      Number.isNaN(
+        parsedDate.getTime()
+      )
+    ) {
+
+      return '—';
+
+    }
+
+
     return new Intl.DateTimeFormat(
       'en-GB',
       {
@@ -275,7 +591,7 @@ export class AdmissionDetails implements OnInit {
         year: 'numeric'
       }
     ).format(
-      new Date(date)
+      parsedDate
     );
 
   }
@@ -296,6 +612,21 @@ export class AdmissionDetails implements OnInit {
     }
 
 
+    const parsedDate =
+      new Date(date);
+
+
+    if (
+      Number.isNaN(
+        parsedDate.getTime()
+      )
+    ) {
+
+      return '—';
+
+    }
+
+
     return new Intl.DateTimeFormat(
       'en-GB',
       {
@@ -306,7 +637,7 @@ export class AdmissionDetails implements OnInit {
         minute: '2-digit'
       }
     ).format(
-      new Date(date)
+      parsedDate
     );
 
   }
@@ -317,6 +648,16 @@ export class AdmissionDetails implements OnInit {
   // =====================================================
 
   backToAdmissions(): void {
+
+    if (
+      this.deleting ||
+      this.updatingStatus
+    ) {
+
+      return;
+
+    }
+
 
     this.router.navigate([
       '/admissions'

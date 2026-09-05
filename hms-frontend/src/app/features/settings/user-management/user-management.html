@@ -1,0 +1,641 @@
+<!-- =====================================================
+     USER MANAGEMENT
+===================================================== -->
+
+<div class="user-management-page">
+
+
+  <!-- ===================================================
+       PAGE HEADER
+  ==================================================== -->
+
+  <div class="page-header">
+
+    <div>
+
+      <button
+        type="button"
+        class="back-button"
+        (click)="goBack()">
+
+        <span class="material-symbols-outlined">
+          arrow_back
+        </span>
+
+        Settings
+
+      </button>
+
+
+      <h1>
+        User Management
+      </h1>
+
+
+      <p>
+        Create and manage HMS user accounts and their roles.
+      </p>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="primary-button"
+      (click)="openCreateForm()">
+
+      <span class="material-symbols-outlined">
+        person_add
+      </span>
+
+      Add User
+
+    </button>
+
+  </div>
+
+
+  <!-- ===================================================
+       SEARCH / SUMMARY
+  ==================================================== -->
+
+  <div class="toolbar">
+
+    <div class="search-box">
+
+      <span class="material-symbols-outlined">
+        search
+      </span>
+
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="Search users..."
+        aria-label="Search users">
+
+    </div>
+
+
+    <div class="user-count">
+
+      <strong>
+        {{ filteredUsers.length }}
+      </strong>
+
+      user{{ filteredUsers.length === 1 ? '' : 's' }}
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       LOADING
+  ==================================================== -->
+
+  <div
+    class="loading-state"
+    *ngIf="loading">
+
+    <span class="material-symbols-outlined spinning">
+      progress_activity
+    </span>
+
+    Loading users...
+
+  </div>
+
+
+  <!-- ===================================================
+       EMPTY STATE
+  ==================================================== -->
+
+  <div
+    class="empty-state"
+    *ngIf="!loading && filteredUsers.length === 0">
+
+    <span class="material-symbols-outlined">
+      group_off
+    </span>
+
+    <h2>
+      No users found
+    </h2>
+
+    <p>
+      There are no users matching your search.
+    </p>
+
+  </div>
+
+
+  <!-- ===================================================
+       USER TABLE
+  ==================================================== -->
+
+  <div
+    class="table-card"
+    *ngIf="!loading && filteredUsers.length > 0">
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>
+              User
+            </th>
+
+            <th>
+              Username
+            </th>
+
+            <th>
+              Role
+            </th>
+
+            <th>
+              Status
+            </th>
+
+            <th>
+              Created
+            </th>
+
+            <th class="actions-column">
+              Actions
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          <tr
+            *ngFor="let user of filteredUsers">
+
+            <td>
+
+              <div class="user-cell">
+
+                <div class="avatar">
+
+                  {{ user.fullName.charAt(0).toUpperCase() }}
+
+                </div>
+
+
+                <div>
+
+                  <strong>
+                    {{ user.fullName }}
+                  </strong>
+
+                </div>
+
+              </div>
+
+            </td>
+
+
+            <td>
+
+              <span class="username">
+                {{ user.username }}
+              </span>
+
+            </td>
+
+
+            <td>
+
+              <span class="role-badge">
+
+                {{ user.role }}
+
+              </span>
+
+            </td>
+
+
+            <td>
+
+              <span
+                class="status-badge"
+                [class.active]="user.enabled"
+                [class.inactive]="!user.enabled">
+
+                {{ user.enabled ? 'Active' : 'Disabled' }}
+
+              </span>
+
+            </td>
+
+
+            <td>
+
+              {{ user.createdAt | date:'mediumDate' }}
+
+            </td>
+
+
+            <td class="actions-column">
+
+              <div class="actions">
+
+                <button
+                  type="button"
+                  class="icon-button"
+                  title="Edit user"
+                  (click)="openEditForm(user)">
+
+                  <span class="material-symbols-outlined">
+                    edit
+                  </span>
+
+                </button>
+
+
+                <button
+                  type="button"
+                  class="icon-button"
+                  [title]="user.enabled ? 'Disable user' : 'Enable user'"
+                  (click)="toggleUserStatus(user)">
+
+                  <span class="material-symbols-outlined">
+
+                    {{
+                      user.enabled
+                        ? 'person_off'
+                        : 'person'
+                    }}
+
+                  </span>
+
+                </button>
+
+
+                <button
+                  type="button"
+                  class="icon-button danger"
+                  title="Delete user"
+                  (click)="deleteUser(user)">
+
+                  <span class="material-symbols-outlined">
+                    delete
+                  </span>
+
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       CREATE / EDIT MODAL
+  ==================================================== -->
+
+  <div
+    class="modal-backdrop"
+    *ngIf="showForm"
+    (click)="closeForm()">
+
+
+    <div
+      class="modal"
+      (click)="$event.stopPropagation()">
+
+
+      <!-- =================================================
+           MODAL HEADER
+      ================================================== -->
+
+      <div class="modal-header">
+
+        <div>
+
+          <h2>
+
+            {{
+              editing
+                ? 'Edit User'
+                : 'Create User'
+            }}
+
+          </h2>
+
+          <p>
+
+            {{
+              editing
+                ? 'Update account details and role.'
+                : 'Create a new HMS user account.'
+            }}
+
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="close-button"
+          (click)="closeForm()">
+
+          <span class="material-symbols-outlined">
+            close
+          </span>
+
+        </button>
+
+      </div>
+
+
+      <!-- =================================================
+           CREATE FORM
+      ================================================== -->
+
+      <form
+        *ngIf="!editing"
+        (ngSubmit)="createUser()">
+
+
+        <div class="form-group">
+
+          <label>
+            Full Name
+          </label>
+
+          <input
+            type="text"
+            name="fullName"
+            [(ngModel)]="form.fullName"
+            placeholder="Enter full name"
+            required>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Username
+          </label>
+
+          <input
+            type="text"
+            name="username"
+            [(ngModel)]="form.username"
+            placeholder="Enter username"
+            autocomplete="username"
+            required>
+
+          <small>
+            Username will be stored in lowercase.
+          </small>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Password
+          </label>
+
+          <input
+            type="password"
+            name="password"
+            [(ngModel)]="form.password"
+            placeholder="Minimum 6 characters"
+            autocomplete="new-password"
+            required>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Role
+          </label>
+
+          <select
+            name="role"
+            [(ngModel)]="form.role"
+            required>
+
+            <option
+              *ngFor="let role of roles"
+              [value]="role">
+
+              {{ role }}
+
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="status-toggle">
+
+          <label>
+
+            <input
+              type="checkbox"
+              name="enabled"
+              [(ngModel)]="form.enabled">
+
+            <span>
+              Account enabled
+            </span>
+
+          </label>
+
+        </div>
+
+
+        <div class="form-actions">
+
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="closeForm()">
+
+            Cancel
+
+          </button>
+
+
+          <button
+            type="submit"
+            class="primary-button"
+            [disabled]="saving">
+
+            <span
+              class="material-symbols-outlined"
+              *ngIf="saving">
+
+              progress_activity
+
+            </span>
+
+            {{
+              saving
+                ? 'Creating...'
+                : 'Create User'
+            }}
+
+          </button>
+
+        </div>
+
+      </form>
+
+
+      <!-- =================================================
+           EDIT FORM
+      ================================================== -->
+
+      <form
+        *ngIf="editing"
+        (ngSubmit)="updateUser()">
+
+
+        <div class="account-summary">
+
+          <span class="material-symbols-outlined">
+            account_circle
+          </span>
+
+          <div>
+
+            <strong>
+              {{ selectedUser?.username }}
+            </strong>
+
+            <small>
+              Username cannot be changed.
+            </small>
+
+          </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Full Name
+          </label>
+
+          <input
+            type="text"
+            name="editFullName"
+            [(ngModel)]="updateForm.fullName"
+            required>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Role
+          </label>
+
+          <select
+            name="editRole"
+            [(ngModel)]="updateForm.role"
+            required>
+
+            <option
+              *ngFor="let role of roles"
+              [value]="role">
+
+              {{ role }}
+
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="status-toggle">
+
+          <label>
+
+            <input
+              type="checkbox"
+              name="editEnabled"
+              [(ngModel)]="updateForm.enabled">
+
+            <span>
+              Account enabled
+            </span>
+
+          </label>
+
+        </div>
+
+
+        <div class="form-actions">
+
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="closeForm()">
+
+            Cancel
+
+          </button>
+
+
+          <button
+            type="submit"
+            class="primary-button"
+            [disabled]="saving">
+
+            <span
+              class="material-symbols-outlined"
+              *ngIf="saving">
+
+              progress_activity
+
+            </span>
+
+            {{
+              saving
+                ? 'Saving...'
+                : 'Save Changes'
+            }}
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>
