@@ -29,7 +29,7 @@ export class AppointmentService {
   // =====================================================
 
   private readonly apiUrl =
-    'http://localhost:8081/api/appointments';
+    '/api/appointments';
 
 
   // =====================================================

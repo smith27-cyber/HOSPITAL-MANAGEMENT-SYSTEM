@@ -68,7 +68,7 @@ export class AuthService {
   // ===================================================
 
   private readonly API_URL =
-    'http://localhost:8081/api/auth';
+    '/api/auth';
 
 
   // ===================================================

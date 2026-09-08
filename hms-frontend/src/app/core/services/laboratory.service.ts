@@ -20,10 +20,10 @@ export class LaboratoryService {
   // =====================================================
 
   private readonly TESTS_API_URL =
-    'http://localhost:8081/api/laboratory/tests';
+    '/api/laboratory/tests';
 
   private readonly REQUESTS_API_URL =
-    'http://localhost:8081/api/laboratory/requests';
+    '/api/laboratory/requests';
 
 
   // =====================================================

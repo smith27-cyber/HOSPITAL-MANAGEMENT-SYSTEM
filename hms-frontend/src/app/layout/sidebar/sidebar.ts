@@ -8,12 +8,12 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  Input,
   OnDestroy,
   OnInit,
   Output,
   inject
 } from '@angular/core';
-
 import {
   Router,
   RouterLink,
@@ -53,7 +53,12 @@ import {
   styleUrl: './sidebar.css'
 })
 export class Sidebar implements OnInit, OnDestroy {
+  // =====================================================
+  // DESKTOP COLLAPSE STATE
+  // =====================================================
 
+  @Input()
+  collapsed = false;
   // ===================================================
   // SIDEBAR EVENT
   // ===================================================

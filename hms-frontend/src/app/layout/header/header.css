@@ -50,7 +50,7 @@
   width: 42px;
   height: 42px;
 
-  display: none;
+  display: flex;
 
   align-items: center;
   justify-content: center;

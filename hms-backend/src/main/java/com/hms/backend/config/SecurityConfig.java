@@ -39,7 +39,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 // =====================================================
 
 @Configuration
-
 @EnableMethodSecurity
 public class SecurityConfig {
 
@@ -58,9 +57,7 @@ public class SecurityConfig {
     public SecurityConfig(
         JwtAuthenticationFilter jwtAuthenticationFilter
     ) {
-
-        this.jwtAuthenticationFilter =
-            jwtAuthenticationFilter;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
 
@@ -100,10 +97,6 @@ public class SecurityConfig {
             // =================================================
             // SESSION MANAGEMENT
             // =================================================
-            //
-            // HMS uses JWT authentication.
-            // No server-side HTTP session is required.
-            // =================================================
 
             .sessionManagement(
                 session ->
@@ -132,6 +125,16 @@ public class SecurityConfig {
 
 
                     // -----------------------------------------
+                    // PUBLIC HEALTH CHECK
+                    // -----------------------------------------
+
+                    .requestMatchers(
+                        "/api/health"
+                    )
+                    .permitAll()
+
+
+                    // -----------------------------------------
                     // CORS PREFLIGHT
                     // -----------------------------------------
 
@@ -143,23 +146,98 @@ public class SecurityConfig {
 
 
                     // -----------------------------------------
-                    // PUBLIC HEALTH CHECK
+                    // ANGULAR FRONTEND
                     // -----------------------------------------
+                    //
+                    // Spring Boot serves the Angular application
+                    // from src/main/resources/static/
+                    //
+                    // These resources must be publicly accessible
+                    // so the login page can load before authentication.
+                    // -----------------------------------------
+.requestMatchers(
+    // =================================================
+    // ANGULAR ENTRY POINT
+    // =================================================
+    "/",
+    "/index.html",
+    "/favicon.ico",
 
-                    .requestMatchers(
-                        "/api/health"
-                    )
-                    .permitAll()
+    // =================================================
+    // ANGULAR STATIC FILES
+    // =================================================
+    "/assets/**",
+
+    "/*.js",
+    "/*.css",
+    "/*.ico",
+    "/*.png",
+    "/*.jpg",
+    "/*.jpeg",
+    "/*.svg",
+    "/*.webp",
+    "/*.woff",
+    "/*.woff2",
+    "/*.ttf",
+
+    // =================================================
+    // ANGULAR APPLICATION ROUTES
+    // =================================================
+    //
+    // These are frontend routes, not API endpoints.
+    // Angular's authGuard handles application login.
+    //
+    "/login",
+    "/dashboard",
+
+    "/patients",
+    "/patients/**",
+
+    "/doctors",
+    "/doctors/**",
+
+    "/departments",
+    "/departments/**",
+
+    "/appointments",
+    "/appointments/**",
+
+    "/consultations",
+    "/consultations/**",
+
+    "/pharmacy",
+    "/pharmacy/**",
+
+    "/laboratory",
+    "/laboratory/**",
+
+    "/admissions",
+    "/admissions/**",
+
+    "/billing",
+    "/billing/**",
+
+    "/inventory",
+    "/inventory/**",
+
+    "/reports",
+    "/reports/**",
+
+    "/settings",
+    "/settings/**"
+)
+.permitAll()
 
 
                     // -----------------------------------------
                     // EVERYTHING ELSE
                     // -----------------------------------------
                     //
-                    // A valid JWT is required.
+                    // API endpoints and other protected resources
+                    // require JWT authentication.
                     //
-                    // Fine-grained authorization is handled
-                    // separately with @PreAuthorize.
+                    // Fine-grained authorization remains handled
+                    // by @PreAuthorize.
                     // -----------------------------------------
 
                     .anyRequest()

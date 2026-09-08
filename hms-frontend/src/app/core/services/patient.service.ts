@@ -33,7 +33,7 @@ export class PatientService {
   // =====================================================
 
   private readonly apiUrl =
-    'http://localhost:8081/api/patients';
+    '/api/patients';
 
 
   // =====================================================

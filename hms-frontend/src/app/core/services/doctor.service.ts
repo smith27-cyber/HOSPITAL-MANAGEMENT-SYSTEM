@@ -21,7 +21,7 @@ export class DoctorService {
   // =====================================================
 
   private readonly API_URL =
-    'http://localhost:8081/api/doctors';
+    '/api/doctors';
 
 
   // =====================================================

@@ -21,7 +21,7 @@ export class DepartmentService {
   // =====================================================
 
   private readonly API_URL =
-    'http://localhost:8081/api/departments';
+    '/api/departments';
 
 
   // =====================================================

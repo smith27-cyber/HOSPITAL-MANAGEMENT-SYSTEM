@@ -1,4 +1,17 @@
-<div class="hms-layout">
+<!-- =====================================================
+     HMS MAIN LAYOUT
+     File:
+     src/app/layout/main-layout/main-layout.html
+     ===================================================== -->
+
+<div
+  class="hms-layout"
+  [class.sidebar-collapsed]="sidebarCollapsed"
+>
+
+  <!-- ===================================================
+       MOBILE OVERLAY
+       =================================================== -->
 
   @if (sidebarOpen) {
 
@@ -11,11 +24,21 @@
   }
 
 
+  <!-- ===================================================
+       SIDEBAR
+       =================================================== -->
+
   <app-sidebar
+    [collapsed]="sidebarCollapsed"
+    [class.collapsed]="sidebarCollapsed"
     [class.mobile-open]="sidebarOpen"
     (closeSidebar)="closeSidebar()"
   ></app-sidebar>
 
+
+  <!-- ===================================================
+       MAIN SECTION
+       =================================================== -->
 
   <div class="main-section">
 

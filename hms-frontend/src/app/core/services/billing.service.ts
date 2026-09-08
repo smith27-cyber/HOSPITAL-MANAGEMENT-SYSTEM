@@ -231,7 +231,7 @@ export class BillingService {
   // =====================================================
 
   private readonly apiUrl =
-    'http://localhost:8081/api/billing';
+    '/api/billing';
 
 
   // =====================================================

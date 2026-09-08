@@ -28,7 +28,7 @@ export class InventoryService {
   // =====================================================
 
   private readonly API_URL =
-    'http://localhost:8081/api/inventory';
+    '/api/inventory';
 
 
   // =====================================================

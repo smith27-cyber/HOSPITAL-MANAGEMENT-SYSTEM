@@ -51,7 +51,7 @@ export class ConsultationService {
   // =====================================================
 
   private readonly apiUrl =
-    'http://localhost:8081/api/consultations';
+    '/api/consultations';
 
 
   // =====================================================

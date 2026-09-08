@@ -41,7 +41,7 @@ export class PharmacyService {
   // =====================================================
 
   private readonly API_URL =
-    'http://localhost:8081/api/pharmacy/prescriptions';
+    '/api/pharmacy/prescriptions';
 
 
   // =====================================================
