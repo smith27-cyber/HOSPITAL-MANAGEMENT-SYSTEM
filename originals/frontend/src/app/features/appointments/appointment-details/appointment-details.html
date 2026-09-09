@@ -1,0 +1,990 @@
+```html
+@if (appointment) {
+
+  <div class="appointment-details-page">
+
+    <!-- ================================================= -->
+    <!-- PAGE HEADER -->
+    <!-- ================================================= -->
+
+    <div class="page-header">
+
+      <div class="page-title">
+
+        <button
+          type="button"
+          class="back-button"
+          routerLink="/appointments"
+        >
+
+          <span class="material-symbols-outlined">
+            arrow_back
+          </span>
+
+          Back to Appointments
+
+        </button>
+
+        <div>
+
+          <h1>
+            Appointment Details
+          </h1>
+
+          <p>
+            View and manage appointment information
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- HEADER ACTIONS -->
+      <!-- ================================================= -->
+
+      <div class="header-actions">
+
+        <!-- ================================================= -->
+        <!-- EDIT -->
+        <!-- ================================================= -->
+
+        @if (
+          appointment.status !== 'Cancelled' &&
+          appointment.status !== 'Completed'
+        ) {
+
+          <button
+            type="button"
+            class="secondary-button"
+            [routerLink]="[
+              '/appointments',
+              appointment.id,
+              'edit'
+            ]"
+          >
+
+            <span class="material-symbols-outlined">
+              edit
+            </span>
+
+            Edit Appointment
+
+          </button>
+
+        }
+
+
+        <!-- ================================================= -->
+        <!-- CONFIRM -->
+        <!-- ================================================= -->
+
+        @if (
+          appointment.status === 'Scheduled'
+        ) {
+
+          <button
+            type="button"
+            class="confirm-button"
+            (click)="confirmAppointment()"
+          >
+
+            <span class="material-symbols-outlined">
+              check_circle
+            </span>
+
+            Confirm
+
+          </button>
+
+        }
+
+
+        <!-- ================================================= -->
+        <!-- CHECK IN -->
+        <!-- ================================================= -->
+
+        @if (
+          appointment.status === 'Confirmed'
+        ) {
+
+          <button
+            type="button"
+            class="primary-button"
+            (click)="checkInAppointment()"
+          >
+
+            <span class="material-symbols-outlined">
+              how_to_reg
+            </span>
+
+            Check In
+
+          </button>
+
+        }
+
+
+        <!-- ================================================= -->
+        <!-- START CONSULTATION -->
+        <!-- ================================================= -->
+
+        @if (
+          appointment.status === 'Checked-In'
+        ) {
+
+          <button
+            type="button"
+            class="consultation-button"
+            (click)="startConsultation()"
+          >
+
+            <span class="material-symbols-outlined">
+              stethoscope
+            </span>
+
+            Start Consultation
+
+          </button>
+
+        }
+
+
+        <!-- ================================================= -->
+        <!-- OPEN CONSULTATION -->
+        <!-- ================================================= -->
+
+        @if (
+          appointment.status === 'In Consultation'
+        ) {
+
+          <button
+            type="button"
+            class="consultation-button"
+            (click)="openConsultation()"
+          >
+
+            <span class="material-symbols-outlined">
+              clinical_notes
+            </span>
+
+            Open Consultation
+
+          </button>
+
+        }
+
+
+        <!-- ================================================= -->
+        <!-- COMPLETE -->
+        <!-- ================================================= -->
+
+        @if (
+          appointment.status === 'In Consultation'
+        ) {
+
+          <button
+            type="button"
+            class="complete-button"
+            (click)="completeAppointment()"
+          >
+
+            <span class="material-symbols-outlined">
+              task_alt
+            </span>
+
+            Complete
+
+          </button>
+
+        }
+
+
+        <!-- ================================================= -->
+        <!-- CANCEL -->
+        <!-- ================================================= -->
+
+        @if (
+          appointment.status !== 'Cancelled' &&
+          appointment.status !== 'Completed'
+        ) {
+
+          <button
+            type="button"
+            class="danger-button"
+            (click)="cancelAppointment()"
+          >
+
+            <span class="material-symbols-outlined">
+              cancel
+            </span>
+
+            Cancel
+
+          </button>
+
+        }
+
+
+        <!-- ================================================= -->
+        <!-- PRINT -->
+        <!-- ================================================= -->
+
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="print()"
+        >
+
+          <span class="material-symbols-outlined">
+            print
+          </span>
+
+          Print
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- APPOINTMENT HEADER CARD -->
+    <!-- ================================================= -->
+
+    <section class="appointment-header-card">
+
+      <div class="appointment-icon">
+
+        <span class="material-symbols-outlined">
+          calendar_month
+        </span>
+
+      </div>
+
+
+      <div class="appointment-main-info">
+
+        <div class="title-row">
+
+          <h1>
+            {{ appointment.id }}
+          </h1>
+
+
+          <!-- ================================================= -->
+          <!-- STATUS -->
+          <!-- ================================================= -->
+
+          <span
+            class="status"
+
+            [class.scheduled]="
+              appointment.status === 'Scheduled'
+            "
+
+            [class.confirmed]="
+              appointment.status === 'Confirmed'
+            "
+
+            [class.checked-in]="
+              appointment.status === 'Checked-In'
+            "
+
+            [class.in-consultation]="
+              appointment.status === 'In Consultation'
+            "
+
+            [class.completed]="
+              appointment.status === 'Completed'
+            "
+
+            [class.cancelled]="
+              appointment.status === 'Cancelled'
+            "
+
+            [class.no-show]="
+              appointment.status === 'No Show'
+            "
+          >
+
+            {{ appointment.status }}
+
+          </span>
+
+        </div>
+
+
+        <p>
+          {{ appointment.type }} appointment
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- APPOINTMENT INFORMATION -->
+    <!-- ================================================= -->
+
+    <div class="details-grid">
+
+
+      <!-- ================================================= -->
+      <!-- PATIENT INFORMATION -->
+      <!-- ================================================= -->
+
+      <section class="details-card">
+
+        <div class="card-header">
+
+          <div>
+
+            <h2>
+              Patient Information
+            </h2>
+
+            <p>
+              Patient assigned to this appointment
+            </p>
+
+          </div>
+
+          <span class="material-symbols-outlined">
+            person
+          </span>
+
+        </div>
+
+
+        <div class="information-grid">
+
+          <!-- PATIENT NAME -->
+
+          <div>
+
+            <label>
+              Patient Name
+            </label>
+
+            <strong>
+              {{ appointment.patientName || 'Not provided' }}
+            </strong>
+
+          </div>
+
+
+          <!-- PATIENT ID -->
+
+          <div>
+
+            <label>
+              Patient ID
+            </label>
+
+            <strong>
+              {{ appointment.patientId || 'Not provided' }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- DOCTOR INFORMATION -->
+      <!-- ================================================= -->
+
+      <section class="details-card">
+
+        <div class="card-header">
+
+          <div>
+
+            <h2>
+              Doctor Information
+            </h2>
+
+            <p>
+              Doctor responsible for this appointment
+            </p>
+
+          </div>
+
+          <span class="material-symbols-outlined">
+            medical_services
+          </span>
+
+        </div>
+
+
+        <div class="information-grid">
+
+          <!-- DOCTOR -->
+
+          <div>
+
+            <label>
+              Doctor
+            </label>
+
+            <strong>
+              {{ appointment.doctorName || 'Not assigned' }}
+            </strong>
+
+          </div>
+
+
+          <!-- DEPARTMENT -->
+
+          <div>
+
+            <label>
+              Department
+            </label>
+
+            <strong>
+              {{ appointment.department || 'Not assigned' }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- SCHEDULE -->
+      <!-- ================================================= -->
+
+      <section class="details-card">
+
+        <div class="card-header">
+
+          <div>
+
+            <h2>
+              Schedule
+            </h2>
+
+            <p>
+              Appointment date and time
+            </p>
+
+          </div>
+
+          <span class="material-symbols-outlined">
+            schedule
+          </span>
+
+        </div>
+
+
+        <div class="information-grid">
+
+          <!-- DATE -->
+
+          <div>
+
+            <label>
+              Appointment Date
+            </label>
+
+            <strong>
+              {{ appointment.appointmentDate }}
+            </strong>
+
+          </div>
+
+
+          <!-- TIME -->
+
+          <div>
+
+            <label>
+              Appointment Time
+            </label>
+
+            <strong>
+              {{ appointment.appointmentTime }}
+            </strong>
+
+          </div>
+
+
+          <!-- TYPE -->
+
+          <div>
+
+            <label>
+              Appointment Type
+            </label>
+
+            <strong>
+              {{ appointment.type }}
+            </strong>
+
+          </div>
+
+
+          <!-- STATUS -->
+
+          <div>
+
+            <label>
+              Status
+            </label>
+
+            <strong>
+              {{ appointment.status }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- REASON FOR VISIT -->
+      <!-- ================================================= -->
+
+      <section class="details-card">
+
+        <div class="card-header">
+
+          <div>
+
+            <h2>
+              Reason for Visit
+            </h2>
+
+            <p>
+              Purpose of the appointment
+            </p>
+
+          </div>
+
+          <span class="material-symbols-outlined">
+            description
+          </span>
+
+        </div>
+
+
+        <div class="text-content">
+
+          <p>
+            {{ appointment.reason || 'No reason recorded.' }}
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- ADDITIONAL NOTES -->
+      <!-- ================================================= -->
+
+      <section class="details-card full-width">
+
+        <div class="card-header">
+
+          <div>
+
+            <h2>
+              Additional Notes
+            </h2>
+
+            <p>
+              Additional appointment information
+            </p>
+
+          </div>
+
+          <span class="material-symbols-outlined">
+            notes
+          </span>
+
+        </div>
+
+
+        <div class="text-content">
+
+          <p>
+            {{
+              appointment.notes ||
+              'No additional notes.'
+            }}
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- CONSULTATION -->
+      <!-- ================================================= -->
+
+      @if (consultation) {
+
+        <section
+          class="details-card consultation-card full-width"
+        >
+
+          <div class="card-header">
+
+            <div>
+
+              <h2>
+                Consultation
+              </h2>
+
+              <p>
+                Clinical consultation associated with this appointment
+              </p>
+
+            </div>
+
+            <span class="material-symbols-outlined">
+              stethoscope
+            </span>
+
+          </div>
+
+
+          <!-- ================================================= -->
+          <!-- CONSULTATION SUMMARY -->
+          <!-- ================================================= -->
+
+          <div class="consultation-summary">
+
+            <!-- CONSULTATION ID -->
+
+            <div>
+
+              <label>
+                Consultation ID
+              </label>
+
+              <strong>
+                {{ consultation.id }}
+              </strong>
+
+            </div>
+
+
+            <!-- CONSULTATION DATE -->
+
+            <div>
+
+              <label>
+                Consultation Date
+              </label>
+
+              <strong>
+                {{ consultation.consultationDate }}
+              </strong>
+
+            </div>
+
+
+            <!-- CONSULTATION TIME -->
+
+            <div>
+
+              <label>
+                Consultation Time
+              </label>
+
+              <strong>
+                {{ consultation.consultationTime }}
+              </strong>
+
+            </div>
+
+
+            <!-- CONSULTATION STATUS -->
+
+            <div>
+
+              <label>
+                Status
+              </label>
+
+              <span
+                class="consultation-status"
+
+                [class.open]="
+                  consultation.status === 'Open'
+                "
+
+                [class.completed]="
+                  consultation.status === 'Completed'
+                "
+
+                [class.cancelled]="
+                  consultation.status === 'Cancelled'
+                "
+              >
+
+                {{ consultation.status }}
+
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <!-- ================================================= -->
+          <!-- CHIEF COMPLAINT -->
+          <!-- ================================================= -->
+
+          <div class="consultation-section">
+
+            <label>
+              Chief Complaint
+            </label>
+
+            <p>
+              {{
+                consultation.chiefComplaint ||
+                'Not recorded.'
+              }}
+            </p>
+
+          </div>
+
+
+          <!-- ================================================= -->
+          <!-- SYMPTOMS -->
+          <!-- ================================================= -->
+
+          @if (consultation.symptoms) {
+
+            <div class="consultation-section">
+
+              <label>
+                Symptoms
+              </label>
+
+              <p>
+                {{ consultation.symptoms }}
+              </p>
+
+            </div>
+
+          }
+
+
+          <!-- ================================================= -->
+          <!-- DIAGNOSIS -->
+          <!-- ================================================= -->
+
+          @if (consultation.diagnosis) {
+
+            <div class="consultation-section">
+
+              <label>
+                Diagnosis
+              </label>
+
+              <p>
+                {{ consultation.diagnosis }}
+              </p>
+
+            </div>
+
+          }
+
+
+          <!-- ================================================= -->
+          <!-- CLINICAL NOTES -->
+          <!-- ================================================= -->
+
+          @if (consultation.clinicalNotes) {
+
+            <div class="consultation-section">
+
+              <label>
+                Clinical Notes
+              </label>
+
+              <p>
+                {{ consultation.clinicalNotes }}
+              </p>
+
+            </div>
+
+          }
+
+
+          <!-- ================================================= -->
+          <!-- TREATMENT PLAN -->
+          <!-- ================================================= -->
+
+          @if (consultation.treatmentPlan) {
+
+            <div class="consultation-section">
+
+              <label>
+                Treatment Plan
+              </label>
+
+              <p>
+                {{ consultation.treatmentPlan }}
+              </p>
+
+            </div>
+
+          }
+
+
+          <!-- ================================================= -->
+          <!-- VIEW FULL CONSULTATION -->
+          <!-- ================================================= -->
+
+          <div class="consultation-actions">
+
+            <button
+              type="button"
+              class="primary-button"
+              [routerLink]="[
+                '/consultations',
+                consultation.id
+              ]"
+            >
+
+              <span class="material-symbols-outlined">
+                visibility
+              </span>
+
+              View Full Consultation
+
+            </button>
+
+          </div>
+
+        </section>
+
+      }
+
+
+      <!-- ================================================= -->
+      <!-- NO CONSULTATION -->
+      <!-- ================================================= -->
+
+      @else {
+
+        @if (
+          appointment.status === 'In Consultation' ||
+          appointment.status === 'Completed'
+        ) {
+
+          <section
+            class="details-card consultation-pending-card full-width"
+          >
+
+            <div class="card-header">
+
+              <div>
+
+                <h2>
+                  Consultation
+                </h2>
+
+                <p>
+                  No consultation record is linked to this appointment yet.
+                </p>
+
+              </div>
+
+              <span class="material-symbols-outlined">
+                stethoscope
+              </span>
+
+            </div>
+
+
+            <div class="pending-consultation">
+
+              <span class="material-symbols-outlined">
+                pending
+              </span>
+
+              <div>
+
+                <strong>
+                  Consultation record pending
+                </strong>
+
+                <p>
+                  The appointment has entered the consultation
+                  workflow, but no consultation record is currently linked.
+                </p>
+
+              </div>
+
+            </div>
+
+          </section>
+
+        }
+
+      }
+
+    </div>
+
+  </div>
+
+}
+
+
+<!-- ===================================================== -->
+<!-- APPOINTMENT NOT FOUND -->
+<!-- ===================================================== -->
+
+@else {
+
+  <div class="not-found">
+
+    <span class="material-symbols-outlined">
+      event_busy
+    </span>
+
+    <h2>
+      Appointment not found
+    </h2>
+
+    <p>
+      The appointment record could not be found.
+    </p>
+
+    <button
+      type="button"
+      class="primary-button"
+      routerLink="/appointments"
+    >
+
+      <span class="material-symbols-outlined">
+        arrow_back
+      </span>
+
+      Back to Appointments
+
+    </button>
+
+  </div>
+
+}
+

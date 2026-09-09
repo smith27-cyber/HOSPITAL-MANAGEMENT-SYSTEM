@@ -1,0 +1,502 @@
+<div class="department-profile-page">
+
+  <!-- =====================================================
+       PAGE HEADER
+       ===================================================== -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Department Profile
+      </h1>
+
+      <p>
+        View department information and management details
+      </p>
+
+    </div>
+
+
+    <div class="header-actions">
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="backToDepartments()"
+      >
+
+        <span class="material-symbols-outlined">
+          arrow_back
+        </span>
+
+        Back to Departments
+
+      </button>
+
+
+      @if (department) {
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="editDepartment()"
+        >
+
+          <span class="material-symbols-outlined">
+            edit
+          </span>
+
+          Edit Department
+
+        </button>
+
+      }
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       LOADING
+       ===================================================== -->
+
+  @if (loading) {
+
+    <section class="profile-card">
+
+      <div class="empty-profile">
+
+        <span class="material-symbols-outlined">
+          sync
+        </span>
+
+        <h2>
+          Loading Department...
+        </h2>
+
+        <p>
+          Please wait while the department information is loaded.
+        </p>
+
+      </div>
+
+    </section>
+
+  }
+
+
+  <!-- =====================================================
+       ERROR
+       ===================================================== -->
+
+  @if (!loading && errorMessage) {
+
+    <section class="profile-card">
+
+      <div class="empty-profile">
+
+        <span class="material-symbols-outlined">
+          error
+        </span>
+
+        <h2>
+          Department Not Found
+        </h2>
+
+        <p>
+          {{ errorMessage }}
+        </p>
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="backToDepartments()"
+        >
+
+          <span class="material-symbols-outlined">
+            arrow_back
+          </span>
+
+          Back to Departments
+
+        </button>
+
+      </div>
+
+    </section>
+
+  }
+
+
+  <!-- =====================================================
+       DEPARTMENT PROFILE
+       ===================================================== -->
+
+  @if (!loading && department && !errorMessage) {
+
+    <section class="profile-card">
+
+      <!-- =================================================
+           PROFILE HERO
+           ================================================= -->
+
+      <div class="profile-hero">
+
+        <div class="department-avatar">
+
+          <span class="material-symbols-outlined">
+            business
+          </span>
+
+        </div>
+
+
+        <div class="profile-hero-info">
+
+          <h2>
+            {{ department.name }}
+          </h2>
+
+          <p>
+            {{
+              department.description ||
+              'No description available'
+            }}
+          </p>
+
+          <span class="department-code">
+            {{ department.code }}
+          </span>
+
+        </div>
+
+
+        <span
+          class="status"
+          [class.active]="
+            department.status === 'Active'
+          "
+          [class.inactive]="
+            department.status === 'Inactive'
+          "
+        >
+
+          {{ department.status }}
+
+        </span>
+
+      </div>
+
+
+      <!-- =================================================
+           PROFILE CONTENT
+           ================================================= -->
+
+      <div class="profile-content">
+
+        <!-- ===============================================
+             DEPARTMENT INFORMATION
+             =============================================== -->
+
+        <section class="info-section">
+
+          <div class="section-title">
+
+            <span class="material-symbols-outlined">
+              business
+            </span>
+
+            <h3>
+              Department Information
+            </h3>
+
+          </div>
+
+
+          <div class="info-grid">
+
+            <!-- NAME -->
+
+            <div class="info-item">
+
+              <span class="info-label">
+                Department Name
+              </span>
+
+              <span class="info-value">
+                {{ department.name }}
+              </span>
+
+            </div>
+
+
+            <!-- CODE -->
+
+            <div class="info-item">
+
+              <span class="info-label">
+                Department Code
+              </span>
+
+              <span class="info-value">
+                {{ department.code }}
+              </span>
+
+            </div>
+
+
+            <!-- DESCRIPTION -->
+
+            <div class="info-item full-width">
+
+              <span class="info-label">
+                Description
+              </span>
+
+              <span
+                class="info-value"
+                [class.muted]="
+                  !department.description
+                "
+              >
+
+                {{
+                  department.description ||
+                  'No description provided'
+                }}
+
+              </span>
+
+            </div>
+
+
+            <!-- LOCATION -->
+
+            <div class="info-item">
+
+              <span class="info-label">
+                Location
+              </span>
+
+              <span
+                class="info-value"
+                [class.muted]="
+                  !department.location
+                "
+              >
+
+                {{
+                  department.location ||
+                  'Not provided'
+                }}
+
+              </span>
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div class="info-item">
+
+              <span class="info-label">
+                Status
+              </span>
+
+              <span
+                class="status"
+                [class.active]="
+                  department.status === 'Active'
+                "
+                [class.inactive]="
+                  department.status === 'Inactive'
+                "
+              >
+
+                {{ department.status }}
+
+              </span>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- ===============================================
+             CONTACT INFORMATION
+             =============================================== -->
+
+        <section class="info-section">
+
+          <div class="section-title">
+
+            <span class="material-symbols-outlined">
+              contact_phone
+            </span>
+
+            <h3>
+              Contact Information
+            </h3>
+
+          </div>
+
+
+          <div class="info-grid">
+
+            <!-- HEAD OF DEPARTMENT -->
+
+            <div class="info-item">
+
+              <span class="info-label">
+                Head of Department
+              </span>
+
+              <span
+                class="info-value"
+                [class.muted]="
+                  !department.headOfDepartment
+                "
+              >
+
+                {{
+                  department.headOfDepartment ||
+                  'Not assigned'
+                }}
+
+              </span>
+
+            </div>
+
+
+            <!-- PHONE -->
+
+            <div class="info-item">
+
+              <span class="info-label">
+                Phone
+              </span>
+
+              <span
+                class="info-value"
+                [class.muted]="
+                  !department.phone
+                "
+              >
+
+                {{
+                  department.phone ||
+                  'Not provided'
+                }}
+
+              </span>
+
+            </div>
+
+
+            <!-- EMAIL -->
+
+            <div class="info-item">
+
+              <span class="info-label">
+                Email
+              </span>
+
+              <span
+                class="info-value"
+                [class.muted]="
+                  !department.email
+                "
+              >
+
+                {{
+                  department.email ||
+                  'Not provided'
+                }}
+
+              </span>
+
+            </div>
+
+          </div>
+
+        </section>
+
+      </div>
+
+
+      <!-- =================================================
+           FOOTER
+           ================================================= -->
+
+      <div class="profile-footer">
+
+        <span class="created-info">
+
+          Created:
+
+          <strong>
+
+            @if (department.createdAt) {
+
+              {{ department.createdAt | date:'medium' }}
+
+            } @else {
+
+              Not available
+
+            }
+
+          </strong>
+
+        </span>
+
+
+        @if (department.status === 'Active') {
+
+          <button
+            type="button"
+            class="danger-button"
+            (click)="deactivateDepartment()"
+          >
+
+            <span class="material-symbols-outlined">
+              block
+            </span>
+
+            Deactivate Department
+
+          </button>
+
+        }
+
+
+        @if (department.status === 'Inactive') {
+
+          <button
+            type="button"
+            class="primary-button"
+            (click)="activateDepartment()"
+          >
+
+            <span class="material-symbols-outlined">
+              check_circle
+            </span>
+
+            Activate Department
+
+          </button>
+
+        }
+
+      </div>
+
+    </section>
+
+  }
+
+</div>

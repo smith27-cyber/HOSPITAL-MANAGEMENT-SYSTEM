@@ -1,0 +1,578 @@
+
+<div class="doctors-page">
+
+  <!-- ================================================= -->
+  <!-- PAGE HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div>
+      <h1>Doctors</h1>
+
+      <p>
+        Manage doctors and medical staff
+      </p>
+    </div>
+
+
+    <button
+      class="primary-button"
+      type="button"
+      routerLink="/doctors/register"
+    >
+
+      <span class="material-symbols-outlined">
+        person_add
+      </span>
+
+      Register Doctor
+
+    </button>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- STATISTICS -->
+  <!-- ================================================= -->
+
+  <div class="doctor-stats">
+
+
+    <!-- TOTAL -->
+
+    <div class="mini-stat">
+
+      <div class="mini-stat-icon">
+
+        <span class="material-symbols-outlined">
+          medical_services
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Total Doctors
+        </span>
+
+        <strong>
+          {{ totalDoctors }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- ACTIVE -->
+
+    <div class="mini-stat">
+
+      <div class="mini-stat-icon active-icon">
+
+        <span class="material-symbols-outlined">
+          person_check
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Active Doctors
+        </span>
+
+        <strong>
+          {{ activeDoctors }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- INACTIVE -->
+
+    <div class="mini-stat">
+
+      <div class="mini-stat-icon inactive-icon">
+
+        <span class="material-symbols-outlined">
+          person_off
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Inactive Doctors
+        </span>
+
+        <strong>
+          {{ inactiveDoctors }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- SPECIALISTS -->
+
+    <div class="mini-stat">
+
+      <div class="mini-stat-icon specialist-icon">
+
+        <span class="material-symbols-outlined">
+          stethoscope
+        </span>
+
+      </div>
+
+      <div>
+
+        <span>
+          Specializations
+        </span>
+
+        <strong>
+          {{ doctors.length }}
+        </strong>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ================================================= -->
+  <!-- DOCTOR CARD -->
+  <!-- ================================================= -->
+
+  <section class="doctors-card">
+
+
+    <!-- ================================================= -->
+    <!-- TOOLBAR -->
+    <!-- ================================================= -->
+
+    <div class="table-toolbar">
+
+
+      <!-- SEARCH -->
+
+      <div class="search-box">
+
+        <span class="material-symbols-outlined">
+          search
+        </span>
+
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Search doctors by name, ID or phone..."
+        />
+
+      </div>
+
+
+      <!-- FILTERS -->
+
+      <div class="filters">
+
+
+        <!-- DEPARTMENT -->
+
+        <select
+          [(ngModel)]="selectedDepartment"
+        >
+
+          <option value="">
+            All Departments
+          </option>
+
+          <option value="General Medicine">
+            General Medicine
+          </option>
+
+          <option value="Cardiology">
+            Cardiology
+          </option>
+
+          <option value="Dental">
+            Dental
+          </option>
+
+          <option value="Pediatrics">
+            Pediatrics
+          </option>
+
+          <option value="Orthopedics">
+            Orthopedics
+          </option>
+
+          <option value="Laboratory">
+            Laboratory
+          </option>
+
+        </select>
+
+
+        <!-- STATUS -->
+
+        <select
+          [(ngModel)]="selectedStatus"
+        >
+
+          <option value="">
+            All Status
+          </option>
+
+          <option value="Active">
+            Active
+          </option>
+
+          <option value="Inactive">
+            Inactive
+          </option>
+
+        </select>
+
+
+        <!-- CLEAR -->
+
+        <button
+          class="clear-button"
+          type="button"
+          (click)="clearFilters()"
+        >
+
+          <span class="material-symbols-outlined">
+            filter_alt_off
+          </span>
+
+          Clear
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- ================================================= -->
+    <!-- TABLE -->
+    <!-- ================================================= -->
+
+    <div class="table-wrapper">
+
+      <table>
+
+
+        <!-- TABLE HEADER -->
+
+        <thead>
+
+          <tr>
+
+            <th>
+              Doctor
+            </th>
+
+            <th>
+              Doctor ID
+            </th>
+
+            <th>
+              Specialization
+            </th>
+
+            <th>
+              Department
+            </th>
+
+            <th>
+              Phone
+            </th>
+
+            <th>
+              License
+            </th>
+
+            <th>
+              Status
+            </th>
+
+            <th>
+              Actions
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+
+        <!-- TABLE BODY -->
+
+        <tbody>
+
+
+          @for (
+            doctor of filteredDoctors;
+            track doctor.id
+          ) {
+
+            <tr>
+
+
+              <!-- DOCTOR -->
+
+              <td>
+
+                <div class="doctor-cell">
+
+                  <div class="doctor-avatar">
+
+                    {{
+                      doctor.firstName.charAt(0)
+                    }}{{
+                      doctor.lastName.charAt(0)
+                    }}
+
+                  </div>
+
+
+                  <div>
+
+                    <strong>
+
+                      Dr.
+                      {{ doctor.firstName }}
+                      {{ doctor.lastName }}
+
+                    </strong>
+
+                    <span>
+                      {{ doctor.email }}
+                    </span>
+
+                  </div>
+
+                </div>
+
+              </td>
+
+
+
+              <!-- ID -->
+
+              <td>
+
+                <span class="doctor-id">
+                  {{ doctor.id }}
+                </span>
+
+              </td>
+
+
+
+              <!-- SPECIALIZATION -->
+
+              <td>
+                {{ doctor.specialization }}
+              </td>
+
+
+
+              <!-- DEPARTMENT -->
+
+              <td>
+                {{ doctor.department }}
+              </td>
+
+
+
+              <!-- PHONE -->
+
+              <td>
+                {{ doctor.phone }}
+              </td>
+
+
+
+              <!-- LICENSE -->
+
+              <td>
+                {{ doctor.licenseNumber }}
+              </td>
+
+
+
+              <!-- STATUS -->
+
+              <td>
+
+                <span
+                  class="status"
+                  [class.active]="
+                    doctor.status === 'Active'
+                  "
+                  [class.inactive]="
+                    doctor.status === 'Inactive'
+                  "
+                >
+
+                  {{ doctor.status }}
+
+                </span>
+
+              </td>
+
+
+
+              <!-- ACTIONS -->
+
+              <td>
+
+                <div class="action-buttons">
+
+
+                  <!-- VIEW -->
+
+                  <button
+                    class="action-button"
+                    type="button"
+                    [routerLink]="[
+                      '/doctors',
+                      doctor.id
+                    ]"
+                    title="View Doctor"
+                  >
+
+                    <span class="material-symbols-outlined">
+                      visibility
+                    </span>
+
+                  </button>
+
+
+                  <!-- EDIT -->
+
+                  <button
+                    class="action-button"
+                    type="button"
+                    [routerLink]="[
+                      '/doctors',
+                      doctor.id,
+                      'edit'
+                    ]"
+                    title="Edit Doctor"
+                  >
+
+                    <span class="material-symbols-outlined">
+                      edit
+                    </span>
+
+                  </button>
+
+
+                  <!-- DEACTIVATE -->
+
+                  <button
+                    class="action-button danger-action"
+                    type="button"
+                    (click)="
+                      deactivateDoctor(doctor.id)
+                    "
+                    [disabled]="
+                      doctor.status === 'Inactive'
+                    "
+                    title="Deactivate Doctor"
+                  >
+
+                    <span class="material-symbols-outlined">
+                      person_off
+                    </span>
+
+                  </button>
+
+
+                  <!-- DELETE -->
+
+                  <button
+                    class="action-button delete-action"
+                    type="button"
+                    (click)="
+                      deleteDoctor(doctor.id)
+                    "
+                    title="Delete Doctor"
+                  >
+
+                    <span class="material-symbols-outlined">
+                      delete
+                    </span>
+
+                  </button>
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          }
+
+
+          <!-- ================================================= -->
+          <!-- EMPTY STATE -->
+          <!-- ================================================= -->
+
+          @if (filteredDoctors.length === 0) {
+
+            <tr>
+
+              <td
+                colspan="8"
+                class="empty-cell"
+              >
+
+                <div class="empty-state">
+
+                  <span class="material-symbols-outlined">
+                    medical_services
+                  </span>
+
+                  <h3>
+                    No doctors found
+                  </h3>
+
+                  <p>
+                    Try changing your search or filters.
+                  </p>
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</div>
+

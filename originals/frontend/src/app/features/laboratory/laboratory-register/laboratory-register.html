@@ -1,0 +1,303 @@
+<div class="laboratory-register-page">
+
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Register Laboratory Test
+      </h1>
+
+      <p>
+        Add a new laboratory test or service
+      </p>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="cancel()"
+    >
+
+      <span class="material-symbols-outlined">
+        arrow_back
+      </span>
+
+      Back to Laboratory
+
+    </button>
+
+  </div>
+
+
+
+  <!-- ================================================= -->
+  <!-- FORM CARD -->
+  <!-- ================================================= -->
+
+  <section class="form-card">
+
+
+    <!-- ================================================= -->
+    <!-- BASIC INFORMATION -->
+    <!-- ================================================= -->
+
+    <div class="card-header">
+
+      <div>
+
+        <h2>
+          Test Information
+        </h2>
+
+        <span>
+          Enter the basic information about this laboratory test.
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div class="form-body">
+
+
+      <!-- ================================================= -->
+      <!-- TEST NAME -->
+      <!-- ================================================= -->
+
+      <div class="form-group full-width">
+
+        <label for="testName">
+          Test Name
+          <span>*</span>
+        </label>
+
+        <input
+          id="testName"
+          type="text"
+          name="testName"
+          [(ngModel)]="test.testName"
+          placeholder="e.g. Complete Blood Count"
+        />
+
+        <small>
+          Enter the official name of the laboratory test.
+        </small>
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- CATEGORY -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label for="category">
+          Category
+          <span>*</span>
+        </label>
+
+        <select
+          id="category"
+          name="category"
+          [(ngModel)]="test.category"
+        >
+
+          @for (
+            category of categories;
+            track category
+          ) {
+
+            <option
+              [value]="category"
+            >
+              {{ category }}
+            </option>
+
+          }
+
+        </select>
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- SAMPLE TYPE -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label for="sampleType">
+          Sample Type
+          <span>*</span>
+        </label>
+
+        <select
+          id="sampleType"
+          name="sampleType"
+          [(ngModel)]="test.sampleType"
+        >
+
+          @for (
+            sampleType of sampleTypes;
+            track sampleType
+          ) {
+
+            <option
+              [value]="sampleType"
+            >
+              {{ sampleType }}
+            </option>
+
+          }
+
+        </select>
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- PRICE -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label for="price">
+          Price (UGX)
+          <span>*</span>
+        </label>
+
+        <input
+          id="price"
+          type="number"
+          name="price"
+          [(ngModel)]="test.price"
+          min="0"
+          step="100"
+          placeholder="e.g. 25000"
+        />
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- NORMAL RANGE -->
+      <!-- ================================================= -->
+
+      <div class="form-group">
+
+        <label for="normalRange">
+          Normal Range
+        </label>
+
+        <input
+          id="normalRange"
+          type="text"
+          name="normalRange"
+          [(ngModel)]="test.normalRange"
+          placeholder="e.g. 4.5 - 11.0 x10^9/L"
+        />
+
+        <small>
+          Enter the expected normal/reference range if applicable.
+        </small>
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- PREPARATION -->
+      <!-- ================================================= -->
+
+      <div class="form-group full-width">
+
+        <label for="preparationInstructions">
+          Preparation Instructions
+        </label>
+
+        <textarea
+          id="preparationInstructions"
+          name="preparationInstructions"
+          [(ngModel)]="test.preparationInstructions"
+          rows="4"
+          placeholder="e.g. Patient should fast for 8–12 hours before the test."
+        ></textarea>
+
+      </div>
+
+
+
+      <!-- ================================================= -->
+      <!-- DESCRIPTION -->
+      <!-- ================================================= -->
+
+      <div class="form-group full-width">
+
+        <label for="description">
+          Description
+        </label>
+
+        <textarea
+          id="description"
+          name="description"
+          [(ngModel)]="test.description"
+          rows="5"
+          placeholder="Describe what this laboratory test is used for..."
+        ></textarea>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- ================================================= -->
+    <!-- FORM ACTIONS -->
+    <!-- ================================================= -->
+
+    <div class="form-actions">
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="cancel()"
+      >
+
+        Cancel
+
+      </button>
+
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="saveTest()"
+      >
+
+        <span class="material-symbols-outlined">
+          save
+        </span>
+
+        Register Test
+
+      </button>
+
+    </div>
+
+  </section>
+
+</div>

@@ -1,0 +1,177 @@
+<div class="doctor-form-page">
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+  <div class="page-header">
+    <div>
+      <h1>
+        {{ isEditMode ? 'Edit Doctor' : 'Register Doctor' }}
+      </h1>
+      <p>
+        {{ isEditMode ? 'Update doctor information' : 'Create a new doctor record' }}
+      </p>
+    </div>
+
+    <button class="secondary-button" type="button" (click)="cancel()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Back to Doctors
+    </button>
+  </div>
+
+  <!-- ================================================= -->
+  <!-- FORM -->
+  <!-- ================================================= -->
+  <form class="doctor-form" (ngSubmit)="saveDoctor()">
+
+    <!-- ================================================= -->
+    <!-- PERSONAL INFORMATION -->
+    <!-- ================================================= -->
+    <section class="form-card">
+      <div class="section-header">
+        <div class="section-icon">
+          <span class="material-symbols-outlined">person</span>
+        </div>
+        <div>
+          <h2>Personal Information</h2>
+          <p>Basic information about the doctor</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <!-- FIRST NAME -->
+        <div class="form-group">
+          <label>First Name <span>*</span></label>
+          <input type="text" name="firstName" [(ngModel)]="doctor.firstName" placeholder="Enter first name" maxlength="50" autocomplete="off" required />
+        </div>
+
+        <!-- LAST NAME -->
+        <div class="form-group">
+          <label>Last Name <span>*</span></label>
+          <input type="text" name="lastName" [(ngModel)]="doctor.lastName" placeholder="Enter last name" maxlength="50" autocomplete="off" required />
+        </div>
+
+        <!-- DATE OF BIRTH -->
+        <div class="form-group">
+          <label>Date of Birth <span>*</span></label>
+          <input type="date" name="dateOfBirth" [(ngModel)]="doctor.dateOfBirth" required />
+        </div>
+
+        <!-- GENDER -->
+        <div class="form-group">
+          <label>Gender <span>*</span></label>
+          <select name="gender" [(ngModel)]="doctor.gender" required>
+            <option value="">Select gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- PHONE -->
+        <div class="form-group">
+          <label>Phone Number <span>*</span></label>
+          <input type="tel" name="phone" [(ngModel)]="doctor.phone" placeholder="07XX XXX XXX" maxlength="20" autocomplete="off" required />
+        </div>
+
+        <!-- EMAIL -->
+        <div class="form-group">
+          <label>Email <span>*</span></label>
+          <input type="email" name="email" [(ngModel)]="doctor.email" placeholder="doctor@example.com" maxlength="150" autocomplete="off" required />
+        </div>
+
+        <!-- NATIONAL ID -->
+        <div class="form-group">
+          <label>National ID</label>
+          <input type="text" name="nationalId" [(ngModel)]="doctor.nationalId" placeholder="Enter national ID" maxlength="30" autocomplete="off" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================= -->
+    <!-- PROFESSIONAL INFORMATION -->
+    <!-- ================================================= -->
+    <section class="form-card">
+      <div class="section-header">
+        <div class="section-icon">
+          <span class="material-symbols-outlined">medical_services</span>
+        </div>
+        <div>
+          <h2>Professional Information</h2>
+          <p>Medical qualification and employment information</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <!-- SPECIALIZATION -->
+        <div class="form-group">
+          <label>Specialization <span>*</span></label>
+          <select name="specialization" [(ngModel)]="doctor.specialization" required>
+            <option value="">Select specialization</option>
+            @for (specialization of specializations; track specialization) {
+              <option [value]="specialization">{{ specialization }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- DEPARTMENT -->
+        <div class="form-group">
+          <label>Department <span>*</span></label>
+          <select name="department" [(ngModel)]="doctor.department" required>
+            <option value="">Select department</option>
+            @for (department of departments; track department.id) {
+              <option [value]="department.name">
+                {{ department.name }} — {{ department.code }}
+              </option>
+            }
+          </select>
+          @if (departments.length === 0) {
+            <small class="field-warning">
+              No active departments are registered. Please register a department first.
+            </small>
+          }
+        </div>
+
+        <!-- LICENSE -->
+        <div class="form-group">
+          <label>Medical License Number <span>*</span></label>
+          <input type="text" name="licenseNumber" [(ngModel)]="doctor.licenseNumber" placeholder="Enter license number" maxlength="50" autocomplete="off" required />
+        </div>
+
+        <!-- CONSULTATION FEE -->
+        <div class="form-group">
+          <label>Consultation Fee</label>
+          <input type="number" name="consultationFee" [(ngModel)]="doctor.consultationFee" placeholder="Enter consultation fee" min="0" step="1000" />
+        </div>
+
+        <!-- STATUS (Only visible in edit mode) -->
+        @if (isEditMode) {
+          <div class="form-group">
+            <label>Status <span>*</span></label>
+            <select name="status" [(ngModel)]="doctor.status" required>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- ================================================= -->
+    <!-- FORM ACTIONS -->
+    <!-- ================================================= -->
+    <div class="form-actions">
+      <button class="secondary-button" type="button" (click)="cancel()">
+        <span class="material-symbols-outlined">close</span>
+        Cancel
+      </button>
+      <button class="primary-button" type="submit">
+        <span class="material-symbols-outlined">
+          {{ isEditMode ? 'save' : 'person_add' }}
+        </span>
+        {{ isEditMode ? 'Update Doctor' : 'Register Doctor' }}
+      </button>
+    </div>
+
+  </form>
+</div>

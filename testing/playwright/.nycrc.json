@@ -1,0 +1,6 @@
+{
+  "report-dir": "./coverage",
+  "reporter": ["html", "text", "text-summary", "lcov", "json"],
+  "all": true,
+  "check-coverage": false
+}
