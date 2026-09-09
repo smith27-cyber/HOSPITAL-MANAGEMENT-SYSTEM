@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+/node_modules
+
+# Test results and coverage
+/testing/node_modules
+/testing/test-results/
+/testing/playwright/test-results/
+/testing/.nyc_output
+/testing/coverage
+*.lcov
+
+# Build artifacts
+/dist
+/build
+/target
+*.jar
+*.war
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
