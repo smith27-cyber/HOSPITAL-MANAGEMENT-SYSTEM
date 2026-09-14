@@ -1,5 +1,7 @@
 package com.hms.backend.entity;
 
+import com.hms.backend.tenant.entity.Tenant;
+
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -9,28 +11,56 @@ import java.util.List;
 
 @Entity
 @Table(
-    name = "pharmacy_prescriptions"
+        name = "pharmacy_prescriptions",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_pharmacy_prescription_tenant_number",
+                        columnNames = {"tenant_id", "prescription_number"}
+                )
+        },
+        indexes = {
+                @Index(
+                        name = "idx_pharmacy_prescription_tenant",
+                        columnList = "tenant_id"
+                ),
+                @Index(
+                        name = "idx_pharmacy_prescription_tenant_patient",
+                        columnList = "tenant_id, patient_id"
+                ),
+                @Index(
+                        name = "idx_pharmacy_prescription_tenant_consultation",
+                        columnList = "tenant_id, consultation_id"
+                ),
+                @Index(
+                        name = "idx_pharmacy_prescription_tenant_status",
+                        columnList = "tenant_id, status"
+                )
+        }
 )
 public class PharmacyPrescription {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     // =====================================================
-    // ID
+    // TENANT
     // =====================================================
 
-    @Id
-    @GeneratedValue(
-        strategy = GenerationType.IDENTITY
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "tenant_id",
+            nullable = false
     )
-    private Long id;
+    private Tenant tenant;
 
     // =====================================================
     // PRESCRIPTION NUMBER
     // =====================================================
 
     @Column(
-        nullable = false,
-        unique = true,
-        length = 50
+            nullable = false,
+            length = 50
     )
     private String prescriptionNumber;
 
@@ -38,16 +68,10 @@ public class PharmacyPrescription {
     // PATIENT
     // =====================================================
 
-    @Column(
-        nullable = false,
-        length = 100
-    )
+    @Column(nullable = false, length = 100)
     private String patientId;
 
-    @Column(
-        nullable = false,
-        length = 150
-    )
+    @Column(nullable = false, length = 150)
     private String patientName;
 
     @Column(length = 50)
@@ -74,45 +98,40 @@ public class PharmacyPrescription {
     // PRESCRIPTION ITEMS
     // =====================================================
 
-    @ElementCollection(
-        fetch = FetchType.EAGER
-    )
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
-        name = "pharmacy_prescription_items",
-        joinColumns = @JoinColumn(
-            name = "prescription_id"
-        )
+            name = "pharmacy_prescription_items",
+            joinColumns = @JoinColumn(
+                    name = "prescription_id"
+            )
     )
     private List<PharmacyPrescriptionItem> items =
-        new ArrayList<>();
+            new ArrayList<>();
 
     // =====================================================
     // FINANCIAL INFORMATION
     // =====================================================
 
     @Column(
-        nullable = false,
-        precision = 12,
-        scale = 2
+            nullable = false,
+            precision = 12,
+            scale = 2
     )
-    private BigDecimal subtotal =
-        BigDecimal.ZERO;
+    private BigDecimal subtotal = BigDecimal.ZERO;
 
     @Column(
-        nullable = false,
-        precision = 12,
-        scale = 2
+            nullable = false,
+            precision = 12,
+            scale = 2
     )
-    private BigDecimal amountPaid =
-        BigDecimal.ZERO;
+    private BigDecimal amountPaid = BigDecimal.ZERO;
 
     @Column(
-        nullable = false,
-        precision = 12,
-        scale = 2
+            nullable = false,
+            precision = 12,
+            scale = 2
     )
-    private BigDecimal balance =
-        BigDecimal.ZERO;
+    private BigDecimal balance = BigDecimal.ZERO;
 
     // =====================================================
     // BILLING
@@ -129,8 +148,8 @@ public class PharmacyPrescription {
     // =====================================================
 
     @Column(
-        nullable = false,
-        length = 50
+            nullable = false,
+            length = 50
     )
     private String status = "Waiting";
 
@@ -138,9 +157,7 @@ public class PharmacyPrescription {
     // DATES
     // =====================================================
 
-    @Column(
-        nullable = false
-    )
+    @Column(nullable = false)
     private LocalDateTime prescriptionDate;
 
     @Column
@@ -163,18 +180,14 @@ public class PharmacyPrescription {
     // NOTES
     // =====================================================
 
-    @Column(
-        columnDefinition = "TEXT"
-    )
+    @Column(columnDefinition = "TEXT")
     private String notes;
 
     // =====================================================
     // AUDIT
     // =====================================================
 
-    @Column(
-        nullable = false
-    )
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     @Column
@@ -187,8 +200,7 @@ public class PharmacyPrescription {
     @PrePersist
     protected void onCreate() {
 
-        LocalDateTime now =
-            LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
 
         if (createdAt == null) {
             createdAt = now;
@@ -221,37 +233,38 @@ public class PharmacyPrescription {
 
     @PreUpdate
     protected void onUpdate() {
-
-        updatedAt =
-            LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
     // =====================================================
-    // GETTERS AND SETTERS
+    // GETTERS / SETTERS
     // =====================================================
 
     public Long getId() {
         return id;
     }
 
+    public Tenant getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(Tenant tenant) {
+        this.tenant = tenant;
+    }
+
     public String getPrescriptionNumber() {
         return prescriptionNumber;
     }
 
-    public void setPrescriptionNumber(
-        String prescriptionNumber
-    ) {
-        this.prescriptionNumber =
-            prescriptionNumber;
+    public void setPrescriptionNumber(String prescriptionNumber) {
+        this.prescriptionNumber = prescriptionNumber;
     }
 
     public String getPatientId() {
         return patientId;
     }
 
-    public void setPatientId(
-        String patientId
-    ) {
+    public void setPatientId(String patientId) {
         this.patientId = patientId;
     }
 
@@ -259,9 +272,7 @@ public class PharmacyPrescription {
         return patientName;
     }
 
-    public void setPatientName(
-        String patientName
-    ) {
+    public void setPatientName(String patientName) {
         this.patientName = patientName;
     }
 
@@ -269,31 +280,23 @@ public class PharmacyPrescription {
         return patientNumber;
     }
 
-    public void setPatientNumber(
-        String patientNumber
-    ) {
-        this.patientNumber =
-            patientNumber;
+    public void setPatientNumber(String patientNumber) {
+        this.patientNumber = patientNumber;
     }
 
     public String getConsultationId() {
         return consultationId;
     }
 
-    public void setConsultationId(
-        String consultationId
-    ) {
-        this.consultationId =
-            consultationId;
+    public void setConsultationId(String consultationId) {
+        this.consultationId = consultationId;
     }
 
     public String getDoctorId() {
         return doctorId;
     }
 
-    public void setDoctorId(
-        String doctorId
-    ) {
+    public void setDoctorId(String doctorId) {
         this.doctorId = doctorId;
     }
 
@@ -301,9 +304,7 @@ public class PharmacyPrescription {
         return doctorName;
     }
 
-    public void setDoctorName(
-        String doctorName
-    ) {
+    public void setDoctorName(String doctorName) {
         this.doctorName = doctorName;
     }
 
@@ -311,9 +312,7 @@ public class PharmacyPrescription {
         return items;
     }
 
-    public void setItems(
-        List<PharmacyPrescriptionItem> items
-    ) {
+    public void setItems(List<PharmacyPrescriptionItem> items) {
         this.items = items;
     }
 
@@ -321,9 +320,7 @@ public class PharmacyPrescription {
         return subtotal;
     }
 
-    public void setSubtotal(
-        BigDecimal subtotal
-    ) {
+    public void setSubtotal(BigDecimal subtotal) {
         this.subtotal = subtotal;
     }
 
@@ -331,9 +328,7 @@ public class PharmacyPrescription {
         return amountPaid;
     }
 
-    public void setAmountPaid(
-        BigDecimal amountPaid
-    ) {
+    public void setAmountPaid(BigDecimal amountPaid) {
         this.amountPaid = amountPaid;
     }
 
@@ -341,9 +336,7 @@ public class PharmacyPrescription {
         return balance;
     }
 
-    public void setBalance(
-        BigDecimal balance
-    ) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 
@@ -351,9 +344,7 @@ public class PharmacyPrescription {
         return billingId;
     }
 
-    public void setBillingId(
-        String billingId
-    ) {
+    public void setBillingId(String billingId) {
         this.billingId = billingId;
     }
 
@@ -361,9 +352,7 @@ public class PharmacyPrescription {
         return billingStatus;
     }
 
-    public void setBillingStatus(
-        String billingStatus
-    ) {
+    public void setBillingStatus(String billingStatus) {
         this.billingStatus = billingStatus;
     }
 
@@ -371,9 +360,7 @@ public class PharmacyPrescription {
         return status;
     }
 
-    public void setStatus(
-        String status
-    ) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
@@ -381,20 +368,15 @@ public class PharmacyPrescription {
         return prescriptionDate;
     }
 
-    public void setPrescriptionDate(
-        LocalDateTime prescriptionDate
-    ) {
-        this.prescriptionDate =
-            prescriptionDate;
+    public void setPrescriptionDate(LocalDateTime prescriptionDate) {
+        this.prescriptionDate = prescriptionDate;
     }
 
     public LocalDateTime getPreparedAt() {
         return preparedAt;
     }
 
-    public void setPreparedAt(
-        LocalDateTime preparedAt
-    ) {
+    public void setPreparedAt(LocalDateTime preparedAt) {
         this.preparedAt = preparedAt;
     }
 
@@ -402,9 +384,7 @@ public class PharmacyPrescription {
         return paymentDate;
     }
 
-    public void setPaymentDate(
-        LocalDateTime paymentDate
-    ) {
+    public void setPaymentDate(LocalDateTime paymentDate) {
         this.paymentDate = paymentDate;
     }
 
@@ -412,9 +392,7 @@ public class PharmacyPrescription {
         return dispensedAt;
     }
 
-    public void setDispensedAt(
-        LocalDateTime dispensedAt
-    ) {
+    public void setDispensedAt(LocalDateTime dispensedAt) {
         this.dispensedAt = dispensedAt;
     }
 
@@ -422,9 +400,7 @@ public class PharmacyPrescription {
         return dispensedBy;
     }
 
-    public void setDispensedBy(
-        String dispensedBy
-    ) {
+    public void setDispensedBy(String dispensedBy) {
         this.dispensedBy = dispensedBy;
     }
 
@@ -432,9 +408,7 @@ public class PharmacyPrescription {
         return notes;
     }
 
-    public void setNotes(
-        String notes
-    ) {
+    public void setNotes(String notes) {
         this.notes = notes;
     }
 
@@ -442,9 +416,7 @@ public class PharmacyPrescription {
         return createdAt;
     }
 
-    public void setCreatedAt(
-        LocalDateTime createdAt
-    ) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -452,9 +424,7 @@ public class PharmacyPrescription {
         return updatedAt;
     }
 
-    public void setUpdatedAt(
-        LocalDateTime updatedAt
-    ) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 }

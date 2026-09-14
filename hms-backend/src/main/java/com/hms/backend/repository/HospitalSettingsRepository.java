@@ -5,8 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface HospitalSettingsRepository
-    extends JpaRepository<HospitalSettings, Long> {
+public interface HospitalSettingsRepository extends JpaRepository<HospitalSettings, Long> {
 
-    Optional<HospitalSettings> findFirstByOrderByIdAsc();
+    Optional<HospitalSettings> findFirstByTenant_Id(Long tenantId);
+
+    Optional<HospitalSettings> findByIdAndTenant_Id(Long id, Long tenantId);
 }

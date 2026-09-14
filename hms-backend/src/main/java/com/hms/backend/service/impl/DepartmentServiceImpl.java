@@ -1,11 +1,16 @@
 package com.hms.backend.service.impl;
 
 import com.hms.backend.entity.Department;
+import com.hms.backend.tenant.entity.Tenant;
 import com.hms.backend.repository.DepartmentRepository;
+import com.hms.backend.tenant.context.TenantContext;
+import com.hms.backend.tenant.repository.TenantRepository;
 import com.hms.backend.service.DepartmentService;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,22 +21,40 @@ import java.util.List;
 public class DepartmentServiceImpl
         implements DepartmentService {
 
-
     private final DepartmentRepository departmentRepository;
-
+    private final TenantRepository tenantRepository;
 
     // =====================================================
     // CONSTRUCTOR
     // =====================================================
 
     public DepartmentServiceImpl(
-            DepartmentRepository departmentRepository
+            DepartmentRepository departmentRepository,
+            TenantRepository tenantRepository
     ) {
-
-        this.departmentRepository =
-                departmentRepository;
+        this.departmentRepository = departmentRepository;
+        this.tenantRepository = tenantRepository;
     }
 
+    // =====================================================
+    // GET CURRENT TENANT
+    // =====================================================
+
+    private Tenant getCurrentTenant() {
+
+        Long tenantId =
+                TenantContext.requireTenantId();
+
+        return tenantRepository
+                .findById(tenantId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                "Current tenant not found: "
+                                        + tenantId
+                        )
+                );
+    }
 
     // =====================================================
     // GET ALL DEPARTMENTS
@@ -41,21 +64,31 @@ public class DepartmentServiceImpl
     @Transactional(readOnly = true)
     public List<Department> getAllDepartments() {
 
-        return departmentRepository.findAll();
+        Long tenantId =
+                TenantContext.requireTenantId();
+
+        return departmentRepository
+                .findAllByTenant_Id(tenantId);
     }
 
-// =====================================================
-// GET ACTIVE DEPARTMENTS
-// =====================================================
+    // =====================================================
+    // GET ACTIVE DEPARTMENTS
+    // =====================================================
 
-@Override
-@Transactional(readOnly = true)
-public List<Department> getActiveDepartments() {
+    @Override
+    @Transactional(readOnly = true)
+    public List<Department> getActiveDepartments() {
 
-    return departmentRepository.findByStatus(
-            "Active"
-    );
-}
+        Long tenantId =
+                TenantContext.requireTenantId();
+
+        return departmentRepository
+                .findByTenant_IdAndStatus(
+                        tenantId,
+                        "Active"
+                );
+    }
+
     // =====================================================
     // GET DEPARTMENT BY ID
     // =====================================================
@@ -66,16 +99,22 @@ public List<Department> getActiveDepartments() {
             String id
     ) {
 
+        Long tenantId =
+                TenantContext.requireTenantId();
+
         return departmentRepository
-                .findById(id)
+                .findByIdAndTenant_Id(
+                        id,
+                        tenantId
+                )
                 .orElseThrow(() ->
-                        new RuntimeException(
-                                "Department not found with ID: "
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Department not found: "
                                         + id
                         )
                 );
     }
-
 
     // =====================================================
     // ADD DEPARTMENT
@@ -87,6 +126,24 @@ public List<Department> getActiveDepartments() {
     ) {
 
         // -------------------------------------------------
+        // CURRENT TENANT
+        // -------------------------------------------------
+
+        Tenant currentTenant =
+                getCurrentTenant();
+
+        Long tenantId =
+                currentTenant.getId();
+
+        // -------------------------------------------------
+        // FORCE TENANT SERVER-SIDE
+        // -------------------------------------------------
+
+        department.setTenant(
+                currentTenant
+        );
+
+        // -------------------------------------------------
         // NORMALIZE INPUT
         // -------------------------------------------------
 
@@ -94,64 +151,59 @@ public List<Department> getActiveDepartments() {
                 department
         );
 
-
         // -------------------------------------------------
-        // VALIDATE REQUIRED FIELDS
+        // VALIDATE
         // -------------------------------------------------
 
         validateRequiredFields(
                 department
         );
 
-
         // -------------------------------------------------
-        // CHECK DEPARTMENT NAME
+        // CHECK NAME
         // -------------------------------------------------
 
         if (
-                departmentRepository.existsByName(
-                        department.getName()
-                )
+                departmentRepository
+                        .existsByNameAndTenant_Id(
+                                department.getName(),
+                                tenantId
+                        )
         ) {
 
-            throw new RuntimeException(
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
                     "Department with name already exists: "
                             + department.getName()
             );
         }
 
-
         // -------------------------------------------------
-        // CHECK DEPARTMENT CODE
+        // CHECK CODE
         // -------------------------------------------------
 
         if (
-                departmentRepository.existsByCode(
-                        department.getCode()
-                )
+                departmentRepository
+                        .existsByCodeAndTenant_Id(
+                                department.getCode(),
+                                tenantId
+                        )
         ) {
 
-            throw new RuntimeException(
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
                     "Department with code already exists: "
                             + department.getCode()
             );
         }
 
-
         // -------------------------------------------------
-        // GENERATE DEPARTMENT ID
-        //
-        // Example:
-        //
-        // DEP-2026-0001
-        // DEP-2026-0002
-        // DEP-2026-0003
+        // GENERATE ID
         // -------------------------------------------------
 
         department.setId(
                 generateDepartmentId()
         );
-
 
         // -------------------------------------------------
         // DEFAULT STATUS
@@ -161,7 +213,6 @@ public List<Department> getActiveDepartments() {
                 "Active"
         );
 
-
         // -------------------------------------------------
         // CREATED DATE
         // -------------------------------------------------
@@ -169,7 +220,6 @@ public List<Department> getActiveDepartments() {
         department.setCreatedAt(
                 LocalDateTime.now()
         );
-
 
         // -------------------------------------------------
         // SAVE
@@ -179,7 +229,6 @@ public List<Department> getActiveDepartments() {
                 department
         );
     }
-
 
     // =====================================================
     // UPDATE DEPARTMENT
@@ -191,83 +240,82 @@ public List<Department> getActiveDepartments() {
             Department updatedDepartment
     ) {
 
+        Long tenantId =
+                TenantContext.requireTenantId();
+
         // -------------------------------------------------
-        // FIND EXISTING DEPARTMENT
+        // FIND EXISTING IN CURRENT TENANT
         // -------------------------------------------------
 
         Department existingDepartment =
-                getDepartmentById(id);
-
+                departmentRepository
+                        .findByIdAndTenant_Id(
+                                id,
+                                tenantId
+                        )
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Department not found: "
+                                                + id
+                                )
+                        );
 
         // -------------------------------------------------
-        // NORMALIZE INPUT
+        // NORMALIZE
         // -------------------------------------------------
 
         normalizeDepartment(
                 updatedDepartment
         );
 
-
         // -------------------------------------------------
-        // VALIDATE REQUIRED FIELDS
+        // VALIDATE
         // -------------------------------------------------
 
         validateRequiredFields(
                 updatedDepartment
         );
 
-
         // -------------------------------------------------
         // CHECK NAME
         // -------------------------------------------------
 
-        departmentRepository
-                .findByName(
-                        updatedDepartment.getName()
-                )
-                .ifPresent(
-                        existingWithName -> {
+        if (
+                departmentRepository
+                        .existsByNameAndTenant_IdAndIdNot(
+                                updatedDepartment.getName(),
+                                tenantId,
+                                id
+                        )
+        ) {
 
-                            if (
-                                    !existingWithName
-                                            .getId()
-                                            .equals(id)
-                            ) {
-
-                                throw new RuntimeException(
-                                        "Another department already uses name: "
-                                                + updatedDepartment.getName()
-                                );
-                            }
-                        }
-                );
-
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Another department already uses name: "
+                            + updatedDepartment.getName()
+            );
+        }
 
         // -------------------------------------------------
         // CHECK CODE
         // -------------------------------------------------
 
-        departmentRepository
-                .findByCode(
-                        updatedDepartment.getCode()
-                )
-                .ifPresent(
-                        existingWithCode -> {
+        if (
+                departmentRepository
+                        .existsByCodeAndTenant_IdAndIdNot(
+                                updatedDepartment.getCode(),
+                                tenantId,
+                                id
+                        )
+        ) {
 
-                            if (
-                                    !existingWithCode
-                                            .getId()
-                                            .equals(id)
-                            ) {
-
-                                throw new RuntimeException(
-                                        "Another department already uses code: "
-                                                + updatedDepartment.getCode()
-                                );
-                            }
-                        }
-                );
-
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Another department already uses code: "
+                            + updatedDepartment.getCode()
+            );
+        }
 
         // -------------------------------------------------
         // UPDATE BASIC INFORMATION
@@ -285,18 +333,16 @@ public List<Department> getActiveDepartments() {
                 updatedDepartment.getDescription()
         );
 
-
         // -------------------------------------------------
-        // UPDATE HEAD OF DEPARTMENT
+        // UPDATE HEAD
         // -------------------------------------------------
 
         existingDepartment.setHeadOfDepartment(
                 updatedDepartment.getHeadOfDepartment()
         );
 
-
         // -------------------------------------------------
-        // UPDATE CONTACT INFORMATION
+        // UPDATE CONTACT
         // -------------------------------------------------
 
         existingDepartment.setPhone(
@@ -307,7 +353,6 @@ public List<Department> getActiveDepartments() {
                 updatedDepartment.getEmail()
         );
 
-
         // -------------------------------------------------
         // UPDATE LOCATION
         // -------------------------------------------------
@@ -316,16 +361,15 @@ public List<Department> getActiveDepartments() {
                 updatedDepartment.getLocation()
         );
 
-
         // -------------------------------------------------
-        // SAVE
+        // IMPORTANT:
+        // DO NOT CHANGE TENANT
         // -------------------------------------------------
 
         return departmentRepository.save(
                 existingDepartment
         );
     }
-
 
     // =====================================================
     // DELETE DEPARTMENT
@@ -343,7 +387,6 @@ public List<Department> getActiveDepartments() {
                 department
         );
     }
-
 
     // =====================================================
     // UPDATE DEPARTMENT STATUS
@@ -367,39 +410,32 @@ public List<Department> getActiveDepartments() {
                 )
         ) {
 
-            throw new RuntimeException(
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
                     "Invalid department status. "
                             + "Allowed values: Active, Inactive."
             );
         }
 
-
         // -------------------------------------------------
-        // FIND DEPARTMENT
+        // FIND CURRENT-TENANT DEPARTMENT
         // -------------------------------------------------
 
         Department department =
                 getDepartmentById(id);
 
-
         // -------------------------------------------------
-        // UPDATE STATUS
+        // UPDATE
         // -------------------------------------------------
 
         department.setStatus(
                 status
         );
 
-
-        // -------------------------------------------------
-        // SAVE
-        // -------------------------------------------------
-
         return departmentRepository.save(
                 department
         );
     }
-
 
     // =====================================================
     // NORMALIZE DEPARTMENT
@@ -409,19 +445,14 @@ public List<Department> getActiveDepartments() {
             Department department
     ) {
 
-        if (
-                department.getName() != null
-        ) {
+        if (department.getName() != null) {
 
             department.setName(
                     department.getName().trim()
             );
         }
 
-
-        if (
-                department.getCode() != null
-        ) {
+        if (department.getCode() != null) {
 
             department.setCode(
                     department.getCode()
@@ -430,13 +461,11 @@ public List<Department> getActiveDepartments() {
             );
         }
 
-
-        if (
-                department.getDescription() != null
-        ) {
+        if (department.getDescription() != null) {
 
             String description =
-                    department.getDescription().trim();
+                    department.getDescription()
+                            .trim();
 
             department.setDescription(
                     description.isEmpty()
@@ -445,10 +474,7 @@ public List<Department> getActiveDepartments() {
             );
         }
 
-
-        if (
-                department.getHeadOfDepartment() != null
-        ) {
+        if (department.getHeadOfDepartment() != null) {
 
             String head =
                     department.getHeadOfDepartment()
@@ -461,13 +487,11 @@ public List<Department> getActiveDepartments() {
             );
         }
 
-
-        if (
-                department.getPhone() != null
-        ) {
+        if (department.getPhone() != null) {
 
             String phone =
-                    department.getPhone().trim();
+                    department.getPhone()
+                            .trim();
 
             department.setPhone(
                     phone.isEmpty()
@@ -476,10 +500,7 @@ public List<Department> getActiveDepartments() {
             );
         }
 
-
-        if (
-                department.getEmail() != null
-        ) {
+        if (department.getEmail() != null) {
 
             String email =
                     department.getEmail()
@@ -493,13 +514,11 @@ public List<Department> getActiveDepartments() {
             );
         }
 
-
-        if (
-                department.getLocation() != null
-        ) {
+        if (department.getLocation() != null) {
 
             String location =
-                    department.getLocation().trim();
+                    department.getLocation()
+                            .trim();
 
             department.setLocation(
                     location.isEmpty()
@@ -508,7 +527,6 @@ public List<Department> getActiveDepartments() {
             );
         }
     }
-
 
     // =====================================================
     // VALIDATE REQUIRED FIELDS
@@ -524,11 +542,11 @@ public List<Department> getActiveDepartments() {
                 )
         ) {
 
-            throw new RuntimeException(
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
                     "Department name is required."
             );
         }
-
 
         if (
                 isBlank(
@@ -536,12 +554,12 @@ public List<Department> getActiveDepartments() {
                 )
         ) {
 
-            throw new RuntimeException(
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
                     "Department code is required."
             );
         }
     }
-
 
     // =====================================================
     // CHECK BLANK
@@ -555,7 +573,6 @@ public List<Department> getActiveDepartments() {
                 value.trim().isEmpty();
     }
 
-
     // =====================================================
     // GENERATE DEPARTMENT ID
     // =====================================================
@@ -565,14 +582,11 @@ public List<Department> getActiveDepartments() {
         int currentYear =
                 LocalDate.now().getYear();
 
-
         int nextSequence = 1;
-
 
         var lastIdOpt =
                 departmentRepository
                         .findMaxIdForCurrentYear();
-
 
         if (
                 lastIdOpt.isPresent()
@@ -581,12 +595,10 @@ public List<Department> getActiveDepartments() {
             String lastId =
                     lastIdOpt.get();
 
-
             try {
 
                 String[] parts =
                         lastId.split("-");
-
 
                 if (
                         parts.length == 3
@@ -601,12 +613,9 @@ public List<Department> getActiveDepartments() {
             } catch (
                     NumberFormatException ignored
             ) {
-
-                // Start from 0001 if the
-                // existing ID is invalid.
+                // Start from 0001
             }
         }
-
 
         return String.format(
                 "DEP-%d-%04d",

@@ -25,6 +25,11 @@ public class LoginResponse {
      * New RBAC permissions.
      */
     private List<String> permissions;
+    private Long tenantId;
+
+    private String tenantCode;
+
+    private String tenantName;
 
     public LoginResponse() {
     }
@@ -68,5 +73,29 @@ public class LoginResponse {
 
     public List<String> getPermissions() {
         return permissions;
+    }
+
+      public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getTenantCode() {
+        return tenantCode;
+    }
+
+    public void setTenantCode(String tenantCode) {
+        this.tenantCode = tenantCode;
+    }
+
+    public String getTenantName() {
+        return tenantName;
+    }
+
+    public void setTenantName(String tenantName) {
+        this.tenantName = tenantName;
     }
 }

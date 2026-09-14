@@ -1,51 +1,79 @@
-
 package com.hms.backend.service.impl;
 
 import com.hms.backend.dto.AppointmentRequest;
 import com.hms.backend.dto.AppointmentResponse;
 import com.hms.backend.entity.Appointment;
+import com.hms.backend.entity.Department;
+import com.hms.backend.entity.Doctor;
+import com.hms.backend.entity.Patient;
+import com.hms.backend.tenant.entity.Tenant;
 import com.hms.backend.repository.AppointmentRepository;
+import com.hms.backend.repository.DepartmentRepository;
+import com.hms.backend.repository.DoctorRepository;
+import com.hms.backend.repository.PatientRepository;
 import com.hms.backend.service.AppointmentService;
+import com.hms.backend.tenant.context.TenantContext;
+import com.hms.backend.tenant.repository.TenantRepository;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
-// =====================================================
-// APPOINTMENT SERVICE IMPLEMENTATION
-// File:
-// src/main/java/com/hms/backend/service/impl/AppointmentServiceImpl.java
-// =====================================================
-
 @Service
 @Transactional
-public class AppointmentServiceImpl implements AppointmentService {
-
-    // =====================================================
-    // REPOSITORY
-    // =====================================================
+public class AppointmentServiceImpl
+        implements AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
-
+    private final PatientRepository patientRepository;
+    private final DoctorRepository doctorRepository;
+    private final DepartmentRepository departmentRepository;
+    private final TenantRepository tenantRepository;
 
     // =====================================================
     // CONSTRUCTOR
     // =====================================================
 
     public AppointmentServiceImpl(
-            AppointmentRepository appointmentRepository
+            AppointmentRepository appointmentRepository,
+            PatientRepository patientRepository,
+            DoctorRepository doctorRepository,
+            DepartmentRepository departmentRepository,
+            TenantRepository tenantRepository
     ) {
 
-        this.appointmentRepository =
-                appointmentRepository;
-
+        this.appointmentRepository = appointmentRepository;
+        this.patientRepository = patientRepository;
+        this.doctorRepository = doctorRepository;
+        this.departmentRepository = departmentRepository;
+        this.tenantRepository = tenantRepository;
     }
 
+    // =====================================================
+    // CURRENT TENANT
+    // =====================================================
+
+    private Tenant getCurrentTenant() {
+
+        Long tenantId =
+                TenantContext.requireTenantId();
+
+        return tenantRepository
+                .findById(tenantId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                "Current tenant not found: "
+                                        + tenantId
+                        )
+                );
+    }
 
     // =====================================================
     // CREATE APPOINTMENT
@@ -56,14 +84,67 @@ public class AppointmentServiceImpl implements AppointmentService {
             AppointmentRequest request
     ) {
 
+        validateAppointmentRequest(request);
+
+        Tenant currentTenant =
+                getCurrentTenant();
+
+        Long tenantId =
+                currentTenant.getId();
+
         // -------------------------------------------------
-        // VALIDATE REQUEST
+        // VERIFY PATIENT BELONGS TO CURRENT TENANT
         // -------------------------------------------------
 
-        validateAppointmentRequest(
-                request
-        );
+        Patient patient =
+                patientRepository
+                        .findByIdAndTenant_Id(
+                                request.getPatientId(),
+                                tenantId
+                        )
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Patient not found: "
+                                                + request.getPatientId()
+                                )
+                        );
 
+        // -------------------------------------------------
+        // VERIFY DOCTOR BELONGS TO CURRENT TENANT
+        // -------------------------------------------------
+
+        Doctor doctor =
+                doctorRepository
+                        .findByIdAndTenant_Id(
+                                request.getDoctorId(),
+                                tenantId
+                        )
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Doctor not found: "
+                                                + request.getDoctorId()
+                                )
+                        );
+
+        // -------------------------------------------------
+        // VERIFY DEPARTMENT BELONGS TO CURRENT TENANT
+        // -------------------------------------------------
+
+        Department department =
+                departmentRepository
+                        .findByNameAndTenant_Id(
+                                request.getDepartment(),
+                                tenantId
+                        )
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Department not found: "
+                                                + request.getDepartment()
+                                )
+                        );
 
         // -------------------------------------------------
         // CREATE ENTITY
@@ -72,9 +153,16 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment =
                 new Appointment();
 
+        // -------------------------------------------------
+        // FORCE TENANT
+        // -------------------------------------------------
+
+        appointment.setTenant(
+                currentTenant
+        );
 
         // -------------------------------------------------
-        // GENERATE ID IF NOT PROVIDED
+        // GENERATE ID
         // -------------------------------------------------
 
         String appointmentId =
@@ -87,636 +175,51 @@ public class AppointmentServiceImpl implements AppointmentService {
 
             appointmentId =
                     generateAppointmentId();
-
         }
-
 
         appointment.setId(
                 appointmentId
         );
 
-
         // -------------------------------------------------
-        // MAP REQUEST TO ENTITY
+        // SET PATIENT FROM DATABASE
         // -------------------------------------------------
-
-        mapRequestToEntity(
-                request,
-                appointment
-        );
-
-
-        // -------------------------------------------------
-        // DEFAULT STATUS
-        // -------------------------------------------------
-
-        if (
-                appointment.getStatus() == null ||
-                appointment.getStatus().isBlank()
-        ) {
-
-            appointment.setStatus(
-                    "Scheduled"
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // CREATED AT
-        // -------------------------------------------------
-
-        appointment.setCreatedAt(
-                LocalDateTime.now()
-        );
-
-
-        // -------------------------------------------------
-        // SAVE
-        // -------------------------------------------------
-
-        Appointment savedAppointment =
-                appointmentRepository.save(
-                        appointment
-                );
-
-
-        // -------------------------------------------------
-        // RETURN RESPONSE DTO
-        // -------------------------------------------------
-
-        return mapToResponse(
-                savedAppointment
-        );
-
-    }
-
-
-    // =====================================================
-    // GET ALL APPOINTMENTS
-    // =====================================================
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<AppointmentResponse> getAllAppointments() {
-
-        return appointmentRepository
-                .findAll()
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
-
-    }
-
-
-    // =====================================================
-    // GET APPOINTMENT BY ID
-    // =====================================================
-
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<AppointmentResponse> getAppointmentById(
-            String id
-    ) {
-
-        if (
-                id == null ||
-                id.isBlank()
-        ) {
-
-            return Optional.empty();
-
-        }
-
-
-        return appointmentRepository
-                .findById(id)
-                .map(this::mapToResponse);
-
-    }
-
-
-    // =====================================================
-    // UPDATE APPOINTMENT
-    // =====================================================
-
-    @Override
-    public AppointmentResponse updateAppointment(
-            String id,
-            AppointmentRequest request
-    ) {
-
-        // -------------------------------------------------
-        // VALIDATE ID
-        // -------------------------------------------------
-
-        if (
-                id == null ||
-                id.isBlank()
-        ) {
-
-            throw new IllegalArgumentException(
-                    "Appointment ID is required"
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // VALIDATE REQUEST
-        // -------------------------------------------------
-
-        validateAppointmentRequest(
-                request
-        );
-
-
-        // -------------------------------------------------
-        // FIND EXISTING APPOINTMENT
-        // -------------------------------------------------
-
-        Appointment existingAppointment =
-                appointmentRepository
-                        .findById(id)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Appointment not found with ID: "
-                                                + id
-                                )
-                        );
-
-
-        // -------------------------------------------------
-        // UPDATE ENTITY
-        // -------------------------------------------------
-
-        mapRequestToEntity(
-                request,
-                existingAppointment
-        );
-
-
-        // -------------------------------------------------
-        // PRESERVE EXISTING ID
-        // -------------------------------------------------
-
-        existingAppointment.setId(
-                id
-        );
-
-
-        // -------------------------------------------------
-        // PRESERVE STATUS
-        // -------------------------------------------------
-
-        if (
-                request.getStatus() != null &&
-                !request.getStatus().isBlank()
-        ) {
-
-            existingAppointment.setStatus(
-                    request.getStatus()
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // SAVE
-        // -------------------------------------------------
-
-        Appointment updatedAppointment =
-                appointmentRepository.save(
-                        existingAppointment
-                );
-
-
-        // -------------------------------------------------
-        // RETURN RESPONSE
-        // -------------------------------------------------
-
-        return mapToResponse(
-                updatedAppointment
-        );
-
-    }
-
-
-    // =====================================================
-    // UPDATE STATUS
-    // =====================================================
-
-    @Override
-    public AppointmentResponse updateStatus(
-            String id,
-            String status
-    ) {
-
-        // -------------------------------------------------
-        // VALIDATE ID
-        // -------------------------------------------------
-
-        if (
-                id == null ||
-                id.isBlank()
-        ) {
-
-            throw new IllegalArgumentException(
-                    "Appointment ID is required"
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // VALIDATE STATUS
-        // -------------------------------------------------
-
-        if (
-                status == null ||
-                status.isBlank()
-        ) {
-
-            throw new IllegalArgumentException(
-                    "Appointment status is required"
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // FIND APPOINTMENT
-        // -------------------------------------------------
-
-        Appointment appointment =
-                appointmentRepository
-                        .findById(id)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Appointment not found with ID: "
-                                                + id
-                                )
-                        );
-
-
-        // -------------------------------------------------
-        // UPDATE STATUS
-        // -------------------------------------------------
-
-        appointment.setStatus(
-                status
-        );
-
-
-        // -------------------------------------------------
-        // SAVE
-        // -------------------------------------------------
-
-        Appointment updatedAppointment =
-                appointmentRepository.save(
-                        appointment
-                );
-
-
-        // -------------------------------------------------
-        // RETURN RESPONSE
-        // -------------------------------------------------
-
-        return mapToResponse(
-                updatedAppointment
-        );
-
-    }
-
-
-    // =====================================================
-    // CANCEL APPOINTMENT
-    // =====================================================
-
-    @Override
-    public AppointmentResponse cancelAppointment(
-            String id
-    ) {
-
-        // -------------------------------------------------
-        // VALIDATE ID
-        // -------------------------------------------------
-
-        if (
-                id == null ||
-                id.isBlank()
-        ) {
-
-            throw new IllegalArgumentException(
-                    "Appointment ID is required"
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // FIND APPOINTMENT
-        // -------------------------------------------------
-
-        Appointment appointment =
-                appointmentRepository
-                        .findById(id)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Appointment not found with ID: "
-                                                + id
-                                )
-                        );
-
-
-        // -------------------------------------------------
-        // PREVENT CANCELLING COMPLETED APPOINTMENT
-        // -------------------------------------------------
-
-        if (
-                "Completed".equals(
-                        appointment.getStatus()
-                )
-        ) {
-
-            throw new IllegalStateException(
-                    "Completed appointments cannot be cancelled"
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // CANCEL
-        // -------------------------------------------------
-
-        appointment.setStatus(
-                "Cancelled"
-        );
-
-
-        // -------------------------------------------------
-        // SAVE
-        // -------------------------------------------------
-
-        Appointment cancelledAppointment =
-                appointmentRepository.save(
-                        appointment
-                );
-
-
-        // -------------------------------------------------
-        // RETURN RESPONSE
-        // -------------------------------------------------
-
-        return mapToResponse(
-                cancelledAppointment
-        );
-
-    }
-
-
-    // =====================================================
-    // DELETE APPOINTMENT
-    // =====================================================
-
-    @Override
-    public void deleteAppointment(
-            String id
-    ) {
-
-        // -------------------------------------------------
-        // VALIDATE ID
-        // -------------------------------------------------
-
-        if (
-                id == null ||
-                id.isBlank()
-        ) {
-
-            throw new IllegalArgumentException(
-                    "Appointment ID is required"
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // CHECK EXISTENCE
-        // -------------------------------------------------
-
-        if (
-                !appointmentRepository.existsById(id)
-        ) {
-
-            throw new RuntimeException(
-                    "Appointment not found with ID: "
-                            + id
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // DELETE
-        // -------------------------------------------------
-
-        appointmentRepository.deleteById(
-                id
-        );
-
-    }
-
-
-    // =====================================================
-    // VALIDATE APPOINTMENT REQUEST
-    // =====================================================
-
-    private void validateAppointmentRequest(
-            AppointmentRequest request
-    ) {
-
-        if (request == null) {
-
-            throw new IllegalArgumentException(
-                    "Appointment request cannot be null"
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // PATIENT ID
-        // -------------------------------------------------
-
-        if (
-                request.getPatientId() == null ||
-                request.getPatientId().isBlank()
-        ) {
-
-            throw new IllegalArgumentException(
-                    "Patient ID is required"
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // PATIENT NAME
-        // -------------------------------------------------
-
-        if (
-                request.getPatientName() == null ||
-                request.getPatientName().isBlank()
-        ) {
-
-            throw new IllegalArgumentException(
-                    "Patient name is required"
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // DOCTOR ID
-        // -------------------------------------------------
-
-        if (
-                request.getDoctorId() == null ||
-                request.getDoctorId().isBlank()
-        ) {
-
-            throw new IllegalArgumentException(
-                    "Doctor ID is required"
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // DOCTOR NAME
-        // -------------------------------------------------
-
-        if (
-                request.getDoctorName() == null ||
-                request.getDoctorName().isBlank()
-        ) {
-
-            throw new IllegalArgumentException(
-                    "Doctor name is required"
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // DEPARTMENT
-        // -------------------------------------------------
-
-        if (
-                request.getDepartment() == null ||
-                request.getDepartment().isBlank()
-        ) {
-
-            throw new IllegalArgumentException(
-                    "Department is required"
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // DATE
-        // -------------------------------------------------
-
-        if (
-                request.getAppointmentDate() == null
-        ) {
-
-            throw new IllegalArgumentException(
-                    "Appointment date is required"
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // TIME
-        // -------------------------------------------------
-
-        if (
-                request.getAppointmentTime() == null
-        ) {
-
-            throw new IllegalArgumentException(
-                    "Appointment time is required"
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // TYPE
-        // -------------------------------------------------
-
-        if (
-                request.getType() == null ||
-                request.getType().isBlank()
-        ) {
-
-            throw new IllegalArgumentException(
-                    "Appointment type is required"
-            );
-
-        }
-
-
-        // -------------------------------------------------
-        // REASON
-        // -------------------------------------------------
-
-        if (
-                request.getReason() == null ||
-                request.getReason().isBlank()
-        ) {
-
-            throw new IllegalArgumentException(
-                    "Reason for appointment is required"
-            );
-
-        }
-
-    }
-
-
-    // =====================================================
-    // MAP REQUEST TO ENTITY
-    // =====================================================
-
-    private void mapRequestToEntity(
-            AppointmentRequest request,
-            Appointment appointment
-    ) {
 
         appointment.setPatientId(
-                request.getPatientId()
+                patient.getId()
         );
 
         appointment.setPatientName(
-                request.getPatientName()
+                patient.getFirstName()
+                        + " "
+                        + patient.getLastName()
         );
 
+        // -------------------------------------------------
+        // SET DOCTOR FROM DATABASE
+        // -------------------------------------------------
+
         appointment.setDoctorId(
-                request.getDoctorId()
+                doctor.getId()
         );
 
         appointment.setDoctorName(
-                request.getDoctorName()
+                doctor.getFirstName()
+                        + " "
+                        + doctor.getLastName()
         );
 
+        // -------------------------------------------------
+        // SET DEPARTMENT FROM DATABASE
+        // -------------------------------------------------
+
         appointment.setDepartment(
-                request.getDepartment()
+                department.getName()
         );
+
+        // -------------------------------------------------
+        // OTHER FIELDS
+        // -------------------------------------------------
 
         appointment.setAppointmentDate(
                 request.getAppointmentDate()
@@ -738,8 +241,510 @@ public class AppointmentServiceImpl implements AppointmentService {
                 request.getNotes()
         );
 
+        // -------------------------------------------------
+        // STATUS
+        // -------------------------------------------------
+
+        if (
+                request.getStatus() == null ||
+                request.getStatus().isBlank()
+        ) {
+
+            appointment.setStatus(
+                    "Scheduled"
+            );
+
+        } else {
+
+            appointment.setStatus(
+                    request.getStatus()
+            );
+        }
+
+        // -------------------------------------------------
+        // CREATED AT
+        // -------------------------------------------------
+
+        appointment.setCreatedAt(
+                LocalDateTime.now()
+        );
+
+        // -------------------------------------------------
+        // SAVE
+        // -------------------------------------------------
+
+        Appointment savedAppointment =
+                appointmentRepository.save(
+                        appointment
+                );
+
+        return mapToResponse(
+                savedAppointment
+        );
     }
 
+    // =====================================================
+    // GET ALL APPOINTMENTS
+    // =====================================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AppointmentResponse> getAllAppointments() {
+
+        Long tenantId =
+                TenantContext.requireTenantId();
+
+        return appointmentRepository
+                .findAllByTenant_Id(tenantId)
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    // =====================================================
+    // GET APPOINTMENT BY ID
+    // =====================================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<AppointmentResponse> getAppointmentById(
+            String id
+    ) {
+
+        if (
+                id == null ||
+                id.isBlank()
+        ) {
+
+            return Optional.empty();
+        }
+
+        Long tenantId =
+                TenantContext.requireTenantId();
+
+        return appointmentRepository
+                .findByIdAndTenant_Id(
+                        id,
+                        tenantId
+                )
+                .map(this::mapToResponse);
+    }
+
+    // =====================================================
+    // UPDATE APPOINTMENT
+    // =====================================================
+
+    @Override
+    public AppointmentResponse updateAppointment(
+            String id,
+            AppointmentRequest request
+    ) {
+
+        if (
+                id == null ||
+                id.isBlank()
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Appointment ID is required"
+            );
+        }
+
+        validateAppointmentRequest(request);
+
+        Long tenantId =
+                TenantContext.requireTenantId();
+
+        Appointment existingAppointment =
+                appointmentRepository
+                        .findByIdAndTenant_Id(
+                                id,
+                                tenantId
+                        )
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Appointment not found: "
+                                                + id
+                                )
+                        );
+
+        // -------------------------------------------------
+        // VERIFY PATIENT
+        // -------------------------------------------------
+
+        Patient patient =
+                patientRepository
+                        .findByIdAndTenant_Id(
+                                request.getPatientId(),
+                                tenantId
+                        )
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Patient not found: "
+                                                + request.getPatientId()
+                                )
+                        );
+
+        // -------------------------------------------------
+        // VERIFY DOCTOR
+        // -------------------------------------------------
+
+        Doctor doctor =
+                doctorRepository
+                        .findByIdAndTenant_Id(
+                                request.getDoctorId(),
+                                tenantId
+                        )
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Doctor not found: "
+                                                + request.getDoctorId()
+                                )
+                        );
+
+        // -------------------------------------------------
+        // VERIFY DEPARTMENT
+        // -------------------------------------------------
+
+        Department department =
+                departmentRepository
+                        .findByNameAndTenant_Id(
+                                request.getDepartment(),
+                                tenantId
+                        )
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Department not found: "
+                                                + request.getDepartment()
+                                )
+                        );
+
+        // -------------------------------------------------
+        // UPDATE TENANT-OWNED DATA
+        // -------------------------------------------------
+
+        existingAppointment.setPatientId(
+                patient.getId()
+        );
+
+        existingAppointment.setPatientName(
+                patient.getFirstName()
+                        + " "
+                        + patient.getLastName()
+        );
+
+        existingAppointment.setDoctorId(
+                doctor.getId()
+        );
+
+        existingAppointment.setDoctorName(
+                doctor.getFirstName()
+                        + " "
+                        + doctor.getLastName()
+        );
+
+        existingAppointment.setDepartment(
+                department.getName()
+        );
+
+        existingAppointment.setAppointmentDate(
+                request.getAppointmentDate()
+        );
+
+        existingAppointment.setAppointmentTime(
+                request.getAppointmentTime()
+        );
+
+        existingAppointment.setType(
+                request.getType()
+        );
+
+        existingAppointment.setReason(
+                request.getReason()
+        );
+
+        existingAppointment.setNotes(
+                request.getNotes()
+        );
+
+        // -------------------------------------------------
+        // PRESERVE / UPDATE STATUS
+        // -------------------------------------------------
+
+        if (
+                request.getStatus() != null &&
+                !request.getStatus().isBlank()
+        ) {
+
+            existingAppointment.setStatus(
+                    request.getStatus()
+            );
+        }
+
+        // -------------------------------------------------
+        // DO NOT CHANGE TENANT
+        // -------------------------------------------------
+
+        Appointment updatedAppointment =
+                appointmentRepository.save(
+                        existingAppointment
+                );
+
+        return mapToResponse(
+                updatedAppointment
+        );
+    }
+
+    // =====================================================
+    // UPDATE STATUS
+    // =====================================================
+
+    @Override
+    public AppointmentResponse updateStatus(
+            String id,
+            String status
+    ) {
+
+        if (
+                id == null ||
+                id.isBlank()
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Appointment ID is required"
+            );
+        }
+
+        if (
+                status == null ||
+                status.isBlank()
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Appointment status is required"
+            );
+        }
+
+        Long tenantId =
+                TenantContext.requireTenantId();
+
+        Appointment appointment =
+                appointmentRepository
+                        .findByIdAndTenant_Id(
+                                id,
+                                tenantId
+                        )
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Appointment not found: "
+                                                + id
+                                )
+                        );
+
+        appointment.setStatus(
+                status
+        );
+
+        Appointment updatedAppointment =
+                appointmentRepository.save(
+                        appointment
+                );
+
+        return mapToResponse(
+                updatedAppointment
+        );
+    }
+
+    // =====================================================
+    // CANCEL APPOINTMENT
+    // =====================================================
+
+    @Override
+    public AppointmentResponse cancelAppointment(
+            String id
+    ) {
+
+        if (
+                id == null ||
+                id.isBlank()
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Appointment ID is required"
+            );
+        }
+
+        Long tenantId =
+                TenantContext.requireTenantId();
+
+        Appointment appointment =
+                appointmentRepository
+                        .findByIdAndTenant_Id(
+                                id,
+                                tenantId
+                        )
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Appointment not found: "
+                                                + id
+                                )
+                        );
+
+        if (
+                "Completed".equals(
+                        appointment.getStatus()
+                )
+        ) {
+
+            throw new IllegalStateException(
+                    "Completed appointments cannot be cancelled"
+            );
+        }
+
+        appointment.setStatus(
+                "Cancelled"
+        );
+
+        Appointment cancelledAppointment =
+                appointmentRepository.save(
+                        appointment
+                );
+
+        return mapToResponse(
+                cancelledAppointment
+        );
+    }
+
+    // =====================================================
+    // DELETE APPOINTMENT
+    // =====================================================
+
+    @Override
+    public void deleteAppointment(
+            String id
+    ) {
+
+        if (
+                id == null ||
+                id.isBlank()
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Appointment ID is required"
+            );
+        }
+
+        Long tenantId =
+                TenantContext.requireTenantId();
+
+        Appointment appointment =
+                appointmentRepository
+                        .findByIdAndTenant_Id(
+                                id,
+                                tenantId
+                        )
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Appointment not found: "
+                                                + id
+                                )
+                        );
+
+        appointmentRepository.delete(
+                appointment
+        );
+    }
+
+    // =====================================================
+    // VALIDATE REQUEST
+    // =====================================================
+
+    private void validateAppointmentRequest(
+            AppointmentRequest request
+    ) {
+
+        if (request == null) {
+
+            throw new IllegalArgumentException(
+                    "Appointment request cannot be null"
+            );
+        }
+
+        if (
+                request.getPatientId() == null ||
+                request.getPatientId().isBlank()
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Patient ID is required"
+            );
+        }
+
+        if (
+                request.getDoctorId() == null ||
+                request.getDoctorId().isBlank()
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Doctor ID is required"
+            );
+        }
+
+        if (
+                request.getDepartment() == null ||
+                request.getDepartment().isBlank()
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Department is required"
+            );
+        }
+
+        if (
+                request.getAppointmentDate() == null
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Appointment date is required"
+            );
+        }
+
+        if (
+                request.getAppointmentTime() == null
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Appointment time is required"
+            );
+        }
+
+        if (
+                request.getType() == null ||
+                request.getType().isBlank()
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Appointment type is required"
+            );
+        }
+
+        if (
+                request.getReason() == null ||
+                request.getReason().isBlank()
+        ) {
+
+            throw new IllegalArgumentException(
+                    "Reason for appointment is required"
+            );
+        }
+    }
 
     // =====================================================
     // MAP ENTITY TO RESPONSE
@@ -751,7 +756,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         AppointmentResponse response =
                 new AppointmentResponse();
-
 
         response.setId(
                 appointment.getId()
@@ -805,11 +809,8 @@ public class AppointmentServiceImpl implements AppointmentService {
                 appointment.getCreatedAt()
         );
 
-
         return response;
-
     }
-
 
     // =====================================================
     // GENERATE APPOINTMENT ID
@@ -822,7 +823,6 @@ public class AppointmentServiceImpl implements AppointmentService {
                         System.currentTimeMillis()
                 );
 
-
         String suffix =
                 timestamp.substring(
                         Math.max(
@@ -831,10 +831,6 @@ public class AppointmentServiceImpl implements AppointmentService {
                         )
                 );
 
-
         return "APT-" + suffix;
-
     }
-
 }
-

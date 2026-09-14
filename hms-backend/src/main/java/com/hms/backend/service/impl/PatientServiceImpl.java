@@ -3,7 +3,11 @@ package com.hms.backend.service.impl;
 import com.hms.backend.entity.Patient;
 import com.hms.backend.repository.PatientRepository;
 import com.hms.backend.service.PatientService;
-
+import com.hms.backend.tenant.context.TenantContext;
+import com.hms.backend.tenant.entity.Tenant;
+import com.hms.backend.tenant.repository.TenantRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,16 +19,51 @@ import java.util.UUID;
 public class PatientServiceImpl implements PatientService {
 
     private final PatientRepository patientRepository;
+    private final TenantRepository tenantRepository;
+
 
     // =====================================================
     // CONSTRUCTOR
     // =====================================================
 
     public PatientServiceImpl(
-            PatientRepository patientRepository
+        PatientRepository patientRepository,
+        TenantRepository tenantRepository
     ) {
         this.patientRepository = patientRepository;
+        this.tenantRepository = tenantRepository;
     }
+
+
+    // =====================================================
+    // GET CURRENT TENANT ID
+    // =====================================================
+
+    private Long getCurrentTenantId() {
+
+        return TenantContext.requireTenantId();
+    }
+
+
+    // =====================================================
+    // GET CURRENT TENANT
+    // =====================================================
+
+    private Tenant getCurrentTenant() {
+
+        Long tenantId =
+            getCurrentTenantId();
+
+        return tenantRepository
+            .findById(tenantId)
+            .orElseThrow(
+                () -> new IllegalStateException(
+                    "Current tenant was not found: "
+                    + tenantId
+                )
+            );
+    }
+
 
     // =====================================================
     // GET ALL PATIENTS
@@ -34,8 +73,15 @@ public class PatientServiceImpl implements PatientService {
     @Transactional(readOnly = true)
     public List<Patient> getAllPatients() {
 
-        return patientRepository.findAll();
+        Long tenantId =
+            getCurrentTenantId();
+
+        return patientRepository
+            .findAllByTenant_Id(
+                tenantId
+            );
     }
+
 
     // =====================================================
     // GET PATIENT BY ID
@@ -44,16 +90,25 @@ public class PatientServiceImpl implements PatientService {
     @Override
     @Transactional(readOnly = true)
     public Patient getPatientById(
-            String id
+        String id
     ) {
 
-        return patientRepository.findById(id)
-                .orElseThrow(
-                        () -> new RuntimeException(
-                                "Patient not found: " + id
-                        )
-                );
+        Long tenantId =
+            getCurrentTenantId();
+
+        return patientRepository
+    .findByIdAndTenant_Id(
+        id,
+        tenantId
+    )
+    .orElseThrow(
+        () -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "Patient not found: " + id
+        )
+    );
     }
+
 
     // =====================================================
     // ADD PATIENT
@@ -61,85 +116,125 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public Patient addPatient(
-            Patient patient
+        Patient patient
     ) {
 
         if (patient == null) {
 
             throw new IllegalArgumentException(
-                    "Patient data is required."
+                "Patient data is required."
             );
         }
 
         if (
-                patient.getFirstName() == null ||
-                patient.getFirstName().isBlank()
+            patient.getFirstName() == null ||
+            patient.getFirstName().isBlank()
         ) {
 
             throw new IllegalArgumentException(
-                    "Patient first name is required."
+                "Patient first name is required."
             );
         }
 
         if (
-                patient.getLastName() == null ||
-                patient.getLastName().isBlank()
+            patient.getLastName() == null ||
+            patient.getLastName().isBlank()
         ) {
 
             throw new IllegalArgumentException(
-                    "Patient last name is required."
+                "Patient last name is required."
             );
         }
 
+
+        // =================================================
+        // CURRENT TENANT
+        // =================================================
+
+        Long tenantId =
+            getCurrentTenantId();
+
+        Tenant currentTenant =
+            getCurrentTenant();
+
+
+        // =================================================
+        // NATIONAL ID DUPLICATE CHECK
+        // =================================================
+
         if (
-                patient.getNationalId() != null &&
-                !patient.getNationalId().isBlank()
+            patient.getNationalId() != null &&
+            !patient.getNationalId().isBlank()
         ) {
 
             if (
-                    patientRepository.existsByNationalId(
-                            patient.getNationalId()
+                patientRepository
+                    .existsByNationalIdAndTenant_Id(
+                        patient.getNationalId(),
+                        tenantId
                     )
             ) {
 
                 throw new IllegalArgumentException(
-                        "A patient with National ID "
-                        + patient.getNationalId()
-                        + " already exists."
+                    "A patient with National ID "
+                    + patient.getNationalId()
+                    + " already exists in this organization."
                 );
             }
         }
 
-        // -------------------------------------------------
+
+        // =================================================
         // GENERATE ID IF NOT PROVIDED
-        // -------------------------------------------------
+        // =================================================
 
         if (
-                patient.getId() == null ||
-                patient.getId().isBlank()
+            patient.getId() == null ||
+            patient.getId().isBlank()
         ) {
 
             patient.setId(
-                    generatePatientId()
+                generatePatientId()
             );
         }
 
-        // -------------------------------------------------
+
+        // =================================================
         // DEFAULT STATUS
-        // -------------------------------------------------
+        // =================================================
 
         if (
-                patient.getStatus() == null ||
-                patient.getStatus().isBlank()
+            patient.getStatus() == null ||
+            patient.getStatus().isBlank()
         ) {
 
-            patient.setStatus("Active");
+            patient.setStatus(
+                "Active"
+            );
         }
 
+
+        // =================================================
+        // FORCE CURRENT TENANT
+        // =================================================
+        //
+        // IMPORTANT:
+        // We deliberately ignore any tenant supplied
+        // by the frontend.
+        //
+        // The tenant is determined from the signed JWT.
+        // =================================================
+
+        patient.setTenant(
+            currentTenant
+        );
+
+
         return patientRepository.save(
-                patient
+            patient
         );
     }
+
 
     // =====================================================
     // UPDATE PATIENT
@@ -147,105 +242,131 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public Patient updatePatient(
-            String id,
-            Patient patient
+        String id,
+        Patient patient
     ) {
-
-        Patient existingPatient =
-                getPatientById(id);
 
         if (patient == null) {
 
             throw new IllegalArgumentException(
-                    "Patient data is required."
+                "Patient data is required."
             );
         }
 
-        // -------------------------------------------------
+
+        // =================================================
+        // LOAD PATIENT ONLY FROM CURRENT TENANT
+        // =================================================
+
+        Patient existingPatient =
+            getPatientById(id);
+
+        Long tenantId =
+            getCurrentTenantId();
+
+
+        // =================================================
         // NATIONAL ID DUPLICATE CHECK
-        // -------------------------------------------------
+        // =================================================
 
         if (
-                patient.getNationalId() != null &&
-                !patient.getNationalId().isBlank()
+            patient.getNationalId() != null &&
+            !patient.getNationalId().isBlank()
         ) {
 
             if (
-                    patientRepository
-                            .existsByNationalIdAndIdNot(
-                                    patient.getNationalId(),
-                                    id
-                            )
+                patientRepository
+                    .existsByNationalIdAndTenant_IdAndIdNot(
+                        patient.getNationalId(),
+                        tenantId,
+                        id
+                    )
             ) {
 
                 throw new IllegalArgumentException(
-                        "Another patient with National ID "
-                        + patient.getNationalId()
-                        + " already exists."
+                    "Another patient with National ID "
+                    + patient.getNationalId()
+                    + " already exists in this organization."
                 );
             }
         }
 
-        // -------------------------------------------------
+
+        // =================================================
         // COPY PATIENT DATA
-        // -------------------------------------------------
+        // =================================================
 
         existingPatient.setFirstName(
-                patient.getFirstName()
+            patient.getFirstName()
         );
 
         existingPatient.setLastName(
-                patient.getLastName()
+            patient.getLastName()
         );
 
         existingPatient.setDateOfBirth(
-                patient.getDateOfBirth()
+            patient.getDateOfBirth()
         );
 
         existingPatient.setGender(
-                patient.getGender()
+            patient.getGender()
         );
 
         existingPatient.setPhone(
-                patient.getPhone()
+            patient.getPhone()
         );
 
         existingPatient.setEmail(
-                patient.getEmail()
+            patient.getEmail()
         );
 
         existingPatient.setAddress(
-                patient.getAddress()
+            patient.getAddress()
         );
 
         existingPatient.setNationalId(
-                patient.getNationalId()
+            patient.getNationalId()
         );
 
         existingPatient.setEmergencyContactName(
-                patient.getEmergencyContactName()
+            patient.getEmergencyContactName()
         );
 
         existingPatient.setEmergencyContactPhone(
-                patient.getEmergencyContactPhone()
+            patient.getEmergencyContactPhone()
         );
 
         existingPatient.setBloodGroup(
-                patient.getBloodGroup()
+            patient.getBloodGroup()
         );
 
         existingPatient.setDepartment(
-                patient.getDepartment()
+            patient.getDepartment()
         );
 
         existingPatient.setStatus(
-                patient.getStatus()
+            patient.getStatus()
         );
 
+
+        // =================================================
+        // IMPORTANT
+        // =================================================
+        //
+        // We deliberately do NOT copy:
+        //
+        // patient.getTenant()
+        //
+        // The tenant of an existing patient must never
+        // be changed through a normal patient update.
+        // =================================================
+
+
         return patientRepository.save(
-                existingPatient
+            existingPatient
         );
     }
+
 
     // =====================================================
     // DELETE PATIENT
@@ -253,16 +374,17 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public void deletePatient(
-            String id
+        String id
     ) {
 
         Patient patient =
-                getPatientById(id);
+            getPatientById(id);
 
         patientRepository.delete(
-                patient
+            patient
         );
     }
+
 
     // =====================================================
     // UPDATE PATIENT STATUS
@@ -270,34 +392,37 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public Patient updatePatientStatus(
-            String id,
-            String status
+        String id,
+        String status
     ) {
 
         Patient patient =
-                getPatientById(id);
+            getPatientById(id);
+
 
         if (
-                status == null ||
-                (
-                        !status.equals("Active") &&
-                        !status.equals("Inactive")
-                )
+            status == null ||
+            (
+                !status.equals("Active") &&
+                !status.equals("Inactive")
+            )
         ) {
 
             throw new IllegalArgumentException(
-                    "Patient status must be Active or Inactive."
+                "Patient status must be Active or Inactive."
             );
         }
 
+
         patient.setStatus(
-                status
+            status
         );
 
         return patientRepository.save(
-                patient
+            patient
         );
     }
+
 
     // =====================================================
     // GENERATE PATIENT ID
@@ -310,14 +435,17 @@ public class PatientServiceImpl implements PatientService {
         do {
 
             id =
-                    "PAT-" +
-                    UUID.randomUUID()
-                            .toString()
-                            .substring(0, 8)
-                            .toUpperCase();
+                "PAT-" +
+                UUID.randomUUID()
+                    .toString()
+                    .substring(
+                        0,
+                        8
+                    )
+                    .toUpperCase();
 
         } while (
-                patientRepository.existsById(id)
+            patientRepository.existsById(id)
         );
 
         return id;

@@ -1,15 +1,58 @@
 package com.hms.backend.entity;
 
+import com.hms.backend.tenant.entity.Tenant;
+
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "patients")
+@Table(
+    name = "patients",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "uk_patient_tenant_national_id",
+            columnNames = {
+                "tenant_id",
+                "national_id"
+            }
+        )
+    },
+    indexes = {
+        @Index(
+            name = "idx_patients_tenant_id",
+            columnList = "tenant_id"
+        ),
+        @Index(
+            name = "idx_patients_tenant_status",
+            columnList = "tenant_id,status"
+        ),
+        @Index(
+            name = "idx_patients_tenant_created_at",
+            columnList = "tenant_id,created_at"
+        )
+    }
+)
 public class Patient {
 
     @Id
     @Column(length = 36, nullable = false)
     private String id;
+
+    // =====================================================
+    // TENANT
+    // =====================================================
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+        name = "tenant_id",
+        nullable = false
+    )
+    private Tenant tenant;
+
+    // =====================================================
+    // PATIENT INFORMATION
+    // =====================================================
 
     @Column(nullable = false, length = 100)
     private String firstName;
@@ -32,7 +75,7 @@ public class Patient {
     @Column(length = 255)
     private String address;
 
-    @Column(length = 50, unique = true)
+    @Column(length = 50)
     private String nationalId;
 
     @Column(length = 100)
@@ -80,20 +123,28 @@ public class Patient {
 
 
     // =====================================================
-    // GET ID
+    // ID
     // =====================================================
 
     public String getId() {
         return id;
     }
 
-
-    // =====================================================
-    // SET ID
-    // =====================================================
-
     public void setId(String id) {
         this.id = id;
+    }
+
+
+    // =====================================================
+    // TENANT
+    // =====================================================
+
+    public Tenant getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(Tenant tenant) {
+        this.tenant = tenant;
     }
 
 
@@ -210,7 +261,7 @@ public class Patient {
     }
 
     public void setEmergencyContactName(
-            String emergencyContactName
+        String emergencyContactName
     ) {
         this.emergencyContactName = emergencyContactName;
     }
@@ -225,7 +276,7 @@ public class Patient {
     }
 
     public void setEmergencyContactPhone(
-            String emergencyContactPhone
+        String emergencyContactPhone
     ) {
         this.emergencyContactPhone = emergencyContactPhone;
     }

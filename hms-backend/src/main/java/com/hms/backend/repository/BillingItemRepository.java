@@ -8,11 +8,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BillingItemRepository
-        extends JpaRepository<BillingItem, Long> {
+                extends JpaRepository<BillingItem, Long> {
 
-    boolean existsByBillingAndReferenceIdAndBillingType(
-            Billing billing,
-            String referenceId,
-            BillingItem.BillingType billingType
-    );
+        boolean existsByBillingAndReferenceIdAndBillingType(
+                        Billing billing,
+                        String referenceId,
+                        BillingItem.BillingType billingType);
 }

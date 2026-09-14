@@ -5,6 +5,9 @@ import com.hms.backend.entity.Admission.AdmissionStatus;
 import com.hms.backend.entity.Admission.WardType;
 import com.hms.backend.repository.AdmissionRepository;
 import com.hms.backend.service.AdmissionService;
+import com.hms.backend.tenant.context.TenantContext;
+import com.hms.backend.tenant.entity.Tenant;
+import com.hms.backend.tenant.repository.TenantRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -21,12 +24,15 @@ public class AdmissionServiceImpl
         implements AdmissionService {
 
     private final AdmissionRepository admissionRepository;
+    private final TenantRepository tenantRepository;
 
     public AdmissionServiceImpl(
-            AdmissionRepository admissionRepository
+            AdmissionRepository admissionRepository,
+            TenantRepository tenantRepository
     ) {
         this.admissionRepository =
                 admissionRepository;
+        this.tenantRepository = tenantRepository;
     }
 
     // =========================================================
@@ -36,7 +42,7 @@ public class AdmissionServiceImpl
     @Override
     public List<Admission> getAllAdmissions() {
 
-        return admissionRepository.findAll();
+        return admissionRepository.findAllByTenant_IdOrderByAdmissionDateDesc(getCurrentTenantId());
     }
 
     // =========================================================
@@ -52,8 +58,8 @@ public class AdmissionServiceImpl
             return Optional.empty();
         }
 
-        return admissionRepository.findById(
-                id.trim()
+        return admissionRepository.findByIdAndTenant_Id(
+                id.trim(), getCurrentTenantId()
         );
     }
 
@@ -71,8 +77,8 @@ public class AdmissionServiceImpl
         }
 
         return admissionRepository
-                .findByPatientIdOrderByAdmissionDateDesc(
-                        patientId.trim()
+                .findByTenant_IdAndPatientIdOrderByAdmissionDateDesc(
+                        getCurrentTenantId(), patientId.trim()
                 );
     }
 
@@ -90,8 +96,8 @@ public class AdmissionServiceImpl
         }
 
         return admissionRepository
-                .findByStatusOrderByAdmissionDateDesc(
-                        status
+                .findByTenant_IdAndStatusOrderByAdmissionDateDesc(
+                        getCurrentTenantId(), status
                 );
     }
 
@@ -109,8 +115,8 @@ public class AdmissionServiceImpl
         }
 
         return admissionRepository
-                .findByDoctorIdOrderByAdmissionDateDesc(
-                        doctorId.trim()
+                .findByTenant_IdAndDoctorIdOrderByAdmissionDateDesc(
+                        getCurrentTenantId(), doctorId.trim()
                 );
     }
 
@@ -128,8 +134,8 @@ public class AdmissionServiceImpl
         }
 
         return admissionRepository
-                .findByDepartmentIdOrderByAdmissionDateDesc(
-                        departmentId.trim()
+                .findByTenant_IdAndDepartmentIdOrderByAdmissionDateDesc(
+                        getCurrentTenantId(), departmentId.trim()
                 );
     }
 
@@ -147,8 +153,8 @@ public class AdmissionServiceImpl
         }
 
         return admissionRepository
-                .findByWardAndStatusOrderByAdmissionDateDesc(
-                        ward,
+                .findByTenant_IdAndWardAndStatusOrderByAdmissionDateDesc(
+                        getCurrentTenantId(), ward,
                         AdmissionStatus.ADMITTED
                 );
     }
@@ -167,8 +173,8 @@ public class AdmissionServiceImpl
         }
 
         return admissionRepository
-                .findFirstByPatientIdAndStatusOrderByAdmissionDateDesc(
-                        patientId.trim(),
+                .findFirstByTenant_IdAndPatientIdAndStatusOrderByAdmissionDateDesc(
+                        getCurrentTenantId(), patientId.trim(),
                         AdmissionStatus.ADMITTED
                 );
     }
@@ -193,8 +199,8 @@ public class AdmissionServiceImpl
          */
         if (
                 admissionRepository
-                        .existsByPatientIdAndStatus(
-                                patientId,
+                        .existsByTenant_IdAndPatientIdAndStatus(
+                                getCurrentTenantId(), patientId,
                                 AdmissionStatus.ADMITTED
                         )
         ) {
@@ -266,6 +272,7 @@ public class AdmissionServiceImpl
         admission.setStatus(
                 AdmissionStatus.ADMITTED
         );
+        admission.setTenant(getCurrentTenant());
 
         if (admission.getAdmissionDate() == null) {
 
@@ -318,8 +325,8 @@ public class AdmissionServiceImpl
         validateAdmission(updated);
 
         Admission existing =
-                admissionRepository.findById(
-                        id.trim()
+                admissionRepository.findByIdAndTenant_Id(
+                        id.trim(), getCurrentTenantId()
                 ).orElseThrow(() ->
                         new IllegalArgumentException(
                                 "Admission record not found."
@@ -486,8 +493,8 @@ public class AdmissionServiceImpl
         }
 
         Admission admission =
-                admissionRepository.findById(
-                        id.trim()
+                admissionRepository.findByIdAndTenant_Id(
+                        id.trim(), getCurrentTenantId()
                 ).orElseThrow(() ->
                         new IllegalArgumentException(
                                 "Admission record not found."
@@ -582,8 +589,8 @@ public class AdmissionServiceImpl
     ) {
 
         Admission admission =
-                admissionRepository.findById(
-                        id
+                admissionRepository.findByIdAndTenant_Id(
+                        id, getCurrentTenantId()
                 ).orElseThrow(() ->
                         new IllegalArgumentException(
                                 "Admission record not found."
@@ -636,8 +643,8 @@ public class AdmissionServiceImpl
         }
 
         Admission admission =
-                admissionRepository.findById(
-                        id
+                admissionRepository.findByIdAndTenant_Id(
+                        id, getCurrentTenantId()
                 ).orElseThrow(() ->
                         new IllegalArgumentException(
                                 "Admission record not found."
@@ -694,8 +701,8 @@ public class AdmissionServiceImpl
     ) {
 
         Admission admission =
-                admissionRepository.findById(
-                        id
+                admissionRepository.findByIdAndTenant_Id(
+                        id, getCurrentTenantId()
                 ).orElseThrow(() ->
                         new IllegalArgumentException(
                                 "Admission record not found."
@@ -735,8 +742,8 @@ public class AdmissionServiceImpl
     ) {
 
         Admission admission =
-                admissionRepository.findById(
-                        id
+                admissionRepository.findByIdAndTenant_Id(
+                        id, getCurrentTenantId()
                 ).orElseThrow(() ->
                         new IllegalArgumentException(
                                 "Admission record not found."
@@ -765,47 +772,39 @@ public class AdmissionServiceImpl
     @Override
     public long countAdmissions() {
 
-        return admissionRepository.count();
+        return admissionRepository.countByTenant_Id(getCurrentTenantId());
     }
 
     @Override
     public long countActiveAdmissions() {
 
-        return admissionRepository
-                .findByStatusOrderByAdmissionDateDesc(
-                        AdmissionStatus.ADMITTED
-                )
-                .size();
+        return admissionRepository.countByTenant_IdAndStatus(
+                getCurrentTenantId(), AdmissionStatus.ADMITTED
+        );
     }
 
     @Override
     public long countDischargedAdmissions() {
 
-        return admissionRepository
-                .findByStatusOrderByAdmissionDateDesc(
-                        AdmissionStatus.DISCHARGED
-                )
-                .size();
+        return admissionRepository.countByTenant_IdAndStatus(
+                getCurrentTenantId(), AdmissionStatus.DISCHARGED
+        );
     }
 
     @Override
     public long countTransferredAdmissions() {
 
-        return admissionRepository
-                .findByStatusOrderByAdmissionDateDesc(
-                        AdmissionStatus.TRANSFERRED
-                )
-                .size();
+        return admissionRepository.countByTenant_IdAndStatus(
+                getCurrentTenantId(), AdmissionStatus.TRANSFERRED
+        );
     }
 
     @Override
     public long countCancelledAdmissions() {
 
-        return admissionRepository
-                .findByStatusOrderByAdmissionDateDesc(
-                        AdmissionStatus.CANCELLED
-                )
-                .size();
+        return admissionRepository.countByTenant_IdAndStatus(
+                getCurrentTenantId(), AdmissionStatus.CANCELLED
+        );
     }
 
     // =========================================================
@@ -839,7 +838,8 @@ public class AdmissionServiceImpl
 
         Optional<Admission> occupied =
                 admissionRepository
-                        .findFirstByWardAndBedNumberAndStatus(
+                        .findFirstByTenant_IdAndWardAndBedNumberAndStatus(
+                                getCurrentTenantId(),
                                 ward,
                                 bedNumber,
                                 AdmissionStatus.ADMITTED
@@ -1015,4 +1015,14 @@ public class AdmissionServiceImpl
         return first.trim()
                 .equals(second.trim());
     }
+    private Long getCurrentTenantId() {
+        return TenantContext.requireTenantId();
+    }
+
+    private Tenant getCurrentTenant() {
+        return tenantRepository.findById(getCurrentTenantId())
+                .orElseThrow(() -> new IllegalStateException(
+                        "Current tenant was not found: " + getCurrentTenantId()));
+    }
+
 }

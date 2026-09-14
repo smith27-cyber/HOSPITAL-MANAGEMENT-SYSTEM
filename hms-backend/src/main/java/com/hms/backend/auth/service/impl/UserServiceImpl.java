@@ -10,6 +10,10 @@ import com.hms.backend.auth.service.UserService;
 import com.hms.backend.entity.Role;
 import com.hms.backend.repository.RoleRepository;
 
+import com.hms.backend.tenant.context.TenantContext;
+import com.hms.backend.tenant.entity.Tenant;
+import com.hms.backend.tenant.repository.TenantRepository;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,77 +30,87 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TenantRepository tenantRepository;
 
     public UserServiceImpl(
-        UserRepository userRepository,
-        RoleRepository roleRepository,
-        PasswordEncoder passwordEncoder
-    ) {
+            UserRepository userRepository,
+            RoleRepository roleRepository,
+            PasswordEncoder passwordEncoder,
+            TenantRepository tenantRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.tenantRepository = tenantRepository;
     }
 
     @Override
-    public UserResponse createUser(UserCreateRequest request) {
+    public UserResponse createUser(
+            UserCreateRequest request) {
 
         String username = request.getUsername()
-            .trim()
-            .toLowerCase(Locale.ROOT);
+                .trim()
+                .toLowerCase(Locale.ROOT);
 
-        String roleName = normalizeRole(request.getRole());
+        String roleName = normalizeRole(
+                request.getRole());
+
+        ensureTenantSafeRole(roleName);
 
         if (userRepository.existsByUsername(username)) {
+
             throw new IllegalStateException(
-                "Username '" + username + "' is already in use."
-            );
+                    "Username '"
+                            + username
+                            + "' is already in use.");
         }
 
         Role role = findRole(roleName);
+
+        Tenant currentTenant = getCurrentTenant();
 
         User user = new User();
 
         user.setUsername(username);
 
         user.setPassword(
-            passwordEncoder.encode(
-                request.getPassword()
-            )
-        );
+                passwordEncoder.encode(
+                        request.getPassword()));
 
         user.setFullName(
-            request.getFullName().trim()
-        );
+                request.getFullName().trim());
 
-        /*
-         * Keep legacy role synchronized during the RBAC
-         * migration.
-         */
         user.setRole(roleName);
 
         user.setEnabled(
-            request.getEnabled() == null
-                || request.getEnabled()
-        );
+                request.getEnabled() == null
+                        || request.getEnabled());
+
+        user.setTenant(
+                currentTenant);
 
         Set<Role> roles = new HashSet<>();
+
         roles.add(role);
 
         user.setRoles(roles);
 
         User savedUser = userRepository.save(user);
 
-        return UserResponse.fromUser(savedUser);
+        return UserResponse.fromUser(
+                savedUser);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
 
-        return userRepository.findAll()
-            .stream()
-            .map(UserResponse::fromUser)
-            .toList();
+        Long tenantId = getCurrentTenantId();
+
+        return userRepository
+                .findAllByTenant_Id(tenantId)
+                .stream()
+                .map(UserResponse::fromUser)
+                .toList();
     }
 
     @Override
@@ -108,23 +122,39 @@ public class UserServiceImpl implements UserService {
         return UserResponse.fromUser(user);
     }
 
+    private Long getCurrentTenantId() {
+
+        return TenantContext.requireTenantId();
+    }
+
+    private Tenant getCurrentTenant() {
+
+        Long tenantId = getCurrentTenantId();
+
+        return tenantRepository
+                .findById(tenantId)
+                .orElseThrow(
+                        () -> new IllegalStateException(
+                                "Current tenant was not found: "
+                                        + tenantId));
+    }
+
     @Override
     public UserResponse updateUser(
-        Long id,
-        UserUpdateRequest request
-    ) {
+            Long id,
+            UserUpdateRequest request) {
 
         User user = findUser(id);
 
         String roleName = normalizeRole(
-            request.getRole()
-        );
+                request.getRole());
+
+        ensureTenantSafeRole(roleName);
 
         Role role = findRole(roleName);
 
         user.setFullName(
-            request.getFullName().trim()
-        );
+                request.getFullName().trim());
 
         /*
          * Keep legacy role synchronized while the legacy
@@ -139,45 +169,38 @@ public class UserServiceImpl implements UserService {
 
         if (request.getEnabled() != null) {
             user.setEnabled(
-                request.getEnabled()
-            );
+                    request.getEnabled());
         }
 
-        User updatedUser =
-            userRepository.save(user);
+        User updatedUser = userRepository.save(user);
 
         return UserResponse.fromUser(updatedUser);
     }
 
     @Override
     public UserResponse updateUserStatus(
-        Long id,
-        boolean enabled
-    ) {
+            Long id,
+            boolean enabled) {
 
         User user = findUser(id);
 
         user.setEnabled(enabled);
 
-        User updatedUser =
-            userRepository.save(user);
+        User updatedUser = userRepository.save(user);
 
         return UserResponse.fromUser(updatedUser);
     }
 
     @Override
     public void changePassword(
-        Long id,
-        ChangePasswordRequest request
-    ) {
+            Long id,
+            ChangePasswordRequest request) {
 
         User user = findUser(id);
 
         user.setPassword(
-            passwordEncoder.encode(
-                request.getNewPassword()
-            )
-        );
+                passwordEncoder.encode(
+                        request.getNewPassword()));
 
         userRepository.save(user);
     }
@@ -199,33 +222,42 @@ public class UserServiceImpl implements UserService {
 
     private User findUser(Long id) {
 
-        return userRepository.findById(id)
-            .orElseThrow(
-                () -> new IllegalArgumentException(
-                    "User with ID " + id + " was not found."
-                )
-            );
+        Long tenantId = getCurrentTenantId();
+
+        return userRepository
+                .findByIdAndTenant_Id(
+                        id,
+                        tenantId)
+                .orElseThrow(
+                        () -> new IllegalArgumentException(
+                                "User with ID "
+                                        + id
+                                        + " was not found."));
     }
 
     private Role findRole(String roleName) {
 
         return roleRepository.findByName(roleName)
-            .orElseThrow(
-                () -> new IllegalArgumentException(
-                    "Role '" + roleName + "' does not exist."
-                )
-            );
+                .orElseThrow(
+                        () -> new IllegalArgumentException(
+                                "Role '" + roleName + "' does not exist."));
+    }
+
+    private void ensureTenantSafeRole(String roleName) {
+        if ("SUPER_ADMIN".equals(roleName)) {
+            throw new IllegalArgumentException(
+                    "SUPER_ADMIN can only be created or assigned by the platform administration layer.");
+        }
     }
 
     private String normalizeRole(String role) {
 
         if (role == null || role.isBlank()) {
             throw new IllegalArgumentException(
-                "Role is required."
-            );
+                    "Role is required.");
         }
 
         return role.trim()
-            .toUpperCase(Locale.ROOT);
+                .toUpperCase(Locale.ROOT);
     }
 }

@@ -1,6 +1,7 @@
 package com.hms.backend.auth.entity;
 
 import com.hms.backend.entity.Role;
+import com.hms.backend.tenant.entity.Tenant;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -70,6 +71,20 @@ public class User {
     )
     private Set<Role> roles =
         new HashSet<>();
+
+    /*
+     * -----------------------------------------------------
+     * TENANT
+     * -----------------------------------------------------
+     *
+     * Stage 1: nullable during migration so existing users
+     * can be attached to the default tenant by the RBAC
+     * initializer without breaking startup.
+     * -----------------------------------------------------
+     */
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "tenant_id")
+    private Tenant tenant;
 
     @Column(
         nullable = false
@@ -177,6 +192,14 @@ public class User {
         Set<Role> roles
     ) {
         this.roles = roles;
+    }
+
+    public Tenant getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(Tenant tenant) {
+        this.tenant = tenant;
     }
 
     public boolean isEnabled() {

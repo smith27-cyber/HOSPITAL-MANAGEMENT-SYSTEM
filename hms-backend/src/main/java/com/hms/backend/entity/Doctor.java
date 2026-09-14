@@ -1,5 +1,6 @@
-
 package com.hms.backend.entity;
+
+import com.hms.backend.tenant.entity.Tenant;
 
 import jakarta.persistence.*;
 
@@ -8,23 +9,23 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(
-        name = "doctors",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_doctor_national_id",
-                        columnNames = "national_id"
-                ),
-                @UniqueConstraint(
-                        name = "uk_doctor_license_number",
-                        columnNames = "license_number"
-                ),
-                @UniqueConstraint(
-                        name = "uk_doctor_email",
-                        columnNames = "email"
-                )
-        }
-)
+@Table(name = "doctors", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_doctor_tenant_national_id", columnNames = {
+                "tenant_id",
+                "national_id"
+        }),
+        @UniqueConstraint(name = "uk_doctor_tenant_license_number", columnNames = {
+                "tenant_id",
+                "license_number"
+        }),
+        @UniqueConstraint(name = "uk_doctor_tenant_email", columnNames = {
+                "tenant_id",
+                "email"
+        })
+}, indexes = {
+        @Index(name = "idx_doctors_tenant_id", columnList = "tenant_id"),
+        @Index(name = "idx_doctors_tenant_status", columnList = "tenant_id,status")
+})
 public class Doctor {
 
     // =====================================================
@@ -32,171 +33,107 @@ public class Doctor {
     // =====================================================
 
     @Id
-    @Column(
-            name = "id",
-            length = 20,
-            nullable = false
-    )
+    @Column(name = "id", length = 20, nullable = false)
     private String id;
 
+    // =====================================================
+    // TENANT
+    // =====================================================
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "tenant_id", nullable = false)
+    private Tenant tenant;
 
     // =====================================================
     // FIRST NAME
     // =====================================================
 
-    @Column(
-            name = "first_name",
-            nullable = false,
-            length = 100
-    )
+    @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
-
 
     // =====================================================
     // LAST NAME
     // =====================================================
 
-    @Column(
-            name = "last_name",
-            nullable = false,
-            length = 100
-    )
+    @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
-
 
     // =====================================================
     // GENDER
     // =====================================================
 
-    @Column(
-            name = "gender",
-            nullable = false,
-            length = 20
-    )
+    @Column(name = "gender", nullable = false, length = 20)
     private String gender;
-
 
     // =====================================================
     // DATE OF BIRTH
     // =====================================================
 
-    @Column(
-            name = "date_of_birth",
-            nullable = false
-    )
+    @Column(name = "date_of_birth", nullable = false)
     private LocalDate dateOfBirth;
-
 
     // =====================================================
     // PHONE
     // =====================================================
 
-    @Column(
-            name = "phone",
-            nullable = false,
-            length = 30
-    )
+    @Column(name = "phone", nullable = false, length = 30)
     private String phone;
-
 
     // =====================================================
     // EMAIL
     // =====================================================
 
-    @Column(
-            name = "email",
-            nullable = false,
-            length = 150,
-            unique = true
-    )
+    @Column(name = "email", nullable = false, length = 150)
     private String email;
-
 
     // =====================================================
     // NATIONAL ID
     // =====================================================
 
-    @Column(
-            name = "national_id",
-            length = 50,
-            unique = true
-    )
+    @Column(name = "national_id", length = 50)
     private String nationalId;
-
 
     // =====================================================
     // SPECIALIZATION
     // =====================================================
 
-    @Column(
-            name = "specialization",
-            nullable = false,
-            length = 150
-    )
+    @Column(name = "specialization", nullable = false, length = 150)
     private String specialization;
-
 
     // =====================================================
     // DEPARTMENT
     // =====================================================
 
-    @Column(
-            name = "department",
-            nullable = false,
-            length = 150
-    )
+    @Column(name = "department", nullable = false, length = 150)
     private String department;
-
 
     // =====================================================
     // LICENSE NUMBER
     // =====================================================
 
-    @Column(
-            name = "license_number",
-            nullable = false,
-            length = 100,
-            unique = true
-    )
+    @Column(name = "license_number", nullable = false, length = 100)
     private String licenseNumber;
-
 
     // =====================================================
     // STATUS
     // =====================================================
 
-    @Column(
-            name = "status",
-            nullable = false,
-            length = 20
-    )
+    @Column(name = "status", nullable = false, length = 20)
     private String status = "Active";
-
 
     // =====================================================
     // CONSULTATION FEE
     // =====================================================
-    // BigDecimal is used for financial values.
-    // Do NOT use scale with Double or Float.
-    // =====================================================
 
-    @Column(
-            name = "consultation_fee"
-    )
+    @Column(name = "consultation_fee")
     private BigDecimal consultationFee;
-
 
     // =====================================================
     // CREATED AT
     // =====================================================
 
-    @Column(
-            name = "created_at",
-            nullable = false,
-            updatable = false
-    )
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
 
     // =====================================================
     // CONSTRUCTOR
@@ -205,7 +142,6 @@ public class Doctor {
     public Doctor() {
     }
 
-
     // =====================================================
     // PRE-PERSIST
     // =====================================================
@@ -213,10 +149,8 @@ public class Doctor {
     @PrePersist
     protected void onCreate() {
 
-        if (
-                status == null ||
-                status.isBlank()
-        ) {
+        if (status == null ||
+                status.isBlank()) {
             status = "Active";
         }
 
@@ -224,7 +158,6 @@ public class Doctor {
             createdAt = LocalDateTime.now();
         }
     }
-
 
     // =====================================================
     // ID
@@ -238,6 +171,17 @@ public class Doctor {
         this.id = id;
     }
 
+    // =====================================================
+    // TENANT
+    // =====================================================
+
+    public Tenant getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(Tenant tenant) {
+        this.tenant = tenant;
+    }
 
     // =====================================================
     // FIRST NAME
@@ -251,7 +195,6 @@ public class Doctor {
         this.firstName = firstName;
     }
 
-
     // =====================================================
     // LAST NAME
     // =====================================================
@@ -263,7 +206,6 @@ public class Doctor {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-
 
     // =====================================================
     // GENDER
@@ -277,7 +219,6 @@ public class Doctor {
         this.gender = gender;
     }
 
-
     // =====================================================
     // DATE OF BIRTH
     // =====================================================
@@ -286,10 +227,10 @@ public class Doctor {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(LocalDate dateOfBirth) {
+    public void setDateOfBirth(
+            LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
-
 
     // =====================================================
     // PHONE
@@ -303,7 +244,6 @@ public class Doctor {
         this.phone = phone;
     }
 
-
     // =====================================================
     // EMAIL
     // =====================================================
@@ -315,7 +255,6 @@ public class Doctor {
     public void setEmail(String email) {
         this.email = email;
     }
-
 
     // =====================================================
     // NATIONAL ID
@@ -329,7 +268,6 @@ public class Doctor {
         this.nationalId = nationalId;
     }
 
-
     // =====================================================
     // SPECIALIZATION
     // =====================================================
@@ -338,10 +276,10 @@ public class Doctor {
         return specialization;
     }
 
-    public void setSpecialization(String specialization) {
+    public void setSpecialization(
+            String specialization) {
         this.specialization = specialization;
     }
-
 
     // =====================================================
     // DEPARTMENT
@@ -355,7 +293,6 @@ public class Doctor {
         this.department = department;
     }
 
-
     // =====================================================
     // LICENSE NUMBER
     // =====================================================
@@ -364,10 +301,10 @@ public class Doctor {
         return licenseNumber;
     }
 
-    public void setLicenseNumber(String licenseNumber) {
+    public void setLicenseNumber(
+            String licenseNumber) {
         this.licenseNumber = licenseNumber;
     }
-
 
     // =====================================================
     // STATUS
@@ -381,7 +318,6 @@ public class Doctor {
         this.status = status;
     }
 
-
     // =====================================================
     // CONSULTATION FEE
     // =====================================================
@@ -391,11 +327,9 @@ public class Doctor {
     }
 
     public void setConsultationFee(
-            BigDecimal consultationFee
-    ) {
+            BigDecimal consultationFee) {
         this.consultationFee = consultationFee;
     }
-
 
     // =====================================================
     // CREATED AT
@@ -406,9 +340,7 @@ public class Doctor {
     }
 
     public void setCreatedAt(
-            LocalDateTime createdAt
-    ) {
+            LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 }
-

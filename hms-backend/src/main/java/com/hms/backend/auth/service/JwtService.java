@@ -74,6 +74,21 @@ public class JwtService {
             )
 
             .claim(
+                "tenantId",
+                user.getTenant() != null ? user.getTenant().getId() : null
+            )
+
+            .claim(
+                "tenantCode",
+                user.getTenant() != null ? user.getTenant().getCode() : null
+            )
+
+            .claim(
+                "tenantName",
+                user.getTenant() != null ? user.getTenant().getName() : null
+            )
+
+            .claim(
                 "fullName",
                 user.getFullName()
             )
@@ -163,7 +178,37 @@ public class JwtService {
             return false;
         }
     }
+// =====================================================
+// EXTRACT TENANT ID
+// =====================================================
 
+public Long extractTenantId(String token) {
+
+    Object tenantId =
+        Jwts.parser()
+            .verifyWith(secretKey)
+            .build()
+            .parseSignedClaims(token)
+            .getPayload()
+            .get("tenantId");
+
+    if (tenantId == null) {
+        return null;
+    }
+
+    if (tenantId instanceof Number number) {
+        return number.longValue();
+    }
+
+    try {
+        return Long.valueOf(
+            tenantId.toString()
+        );
+    }
+    catch (NumberFormatException exception) {
+        return null;
+    }
+}
     // =====================================================
     // EXTRACT CLAIMS
     // =====================================================

@@ -7,207 +7,163 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(
-        name = "billing_items",
-        indexes = {
-                @Index(
-                        name = "idx_billing_items_billing_id",
-                        columnList = "billing_id"
-                ),
-                @Index(
-                        name = "idx_billing_items_type",
-                        columnList = "billing_type"
-                ),
-                @Index(
-                        name = "idx_billing_items_reference",
-                        columnList = "reference_id"
-                )
-        }
-)
+@Table(name = "billing_items", indexes = {
+                @Index(name = "idx_billing_items_billing_id", columnList = "billing_id"),
+                @Index(name = "idx_billing_items_type", columnList = "billing_type"),
+                @Index(name = "idx_billing_items_reference", columnList = "reference_id")
+})
 public class BillingItem {
 
-    // =========================================================
-    // PRIMARY KEY
-    // =========================================================
+        // =========================================================
+        // PRIMARY KEY
+        // =========================================================
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
 
-    // =========================================================
-    // BILL
-    // =========================================================
+        // =========================================================
+        // BILL
+        // =========================================================
 
-    @JsonBackReference
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(
-            name = "billing_id",
-            nullable = false
-    )
-    private Billing billing;
+        @JsonBackReference
+        @ManyToOne(fetch = FetchType.LAZY, optional = false)
+        @JoinColumn(name = "billing_id", nullable = false)
+        private Billing billing;
 
-    // =========================================================
-    // BILLING TYPE
-    // =========================================================
+        // =========================================================
+        // BILLING TYPE
+        // =========================================================
 
-    @Enumerated(EnumType.STRING)
-    @Column(
-            name = "billing_type",
-            nullable = false,
-            length = 50
-    )
-    private BillingType billingType;
+        @Enumerated(EnumType.STRING)
+        @Column(name = "billing_type", nullable = false, length = 50)
+        private BillingType billingType;
 
-    // =========================================================
-    // DESCRIPTION
-    // =========================================================
+        // =========================================================
+        // DESCRIPTION
+        // =========================================================
 
-    @Column(
-            nullable = false,
-            length = 500
-    )
-    private String description;
+        @Column(nullable = false, length = 500)
+        private String description;
 
-    // =========================================================
-    // QUANTITY
-    // =========================================================
+        // =========================================================
+        // QUANTITY
+        // =========================================================
 
-    @Column(
-            nullable = false
-    )
-    private Integer quantity = 1;
+        @Column(nullable = false)
+        private Integer quantity = 1;
 
-    // =========================================================
-    // UNIT PRICE
-    // =========================================================
+        // =========================================================
+        // UNIT PRICE
+        // =========================================================
 
-    @Column(
-            name = "unit_price",
-            nullable = false,
-            precision = 14,
-            scale = 2
-    )
-    private BigDecimal unitPrice =
-            BigDecimal.ZERO;
+        @Column(name = "unit_price", nullable = false, precision = 14, scale = 2)
+        private BigDecimal unitPrice = BigDecimal.ZERO;
 
-    // =========================================================
-    // AMOUNT
-    // =========================================================
+        // =========================================================
+        // AMOUNT
+        // =========================================================
 
-    @Column(
-            nullable = false,
-            precision = 14,
-            scale = 2
-    )
-    private BigDecimal amount =
-            BigDecimal.ZERO;
+        @Column(nullable = false, precision = 14, scale = 2)
+        private BigDecimal amount = BigDecimal.ZERO;
 
-    // =========================================================
-    // SOURCE REFERENCE
-    // =========================================================
+        // =========================================================
+        // SOURCE REFERENCE
+        // =========================================================
 
-    @Column(
-            name = "reference_id",
-            length = 150
-    )
-    private String referenceId;
+        @Column(name = "reference_id", length = 150)
+        private String referenceId;
 
-    // =========================================================
-    // ENUM
-    // =========================================================
+        // =========================================================
+        // ENUM
+        // =========================================================
 
-    public enum BillingType {
+        public enum BillingType {
 
-        CONSULTATION,
+                CONSULTATION,
 
-        LABORATORY,
+                LABORATORY,
 
-        PHARMACY,
+                PHARMACY,
 
-        ADMISSION,
+                ADMISSION,
 
-        PROCEDURE,
+                PROCEDURE,
 
-        OTHER
-    }
+                OTHER
+        }
 
-    // =========================================================
-    // GETTERS / SETTERS
-    // =========================================================
+        // =========================================================
+        // GETTERS / SETTERS
+        // =========================================================
 
-    public Long getId() {
-        return id;
-    }
+        public Long getId() {
+                return id;
+        }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+        public void setId(Long id) {
+                this.id = id;
+        }
 
-    public Billing getBilling() {
-        return billing;
-    }
+        public Billing getBilling() {
+                return billing;
+        }
 
-    public void setBilling(Billing billing) {
-        this.billing = billing;
-    }
+        public void setBilling(Billing billing) {
+                this.billing = billing;
+        }
 
-    public BillingType getBillingType() {
-        return billingType;
-    }
+        public BillingType getBillingType() {
+                return billingType;
+        }
 
-    public void setBillingType(
-            BillingType billingType
-    ) {
-        this.billingType = billingType;
-    }
+        public void setBillingType(
+                        BillingType billingType) {
+                this.billingType = billingType;
+        }
 
-    public String getDescription() {
-        return description;
-    }
+        public String getDescription() {
+                return description;
+        }
 
-    public void setDescription(
-            String description
-    ) {
-        this.description = description;
-    }
+        public void setDescription(
+                        String description) {
+                this.description = description;
+        }
 
-    public Integer getQuantity() {
-        return quantity;
-    }
+        public Integer getQuantity() {
+                return quantity;
+        }
 
-    public void setQuantity(
-            Integer quantity
-    ) {
-        this.quantity = quantity;
-    }
+        public void setQuantity(
+                        Integer quantity) {
+                this.quantity = quantity;
+        }
 
-    public BigDecimal getUnitPrice() {
-        return unitPrice;
-    }
+        public BigDecimal getUnitPrice() {
+                return unitPrice;
+        }
 
-    public void setUnitPrice(
-            BigDecimal unitPrice
-    ) {
-        this.unitPrice = unitPrice;
-    }
+        public void setUnitPrice(
+                        BigDecimal unitPrice) {
+                this.unitPrice = unitPrice;
+        }
 
-    public BigDecimal getAmount() {
-        return amount;
-    }
+        public BigDecimal getAmount() {
+                return amount;
+        }
 
-    public void setAmount(
-            BigDecimal amount
-    ) {
-        this.amount = amount;
-    }
+        public void setAmount(
+                        BigDecimal amount) {
+                this.amount = amount;
+        }
 
-    public String getReferenceId() {
-        return referenceId;
-    }
+        public String getReferenceId() {
+                return referenceId;
+        }
 
-    public void setReferenceId(
-            String referenceId
-    ) {
-        this.referenceId = referenceId;
-    }
+        public void setReferenceId(
+                        String referenceId) {
+                this.referenceId = referenceId;
+        }
 }

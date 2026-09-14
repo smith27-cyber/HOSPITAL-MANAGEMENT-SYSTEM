@@ -12,72 +12,98 @@ import java.util.Optional;
 public interface BillingRepository
         extends JpaRepository<Billing, Long> {
 
+    // =====================================================
+    // TENANT
+    // =====================================================
+
+    List<Billing> findAllByTenant_Id(
+            Long tenantId
+    );
+
+    Optional<Billing> findByIdAndTenant_Id(
+            Long id,
+            Long tenantId
+    );
 
     // =====================================================
     // PATIENT
     // =====================================================
 
     List<Billing>
-    findByPatientIdOrderByBillingDateDesc(
+    findByTenant_IdAndPatientIdOrderByBillingDateDesc(
+            Long tenantId,
             String patientId
     );
-
 
     // =====================================================
     // ACTIVE PATIENT BILL
     // =====================================================
 
     Optional<Billing>
-    findFirstByPatientIdAndStatusNotAndStatusNotOrderByBillingDateDesc(
+    findFirstByTenant_IdAndPatientIdAndStatusNotAndStatusNotOrderByBillingDateDesc(
+            Long tenantId,
             String patientId,
             Billing.BillingStatus paidStatus,
             Billing.BillingStatus cancelledStatus
     );
-
 
     // =====================================================
     // CONSULTATION BILL
     // =====================================================
 
     Optional<Billing>
-    findFirstByConsultationIdAndStatusNotAndStatusNotOrderByBillingDateDesc(
+    findFirstByTenant_IdAndConsultationIdAndStatusNotAndStatusNotOrderByBillingDateDesc(
+            Long tenantId,
             String consultationId,
             Billing.BillingStatus paidStatus,
             Billing.BillingStatus cancelledStatus
     );
-
 
     // =====================================================
     // CONSULTATION BILL HISTORY
     // =====================================================
 
     Optional<Billing>
-    findFirstByConsultationIdOrderByBillingDateDesc(
+    findFirstByTenant_IdAndConsultationIdOrderByBillingDateDesc(
+            Long tenantId,
             String consultationId
     );
-
 
     // =====================================================
     // INVOICE
     // =====================================================
 
     Optional<Billing>
-    findByInvoiceNumber(
+    findByTenant_IdAndInvoiceNumber(
+            Long tenantId,
             String invoiceNumber
     );
 
-
-    boolean existsByInvoiceNumber(
+    boolean existsByTenant_IdAndInvoiceNumber(
+            Long tenantId,
             String invoiceNumber
     );
-
 
     // =====================================================
     // STATUS
     // =====================================================
 
     List<Billing>
-    findByStatusOrderByBillingDateDesc(
+    findByTenant_IdAndStatusOrderByBillingDateDesc(
+            Long tenantId,
+            Billing.BillingStatus status
+    );
+
+    // =====================================================
+    // COUNTS
+    // =====================================================
+
+    long countByTenant_Id(
+            Long tenantId
+    );
+
+    long countByTenant_IdAndStatus(
+            Long tenantId,
             Billing.BillingStatus status
     );
 }

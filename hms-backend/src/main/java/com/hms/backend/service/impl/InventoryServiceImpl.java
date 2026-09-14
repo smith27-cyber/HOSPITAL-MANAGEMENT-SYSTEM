@@ -1,17 +1,16 @@
-// =====================================================
-// INVENTORY SERVICE IMPLEMENTATION
-// File:
-// src/main/java/com/hms/backend/service/impl/InventoryServiceImpl.java
-// =====================================================
-
 package com.hms.backend.service.impl;
 
 import com.hms.backend.entity.Inventory;
+import com.hms.backend.tenant.entity.Tenant;
 import com.hms.backend.repository.InventoryRepository;
 import com.hms.backend.service.InventoryService;
+import com.hms.backend.tenant.context.TenantContext;
+import com.hms.backend.tenant.repository.TenantRepository;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -23,37 +22,55 @@ public class InventoryServiceImpl
         implements InventoryService {
 
     private final InventoryRepository inventoryRepository;
-
-
-    // =====================================================
-    // CONSTRUCTOR
-    // =====================================================
+    private final TenantRepository tenantRepository;
 
     public InventoryServiceImpl(
-            InventoryRepository inventoryRepository
+            InventoryRepository inventoryRepository,
+            TenantRepository tenantRepository
     ) {
 
         this.inventoryRepository =
                 inventoryRepository;
 
+        this.tenantRepository =
+                tenantRepository;
     }
 
+    // =====================================================
+    // CURRENT TENANT
+    // =====================================================
+
+    private Tenant getCurrentTenant() {
+
+        Long tenantId =
+                TenantContext.requireTenantId();
+
+        return tenantRepository
+                .findById(tenantId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                "Current tenant not found: "
+                                        + tenantId
+                        )
+                );
+    }
 
     // =====================================================
-    // GET ALL INVENTORY ITEMS
+    // GET ALL
     // =====================================================
 
     @Override
     @Transactional(readOnly = true)
     public List<Inventory> getAllItems() {
 
-        return inventoryRepository.findAll();
-
+        return inventoryRepository.findAllByTenant_Id(
+                TenantContext.requireTenantId()
+        );
     }
 
-
     // =====================================================
-    // GET INVENTORY ITEM BY ID
+    // GET BY ID
     // =====================================================
 
     @Override
@@ -62,20 +79,25 @@ public class InventoryServiceImpl
             String id
     ) {
 
+        Long tenantId =
+                TenantContext.requireTenantId();
+
         return inventoryRepository
-                .findById(id)
+                .findByIdAndTenant_Id(
+                        id,
+                        tenantId
+                )
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
                                 "Inventory item not found with ID: "
                                         + id
                         )
                 );
-
     }
 
-
     // =====================================================
-    // ADD INVENTORY ITEM
+    // ADD
     // =====================================================
 
     @Override
@@ -83,101 +105,62 @@ public class InventoryServiceImpl
             Inventory inventory
     ) {
 
-        // -------------------------------------------------
-        // NORMALIZE
-        // -------------------------------------------------
+        Tenant currentTenant =
+                getCurrentTenant();
 
-        normalizeInventory(
-                inventory
+        Long tenantId =
+                currentTenant.getId();
+
+        normalizeInventory(inventory);
+
+        validateInventory(inventory);
+
+        inventory.setTenant(
+                currentTenant
         );
 
-
-        // -------------------------------------------------
-        // VALIDATE
-        // -------------------------------------------------
-
-        validateInventory(
-                inventory
-        );
-
-
-        // -------------------------------------------------
-        // GENERATE ID
-        // -------------------------------------------------
-
-        if (
-                isBlank(
-                        inventory.getId()
-                )
-        ) {
-
+        if (isBlank(inventory.getId())) {
             inventory.setId(
-                    generateInventoryId()
+                    generateInventoryId(
+                            tenantId
+                    )
             );
-
         }
 
-
-        // -------------------------------------------------
-        // GENERATE ITEM CODE
-        // -------------------------------------------------
-
-        if (
-                isBlank(
-                        inventory.getItemCode()
-                )
-        ) {
-
+        if (isBlank(inventory.getItemCode())) {
             inventory.setItemCode(
-                    generateItemCode()
+                    generateItemCode(
+                            tenantId
+                    )
             );
-
         }
-
-
-        // -------------------------------------------------
-        // CHECK DUPLICATE ITEM CODE
-        // -------------------------------------------------
 
         if (
                 inventoryRepository
-                        .existsByItemCode(
+                        .existsByTenant_IdAndItemCode(
+                                tenantId,
                                 inventory.getItemCode()
                         )
         ) {
 
-            throw new RuntimeException(
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
                     "Inventory item with item code already exists: "
                             + inventory.getItemCode()
             );
-
         }
 
-
-        // -------------------------------------------------
-        // CALCULATE STATUS
-        // -------------------------------------------------
-
         inventory.setStatus(
-                calculateStatus(
-                        inventory
-                )
+                calculateStatus(inventory)
         );
-
-
-        // -------------------------------------------------
-        // SAVE
-        // -------------------------------------------------
 
         return inventoryRepository.save(
                 inventory
         );
-
     }
 
-
     // =====================================================
-    // UPDATE INVENTORY ITEM
+    // UPDATE
     // =====================================================
 
     @Override
@@ -186,35 +169,19 @@ public class InventoryServiceImpl
             Inventory updatedInventory
     ) {
 
-        // -------------------------------------------------
-        // FIND EXISTING ITEM
-        // -------------------------------------------------
+        Long tenantId =
+                TenantContext.requireTenantId();
 
         Inventory existingInventory =
                 getItemById(id);
-
-
-        // -------------------------------------------------
-        // NORMALIZE
-        // -------------------------------------------------
 
         normalizeInventory(
                 updatedInventory
         );
 
-
-        // -------------------------------------------------
-        // VALIDATE
-        // -------------------------------------------------
-
         validateInventory(
                 updatedInventory
         );
-
-
-        // -------------------------------------------------
-        // CHECK ITEM CODE
-        // -------------------------------------------------
 
         if (
                 !isBlank(
@@ -223,117 +190,75 @@ public class InventoryServiceImpl
         ) {
 
             inventoryRepository
-                    .findByItemCodeAndIdNot(
+                    .findByTenant_IdAndItemCodeAndIdNot(
+                            tenantId,
                             updatedInventory.getItemCode(),
                             id
                     )
-                    .ifPresent(
-                            existingWithCode -> {
-
-                                throw new RuntimeException(
-                                        "Another inventory item already uses item code: "
-                                                + updatedInventory.getItemCode()
-                                );
-
-                            }
-                    );
-
+                    .ifPresent(existingWithCode -> {
+                        throw new ResponseStatusException(
+                                HttpStatus.CONFLICT,
+                                "Another inventory item already uses item code: "
+                                        + updatedInventory.getItemCode()
+                        );
+                    });
         }
-
-
-        // -------------------------------------------------
-        // BASIC INFORMATION
-        // -------------------------------------------------
 
         existingInventory.setItemName(
                 updatedInventory.getItemName()
         );
 
-
         existingInventory.setItemCode(
                 updatedInventory.getItemCode()
         );
-
 
         existingInventory.setCategory(
                 updatedInventory.getCategory()
         );
 
-
         existingInventory.setUnit(
                 updatedInventory.getUnit()
         );
-
 
         existingInventory.setDescription(
                 updatedInventory.getDescription()
         );
 
-
-        // -------------------------------------------------
-        // STOCK INFORMATION
-        // -------------------------------------------------
-
         existingInventory.setQuantity(
                 updatedInventory.getQuantity()
         );
-
 
         existingInventory.setMinimumStock(
                 updatedInventory.getMinimumStock()
         );
 
-
         existingInventory.setMaximumStock(
                 updatedInventory.getMaximumStock()
         );
-
 
         existingInventory.setUnitPrice(
                 updatedInventory.getUnitPrice()
         );
 
-
-        // -------------------------------------------------
-        // SUPPLIER INFORMATION
-        // -------------------------------------------------
-
         existingInventory.setSupplier(
                 updatedInventory.getSupplier()
         );
-
 
         existingInventory.setSupplierContact(
                 updatedInventory.getSupplierContact()
         );
 
-
-        // -------------------------------------------------
-        // BATCH / EXPIRY
-        // -------------------------------------------------
-
         existingInventory.setBatchNumber(
                 updatedInventory.getBatchNumber()
         );
-
 
         existingInventory.setExpiryDate(
                 updatedInventory.getExpiryDate()
         );
 
-
-        // -------------------------------------------------
-        // STORAGE
-        // -------------------------------------------------
-
         existingInventory.setStorageLocation(
                 updatedInventory.getStorageLocation()
         );
-
-
-        // -------------------------------------------------
-        // STATUS
-        // -------------------------------------------------
 
         existingInventory.setStatus(
                 calculateStatus(
@@ -341,29 +266,19 @@ public class InventoryServiceImpl
                 )
         );
 
-
-        // -------------------------------------------------
-        // NOTES
-        // -------------------------------------------------
-
         existingInventory.setNotes(
                 updatedInventory.getNotes()
         );
 
-
-        // -------------------------------------------------
-        // SAVE
-        // -------------------------------------------------
+        // tenant is intentionally NOT changed
 
         return inventoryRepository.save(
                 existingInventory
         );
-
     }
 
-
     // =====================================================
-    // DELETE INVENTORY ITEM
+    // DELETE
     // =====================================================
 
     @Override
@@ -371,27 +286,16 @@ public class InventoryServiceImpl
             String id
     ) {
 
-        if (
-                !inventoryRepository.existsById(id)
-        ) {
+        Inventory inventory =
+                getItemById(id);
 
-            throw new RuntimeException(
-                    "Inventory item not found with ID: "
-                            + id
-            );
-
-        }
-
-
-        inventoryRepository.deleteById(
-                id
+        inventoryRepository.delete(
+                inventory
         );
-
     }
 
-
     // =====================================================
-    // UPDATE INVENTORY STATUS
+    // STATUS
     // =====================================================
 
     @Override
@@ -400,20 +304,11 @@ public class InventoryServiceImpl
             String status
     ) {
 
-        // -------------------------------------------------
-        // VALIDATE STATUS
-        // -------------------------------------------------
-
-        if (
-                isBlank(status)
-        ) {
-
-            throw new RuntimeException(
+        if (isBlank(status)) {
+            throw new IllegalArgumentException(
                     "Inventory status is required."
             );
-
         }
-
 
         if (
                 !status.equals("In Stock") &&
@@ -423,45 +318,23 @@ public class InventoryServiceImpl
                 !status.equals("Discontinued")
         ) {
 
-            throw new RuntimeException(
-                    "Invalid inventory status. "
-                            + "Allowed values: In Stock, Low Stock, "
-                            + "Out of Stock, Expired, Discontinued."
+            throw new IllegalArgumentException(
+                    "Invalid inventory status."
             );
-
         }
-
-
-        // -------------------------------------------------
-        // FIND ITEM
-        // -------------------------------------------------
 
         Inventory inventory =
                 getItemById(id);
 
-
-        // -------------------------------------------------
-        // UPDATE STATUS
-        // -------------------------------------------------
-
-        inventory.setStatus(
-                status
-        );
-
-
-        // -------------------------------------------------
-        // SAVE
-        // -------------------------------------------------
+        inventory.setStatus(status);
 
         return inventoryRepository.save(
                 inventory
         );
-
     }
 
-
     // =====================================================
-    // UPDATE STOCK QUANTITY
+    // QUANTITY
     // =====================================================
 
     @Override
@@ -470,63 +343,32 @@ public class InventoryServiceImpl
             Integer quantity
     ) {
 
-        // -------------------------------------------------
-        // VALIDATE QUANTITY
-        // -------------------------------------------------
-
         if (
                 quantity == null ||
                 quantity < 0
         ) {
 
-            throw new RuntimeException(
+            throw new IllegalArgumentException(
                     "Inventory quantity cannot be negative."
             );
-
         }
-
-
-        // -------------------------------------------------
-        // FIND ITEM
-        // -------------------------------------------------
 
         Inventory inventory =
                 getItemById(id);
 
-
-        // -------------------------------------------------
-        // UPDATE QUANTITY
-        // -------------------------------------------------
-
-        inventory.setQuantity(
-                quantity
-        );
-
-
-        // -------------------------------------------------
-        // RECALCULATE STATUS
-        // -------------------------------------------------
+        inventory.setQuantity(quantity);
 
         inventory.setStatus(
-                calculateStatus(
-                        inventory
-                )
+                calculateStatus(inventory)
         );
-
-
-        // -------------------------------------------------
-        // SAVE
-        // -------------------------------------------------
 
         return inventoryRepository.save(
                 inventory
         );
-
     }
 
-
     // =====================================================
-    // SEARCH INVENTORY
+    // SEARCH
     // =====================================================
 
     @Override
@@ -535,22 +377,23 @@ public class InventoryServiceImpl
             String searchTerm
     ) {
 
-        if (
-                isBlank(searchTerm)
-        ) {
+        Long tenantId =
+                TenantContext.requireTenantId();
 
-            return inventoryRepository.findAll();
+        if (isBlank(searchTerm)) {
 
+            return inventoryRepository
+                    .findAllByTenant_Id(
+                            tenantId
+                    );
         }
 
-
         return inventoryRepository
-                .findByItemNameContainingIgnoreCase(
+                .findByTenant_IdAndItemNameContainingIgnoreCase(
+                        tenantId,
                         searchTerm.trim()
                 );
-
     }
-
 
     // =====================================================
     // CALCULATE STATUS
@@ -566,41 +409,22 @@ public class InventoryServiceImpl
         Integer minimumStock =
                 inventory.getMinimumStock();
 
-
-        // -------------------------------------------------
-        // OUT OF STOCK
-        // -------------------------------------------------
-
         if (
                 quantity == null ||
                 quantity <= 0
         ) {
 
             return "Out of Stock";
-
         }
-
-
-        // -------------------------------------------------
-        // EXPIRY
-        // -------------------------------------------------
 
         if (
                 inventory.getExpiryDate() != null &&
                 inventory.getExpiryDate()
-                        .isBefore(
-                                LocalDate.now()
-                        )
+                        .isBefore(LocalDate.now())
         ) {
 
             return "Expired";
-
         }
-
-
-        // -------------------------------------------------
-        // LOW STOCK
-        // -------------------------------------------------
 
         if (
                 minimumStock != null &&
@@ -608,293 +432,156 @@ public class InventoryServiceImpl
         ) {
 
             return "Low Stock";
-
         }
 
-
-        // -------------------------------------------------
-        // IN STOCK
-        // -------------------------------------------------
-
         return "In Stock";
-
     }
 
-
     // =====================================================
-    // NORMALIZE INVENTORY
+    // NORMALIZE
     // =====================================================
 
     private void normalizeInventory(
             Inventory inventory
     ) {
 
-        if (
-                inventory.getItemName() != null
-        ) {
-
+        if (inventory.getItemName() != null) {
             inventory.setItemName(
                     inventory.getItemName().trim()
             );
-
         }
 
-
-        if (
-                inventory.getItemCode() != null
-        ) {
-
+        if (inventory.getItemCode() != null) {
             inventory.setItemCode(
                     inventory.getItemCode()
                             .trim()
                             .toUpperCase()
             );
-
         }
 
-
-        if (
-                inventory.getCategory() != null
-        ) {
-
+        if (inventory.getCategory() != null) {
             inventory.setCategory(
                     inventory.getCategory().trim()
             );
-
         }
 
-
-        if (
-                inventory.getUnit() != null
-        ) {
-
+        if (inventory.getUnit() != null) {
             inventory.setUnit(
                     inventory.getUnit().trim()
             );
-
         }
 
-
-        if (
-                inventory.getDescription() != null
-        ) {
-
+        if (inventory.getDescription() != null) {
             inventory.setDescription(
                     inventory.getDescription().trim()
             );
-
         }
 
-
-        if (
-                inventory.getSupplier() != null
-        ) {
-
+        if (inventory.getSupplier() != null) {
             inventory.setSupplier(
                     inventory.getSupplier().trim()
             );
-
         }
 
-
-        if (
-                inventory.getSupplierContact() != null
-        ) {
-
+        if (inventory.getSupplierContact() != null) {
             inventory.setSupplierContact(
                     inventory.getSupplierContact().trim()
             );
-
         }
 
-
-        if (
-                inventory.getBatchNumber() != null
-        ) {
-
+        if (inventory.getBatchNumber() != null) {
             inventory.setBatchNumber(
                     inventory.getBatchNumber()
                             .trim()
                             .toUpperCase()
             );
-
         }
 
-
-        if (
-                inventory.getStorageLocation() != null
-        ) {
-
+        if (inventory.getStorageLocation() != null) {
             inventory.setStorageLocation(
                     inventory.getStorageLocation().trim()
             );
-
         }
 
-
-        if (
-                inventory.getStatus() != null
-        ) {
-
+        if (inventory.getStatus() != null) {
             inventory.setStatus(
                     inventory.getStatus().trim()
             );
-
         }
 
-
-        if (
-                inventory.getNotes() != null
-        ) {
-
+        if (inventory.getNotes() != null) {
             inventory.setNotes(
                     inventory.getNotes().trim()
             );
-
         }
 
-
-        // -------------------------------------------------
-        // DEFAULT NUMBERS
-        // -------------------------------------------------
-
-        if (
-                inventory.getQuantity() == null
-        ) {
-
+        if (inventory.getQuantity() == null) {
             inventory.setQuantity(0);
-
         }
 
-
-        if (
-                inventory.getMinimumStock() == null
-        ) {
-
+        if (inventory.getMinimumStock() == null) {
             inventory.setMinimumStock(0);
-
         }
 
-
-        if (
-                inventory.getUnitPrice() == null
-        ) {
-
+        if (inventory.getUnitPrice() == null) {
             inventory.setUnitPrice(
                     BigDecimal.ZERO
             );
-
         }
-
     }
 
-
     // =====================================================
-    // VALIDATE INVENTORY
+    // VALIDATE
     // =====================================================
 
     private void validateInventory(
             Inventory inventory
     ) {
 
-        // -------------------------------------------------
-        // ITEM NAME
-        // -------------------------------------------------
-
-        if (
-                isBlank(
-                        inventory.getItemName()
-                )
-        ) {
-
-            throw new RuntimeException(
+        if (isBlank(inventory.getItemName())) {
+            throw new IllegalArgumentException(
                     "Inventory item name is required."
             );
-
         }
 
-
-        // -------------------------------------------------
-        // CATEGORY
-        // -------------------------------------------------
-
-        if (
-                isBlank(
-                        inventory.getCategory()
-                )
-        ) {
-
-            throw new RuntimeException(
+        if (isBlank(inventory.getCategory())) {
+            throw new IllegalArgumentException(
                     "Inventory category is required."
             );
-
         }
 
-
-        // -------------------------------------------------
-        // UNIT
-        // -------------------------------------------------
-
-        if (
-                isBlank(
-                        inventory.getUnit()
-                )
-        ) {
-
-            throw new RuntimeException(
+        if (isBlank(inventory.getUnit())) {
+            throw new IllegalArgumentException(
                     "Inventory unit is required."
             );
-
         }
-
-
-        // -------------------------------------------------
-        // QUANTITY
-        // -------------------------------------------------
 
         if (
                 inventory.getQuantity() == null ||
                 inventory.getQuantity() < 0
         ) {
-
-            throw new RuntimeException(
+            throw new IllegalArgumentException(
                     "Inventory quantity cannot be negative."
             );
-
         }
-
-
-        // -------------------------------------------------
-        // MINIMUM STOCK
-        // -------------------------------------------------
 
         if (
                 inventory.getMinimumStock() == null ||
                 inventory.getMinimumStock() < 0
         ) {
-
-            throw new RuntimeException(
+            throw new IllegalArgumentException(
                     "Minimum stock cannot be negative."
             );
-
         }
-
-
-        // -------------------------------------------------
-        // MAXIMUM STOCK
-        // -------------------------------------------------
 
         if (
                 inventory.getMaximumStock() != null &&
                 inventory.getMaximumStock() < 0
         ) {
-
-            throw new RuntimeException(
+            throw new IllegalArgumentException(
                     "Maximum stock cannot be negative."
             );
-
         }
-
 
         if (
                 inventory.getMaximumStock() != null &&
@@ -902,136 +589,105 @@ public class InventoryServiceImpl
                 inventory.getMaximumStock()
                         < inventory.getMinimumStock()
         ) {
-
-            throw new RuntimeException(
+            throw new IllegalArgumentException(
                     "Maximum stock cannot be less than minimum stock."
             );
-
         }
-
-
-        // -------------------------------------------------
-        // UNIT PRICE
-        // -------------------------------------------------
 
         if (
                 inventory.getUnitPrice() == null ||
                 inventory.getUnitPrice()
                         .compareTo(BigDecimal.ZERO) < 0
         ) {
-
-            throw new RuntimeException(
+            throw new IllegalArgumentException(
                     "Unit price cannot be negative."
             );
-
         }
-
     }
 
-
     // =====================================================
-    // GENERATE INVENTORY ID
+    // GENERATE ID
     // =====================================================
 
-    private String generateInventoryId() {
+    private String generateInventoryId(
+            Long tenantId
+    ) {
 
-        List<Inventory> inventoryList =
-                inventoryRepository.findAll();
-
+        List<Inventory> items =
+                inventoryRepository
+                        .findAllByTenant_Id(
+                                tenantId
+                        );
 
         int highestNumber = 0;
 
-
-        for (
-                Inventory inventory :
-                inventoryList
-        ) {
+        for (Inventory inventory : items) {
 
             String id =
                     inventory.getId();
 
-
-            if (
-                    isBlank(id)
-            ) {
-
+            if (isBlank(id)) {
                 continue;
-
             }
 
-
-            if (
-                    id.startsWith("INV-")
-            ) {
+            if (id.startsWith("INV-")) {
 
                 try {
 
-                    String numberPart =
-                            id.substring(4);
-
-
                     int number =
                             Integer.parseInt(
-                                    numberPart
+                                    id.substring(4)
                             );
 
-
-                    if (
-                            number > highestNumber
-                    ) {
-
-                        highestNumber =
-                                number;
-                    }
+                    highestNumber =
+                            Math.max(
+                                    highestNumber,
+                                    number
+                            );
 
                 } catch (
                         NumberFormatException ignored
                 ) {
-
-                    // Ignore invalid IDs.
-
+                    // Ignore invalid IDs
                 }
-
             }
-
         }
-
 
         return String.format(
                 "INV-%03d",
                 highestNumber + 1
         );
-
     }
 
-
-  // =====================================================
-// GENERATE ITEM CODE
-// =====================================================
-
-private String generateItemCode() {
-
-    String code;
-
-    do {
-
-        code =
-                "ITEM-" +
-                System.currentTimeMillis();
-
-    } while (
-            inventoryRepository
-                    .existsByItemCode(
-                            code
-                    )
-    );
-
-
-    return code;
-
-}
     // =====================================================
-    // CHECK BLANK
+    // GENERATE ITEM CODE
+    // =====================================================
+
+    private String generateItemCode(
+            Long tenantId
+    ) {
+
+        String code;
+
+        do {
+
+            code =
+                    "ITEM-" +
+                            System.currentTimeMillis();
+
+        } while (
+                inventoryRepository
+                        .existsByTenant_IdAndItemCode(
+                                tenantId,
+                                code
+                        )
+        );
+
+        return code;
+    }
+
+    // =====================================================
+    // BLANK
     // =====================================================
 
     private boolean isBlank(
@@ -1040,7 +696,5 @@ private String generateItemCode() {
 
         return value == null ||
                 value.trim().isEmpty();
-
     }
-
 }

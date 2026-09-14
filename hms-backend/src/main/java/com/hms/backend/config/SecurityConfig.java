@@ -7,6 +7,7 @@
 package com.hms.backend.config;
 
 import com.hms.backend.auth.security.JwtAuthenticationFilter;
+import com.hms.backend.tenant.security.TenantContextFilter;
 
 import java.util.List;
 
@@ -16,21 +17,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-
 import org.springframework.security.config.http.SessionCreationPolicy;
 
 import org.springframework.security.web.SecurityFilterChain;
-
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import org.springframework.web.cors.CorsConfiguration;
-
 import org.springframework.web.cors.CorsConfigurationSource;
-
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 
@@ -42,12 +37,17 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-
     // =====================================================
     // JWT FILTER
     // =====================================================
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    // =====================================================
+    // TENANT CONTEXT FILTER
+    // =====================================================
+
+    private final TenantContextFilter tenantContextFilter;
 
 
     // =====================================================
@@ -55,9 +55,15 @@ public class SecurityConfig {
     // =====================================================
 
     public SecurityConfig(
-        JwtAuthenticationFilter jwtAuthenticationFilter
+        JwtAuthenticationFilter jwtAuthenticationFilter,
+        TenantContextFilter tenantContextFilter
     ) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+
+        this.jwtAuthenticationFilter =
+            jwtAuthenticationFilter;
+
+        this.tenantContextFilter =
+            tenantContextFilter;
     }
 
 
@@ -71,7 +77,6 @@ public class SecurityConfig {
     ) throws Exception {
 
         http
-
 
             // =================================================
             // CSRF
@@ -113,7 +118,6 @@ public class SecurityConfig {
             .authorizeHttpRequests(
                 auth -> auth
 
-
                     // -----------------------------------------
                     // PUBLIC AUTHENTICATION ENDPOINTS
                     // -----------------------------------------
@@ -146,98 +150,125 @@ public class SecurityConfig {
 
 
                     // -----------------------------------------
+                    // SPRING ERROR ENDPOINT
+                    // -----------------------------------------
+                    //
+                    // Important:
+                    //
+                    // When a controller/service returns a 404,
+                    // Spring Boot may dispatch through /error.
+                    //
+                    // If /error is protected, Spring Security
+                    // can replace the original 404 with 403.
+                    //
+                    // We permit the error endpoint so the
+                    // original HTTP status is preserved.
+                    // -----------------------------------------
+
+                    .requestMatchers(
+                        "/error"
+                    )
+                    .permitAll()
+
+
+                    // -----------------------------------------
                     // ANGULAR FRONTEND
                     // -----------------------------------------
                     //
                     // Spring Boot serves the Angular application
-                    // from src/main/resources/static/
+                    // from src/main/resources/static/.
                     //
-                    // These resources must be publicly accessible
-                    // so the login page can load before authentication.
+                    // These frontend resources/routes must be
+                    // publicly accessible so the login page can
+                    // load before authentication.
                     // -----------------------------------------
-.requestMatchers(
-    // =================================================
-    // ANGULAR ENTRY POINT
-    // =================================================
-    "/",
-    "/index.html",
-    "/favicon.ico",
 
-    // =================================================
-    // ANGULAR STATIC FILES
-    // =================================================
-    "/assets/**",
+                    .requestMatchers(
 
-    "/*.js",
-    "/*.css",
-    "/*.ico",
-    "/*.png",
-    "/*.jpg",
-    "/*.jpeg",
-    "/*.svg",
-    "/*.webp",
-    "/*.woff",
-    "/*.woff2",
-    "/*.ttf",
+                        // =====================================
+                        // ANGULAR ENTRY POINT
+                        // =====================================
 
-    // =================================================
-    // ANGULAR APPLICATION ROUTES
-    // =================================================
-    //
-    // These are frontend routes, not API endpoints.
-    // Angular's authGuard handles application login.
-    //
-    "/login",
-    "/dashboard",
+                        "/",
+                        "/index.html",
+                        "/favicon.ico",
 
-    "/patients",
-    "/patients/**",
 
-    "/doctors",
-    "/doctors/**",
+                        // =====================================
+                        // ANGULAR STATIC FILES
+                        // =====================================
 
-    "/departments",
-    "/departments/**",
+                        "/assets/**",
 
-    "/appointments",
-    "/appointments/**",
+                        "/*.js",
+                        "/*.css",
+                        "/*.ico",
+                        "/*.png",
+                        "/*.jpg",
+                        "/*.jpeg",
+                        "/*.svg",
+                        "/*.webp",
+                        "/*.woff",
+                        "/*.woff2",
+                        "/*.ttf",
 
-    "/consultations",
-    "/consultations/**",
 
-    "/pharmacy",
-    "/pharmacy/**",
+                        // =====================================
+                        // ANGULAR APPLICATION ROUTES
+                        // =====================================
 
-    "/laboratory",
-    "/laboratory/**",
+                        "/login",
 
-    "/admissions",
-    "/admissions/**",
+                        "/dashboard",
 
-    "/billing",
-    "/billing/**",
+                        "/patients",
+                        "/patients/**",
 
-    "/inventory",
-    "/inventory/**",
+                        "/doctors",
+                        "/doctors/**",
 
-    "/reports",
-    "/reports/**",
+                        "/departments",
+                        "/departments/**",
 
-    "/settings",
-    "/settings/**"
-)
-.permitAll()
+                        "/appointments",
+                        "/appointments/**",
+
+                        "/consultations",
+                        "/consultations/**",
+
+                        "/pharmacy",
+                        "/pharmacy/**",
+
+                        "/laboratory",
+                        "/laboratory/**",
+
+                        "/admissions",
+                        "/admissions/**",
+
+                        "/billing",
+                        "/billing/**",
+
+                        "/inventory",
+                        "/inventory/**",
+
+                        "/reports",
+                        "/reports/**",
+
+                        "/settings",
+                        "/settings/**"
+                    )
+                    .permitAll()
 
 
                     // -----------------------------------------
                     // EVERYTHING ELSE
                     // -----------------------------------------
                     //
-                    // API endpoints and other protected resources
-                    // require JWT authentication.
+                    // API endpoints and other protected
+                    // resources require authentication.
                     //
-                    // Fine-grained authorization remains handled
-                    // by @PreAuthorize.
+                    // Fine-grained authorization is handled
+                    // by @PreAuthorize on controllers.
                     // -----------------------------------------
 
                     .anyRequest()
@@ -248,10 +279,47 @@ public class SecurityConfig {
             // =================================================
             // JWT AUTHENTICATION FILTER
             // =================================================
+            //
+            // Runs first to:
+            //
+            // 1. Validate JWT
+            // 2. Extract roles
+            // 3. Extract permissions
+            // 4. Create SecurityContext
+            //
+            // =================================================
 
             .addFilterBefore(
                 jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class
+            )
+
+
+            // =================================================
+            // TENANT CONTEXT FILTER
+            // =================================================
+            //
+            // Runs after the JWT authentication filter.
+            //
+            // Flow:
+            //
+            // JWT
+            //   ↓
+            // JwtAuthenticationFilter
+            //   ↓
+            // TenantContextFilter
+            //   ↓
+            // Controller
+            //   ↓
+            // Service
+            //   ↓
+            // Tenant-aware Repository
+            //
+            // =================================================
+
+            .addFilterAfter(
+                tenantContextFilter,
+                JwtAuthenticationFilter.class
             );
 
 

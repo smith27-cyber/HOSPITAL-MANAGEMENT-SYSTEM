@@ -1,17 +1,27 @@
-
 package com.hms.backend.service.impl;
 
 import com.hms.backend.dto.BillingItemRequest;
 import com.hms.backend.entity.Billing;
 import com.hms.backend.entity.Consultation;
+import com.hms.backend.entity.Doctor;
 import com.hms.backend.entity.LaboratoryRequest;
+import com.hms.backend.entity.LaboratoryTest;
+import com.hms.backend.entity.Patient;
+import com.hms.backend.tenant.entity.Tenant;
 import com.hms.backend.repository.ConsultationRepository;
+import com.hms.backend.repository.DoctorRepository;
 import com.hms.backend.repository.LaboratoryRequestRepository;
+import com.hms.backend.repository.LaboratoryTestRepository;
+import com.hms.backend.repository.PatientRepository;
 import com.hms.backend.service.BillingService;
 import com.hms.backend.service.LaboratoryRequestService;
+import com.hms.backend.tenant.context.TenantContext;
+import com.hms.backend.tenant.repository.TenantRepository;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -24,11 +34,12 @@ public class LaboratoryRequestServiceImpl
         implements LaboratoryRequestService {
 
     private final LaboratoryRequestRepository laboratoryRequestRepository;
-
+    private final LaboratoryTestRepository laboratoryTestRepository;
     private final ConsultationRepository consultationRepository;
-
+    private final PatientRepository patientRepository;
+    private final DoctorRepository doctorRepository;
+    private final TenantRepository tenantRepository;
     private final BillingService billingService;
-
 
     // =====================================================
     // CONSTRUCTOR
@@ -36,20 +47,55 @@ public class LaboratoryRequestServiceImpl
 
     public LaboratoryRequestServiceImpl(
             LaboratoryRequestRepository laboratoryRequestRepository,
+            LaboratoryTestRepository laboratoryTestRepository,
             ConsultationRepository consultationRepository,
+            PatientRepository patientRepository,
+            DoctorRepository doctorRepository,
+            TenantRepository tenantRepository,
             BillingService billingService
     ) {
 
         this.laboratoryRequestRepository =
                 laboratoryRequestRepository;
 
+        this.laboratoryTestRepository =
+                laboratoryTestRepository;
+
         this.consultationRepository =
                 consultationRepository;
+
+        this.patientRepository =
+                patientRepository;
+
+        this.doctorRepository =
+                doctorRepository;
+
+        this.tenantRepository =
+                tenantRepository;
 
         this.billingService =
                 billingService;
     }
 
+    // =====================================================
+    // CURRENT TENANT
+    // =====================================================
+
+    private Tenant getCurrentTenant() {
+
+        Long tenantId =
+                TenantContext.requireTenantId();
+
+        return tenantRepository
+                .findById(tenantId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                "Current tenant not found: "
+                                        + tenantId
+                        )
+                );
+    }
 
     // =====================================================
     // GET ALL
@@ -59,9 +105,12 @@ public class LaboratoryRequestServiceImpl
     @Transactional(readOnly = true)
     public List<LaboratoryRequest> getAllRequests() {
 
-        return laboratoryRequestRepository.findAll();
-    }
+        Long tenantId =
+                TenantContext.requireTenantId();
 
+        return laboratoryRequestRepository
+                .findAllByTenant_Id(tenantId);
+    }
 
     // =====================================================
     // GET BY ID
@@ -70,11 +119,18 @@ public class LaboratoryRequestServiceImpl
     @Override
     @Transactional(readOnly = true)
     public Optional<LaboratoryRequest> getRequestById(
-            Long id) {
+            Long id
+    ) {
 
-        return laboratoryRequestRepository.findById(id);
+        Long tenantId =
+                TenantContext.requireTenantId();
+
+        return laboratoryRequestRepository
+                .findByIdAndTenant_Id(
+                        id,
+                        tenantId
+                );
     }
-
 
     // =====================================================
     // CREATE REQUEST
@@ -82,7 +138,8 @@ public class LaboratoryRequestServiceImpl
 
     @Override
     public LaboratoryRequest createRequest(
-            LaboratoryRequest request) {
+            LaboratoryRequest request
+    ) {
 
         if (request == null) {
 
@@ -91,6 +148,15 @@ public class LaboratoryRequestServiceImpl
             );
         }
 
+        Long tenantId =
+                TenantContext.requireTenantId();
+
+        Tenant currentTenant =
+                getCurrentTenant();
+
+        // -------------------------------------------------
+        // PATIENT
+        // -------------------------------------------------
 
         if (
                 request.getPatientId() == null ||
@@ -102,55 +168,215 @@ public class LaboratoryRequestServiceImpl
             );
         }
 
+        Patient patient =
+                patientRepository
+                        .findByIdAndTenant_Id(
+                                request.getPatientId().trim(),
+                                tenantId
+                        )
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Patient not found: "
+                                                + request.getPatientId()
+                                )
+                        );
 
-        if (
-                request.getPatientName() == null ||
-                request.getPatientName().isBlank()
-        ) {
+        // -------------------------------------------------
+        // LAB TEST
+        // -------------------------------------------------
 
-            throw new IllegalArgumentException(
-                    "Patient name is required."
-            );
-        }
-
-
-        if (
-                request.getTestId() == null
-        ) {
+        if (request.getTestId() == null) {
 
             throw new IllegalArgumentException(
                     "Laboratory test ID is required."
             );
         }
 
+        LaboratoryTest test =
+                laboratoryTestRepository
+                        .findByIdAndTenant_Id(
+                                request.getTestId(),
+                                tenantId
+                        )
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Laboratory test not found: "
+                                                + request.getTestId()
+                                )
+                        );
 
-        if (
-                request.getTestName() == null ||
-                request.getTestName().isBlank()
-        ) {
+        // -------------------------------------------------
+        // DOCTOR
+        // -------------------------------------------------
 
-            throw new IllegalArgumentException(
-                    "Laboratory test name is required."
-            );
+        Doctor doctor = null;
+
+        String doctorId =
+                clean(request.getDoctorId());
+
+        if (doctorId != null) {
+
+            doctor =
+                    doctorRepository
+                            .findByIdAndTenant_Id(
+                                    doctorId,
+                                    tenantId
+                            )
+                            .orElseThrow(() ->
+                                    new ResponseStatusException(
+                                            HttpStatus.NOT_FOUND,
+                                            "Doctor not found: "
+                                                    + doctorId
+                                    )
+                            );
         }
 
+        // -------------------------------------------------
+        // CONSULTATION
+        // -------------------------------------------------
+
+        String consultationId =
+                clean(request.getConsultationId());
+
+        Consultation consultation = null;
+
+        if (consultationId != null) {
+
+            consultation =
+                    consultationRepository
+                            .findByIdAndTenant_Id(
+                                    consultationId,
+                                    tenantId
+                            )
+                            .orElseThrow(() ->
+                                    new ResponseStatusException(
+                                            HttpStatus.NOT_FOUND,
+                                            "Consultation not found: "
+                                                    + consultationId
+                                    )
+                            );
+
+            if (
+                    consultation.getStatus() ==
+                            Consultation.ConsultationStatus.COMPLETED
+            ) {
+
+                throw new IllegalStateException(
+                        "Laboratory requests cannot be added to a completed consultation."
+                );
+            }
+
+            if (
+                    consultation.getStatus() ==
+                            Consultation.ConsultationStatus.CANCELLED
+            ) {
+
+                throw new IllegalStateException(
+                        "Laboratory requests cannot be added to a cancelled consultation."
+                );
+            }
+
+            // ---------------------------------------------
+            // CONSULTATION/PATIENT MATCH
+            // ---------------------------------------------
+
+            if (!consultation.getPatientId()
+                    .equals(patient.getId())) {
+
+                throw new IllegalArgumentException(
+                        "Consultation does not belong to the selected patient."
+                );
+            }
+
+            // ---------------------------------------------
+            // CONSULTATION/DOCTOR MATCH
+            // ---------------------------------------------
+
+            if (
+                    doctor != null &&
+                    !consultation.getDoctorId()
+                            .equals(doctor.getId())
+            ) {
+
+                throw new IllegalArgumentException(
+                        "Consultation does not belong to the selected doctor."
+                );
+            }
+        }
+
+        // -------------------------------------------------
+        // TEST PRICE MUST COME FROM DB
+        // -------------------------------------------------
+
+        BigDecimal price =
+                test.getPrice();
 
         if (
-                request.getPrice() == null ||
-                request.getPrice()
-                        .compareTo(
-                                BigDecimal.ZERO
-                        ) <= 0
+                price == null ||
+                price.compareTo(BigDecimal.ZERO) <= 0
         ) {
 
-            throw new IllegalArgumentException(
+            throw new IllegalStateException(
                     "Laboratory test price must be greater than zero."
             );
         }
 
+        // -------------------------------------------------
+        // BUILD REQUEST
+        // -------------------------------------------------
+
+        request.setTenant(
+                currentTenant
+        );
+
+        request.setPatientId(
+                patient.getId()
+        );
+
+        request.setPatientName(
+                buildPatientName(patient)
+        );
+
+        request.setConsultationId(
+                consultationId
+        );
+
+        request.setDoctorId(
+                doctor == null
+                        ? null
+                        : doctor.getId()
+        );
+
+        request.setDoctorName(
+                doctor == null
+                        ? null
+                        : buildDoctorName(doctor)
+        );
+
+        request.setTestId(
+                test.getId()
+        );
+
+        request.setTestName(
+                test.getTestName()
+        );
+
+        request.setCategory(
+                test.getCategory()
+        );
+
+        request.setSampleType(
+                test.getSampleType()
+        );
+
+        request.setPrice(
+                price
+        );
 
         // -------------------------------------------------
-        // DEFAULT STATUS
+        // STATUS
         // -------------------------------------------------
 
         if (
@@ -171,94 +397,39 @@ public class LaboratoryRequestServiceImpl
             );
         }
 
-
         // -------------------------------------------------
-        // REQUESTED DATE
+        // REQUESTED AT
         // -------------------------------------------------
 
-        if (
-                request.getRequestedAt() == null
-        ) {
+        if (request.getRequestedAt() == null) {
 
             request.setRequestedAt(
                     LocalDateTime.now()
             );
         }
 
-
-        // -------------------------------------------------
-        // CONSULTATION VALIDATION
-        // -------------------------------------------------
-
-        String consultationId =
-                clean(
-                        request.getConsultationId()
-                );
-
-
-        request.setConsultationId(
-                consultationId
-        );
-
-
-        if (consultationId != null) {
-
-            Consultation consultation =
-                    consultationRepository
-                            .findById(
-                                    consultationId
-                            )
-                            .orElseThrow(
-                                    () ->
-                                            new IllegalArgumentException(
-                                                    "Consultation not found: "
-                                                            + consultationId
-                                            )
-                            );
-
-
-            if (
-                    consultation.getStatus() ==
-                            Consultation.ConsultationStatus.COMPLETED
-            ) {
-
-                throw new IllegalStateException(
-                        "Laboratory requests cannot be added to a completed consultation."
-                );
-            }
-
-
-            if (
-                    consultation.getStatus() ==
-                            Consultation.ConsultationStatus.CANCELLED
-            ) {
-
-                throw new IllegalStateException(
-                        "Laboratory requests cannot be added to a cancelled consultation."
-                );
-            }
-        }
-
-
-        // -------------------------------------------------
-        // SAVE REQUEST
-        // -------------------------------------------------
+        // =================================================
+        // SAVE
+        // =================================================
 
         LaboratoryRequest savedRequest =
                 laboratoryRequestRepository.save(
                         request
                 );
 
-
         // =================================================
         // ADD LABORATORY CHARGE
         // =================================================
+        //
+        // Billing itself is still awaiting tenant
+        // conversion. Keep this call for now so existing
+        // billing workflow is not broken.
+        //
+        // =================================================
 
-        Billing bill =
-                addLaboratoryCharge(
-                        savedRequest
-                );
-
+        addLaboratoryCharge(
+                savedRequest
+        );
 
         // =================================================
         // SYNCHRONIZE CONSULTATION
@@ -268,10 +439,8 @@ public class LaboratoryRequestServiceImpl
                 savedRequest.getConsultationId()
         );
 
-
         return savedRequest;
     }
-
 
     // =====================================================
     // ADD LABORATORY CHARGE
@@ -284,27 +453,20 @@ public class LaboratoryRequestServiceImpl
         BillingItemRequest billingItem =
                 new BillingItemRequest();
 
-
         billingItem.setBillingType(
                 "Laboratory"
         );
 
-
         billingItem.setDescription(
-                "Laboratory test - " +
-                        request.getTestName()
+                "Laboratory test - "
+                        + request.getTestName()
         );
 
-
-        billingItem.setQuantity(
-                1
-        );
-
+        billingItem.setQuantity(1);
 
         billingItem.setUnitPrice(
                 request.getPrice()
         );
-
 
         billingItem.setReferenceId(
                 String.valueOf(
@@ -312,28 +474,18 @@ public class LaboratoryRequestServiceImpl
                 )
         );
 
-
         return billingService
                 .addChargeToPatientBill(
-
                         request.getPatientId(),
-
                         billingItem,
-
                         request.getPatientName(),
-
                         null,
-
                         request.getDoctorId(),
-
                         request.getDoctorName(),
-
                         null,
-
                         null
                 );
     }
-
 
     // =====================================================
     // UPDATE REQUEST
@@ -342,7 +494,8 @@ public class LaboratoryRequestServiceImpl
     @Override
     public LaboratoryRequest updateRequest(
             Long id,
-            LaboratoryRequest request) {
+            LaboratoryRequest request
+    ) {
 
         if (request == null) {
 
@@ -351,17 +504,22 @@ public class LaboratoryRequestServiceImpl
             );
         }
 
+        Long tenantId =
+                TenantContext.requireTenantId();
 
         LaboratoryRequest existingRequest =
                 laboratoryRequestRepository
-                        .findById(id)
+                        .findByIdAndTenant_Id(
+                                id,
+                                tenantId
+                        )
                         .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Laboratory request not found with id: "
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Laboratory request not found: "
                                                 + id
                                 )
                         );
-
 
         if (
                 "Completed".equalsIgnoreCase(
@@ -374,7 +532,6 @@ public class LaboratoryRequestServiceImpl
             );
         }
 
-
         if (
                 "Cancelled".equalsIgnoreCase(
                         existingRequest.getStatus()
@@ -386,71 +543,177 @@ public class LaboratoryRequestServiceImpl
             );
         }
 
+        // -------------------------------------------------
+        // PATIENT
+        // -------------------------------------------------
+
+        Patient patient =
+                patientRepository
+                        .findByIdAndTenant_Id(
+                                request.getPatientId(),
+                                tenantId
+                        )
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Patient not found: "
+                                                + request.getPatientId()
+                                )
+                        );
+
+        // -------------------------------------------------
+        // TEST
+        // -------------------------------------------------
+
+        LaboratoryTest test =
+                laboratoryTestRepository
+                        .findByIdAndTenant_Id(
+                                request.getTestId(),
+                                tenantId
+                        )
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Laboratory test not found: "
+                                                + request.getTestId()
+                                )
+                        );
+
+        // -------------------------------------------------
+        // DOCTOR
+        // -------------------------------------------------
+
+        Doctor doctor = null;
+
+        String doctorId =
+                clean(request.getDoctorId());
+
+        if (doctorId != null) {
+
+            doctor =
+                    doctorRepository
+                            .findByIdAndTenant_Id(
+                                    doctorId,
+                                    tenantId
+                            )
+                            .orElseThrow(() ->
+                                    new ResponseStatusException(
+                                            HttpStatus.NOT_FOUND,
+                                            "Doctor not found: "
+                                                    + doctorId
+                                    )
+                            );
+        }
+
+        // -------------------------------------------------
+        // CONSULTATION
+        // -------------------------------------------------
+
+        String consultationId =
+                clean(request.getConsultationId());
+
+        if (consultationId != null) {
+
+            Consultation consultation =
+                    consultationRepository
+                            .findByIdAndTenant_Id(
+                                    consultationId,
+                                    tenantId
+                            )
+                            .orElseThrow(() ->
+                                    new ResponseStatusException(
+                                            HttpStatus.NOT_FOUND,
+                                            "Consultation not found: "
+                                                    + consultationId
+                                    )
+                            );
+
+            if (!consultation.getPatientId()
+                    .equals(patient.getId())) {
+
+                throw new IllegalArgumentException(
+                        "Consultation does not belong to the selected patient."
+                );
+            }
+
+            if (
+                    doctor != null &&
+                    !consultation.getDoctorId()
+                            .equals(doctor.getId())
+            ) {
+
+                throw new IllegalArgumentException(
+                        "Consultation does not belong to the selected doctor."
+                );
+            }
+
+            if (
+                    consultation.getStatus() ==
+                            Consultation.ConsultationStatus.COMPLETED
+            ) {
+
+                throw new IllegalStateException(
+                        "Laboratory requests cannot be added to a completed consultation."
+                );
+            }
+
+            if (
+                    consultation.getStatus() ==
+                            Consultation.ConsultationStatus.CANCELLED
+            ) {
+
+                throw new IllegalStateException(
+                        "Laboratory requests cannot be added to a cancelled consultation."
+                );
+            }
+        }
 
         existingRequest.setPatientId(
-                clean(
-                        request.getPatientId()
-                )
+                patient.getId()
         );
-
 
         existingRequest.setPatientName(
-                clean(
-                        request.getPatientName()
-                )
+                buildPatientName(patient)
         );
-
 
         existingRequest.setConsultationId(
-                clean(
-                        request.getConsultationId()
-                )
+                consultationId
         );
-
 
         existingRequest.setDoctorId(
-                clean(
-                        request.getDoctorId()
-                )
+                doctor == null
+                        ? null
+                        : doctor.getId()
         );
-
 
         existingRequest.setDoctorName(
-                clean(
-                        request.getDoctorName()
-                )
+                doctor == null
+                        ? null
+                        : buildDoctorName(doctor)
         );
-
 
         existingRequest.setTestId(
-                request.getTestId()
+                test.getId()
         );
-
 
         existingRequest.setTestName(
-                clean(
-                        request.getTestName()
-                )
+                test.getTestName()
         );
-
 
         existingRequest.setCategory(
-                clean(
-                        request.getCategory()
-                )
+                test.getCategory()
         );
-
 
         existingRequest.setSampleType(
-                clean(
-                        request.getSampleType()
-                )
+                test.getSampleType()
         );
 
+        existingRequest.setPrice(
+                test.getPrice()
+        );
 
         String newStatus =
                 request.getStatus();
-
 
         if (
                 newStatus == null ||
@@ -468,26 +731,17 @@ public class LaboratoryRequestServiceImpl
                     );
         }
 
-
         existingRequest.setStatus(
                 newStatus
         );
-
 
         existingRequest.setResult(
                 request.getResult()
         );
 
-
         existingRequest.setNotes(
                 request.getNotes()
         );
-
-
-        existingRequest.setPrice(
-                request.getPrice()
-        );
-
 
         if (
                 request.getRequestedAt() != null
@@ -497,7 +751,6 @@ public class LaboratoryRequestServiceImpl
                     request.getRequestedAt()
             );
         }
-
 
         // =================================================
         // COMPLETION
@@ -510,18 +763,15 @@ public class LaboratoryRequestServiceImpl
         ) {
 
             if (
-                    existingRequest.getResult() == null ||
-                    existingRequest
-                            .getResult()
-                            .trim()
-                            .isEmpty()
+                    isBlank(
+                            existingRequest.getResult()
+                    )
             ) {
 
                 throw new IllegalStateException(
                         "Laboratory result is required before completing the request."
                 );
             }
-
 
             if (
                     existingRequest.getCompletedAt() == null
@@ -539,21 +789,17 @@ public class LaboratoryRequestServiceImpl
             );
         }
 
-
         LaboratoryRequest savedRequest =
                 laboratoryRequestRepository.save(
                         existingRequest
                 );
 
-
         synchronizeConsultation(
                 savedRequest.getConsultationId()
         );
 
-
         return savedRequest;
     }
-
 
     // =====================================================
     // UPDATE REQUEST STATUS
@@ -562,7 +808,8 @@ public class LaboratoryRequestServiceImpl
     @Override
     public LaboratoryRequest updateRequestStatus(
             Long id,
-            String status) {
+            String status
+    ) {
 
         if (
                 status == null ||
@@ -574,27 +821,28 @@ public class LaboratoryRequestServiceImpl
             );
         }
 
+        Long tenantId =
+                TenantContext.requireTenantId();
 
         LaboratoryRequest request =
                 laboratoryRequestRepository
-                        .findById(id)
+                        .findByIdAndTenant_Id(
+                                id,
+                                tenantId
+                        )
                         .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Laboratory request not found with id: "
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Laboratory request not found: "
                                                 + id
                                 )
                         );
 
-
         String currentStatus =
                 request.getStatus();
 
-
         String normalizedStatus =
-                normalizeStatus(
-                        status
-                );
-
+                normalizeStatus(status);
 
         if (
                 "Completed".equalsIgnoreCase(
@@ -616,7 +864,6 @@ public class LaboratoryRequestServiceImpl
             return request;
         }
 
-
         if (
                 "Cancelled".equalsIgnoreCase(
                         currentStatus
@@ -637,7 +884,6 @@ public class LaboratoryRequestServiceImpl
             return request;
         }
 
-
         if (
                 "Completed".equalsIgnoreCase(
                         normalizedStatus
@@ -645,17 +891,15 @@ public class LaboratoryRequestServiceImpl
         ) {
 
             if (
-                    request.getResult() == null ||
-                    request.getResult()
-                            .trim()
-                            .isEmpty()
+                    isBlank(
+                            request.getResult()
+                    )
             ) {
 
                 throw new IllegalStateException(
                         "Laboratory result is required before completing the request."
                 );
             }
-
 
             request.setCompletedAt(
                     LocalDateTime.now()
@@ -668,26 +912,21 @@ public class LaboratoryRequestServiceImpl
             );
         }
 
-
         request.setStatus(
                 normalizedStatus
         );
-
 
         LaboratoryRequest savedRequest =
                 laboratoryRequestRepository.save(
                         request
                 );
 
-
         synchronizeConsultation(
                 savedRequest.getConsultationId()
         );
 
-
         return savedRequest;
     }
-
 
     // =====================================================
     // COMPLETE REQUEST
@@ -695,18 +934,25 @@ public class LaboratoryRequestServiceImpl
 
     @Override
     public LaboratoryRequest completeRequest(
-            Long id) {
+            Long id
+    ) {
+
+        Long tenantId =
+                TenantContext.requireTenantId();
 
         LaboratoryRequest request =
                 laboratoryRequestRepository
-                        .findById(id)
+                        .findByIdAndTenant_Id(
+                                id,
+                                tenantId
+                        )
                         .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Laboratory request not found with id: "
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Laboratory request not found: "
                                                 + id
                                 )
                         );
-
 
         if (
                 "Completed".equalsIgnoreCase(
@@ -716,7 +962,6 @@ public class LaboratoryRequestServiceImpl
 
             return request;
         }
-
 
         if (
                 "Cancelled".equalsIgnoreCase(
@@ -729,12 +974,10 @@ public class LaboratoryRequestServiceImpl
             );
         }
 
-
         if (
-                request.getResult() == null ||
-                request.getResult()
-                        .trim()
-                        .isEmpty()
+                isBlank(
+                        request.getResult()
+                )
         ) {
 
             throw new IllegalStateException(
@@ -742,31 +985,25 @@ public class LaboratoryRequestServiceImpl
             );
         }
 
-
         request.setStatus(
                 "Completed"
         );
 
-
         request.setCompletedAt(
                 LocalDateTime.now()
         );
-
 
         LaboratoryRequest savedRequest =
                 laboratoryRequestRepository.save(
                         request
                 );
 
-
         synchronizeConsultation(
                 savedRequest.getConsultationId()
         );
 
-
         return savedRequest;
     }
-
 
     // =====================================================
     // DELETE REQUEST
@@ -774,18 +1011,25 @@ public class LaboratoryRequestServiceImpl
 
     @Override
     public void deleteRequest(
-            Long id) {
+            Long id
+    ) {
+
+        Long tenantId =
+                TenantContext.requireTenantId();
 
         LaboratoryRequest request =
                 laboratoryRequestRepository
-                        .findById(id)
+                        .findByIdAndTenant_Id(
+                                id,
+                                tenantId
+                        )
                         .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Laboratory request not found with id: "
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Laboratory request not found: "
                                                 + id
                                 )
                         );
-
 
         if (
                 "Completed".equalsIgnoreCase(
@@ -798,21 +1042,17 @@ public class LaboratoryRequestServiceImpl
             );
         }
 
-
         String consultationId =
                 request.getConsultationId();
-
 
         laboratoryRequestRepository.delete(
                 request
         );
 
-
         synchronizeConsultation(
                 consultationId
         );
     }
-
 
     // =====================================================
     // GET BY PATIENT
@@ -821,14 +1061,18 @@ public class LaboratoryRequestServiceImpl
     @Override
     @Transactional(readOnly = true)
     public List<LaboratoryRequest> getRequestsByPatient(
-            String patientId) {
+            String patientId
+    ) {
+
+        Long tenantId =
+                TenantContext.requireTenantId();
 
         return laboratoryRequestRepository
-                .findByPatientId(
+                .findByTenant_IdAndPatientId(
+                        tenantId,
                         patientId
                 );
     }
-
 
     // =====================================================
     // GET BY CONSULTATION
@@ -838,14 +1082,18 @@ public class LaboratoryRequestServiceImpl
     @Transactional(readOnly = true)
     public List<LaboratoryRequest>
     getRequestsByConsultation(
-            String consultationId) {
+            String consultationId
+    ) {
+
+        Long tenantId =
+                TenantContext.requireTenantId();
 
         return laboratoryRequestRepository
-                .findByConsultationId(
+                .findByTenant_IdAndConsultationId(
+                        tenantId,
                         consultationId
                 );
     }
-
 
     // =====================================================
     // GET BY STATUS
@@ -854,14 +1102,18 @@ public class LaboratoryRequestServiceImpl
     @Override
     @Transactional(readOnly = true)
     public List<LaboratoryRequest> getRequestsByStatus(
-            String status) {
+            String status
+    ) {
+
+        Long tenantId =
+                TenantContext.requireTenantId();
 
         return laboratoryRequestRepository
-                .findByStatus(
+                .findByTenant_IdAndStatus(
+                        tenantId,
                         normalizeStatus(status)
                 );
     }
-
 
     // =====================================================
     // COMPLETED BY PATIENT
@@ -871,15 +1123,19 @@ public class LaboratoryRequestServiceImpl
     @Transactional(readOnly = true)
     public List<LaboratoryRequest>
     getCompletedRequestsByPatient(
-            String patientId) {
+            String patientId
+    ) {
+
+        Long tenantId =
+                TenantContext.requireTenantId();
 
         return laboratoryRequestRepository
-                .findByPatientIdAndStatus(
+                .findByTenant_IdAndPatientIdAndStatus(
+                        tenantId,
                         patientId,
                         "Completed"
                 );
     }
-
 
     // =====================================================
     // COMPLETED BY CONSULTATION
@@ -889,22 +1145,27 @@ public class LaboratoryRequestServiceImpl
     @Transactional(readOnly = true)
     public List<LaboratoryRequest>
     getCompletedRequestsByConsultation(
-            String consultationId) {
+            String consultationId
+    ) {
+
+        Long tenantId =
+                TenantContext.requireTenantId();
 
         return laboratoryRequestRepository
-                .findByConsultationIdAndStatus(
+                .findByTenant_IdAndConsultationIdAndStatus(
+                        tenantId,
                         consultationId,
                         "Completed"
                 );
     }
-
 
     // =====================================================
     // SYNCHRONIZE CONSULTATION
     // =====================================================
 
     private void synchronizeConsultation(
-            String consultationId) {
+            String consultationId
+    ) {
 
         if (
                 consultationId == null ||
@@ -914,37 +1175,32 @@ public class LaboratoryRequestServiceImpl
             return;
         }
 
+        Long tenantId =
+                TenantContext.requireTenantId();
 
         String cleanConsultationId =
                 consultationId.trim();
 
-
         Consultation consultation =
                 consultationRepository
-                        .findById(
-                                cleanConsultationId
+                        .findByIdAndTenant_Id(
+                                cleanConsultationId,
+                                tenantId
                         )
                         .orElse(null);
 
-
-        if (
-                consultation == null
-        ) {
-
+        if (consultation == null) {
             return;
         }
 
-
         List<LaboratoryRequest> requests =
                 laboratoryRequestRepository
-                        .findByConsultationId(
+                        .findByTenant_IdAndConsultationId(
+                                tenantId,
                                 cleanConsultationId
                         );
 
-
-        if (
-                requests.isEmpty()
-        ) {
+        if (requests.isEmpty()) {
 
             consultation.setHasLaboratoryRequests(
                     false
@@ -957,7 +1213,6 @@ public class LaboratoryRequestServiceImpl
             consultation.setLaboratoryResultsReviewed(
                     false
             );
-
 
             if (
                     consultation.getStatus() !=
@@ -972,7 +1227,6 @@ public class LaboratoryRequestServiceImpl
                 );
             }
 
-
             consultationRepository.save(
                     consultation
             );
@@ -980,11 +1234,9 @@ public class LaboratoryRequestServiceImpl
             return;
         }
 
-
         consultation.setHasLaboratoryRequests(
                 true
         );
-
 
         boolean allCompleted =
                 requests.stream()
@@ -996,7 +1248,6 @@ public class LaboratoryRequestServiceImpl
                                                 )
                         );
 
-
         boolean anyCompleted =
                 requests.stream()
                         .anyMatch(
@@ -1007,10 +1258,7 @@ public class LaboratoryRequestServiceImpl
                                                 )
                         );
 
-
-        if (
-                !allCompleted
-        ) {
+        if (!allCompleted) {
 
             consultation.setHasLaboratoryResults(
                     anyCompleted
@@ -1019,7 +1267,6 @@ public class LaboratoryRequestServiceImpl
             consultation.setLaboratoryResultsReviewed(
                     false
             );
-
 
             if (
                     consultation.getStatus() !=
@@ -1044,7 +1291,6 @@ public class LaboratoryRequestServiceImpl
                     false
             );
 
-
             if (
                     consultation.getStatus() !=
                             Consultation.ConsultationStatus.COMPLETED
@@ -1059,19 +1305,18 @@ public class LaboratoryRequestServiceImpl
             }
         }
 
-
         consultationRepository.save(
                 consultation
         );
     }
-
 
     // =====================================================
     // NORMALIZE STATUS
     // =====================================================
 
     private String normalizeStatus(
-            String status) {
+            String status
+    ) {
 
         if (
                 status == null
@@ -1082,20 +1327,16 @@ public class LaboratoryRequestServiceImpl
             );
         }
 
-
         String cleaned =
                 status.trim();
-
 
         if (
                 "pending".equalsIgnoreCase(
                         cleaned
                 )
         ) {
-
             return "Pending";
         }
-
 
         if (
                 "in progress".equalsIgnoreCase(
@@ -1106,30 +1347,24 @@ public class LaboratoryRequestServiceImpl
                         cleaned
                 )
         ) {
-
             return "In Progress";
         }
-
 
         if (
                 "completed".equalsIgnoreCase(
                         cleaned
                 )
         ) {
-
             return "Completed";
         }
-
 
         if (
                 "cancelled".equalsIgnoreCase(
                         cleaned
                 )
         ) {
-
             return "Cancelled";
         }
-
 
         throw new IllegalArgumentException(
                 "Invalid laboratory request status: "
@@ -1137,29 +1372,85 @@ public class LaboratoryRequestServiceImpl
         );
     }
 
+    // =====================================================
+    // BUILD PATIENT NAME
+    // =====================================================
+
+    private String buildPatientName(
+            Patient patient
+    ) {
+
+        String firstName =
+                patient.getFirstName() == null
+                        ? ""
+                        : patient.getFirstName().trim();
+
+        String lastName =
+                patient.getLastName() == null
+                        ? ""
+                        : patient.getLastName().trim();
+
+        return (
+                firstName
+                        + " "
+                        + lastName
+        ).trim();
+    }
+
+    // =====================================================
+    // BUILD DOCTOR NAME
+    // =====================================================
+
+    private String buildDoctorName(
+            Doctor doctor
+    ) {
+
+        String firstName =
+                doctor.getFirstName() == null
+                        ? ""
+                        : doctor.getFirstName().trim();
+
+        String lastName =
+                doctor.getLastName() == null
+                        ? ""
+                        : doctor.getLastName().trim();
+
+        return (
+                firstName
+                        + " "
+                        + lastName
+        ).trim();
+    }
 
     // =====================================================
     // CLEAN
     // =====================================================
 
     private String clean(
-            String value) {
+            String value
+    ) {
 
-        if (
-                value == null
-        ) {
-
+        if (value == null) {
             return null;
         }
 
-
         String cleaned =
                 value.trim();
-
 
         return cleaned.isEmpty()
                 ? null
                 : cleaned;
     }
-}
 
+    // =====================================================
+    // BLANK
+    // =====================================================
+
+    private boolean isBlank(
+            String value
+    ) {
+
+        return value == null ||
+                value.trim().isEmpty();
+    }
+}

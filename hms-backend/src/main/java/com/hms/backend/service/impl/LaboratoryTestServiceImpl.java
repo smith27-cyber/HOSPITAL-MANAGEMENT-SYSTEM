@@ -1,54 +1,153 @@
 package com.hms.backend.service.impl;
 
 import com.hms.backend.entity.LaboratoryTest;
+import com.hms.backend.tenant.entity.Tenant;
 import com.hms.backend.repository.LaboratoryTestRepository;
 import com.hms.backend.service.LaboratoryTestService;
+import com.hms.backend.tenant.context.TenantContext;
+import com.hms.backend.tenant.repository.TenantRepository;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class LaboratoryTestServiceImpl implements LaboratoryTestService {
+@Transactional
+public class LaboratoryTestServiceImpl
+        implements LaboratoryTestService {
 
     private final LaboratoryTestRepository laboratoryTestRepository;
+    private final TenantRepository tenantRepository;
 
     public LaboratoryTestServiceImpl(
-            LaboratoryTestRepository laboratoryTestRepository) {
+            LaboratoryTestRepository laboratoryTestRepository,
+            TenantRepository tenantRepository
+    ) {
 
         this.laboratoryTestRepository =
                 laboratoryTestRepository;
+
+        this.tenantRepository =
+                tenantRepository;
     }
 
+    // =====================================================
+    // CURRENT TENANT
+    // =====================================================
+
+    private Tenant getCurrentTenant() {
+
+        Long tenantId =
+                TenantContext.requireTenantId();
+
+        return tenantRepository
+                .findById(tenantId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                "Current tenant not found: "
+                                        + tenantId
+                        )
+                );
+    }
+
+    // =====================================================
+    // GET ALL TESTS
+    // =====================================================
+
     @Override
+    @Transactional(readOnly = true)
     public List<LaboratoryTest> getAllTests() {
 
-        return laboratoryTestRepository.findAll();
+        Long tenantId =
+                TenantContext.requireTenantId();
+
+        return laboratoryTestRepository
+                .findAllByTenant_Id(tenantId);
     }
+
+    // =====================================================
+    // GET TEST BY ID
+    // =====================================================
 
     @Override
-    public Optional<LaboratoryTest> getTestById(Long id) {
+    @Transactional(readOnly = true)
+    public Optional<LaboratoryTest> getTestById(
+            Long id
+    ) {
 
-        return laboratoryTestRepository.findById(id);
+        Long tenantId =
+                TenantContext.requireTenantId();
+
+        return laboratoryTestRepository
+                .findByIdAndTenant_Id(
+                        id,
+                        tenantId
+                );
     }
+
+    // =====================================================
+    // CREATE TEST
+    // =====================================================
 
     @Override
     public LaboratoryTest createTest(
-            LaboratoryTest test) {
+            LaboratoryTest test
+    ) {
 
-        return laboratoryTestRepository.save(test);
+        if (test == null) {
+
+            throw new IllegalArgumentException(
+                    "Laboratory test cannot be null."
+            );
+        }
+
+        Tenant currentTenant =
+                getCurrentTenant();
+
+        test.setTenant(
+                currentTenant
+        );
+
+        return laboratoryTestRepository.save(
+                test
+        );
     }
+
+    // =====================================================
+    // UPDATE TEST
+    // =====================================================
 
     @Override
     public LaboratoryTest updateTest(
             Long id,
-            LaboratoryTest test) {
+            LaboratoryTest test
+    ) {
+
+        if (test == null) {
+
+            throw new IllegalArgumentException(
+                    "Laboratory test cannot be null."
+            );
+        }
+
+        Long tenantId =
+                TenantContext.requireTenantId();
 
         LaboratoryTest existingTest =
-                laboratoryTestRepository.findById(id)
+                laboratoryTestRepository
+                        .findByIdAndTenant_Id(
+                                id,
+                                tenantId
+                        )
                         .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Laboratory test not found with id: "
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Laboratory test not found: "
                                                 + id
                                 )
                         );
@@ -86,17 +185,34 @@ public class LaboratoryTestServiceImpl implements LaboratoryTestService {
         );
     }
 
+    // =====================================================
+    // DELETE TEST
+    // =====================================================
+
     @Override
-    public void deleteTest(Long id) {
+    public void deleteTest(
+            Long id
+    ) {
 
-        if (!laboratoryTestRepository.existsById(id)) {
+        Long tenantId =
+                TenantContext.requireTenantId();
 
-            throw new RuntimeException(
-                    "Laboratory test not found with id: "
-                            + id
-            );
-        }
+        LaboratoryTest test =
+                laboratoryTestRepository
+                        .findByIdAndTenant_Id(
+                                id,
+                                tenantId
+                        )
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Laboratory test not found: "
+                                                + id
+                                )
+                        );
 
-        laboratoryTestRepository.deleteById(id);
+        laboratoryTestRepository.delete(
+                test
+        );
     }
 }

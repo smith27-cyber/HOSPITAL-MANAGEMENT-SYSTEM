@@ -12,60 +12,70 @@ public interface ConsultationRepository
         extends JpaRepository<Consultation, String> {
 
     // =====================================================
+    // TENANT
+    // =====================================================
+
+    List<Consultation> findAllByTenant_Id(
+            Long tenantId
+    );
+
+    Optional<Consultation> findByIdAndTenant_Id(
+            String id,
+            Long tenantId
+    );
+
+    // =====================================================
     // PATIENT
     // =====================================================
 
-    List<Consultation>
-    findByPatientId(
+    List<Consultation> findByTenant_IdAndPatientId(
+            Long tenantId,
             String patientId
     );
-
 
     // =====================================================
     // DOCTOR
     // =====================================================
 
-    List<Consultation>
-    findByDoctorId(
+    List<Consultation> findByTenant_IdAndDoctorId(
+            Long tenantId,
             String doctorId
     );
-
 
     // =====================================================
     // APPOINTMENT
     // =====================================================
 
-    Optional<Consultation>
-    findByAppointmentId(
+    Optional<Consultation> findByTenant_IdAndAppointmentId(
+            Long tenantId,
             String appointmentId
     );
 
-
-    boolean existsByAppointmentId(
+    boolean existsByTenant_IdAndAppointmentId(
+            Long tenantId,
             String appointmentId
     );
-
 
     // =====================================================
     // STATUS
     // =====================================================
 
-    List<Consultation>
-    findByStatus(
+    List<Consultation> findByTenant_IdAndStatus(
+            Long tenantId,
             Consultation.ConsultationStatus status
     );
 
-
-    long countByStatus(
+    long countByTenant_IdAndStatus(
+            Long tenantId,
             Consultation.ConsultationStatus status
     );
-
 
     // =====================================================
     // DATE
     // =====================================================
 
-    long countByConsultationDate(
+    long countByTenant_IdAndConsultationDate(
+            Long tenantId,
             LocalDate consultationDate
     );
 }

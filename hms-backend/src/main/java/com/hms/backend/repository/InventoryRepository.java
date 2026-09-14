@@ -16,109 +16,107 @@ public interface InventoryRepository
         extends JpaRepository<Inventory, String> {
 
     // =====================================================
-    // FIND BY ITEM CODE
+    // TENANT
     // =====================================================
 
-    Optional<Inventory>
-    findByItemCode(
+    List<Inventory> findAllByTenant_Id(
+            Long tenantId
+    );
+
+    Optional<Inventory> findByIdAndTenant_Id(
+            String id,
+            Long tenantId
+    );
+
+    // =====================================================
+    // ITEM CODE
+    // =====================================================
+
+    Optional<Inventory> findByTenant_IdAndItemCode(
+            Long tenantId,
             String itemCode
     );
 
-
-    // =====================================================
-    // CHECK ITEM CODE
-    // =====================================================
-
-    boolean existsByItemCode(
+    boolean existsByTenant_IdAndItemCode(
+            Long tenantId,
             String itemCode
     );
 
-
-    // =====================================================
-    // FIND ITEM BY CODE EXCLUDING ID
-    // =====================================================
-
     Optional<Inventory>
-    findByItemCodeAndIdNot(
+    findByTenant_IdAndItemCodeAndIdNot(
+            Long tenantId,
             String itemCode,
             String id
     );
 
-
     // =====================================================
-    // SEARCH BY ITEM NAME
+    // SEARCH
     // =====================================================
 
     List<Inventory>
-    findByItemNameContainingIgnoreCase(
+    findByTenant_IdAndItemNameContainingIgnoreCase(
+            Long tenantId,
             String itemName
     );
 
-
     // =====================================================
-    // FIND BY CATEGORY
+    // CATEGORY
     // =====================================================
 
     List<Inventory>
-    findByCategoryIgnoreCase(
+    findByTenant_IdAndCategoryIgnoreCase(
+            Long tenantId,
             String category
     );
 
-
     // =====================================================
-    // FIND BY STATUS
+    // STATUS
     // =====================================================
 
     List<Inventory>
-    findByStatusIgnoreCase(
+    findByTenant_IdAndStatusIgnoreCase(
+            Long tenantId,
             String status
     );
 
-
     // =====================================================
-    // FIND BY SUPPLIER
+    // SUPPLIER
     // =====================================================
 
     List<Inventory>
-    findBySupplierContainingIgnoreCase(
+    findByTenant_IdAndSupplierContainingIgnoreCase(
+            Long tenantId,
             String supplier
     );
-
 
     // =====================================================
     // LOW STOCK
     // =====================================================
-    //
-    // Finds items where:
-    //
-    // quantity <= minimumStock
-    //
-    // =====================================================
 
     @Query("""
         SELECT COUNT(i)
         FROM Inventory i
-        WHERE i.quantity <= i.minimumStock
+        WHERE i.tenant.id = :tenantId
+        AND i.quantity <= i.minimumStock
     """)
-    long countLowStockItems();
-
+    long countLowStockItems(
+            @Param("tenantId") Long tenantId
+    );
 
     // =====================================================
     // EXPIRING ITEMS
     // =====================================================
-    //
-    // Items expiring between today and the specified date.
-    //
-    // =====================================================
 
     @Query("""
         SELECT COUNT(i)
         FROM Inventory i
-        WHERE i.expiryDate IS NOT NULL
+        WHERE i.tenant.id = :tenantId
+        AND i.expiryDate IS NOT NULL
         AND i.expiryDate >= :today
         AND i.expiryDate <= :expiryDate
     """)
     long countExpiringItems(
+            @Param("tenantId") Long tenantId,
             @Param("today") LocalDate today,
             @Param("expiryDate") LocalDate expiryDate
     );

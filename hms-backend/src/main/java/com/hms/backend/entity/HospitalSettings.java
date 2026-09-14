@@ -7,22 +7,21 @@
 package com.hms.backend.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.hms.backend.tenant.entity.Tenant;
 
 import java.time.LocalDateTime;
 
-
 @Entity
-@Table(
-    name = "hospital_settings",
-    indexes = {
-        @Index(
-            name = "idx_hospital_settings_name",
-            columnList = "hospital_name"
-        )
-    }
-)
+@Table(name = "hospital_settings", indexes = {
+        @Index(name = "idx_hospital_settings_name", columnList = "hospital_name")
+})
 public class HospitalSettings {
 
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "tenant_id", nullable = false)
+    private Tenant tenant;
 
     // =====================================================
     // ID
@@ -32,130 +31,82 @@ public class HospitalSettings {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     // =====================================================
     // HOSPITAL NAME
     // =====================================================
 
-    @Column(
-        name = "hospital_name",
-        nullable = false,
-        length = 200
-    )
+    @Column(name = "hospital_name", nullable = false, length = 200)
     private String hospitalName;
-
 
     // =====================================================
     // REGISTRATION NUMBER
     // =====================================================
 
-    @Column(
-        name = "registration_number",
-        length = 100
-    )
+    @Column(name = "registration_number", length = 100)
     private String registrationNumber;
-
 
     // =====================================================
     // PHONE
     // =====================================================
 
-    @Column(
-        name = "phone",
-        length = 50
-    )
+    @Column(name = "phone", length = 50)
     private String phone;
-
 
     // =====================================================
     // EMAIL
     // =====================================================
 
-    @Column(
-        name = "email",
-        length = 150
-    )
+    @Column(name = "email", length = 150)
     private String email;
-
 
     // =====================================================
     // ADDRESS
     // =====================================================
 
-    @Column(
-        name = "address",
-        length = 500
-    )
+    @Column(name = "address", length = 500)
     private String address;
-
 
     // =====================================================
     // CITY
     // =====================================================
 
-    @Column(
-        name = "city",
-        length = 100
-    )
+    @Column(name = "city", length = 100)
     private String city;
-
 
     // =====================================================
     // COUNTRY
     // =====================================================
 
-    @Column(
-        name = "country",
-        nullable = false,
-        length = 100
-    )
+    @Column(name = "country", nullable = false, length = 100)
     private String country = "Uganda";
-
 
     // =====================================================
     // WEBSITE
     // =====================================================
 
-    @Column(
-        name = "website",
-        length = 300
-    )
+    @Column(name = "website", length = 300)
     private String website;
-
 
     // =====================================================
     // LOGO URL
     // =====================================================
 
-    @Column(
-        name = "logo_url",
-        length = 500
-    )
+    @Column(name = "logo_url", length = 500)
     private String logoUrl;
-
 
     // =====================================================
     // CREATED AT
     // =====================================================
 
-    @Column(
-        name = "created_at",
-        nullable = false,
-        updatable = false
-    )
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
 
     // =====================================================
     // UPDATED AT
     // =====================================================
 
-    @Column(
-        name = "updated_at",
-        nullable = false
-    )
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-
 
     // =====================================================
     // PRE PERSIST
@@ -164,9 +115,7 @@ public class HospitalSettings {
     @PrePersist
     protected void onCreate() {
 
-        LocalDateTime now =
-            LocalDateTime.now();
-
+        LocalDateTime now = LocalDateTime.now();
 
         if (createdAt == null) {
 
@@ -174,28 +123,22 @@ public class HospitalSettings {
 
         }
 
-
         if (updatedAt == null) {
 
             updatedAt = now;
 
         }
 
-
-        if (
-            country == null ||
-            country.isBlank()
-        ) {
+        if (country == null ||
+                country.isBlank()) {
 
             country = "Uganda";
 
         }
 
-
         normalizeFields();
 
     }
-
 
     // =====================================================
     // PRE UPDATE
@@ -204,13 +147,11 @@ public class HospitalSettings {
     @PreUpdate
     protected void onUpdate() {
 
-        updatedAt =
-            LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
 
         normalizeFields();
 
     }
-
 
     // =====================================================
     // NORMALIZE FIELDS
@@ -220,85 +161,64 @@ public class HospitalSettings {
 
         if (hospitalName != null) {
 
-            hospitalName =
-                hospitalName.trim();
+            hospitalName = hospitalName.trim();
 
         }
-
 
         if (registrationNumber != null) {
 
-            registrationNumber =
-                registrationNumber.trim();
+            registrationNumber = registrationNumber.trim();
 
         }
-
 
         if (phone != null) {
 
-            phone =
-                phone.trim();
+            phone = phone.trim();
 
         }
-
 
         if (email != null) {
 
-            email =
-                email.trim().toLowerCase();
+            email = email.trim().toLowerCase();
 
         }
-
 
         if (address != null) {
 
-            address =
-                address.trim();
+            address = address.trim();
 
         }
-
 
         if (city != null) {
 
-            city =
-                city.trim();
+            city = city.trim();
 
         }
 
-
-        if (
-            country == null ||
-            country.isBlank()
-        ) {
+        if (country == null ||
+                country.isBlank()) {
 
             country = "Uganda";
 
-        }
-        else {
+        } else {
 
-            country =
-                country.trim();
+            country = country.trim();
 
         }
-
 
         if (website != null) {
 
-            website =
-                website.trim();
+            website = website.trim();
 
         }
 
-
         if (logoUrl != null) {
 
-            logoUrl =
-                logoUrl.trim();
+            logoUrl = logoUrl.trim();
 
         }
 
     }
-
 
     // =====================================================
     // CONSTRUCTOR
@@ -307,10 +227,17 @@ public class HospitalSettings {
     public HospitalSettings() {
     }
 
-
     // =====================================================
     // GETTERS / SETTERS
     // =====================================================
+
+    public Tenant getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(Tenant tenant) {
+        this.tenant = tenant;
+    }
 
     public Long getId() {
 
@@ -318,13 +245,11 @@ public class HospitalSettings {
 
     }
 
-
     public void setId(Long id) {
 
         this.id = id;
 
     }
-
 
     public String getHospitalName() {
 
@@ -332,16 +257,12 @@ public class HospitalSettings {
 
     }
 
-
     public void setHospitalName(
-        String hospitalName
-    ) {
+            String hospitalName) {
 
-        this.hospitalName =
-            hospitalName;
+        this.hospitalName = hospitalName;
 
     }
-
 
     public String getRegistrationNumber() {
 
@@ -349,16 +270,12 @@ public class HospitalSettings {
 
     }
 
-
     public void setRegistrationNumber(
-        String registrationNumber
-    ) {
+            String registrationNumber) {
 
-        this.registrationNumber =
-            registrationNumber;
+        this.registrationNumber = registrationNumber;
 
     }
-
 
     public String getPhone() {
 
@@ -366,15 +283,12 @@ public class HospitalSettings {
 
     }
 
-
     public void setPhone(
-        String phone
-    ) {
+            String phone) {
 
         this.phone = phone;
 
     }
-
 
     public String getEmail() {
 
@@ -382,15 +296,12 @@ public class HospitalSettings {
 
     }
 
-
     public void setEmail(
-        String email
-    ) {
+            String email) {
 
         this.email = email;
 
     }
-
 
     public String getAddress() {
 
@@ -398,15 +309,12 @@ public class HospitalSettings {
 
     }
 
-
     public void setAddress(
-        String address
-    ) {
+            String address) {
 
         this.address = address;
 
     }
-
 
     public String getCity() {
 
@@ -414,15 +322,12 @@ public class HospitalSettings {
 
     }
 
-
     public void setCity(
-        String city
-    ) {
+            String city) {
 
         this.city = city;
 
     }
-
 
     public String getCountry() {
 
@@ -430,15 +335,12 @@ public class HospitalSettings {
 
     }
 
-
     public void setCountry(
-        String country
-    ) {
+            String country) {
 
         this.country = country;
 
     }
-
 
     public String getWebsite() {
 
@@ -446,15 +348,12 @@ public class HospitalSettings {
 
     }
 
-
     public void setWebsite(
-        String website
-    ) {
+            String website) {
 
         this.website = website;
 
     }
-
 
     public String getLogoUrl() {
 
@@ -462,15 +361,12 @@ public class HospitalSettings {
 
     }
 
-
     public void setLogoUrl(
-        String logoUrl
-    ) {
+            String logoUrl) {
 
         this.logoUrl = logoUrl;
 
     }
-
 
     public LocalDateTime getCreatedAt() {
 
@@ -478,15 +374,12 @@ public class HospitalSettings {
 
     }
 
-
     public void setCreatedAt(
-        LocalDateTime createdAt
-    ) {
+            LocalDateTime createdAt) {
 
         this.createdAt = createdAt;
 
     }
-
 
     public LocalDateTime getUpdatedAt() {
 
@@ -494,10 +387,8 @@ public class HospitalSettings {
 
     }
 
-
     public void setUpdatedAt(
-        LocalDateTime updatedAt
-    ) {
+            LocalDateTime updatedAt) {
 
         this.updatedAt = updatedAt;
 

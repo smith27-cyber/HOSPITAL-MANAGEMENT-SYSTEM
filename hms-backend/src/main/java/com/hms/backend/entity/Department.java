@@ -1,14 +1,43 @@
 package com.hms.backend.entity;
 
+import com.hms.backend.tenant.entity.Tenant;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "departments")
+@Table(
+        name = "departments",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_department_tenant_code",
+                        columnNames = {"tenant_id", "code"}
+                ),
+                @UniqueConstraint(
+                        name = "uk_department_tenant_name",
+                        columnNames = {"tenant_id", "name"}
+                )
+        },
+        indexes = {
+                @Index(
+                        name = "idx_department_tenant_id",
+                        columnList = "tenant_id"
+                ),
+                @Index(
+                        name = "idx_department_tenant_status",
+                        columnList = "tenant_id, status"
+                )
+        }
+)
 public class Department {
 
     // =====================================================
@@ -19,6 +48,16 @@ public class Department {
     @Column(nullable = false, unique = true)
     private String id;
 
+    // =====================================================
+    // TENANT
+    // =====================================================
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "tenant_id",
+            nullable = false
+    )
+    private Tenant tenant;
 
     // =====================================================
     // BASIC INFORMATION
@@ -27,21 +66,17 @@ public class Department {
     @Column(nullable = false)
     private String name;
 
-
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String code;
-
 
     @Column(length = 1000)
     private String description;
-
 
     // =====================================================
     // HEAD OF DEPARTMENT
     // =====================================================
 
     private String headOfDepartment;
-
 
     // =====================================================
     // CONTACT INFORMATION
@@ -51,13 +86,11 @@ public class Department {
 
     private String email;
 
-
     // =====================================================
     // LOCATION
     // =====================================================
 
     private String location;
-
 
     // =====================================================
     // STATUS
@@ -66,7 +99,6 @@ public class Department {
     @Column(nullable = false)
     private String status;
 
-
     // =====================================================
     // CREATED AT
     // =====================================================
@@ -74,14 +106,12 @@ public class Department {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-
     // =====================================================
     // CONSTRUCTORS
     // =====================================================
 
     public Department() {
     }
-
 
     public Department(
             String id,
@@ -107,7 +137,6 @@ public class Department {
         this.createdAt = createdAt;
     }
 
-
     // =====================================================
     // GETTERS AND SETTERS
     // =====================================================
@@ -120,6 +149,13 @@ public class Department {
         this.id = id;
     }
 
+    public Tenant getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(Tenant tenant) {
+        this.tenant = tenant;
+    }
 
     public String getName() {
         return name;
@@ -129,7 +165,6 @@ public class Department {
         this.name = name;
     }
 
-
     public String getCode() {
         return code;
     }
@@ -137,7 +172,6 @@ public class Department {
     public void setCode(String code) {
         this.code = code;
     }
-
 
     public String getDescription() {
         return description;
@@ -147,7 +181,6 @@ public class Department {
         this.description = description;
     }
 
-
     public String getHeadOfDepartment() {
         return headOfDepartment;
     }
@@ -155,7 +188,6 @@ public class Department {
     public void setHeadOfDepartment(String headOfDepartment) {
         this.headOfDepartment = headOfDepartment;
     }
-
 
     public String getPhone() {
         return phone;
@@ -165,7 +197,6 @@ public class Department {
         this.phone = phone;
     }
 
-
     public String getEmail() {
         return email;
     }
@@ -173,7 +204,6 @@ public class Department {
     public void setEmail(String email) {
         this.email = email;
     }
-
 
     public String getLocation() {
         return location;
@@ -183,7 +213,6 @@ public class Department {
         this.location = location;
     }
 
-
     public String getStatus() {
         return status;
     }
@@ -191,7 +220,6 @@ public class Department {
     public void setStatus(String status) {
         this.status = status;
     }
-
 
     public LocalDateTime getCreatedAt() {
         return createdAt;

@@ -1,16 +1,61 @@
 package com.hms.backend.entity;
 
-import jakarta.persistence.*;
+import com.hms.backend.tenant.entity.Tenant;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "laboratory_tests")
+@Table(
+        name = "laboratory_tests",
+        indexes = {
+                @Index(
+                        name = "idx_lab_test_tenant",
+                        columnList = "tenant_id"
+                ),
+                @Index(
+                        name = "idx_lab_test_tenant_category",
+                        columnList = "tenant_id, category"
+                )
+        }
+)
 public class LaboratoryTest {
+
+    // =====================================================
+    // ID
+    // =====================================================
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    // =====================================================
+    // TENANT
+    // =====================================================
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "tenant_id",
+            nullable = false
+    )
+    private Tenant tenant;
+
+    // =====================================================
+    // TEST INFORMATION
+    // =====================================================
 
     @Column(nullable = false)
     private String testName;
@@ -33,17 +78,31 @@ public class LaboratoryTest {
     @Column(length = 2000)
     private String preparationInstructions;
 
+    // =====================================================
+    // AUDIT
+    // =====================================================
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
+    // =====================================================
+    // CONSTRUCTOR
+    // =====================================================
+
     public LaboratoryTest() {
     }
 
+    // =====================================================
+    // PRE-PERSIST
+    // =====================================================
+
     @PrePersist
     protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime now =
+                LocalDateTime.now();
 
         if (createdAt == null) {
             createdAt = now;
@@ -54,10 +113,20 @@ public class LaboratoryTest {
         }
     }
 
+    // =====================================================
+    // PRE-UPDATE
+    // =====================================================
+
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+
+        updatedAt =
+                LocalDateTime.now();
     }
+
+    // =====================================================
+    // GETTERS / SETTERS
+    // =====================================================
 
     public Long getId() {
         return id;
@@ -65,6 +134,14 @@ public class LaboratoryTest {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Tenant getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(Tenant tenant) {
+        this.tenant = tenant;
     }
 
     public String getTestName() {
@@ -119,15 +196,20 @@ public class LaboratoryTest {
         return preparationInstructions;
     }
 
-    public void setPreparationInstructions(String preparationInstructions) {
-        this.preparationInstructions = preparationInstructions;
+    public void setPreparationInstructions(
+            String preparationInstructions
+    ) {
+        this.preparationInstructions =
+                preparationInstructions;
     }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(
+            LocalDateTime createdAt
+    ) {
         this.createdAt = createdAt;
     }
 
@@ -135,7 +217,9 @@ public class LaboratoryTest {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(
+            LocalDateTime updatedAt
+    ) {
         this.updatedAt = updatedAt;
     }
 }

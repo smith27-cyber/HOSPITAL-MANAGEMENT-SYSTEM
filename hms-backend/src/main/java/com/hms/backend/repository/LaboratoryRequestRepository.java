@@ -1,4 +1,3 @@
-
 package com.hms.backend.repository;
 
 import com.hms.backend.entity.LaboratoryRequest;
@@ -7,71 +6,75 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface LaboratoryRequestRepository
-        extends JpaRepository<LaboratoryRequest, Long> {
+                extends JpaRepository<LaboratoryRequest, Long> {
 
-    // =====================================================
-    // PATIENT
-    // =====================================================
+        // =====================================================
+        // TENANT
+        // =====================================================
 
-    List<LaboratoryRequest> findByPatientId(
-            String patientId
-    );
+        List<LaboratoryRequest> findAllByTenant_Id(
+                        Long tenantId);
 
+        Optional<LaboratoryRequest> findByIdAndTenant_Id(
+                        Long id,
+                        Long tenantId);
 
-    // =====================================================
-    // CONSULTATION
-    // =====================================================
+        // =====================================================
+        // PATIENT
+        // =====================================================
 
-    List<LaboratoryRequest> findByConsultationId(
-            String consultationId
-    );
+        List<LaboratoryRequest> findByTenant_IdAndPatientId(
+                        Long tenantId,
+                        String patientId);
 
+        // =====================================================
+        // CONSULTATION
+        // =====================================================
 
-    long countByConsultationId(
-            String consultationId
-    );
+        List<LaboratoryRequest> findByTenant_IdAndConsultationId(
+                        Long tenantId,
+                        String consultationId);
 
+        long countByTenant_IdAndConsultationId(
+                        Long tenantId,
+                        String consultationId);
 
-    long countByConsultationIdAndStatusIgnoreCase(
-            String consultationId,
-            String status
-    );
+        long countByTenant_IdAndConsultationIdAndStatusIgnoreCase(
+                        Long tenantId,
+                        String consultationId,
+                        String status);
 
+        // =====================================================
+        // STATUS
+        // =====================================================
 
-    // =====================================================
-    // STATUS
-    // =====================================================
+        List<LaboratoryRequest> findByTenant_IdAndStatus(
+                        Long tenantId,
+                        String status);
 
-    List<LaboratoryRequest> findByStatus(
-            String status
-    );
+        long countByTenant_IdAndStatusIgnoreCase(
+                        Long tenantId,
+                        String status);
 
+        // =====================================================
+        // PATIENT + STATUS
+        // =====================================================
 
-    long countByStatusIgnoreCase(
-            String status
-    );
+        List<LaboratoryRequest> findByTenant_IdAndPatientIdAndStatus(
+                        Long tenantId,
+                        String patientId,
+                        String status);
 
+        // =====================================================
+        // CONSULTATION + STATUS
+        // =====================================================
 
-    // =====================================================
-    // PATIENT + STATUS
-    // =====================================================
-
-    List<LaboratoryRequest> findByPatientIdAndStatus(
-            String patientId,
-            String status
-    );
-
-
-    // =====================================================
-    // CONSULTATION + STATUS
-    // =====================================================
-
-    List<LaboratoryRequest> findByConsultationIdAndStatus(
-            String consultationId,
-            String status
-    );
+        List<LaboratoryRequest> findByTenant_IdAndConsultationIdAndStatus(
+                        Long tenantId,
+                        String consultationId,
+                        String status);
 }
-

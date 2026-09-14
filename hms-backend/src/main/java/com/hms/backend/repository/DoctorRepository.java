@@ -1,83 +1,98 @@
-
 package com.hms.backend.repository;
 
 import com.hms.backend.entity.Doctor;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface DoctorRepository
-        extends JpaRepository<Doctor, String> {
-long countByStatusIgnoreCase(String status);
+public interface DoctorRepository extends JpaRepository<Doctor, String> {
 
     // =====================================================
-    // FIND BY NATIONAL ID
+    // TENANT-SCOPED DOCTORS
     // =====================================================
 
-    Optional<Doctor> findByNationalId(
-            String nationalId
+    List<Doctor> findAllByTenant_Id(Long tenantId);
+
+    Optional<Doctor> findByIdAndTenant_Id(
+            String id,
+            Long tenantId
     );
 
-
     // =====================================================
-    // CHECK NATIONAL ID
+    // STATUS
     // =====================================================
 
-    boolean existsByNationalId(
-            String nationalId
+    long countByTenant_IdAndStatusIgnoreCase(
+            Long tenantId,
+            String status
     );
 
-
     // =====================================================
-    // FIND BY LICENSE NUMBER
+    // NATIONAL ID
     // =====================================================
 
-    Optional<Doctor> findByLicenseNumber(
-            String licenseNumber
+    Optional<Doctor> findByNationalIdAndTenant_Id(
+            String nationalId,
+            Long tenantId
     );
 
-
-    // =====================================================
-    // CHECK LICENSE NUMBER
-    // =====================================================
-
-    boolean existsByLicenseNumber(
-            String licenseNumber
+    boolean existsByNationalIdAndTenant_Id(
+            String nationalId,
+            Long tenantId
     );
 
-
-    // =====================================================
-    // FIND BY EMAIL
-    // =====================================================
-
-    Optional<Doctor> findByEmail(
-            String email
+    boolean existsByNationalIdAndTenant_IdAndIdNot(
+            String nationalId,
+            Long tenantId,
+            String id
     );
 
-
     // =====================================================
-    // CHECK EMAIL
+    // LICENSE NUMBER
     // =====================================================
 
-    boolean existsByEmail(
-            String email
+    Optional<Doctor> findByLicenseNumberAndTenant_Id(
+            String licenseNumber,
+            Long tenantId
     );
 
+    boolean existsByLicenseNumberAndTenant_Id(
+            String licenseNumber,
+            Long tenantId
+    );
+
+    boolean existsByLicenseNumberAndTenant_IdAndIdNot(
+            String licenseNumber,
+            Long tenantId,
+            String id
+    );
+
+    // =====================================================
+    // EMAIL
+    // =====================================================
+
+    Optional<Doctor> findByEmailAndTenant_Id(
+            String email,
+            Long tenantId
+    );
+
+    boolean existsByEmailAndTenant_Id(
+            String email,
+            Long tenantId
+    );
+
+    boolean existsByEmailAndTenant_IdAndIdNot(
+            String email,
+            Long tenantId,
+            String id
+    );
 
     // =====================================================
     // FIND LAST DOCTOR ID FOR CURRENT YEAR
-    // =====================================================
-    //
-    // Expected format:
-    //
-    // DOC-2026-0001
-    // DOC-2026-0002
-    // DOC-2026-0003
-    //
     // =====================================================
 
     @Query(
@@ -95,4 +110,3 @@ long countByStatusIgnoreCase(String status);
     )
     Optional<String> findMaxIdForCurrentYear();
 }
-

@@ -12,6 +12,7 @@ import com.hms.backend.repository.LaboratoryRequestRepository;
 import com.hms.backend.repository.PatientRepository;
 import com.hms.backend.repository.PharmacyPrescriptionRepository;
 import com.hms.backend.service.DashboardService;
+import com.hms.backend.tenant.context.TenantContext;
 
 import org.springframework.stereotype.Service;
 
@@ -21,332 +22,339 @@ import java.util.List;
 /**
  * =====================================================
  * DASHBOARD SERVICE IMPLEMENTATION
- * File:
- * src/main/java/com/hms/backend/service/impl/DashboardServiceImpl.java
  * =====================================================
  *
- * Professional HMS dashboard service.
+ * Fully tenant-aware dashboard service.
+ *
+ * All dashboard statistics are calculated using the
+ * current tenant from TenantContext.
+ *
+ * Tenant-aware modules:
+ * - Patients
+ * - Doctors
+ * - Departments
+ * - Appointments
+ * - Consultations
+ * - Laboratory
+ * - Pharmacy
+ * - Inventory
  */
 @Service
 public class DashboardServiceImpl
-        implements DashboardService {
+                implements DashboardService {
 
-    // =====================================================
-    // REPOSITORIES
-    // =====================================================
+        // =====================================================
+        // REPOSITORIES
+        // =====================================================
 
-    private final PatientRepository patientRepository;
+        private final PatientRepository patientRepository;
 
-    private final DoctorRepository doctorRepository;
+        private final DoctorRepository doctorRepository;
 
-    private final DepartmentRepository departmentRepository;
+        private final DepartmentRepository departmentRepository;
 
-    private final AppointmentRepository appointmentRepository;
+        private final AppointmentRepository appointmentRepository;
 
-    private final ConsultationRepository consultationRepository;
+        private final ConsultationRepository consultationRepository;
 
-    private final LaboratoryRequestRepository
-            laboratoryRequestRepository;
+        private final LaboratoryRequestRepository laboratoryRequestRepository;
 
-    private final PharmacyPrescriptionRepository
-            pharmacyPrescriptionRepository;
+        private final PharmacyPrescriptionRepository pharmacyPrescriptionRepository;
 
-    private final InventoryRepository inventoryRepository;
+        private final InventoryRepository inventoryRepository;
 
+        // =====================================================
+        // CONSTRUCTOR
+        // =====================================================
 
-    // =====================================================
-    // CONSTRUCTOR
-    // =====================================================
+        public DashboardServiceImpl(
+                        PatientRepository patientRepository,
+                        DoctorRepository doctorRepository,
+                        DepartmentRepository departmentRepository,
+                        AppointmentRepository appointmentRepository,
+                        ConsultationRepository consultationRepository,
+                        LaboratoryRequestRepository laboratoryRequestRepository,
+                        PharmacyPrescriptionRepository pharmacyPrescriptionRepository,
+                        InventoryRepository inventoryRepository) {
 
-    public DashboardServiceImpl(
-            PatientRepository patientRepository,
-            DoctorRepository doctorRepository,
-            DepartmentRepository departmentRepository,
-            AppointmentRepository appointmentRepository,
-            ConsultationRepository consultationRepository,
-            LaboratoryRequestRepository laboratoryRequestRepository,
-            PharmacyPrescriptionRepository pharmacyPrescriptionRepository,
-            InventoryRepository inventoryRepository
-    ) {
+                this.patientRepository = patientRepository;
 
-        this.patientRepository =
-                patientRepository;
+                this.doctorRepository = doctorRepository;
 
-        this.doctorRepository =
-                doctorRepository;
+                this.departmentRepository = departmentRepository;
 
-        this.departmentRepository =
-                departmentRepository;
+                this.appointmentRepository = appointmentRepository;
 
-        this.appointmentRepository =
-                appointmentRepository;
+                this.consultationRepository = consultationRepository;
 
-        this.consultationRepository =
-                consultationRepository;
+                this.laboratoryRequestRepository = laboratoryRequestRepository;
 
-        this.laboratoryRequestRepository =
-                laboratoryRequestRepository;
+                this.pharmacyPrescriptionRepository = pharmacyPrescriptionRepository;
 
-        this.pharmacyPrescriptionRepository =
-                pharmacyPrescriptionRepository;
+                this.inventoryRepository = inventoryRepository;
+        }
 
-        this.inventoryRepository =
-                inventoryRepository;
-    }
+        // =====================================================
+        // GET DASHBOARD DATA
+        // =====================================================
 
+        @Override
+        public DashboardResponse getDashboardData() {
 
-    // =====================================================
-    // GET DASHBOARD DATA
-    // =====================================================
+                // =================================================
+                // CURRENT TENANT
+                // =================================================
 
-    @Override
-    public DashboardResponse getDashboardData() {
+                Long tenantId = TenantContext.requireTenantId();
 
-        // =================================================
-        // CURRENT DATE
-        // =================================================
+                // =================================================
+                // CURRENT DATE
+                // =================================================
 
-        LocalDate today =
-                LocalDate.now();
+                LocalDate today = LocalDate.now();
 
+                // =================================================
+                // CORE STATISTICS
+                // =================================================
 
-        // =================================================
-        // CORE STATISTICS
-        // =================================================
+                long totalPatients = patientRepository
+                                .findAllByTenant_Id(
+                                                tenantId)
+                                .size();
 
-        long totalPatients =
-                patientRepository.count();
+                long activeDoctors = doctorRepository
+                                .countByTenant_IdAndStatusIgnoreCase(
+                                                tenantId,
+                                                "Active");
 
+                long totalDepartments = departmentRepository
+                                .findAllByTenant_Id(
+                                                tenantId)
+                                .size();
 
-        long activeDoctors =
-                doctorRepository
-                        .countByStatusIgnoreCase(
-                                "Active"
-                        );
+                long totalAppointments = appointmentRepository
+                                .findAllByTenant_Id(
+                                                tenantId)
+                                .size();
 
+                // =================================================
+                // TODAY'S APPOINTMENTS
+                // =================================================
 
-        long totalDepartments =
-                departmentRepository.count();
+                List<Appointment> todayAppointments = appointmentRepository
+                                .findByTenant_IdAndAppointmentDateOrderByAppointmentTimeAsc(
+                                                tenantId,
+                                                today);
+
+                long todaysAppointments = todayAppointments.size();
+
+                // =================================================
+                // TODAY'S CONSULTATIONS
+                // =================================================
+
+                long todaysConsultations = consultationRepository
+                                .countByTenant_IdAndConsultationDate(
+                                                tenantId,
+                                                today);
+
+                // =================================================
+                // LABORATORY
+                // =================================================
+
+                long pendingLaboratoryRequests = laboratoryRequestRepository
+                                .countByTenant_IdAndStatusIgnoreCase(
+                                                tenantId,
+                                                "Pending");
+
+                long pendingLaboratory = laboratoryRequestRepository
+                                .countByTenant_IdAndStatusIgnoreCase(
+                                                tenantId,
+                                                "Pending");
+
+                long completedLaboratory = laboratoryRequestRepository
+                                .countByTenant_IdAndStatusIgnoreCase(
+                                                tenantId,
+                                                "Completed");
+
+                long cancelledLaboratory = laboratoryRequestRepository
+                                .countByTenant_IdAndStatusIgnoreCase(
+                                                tenantId,
+                                                "Cancelled");
+
+                // =================================================
+                // PHARMACY
+                // =================================================
+
+                /*
+                 * Pharmacy statuses currently used by the system:
+                 *
+                 * Waiting
+                 * Preparing
+                 * Awaiting Payment
+                 * Ready for Pickup
+                 * Dispensed
+                 * Cancelled
+                 */
+
+                long waitingPrescriptions = pharmacyPrescriptionRepository
+                                .countByTenant_IdAndStatusIgnoreCase(
+                                                tenantId,
+                                                "Waiting");
+
+                /*
+                 * The old dashboard used "Prepared", but the
+                 * pharmacy workflow uses "Preparing".
+                 */
+                long preparedPrescriptions = pharmacyPrescriptionRepository
+                                .countByTenant_IdAndStatusIgnoreCase(
+                                                tenantId,
+                                                "Preparing");
+
+                long dispensedPrescriptions = pharmacyPrescriptionRepository
+                                .countByTenant_IdAndStatusIgnoreCase(
+                                                tenantId,
+                                                "Dispensed");
+
+                long pendingPharmacyPrescriptions = waitingPrescriptions;
+
+                // =================================================
+                // INVENTORY
+                // =================================================
 
+                long lowStockItems = inventoryRepository
+                                .countLowStockItems(
+                                                tenantId);
 
-        long totalAppointments =
-                appointmentRepository.count();
+                long expiringItems = inventoryRepository
+                                .countExpiringItems(
+                                                tenantId,
+                                                today,
+                                                today.plusDays(30));
 
+                // =================================================
+                // APPOINTMENT STATUS
+                // =================================================
 
-        // =================================================
-        // TODAY'S APPOINTMENTS
-        // =================================================
+                long scheduledAppointments = appointmentRepository
+                                .countByTenant_IdAndStatusIgnoreCase(
+                                                tenantId,
+                                                "Scheduled");
 
-        List<Appointment> todayAppointments =
-                appointmentRepository
-                        .findByAppointmentDateOrderByAppointmentTimeAsc(
-                                today
-                        );
+                long completedAppointments = appointmentRepository
+                                .countByTenant_IdAndStatusIgnoreCase(
+                                                tenantId,
+                                                "Completed");
 
+                long cancelledAppointments = appointmentRepository
+                                .countByTenant_IdAndStatusIgnoreCase(
+                                                tenantId,
+                                                "Cancelled");
 
-        long todaysAppointments =
-                todayAppointments.size();
+                // =================================================
+                // CONSULTATION STATUS
+                // =================================================
 
+                long openConsultations = consultationRepository
+                                .countByTenant_IdAndStatus(
+                                                tenantId,
+                                                Consultation.ConsultationStatus.OPEN);
 
-        // =================================================
-        // TODAY'S CONSULTATIONS
-        // =================================================
+                long completedConsultations = consultationRepository
+                                .countByTenant_IdAndStatus(
+                                                tenantId,
+                                                Consultation.ConsultationStatus.COMPLETED);
 
-        long todaysConsultations =
-                consultationRepository
-                        .countByConsultationDate(
-                                today
-                        );
+                long cancelledConsultations = consultationRepository
+                                .countByTenant_IdAndStatus(
+                                                tenantId,
+                                                Consultation.ConsultationStatus.CANCELLED);
 
+                // =================================================
+                // RETURN DASHBOARD
+                // =================================================
 
-        // =================================================
-        // LABORATORY
-        // =================================================
+                return new DashboardResponse(
 
-        long pendingLaboratoryRequests =
-                laboratoryRequestRepository
-                        .countByStatusIgnoreCase(
-                                "Pending"
-                        );
+                                // -------------------------------------------------
+                                // CORE
+                                // -------------------------------------------------
 
+                                totalPatients,
 
-        long pendingLaboratory =
-                laboratoryRequestRepository
-                        .countByStatusIgnoreCase(
-                                "Pending"
-                        );
+                                activeDoctors,
 
+                                totalDepartments,
 
-        long completedLaboratory =
-                laboratoryRequestRepository
-                        .countByStatusIgnoreCase(
-                                "Completed"
-                        );
+                                totalAppointments,
 
+                                // -------------------------------------------------
+                                // TODAY
+                                // -------------------------------------------------
 
-        long cancelledLaboratory =
-                laboratoryRequestRepository
-                        .countByStatusIgnoreCase(
-                                "Cancelled"
-                        );
+                                todaysAppointments,
 
+                                todaysConsultations,
 
-        // =================================================
-        // PHARMACY
-        // =================================================
+                                // -------------------------------------------------
+                                // PENDING
+                                // -------------------------------------------------
 
-        long waitingPrescriptions =
-                pharmacyPrescriptionRepository
-                        .countByStatusIgnoreCase(
-                                "Waiting"
-                        );
+                                pendingLaboratoryRequests,
 
+                                pendingPharmacyPrescriptions,
 
-        long preparedPrescriptions =
-                pharmacyPrescriptionRepository
-                        .countByStatusIgnoreCase(
-                                "Prepared"
-                        );
+                                // -------------------------------------------------
+                                // INVENTORY
+                                // -------------------------------------------------
 
+                                lowStockItems,
 
-        long dispensedPrescriptions =
-                pharmacyPrescriptionRepository
-                        .countByStatusIgnoreCase(
-                                "Dispensed"
-                        );
+                                expiringItems,
 
+                                // -------------------------------------------------
+                                // APPOINTMENT STATUS
+                                // -------------------------------------------------
 
-        long pendingPharmacyPrescriptions =
-                waitingPrescriptions;
+                                scheduledAppointments,
 
+                                completedAppointments,
 
-        // =================================================
-        // INVENTORY
-        // =================================================
+                                cancelledAppointments,
 
-        long lowStockItems =
-                inventoryRepository
-                        .countLowStockItems();
+                                // -------------------------------------------------
+                                // CONSULTATION STATUS
+                                // -------------------------------------------------
 
+                                openConsultations,
 
-        long expiringItems =
-                inventoryRepository
-                        .countExpiringItems(
-                                today,
-                                today.plusDays(30)
-                        );
+                                completedConsultations,
 
+                                cancelledConsultations,
 
-        // =================================================
-        // APPOINTMENT STATUS
-        // =================================================
+                                // -------------------------------------------------
+                                // LABORATORY STATUS
+                                // -------------------------------------------------
 
-        long scheduledAppointments =
-                appointmentRepository
-                        .countByStatusIgnoreCase(
-                                "Scheduled"
-                        );
+                                pendingLaboratory,
 
+                                completedLaboratory,
 
-        long completedAppointments =
-                appointmentRepository
-                        .countByStatusIgnoreCase(
-                                "Completed"
-                        );
+                                cancelledLaboratory,
 
+                                // -------------------------------------------------
+                                // PHARMACY STATUS
+                                // -------------------------------------------------
 
-        long cancelledAppointments =
-                appointmentRepository
-                        .countByStatusIgnoreCase(
-                                "Cancelled"
-                        );
+                                waitingPrescriptions,
 
+                                preparedPrescriptions,
 
-        // =================================================
-        // CONSULTATION STATUS
-        // =================================================
+                                dispensedPrescriptions,
 
-        long openConsultations =
-                consultationRepository
-                        .countByStatus(
-                                Consultation.ConsultationStatus.OPEN
-                        );
+                                // -------------------------------------------------
+                                // TODAY'S APPOINTMENTS
+                                // -------------------------------------------------
 
-
-        long completedConsultations =
-                consultationRepository
-                        .countByStatus(
-                                Consultation.ConsultationStatus.COMPLETED
-                        );
-
-
-        long cancelledConsultations =
-                consultationRepository
-                        .countByStatus(
-                                Consultation.ConsultationStatus.CANCELLED
-                        );
-
-
-        // =================================================
-        // RETURN DASHBOARD
-        // =================================================
-
-        return new DashboardResponse(
-
-                // Core
-                totalPatients,
-
-                activeDoctors,
-
-                totalDepartments,
-
-                totalAppointments,
-
-                // Today
-                todaysAppointments,
-
-                todaysConsultations,
-
-                // Pending
-                pendingLaboratoryRequests,
-
-                pendingPharmacyPrescriptions,
-
-                // Inventory
-                lowStockItems,
-
-                expiringItems,
-
-                // Appointment status
-                scheduledAppointments,
-
-                completedAppointments,
-
-                cancelledAppointments,
-
-                // Consultation status
-                openConsultations,
-
-                completedConsultations,
-
-                cancelledConsultations,
-
-                // Laboratory status
-                pendingLaboratory,
-
-                completedLaboratory,
-
-                cancelledLaboratory,
-
-                // Pharmacy status
-                waitingPrescriptions,
-
-                preparedPrescriptions,
-
-                dispensedPrescriptions,
-
-                // Today's appointments
-                todayAppointments
-        );
-    }
+                                todayAppointments);
+        }
 }

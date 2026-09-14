@@ -9,49 +9,46 @@ package com.hms.backend.service.impl;
 import com.hms.backend.entity.HospitalSettings;
 import com.hms.backend.repository.HospitalSettingsRepository;
 import com.hms.backend.service.HospitalSettingsService;
+import com.hms.backend.tenant.context.TenantContext;
+import com.hms.backend.tenant.entity.Tenant;
+import com.hms.backend.tenant.repository.TenantRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.regex.Pattern;
 
-
 @Service
 @Transactional
 public class HospitalSettingsServiceImpl
         implements HospitalSettingsService {
 
-
     // =====================================================
     // EMAIL VALIDATION
     // =====================================================
 
-    private static final Pattern EMAIL_PATTERN =
-        Pattern.compile(
-            "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
-        );
-
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
+            "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
 
     // =====================================================
     // REPOSITORY
     // =====================================================
 
     private final HospitalSettingsRepository repository;
-
+    private final TenantRepository tenantRepository;
 
     // =====================================================
     // CONSTRUCTOR
     // =====================================================
 
     public HospitalSettingsServiceImpl(
-        HospitalSettingsRepository repository
-    ) {
+            HospitalSettingsRepository repository,
+            TenantRepository tenantRepository) {
 
-        this.repository =
-            repository;
+        this.repository = repository;
+        this.tenantRepository = tenantRepository;
 
     }
-
 
     // =====================================================
     // GET SETTINGS
@@ -62,13 +59,11 @@ public class HospitalSettingsServiceImpl
     public HospitalSettings getSettings() {
 
         return repository
-            .findFirstByOrderByIdAsc()
-            .orElseGet(
-                this::createDefaultSettings
-            );
+                .findFirstByTenant_Id(getCurrentTenantId())
+                .orElseGet(
+                        this::createDefaultSettings);
 
     }
-
 
     // =====================================================
     // UPDATE SETTINGS
@@ -77,8 +72,7 @@ public class HospitalSettingsServiceImpl
     @Override
     @Transactional
     public HospitalSettings updateSettings(
-        HospitalSettings settings
-    ) {
+            HospitalSettings settings) {
 
         // -------------------------------------------------
         // Validate request
@@ -87,187 +81,139 @@ public class HospitalSettingsServiceImpl
         if (settings == null) {
 
             throw new IllegalArgumentException(
-                "Hospital settings cannot be null."
-            );
+                    "Hospital settings cannot be null.");
 
         }
-
 
         // -------------------------------------------------
         // Hospital name
         // -------------------------------------------------
 
-        String hospitalName =
-            clean(
-                settings.getHospitalName()
-            );
-
+        String hospitalName = clean(
+                settings.getHospitalName());
 
         if (hospitalName == null) {
 
             throw new IllegalArgumentException(
-                "Hospital name is required."
-            );
+                    "Hospital name is required.");
 
         }
-
 
         if (hospitalName.length() > 200) {
 
             throw new IllegalArgumentException(
-                "Hospital name cannot exceed 200 characters."
-            );
+                    "Hospital name cannot exceed 200 characters.");
 
         }
-
 
         // -------------------------------------------------
         // Email
         // -------------------------------------------------
 
-        String email =
-            clean(
-                settings.getEmail()
-            );
+        String email = clean(
+                settings.getEmail());
 
-
-        if (
-            email != null &&
-            !EMAIL_PATTERN
-                .matcher(email)
-                .matches()
-        ) {
+        if (email != null &&
+                !EMAIL_PATTERN
+                        .matcher(email)
+                        .matches()) {
 
             throw new IllegalArgumentException(
-                "Please provide a valid email address."
-            );
+                    "Please provide a valid email address.");
 
         }
-
 
         // -------------------------------------------------
         // Find existing settings
         // -------------------------------------------------
 
-        HospitalSettings existing =
-            repository
-                .findFirstByOrderByIdAsc()
+        HospitalSettings existing = repository
+                .findFirstByTenant_Id(getCurrentTenantId())
                 .orElseGet(
-                    this::createDefaultSettings
-                );
-
+                        this::createDefaultSettings);
 
         // -------------------------------------------------
         // Update hospital name
         // -------------------------------------------------
 
         existing.setHospitalName(
-            hospitalName
-        );
-
+                hospitalName);
 
         // -------------------------------------------------
         // Registration number
         // -------------------------------------------------
 
         existing.setRegistrationNumber(
-            clean(
-                settings.getRegistrationNumber()
-            )
-        );
-
+                clean(
+                        settings.getRegistrationNumber()));
 
         // -------------------------------------------------
         // Phone
         // -------------------------------------------------
 
         existing.setPhone(
-            clean(
-                settings.getPhone()
-            )
-        );
-
+                clean(
+                        settings.getPhone()));
 
         // -------------------------------------------------
         // Email
         // -------------------------------------------------
 
         existing.setEmail(
-            email
-        );
-
+                email);
 
         // -------------------------------------------------
         // Address
         // -------------------------------------------------
 
         existing.setAddress(
-            clean(
-                settings.getAddress()
-            )
-        );
-
+                clean(
+                        settings.getAddress()));
 
         // -------------------------------------------------
         // City
         // -------------------------------------------------
 
         existing.setCity(
-            clean(
-                settings.getCity()
-            )
-        );
-
+                clean(
+                        settings.getCity()));
 
         // -------------------------------------------------
         // Country
         // -------------------------------------------------
 
-        String country =
-            clean(
-                settings.getCountry()
-            );
-
+        String country = clean(
+                settings.getCountry());
 
         existing.setCountry(
-            country != null
-                ? country
-                : "Uganda"
-        );
-
+                country != null
+                        ? country
+                        : "Uganda");
 
         // -------------------------------------------------
         // Website
         // -------------------------------------------------
 
         existing.setWebsite(
-            clean(
-                settings.getWebsite()
-            )
-        );
-
+                clean(
+                        settings.getWebsite()));
 
         // -------------------------------------------------
         // Logo URL
         // -------------------------------------------------
 
         existing.setLogoUrl(
-            clean(
-                settings.getLogoUrl()
-            )
-        );
-
+                clean(
+                        settings.getLogoUrl()));
 
         // -------------------------------------------------
         // Save
         // -------------------------------------------------
 
         return repository.save(
-            existing
-        );
+                existing);
 
     }
-
 
     // =====================================================
     // RESET SETTINGS
@@ -277,69 +223,47 @@ public class HospitalSettingsServiceImpl
     @Transactional
     public HospitalSettings resetSettings() {
 
-        HospitalSettings settings =
-            repository
-                .findFirstByOrderByIdAsc()
+        HospitalSettings settings = repository
+                .findFirstByTenant_Id(getCurrentTenantId())
                 .orElseGet(
-                    this::createDefaultSettings
-                );
-
+                        this::createDefaultSettings);
 
         // -------------------------------------------------
         // Restore defaults
         // -------------------------------------------------
 
         settings.setHospitalName(
-            "Hospital Management System"
-        );
-
+                "Hospital Management System");
 
         settings.setRegistrationNumber(
-            null
-        );
-
+                null);
 
         settings.setPhone(
-            null
-        );
-
+                null);
 
         settings.setEmail(
-            null
-        );
-
+                null);
 
         settings.setAddress(
-            null
-        );
-
+                null);
 
         settings.setCity(
-            null
-        );
-
+                null);
 
         settings.setCountry(
-            "Uganda"
-        );
-
+                "Uganda");
+        settings.setTenant(getCurrentTenant());
 
         settings.setWebsite(
-            null
-        );
-
+                null);
 
         settings.setLogoUrl(
-            null
-        );
-
+                null);
 
         return repository.save(
-            settings
-        );
+                settings);
 
     }
-
 
     // =====================================================
     // CREATE DEFAULT SETTINGS
@@ -347,34 +271,25 @@ public class HospitalSettingsServiceImpl
 
     private HospitalSettings createDefaultSettings() {
 
-        HospitalSettings settings =
-            new HospitalSettings();
-
+        HospitalSettings settings = new HospitalSettings();
 
         settings.setHospitalName(
-            "Hospital Management System"
-        );
-
+                "Hospital Management System");
 
         settings.setCountry(
-            "Uganda"
-        );
-
+                "Uganda");
 
         return repository.save(
-            settings
-        );
+                settings);
 
     }
-
 
     // =====================================================
     // CLEAN STRING
     // =====================================================
 
     private String clean(
-        String value
-    ) {
+            String value) {
 
         if (value == null) {
 
@@ -382,15 +297,22 @@ public class HospitalSettingsServiceImpl
 
         }
 
-
-        String cleaned =
-            value.trim();
-
+        String cleaned = value.trim();
 
         return cleaned.isEmpty()
-            ? null
-            : cleaned;
+                ? null
+                : cleaned;
 
+    }
+
+    private Long getCurrentTenantId() {
+        return TenantContext.requireTenantId();
+    }
+
+    private Tenant getCurrentTenant() {
+        return tenantRepository.findById(getCurrentTenantId())
+                .orElseThrow(() -> new IllegalStateException(
+                        "Current tenant was not found: " + getCurrentTenantId()));
     }
 
 }

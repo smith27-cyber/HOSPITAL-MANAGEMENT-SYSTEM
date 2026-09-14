@@ -1,5 +1,7 @@
 package com.hms.backend.entity;
 
+import com.hms.backend.tenant.entity.Tenant;
+
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -11,16 +13,30 @@ import java.time.LocalDateTime;
         name = "inventory",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uk_inventory_item_code",
-                        columnNames = "item_code"
+                        name = "uk_inventory_tenant_item_code",
+                        columnNames = {"tenant_id", "item_code"}
+                )
+        },
+        indexes = {
+                @Index(
+                        name = "idx_inventory_tenant",
+                        columnList = "tenant_id"
+                ),
+                @Index(
+                        name = "idx_inventory_tenant_item_code",
+                        columnList = "tenant_id, item_code"
+                ),
+                @Index(
+                        name = "idx_inventory_tenant_category",
+                        columnList = "tenant_id, category"
+                ),
+                @Index(
+                        name = "idx_inventory_tenant_status",
+                        columnList = "tenant_id, status"
                 )
         }
 )
 public class Inventory {
-
-    // =====================================================
-    // ID
-    // =====================================================
 
     @Id
     @Column(
@@ -29,6 +45,16 @@ public class Inventory {
     )
     private String id;
 
+    // =====================================================
+    // TENANT
+    // =====================================================
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "tenant_id",
+            nullable = false
+    )
+    private Tenant tenant;
 
     // =====================================================
     // BASIC INFORMATION
@@ -41,15 +67,12 @@ public class Inventory {
     )
     private String itemName;
 
-
     @Column(
             name = "item_code",
             nullable = false,
-            unique = true,
             length = 100
     )
     private String itemCode;
-
 
     @Column(
             nullable = false,
@@ -57,29 +80,21 @@ public class Inventory {
     )
     private String category;
 
-
     @Column(
             nullable = false,
             length = 50
     )
     private String unit;
 
-
-    @Column(
-            columnDefinition = "TEXT"
-    )
+    @Column(columnDefinition = "TEXT")
     private String description;
 
-
     // =====================================================
-    // STOCK INFORMATION
+    // STOCK
     // =====================================================
 
-    @Column(
-            nullable = false
-    )
+    @Column(nullable = false)
     private Integer quantity = 0;
-
 
     @Column(
             name = "minimum_stock",
@@ -87,12 +102,8 @@ public class Inventory {
     )
     private Integer minimumStock = 0;
 
-
-    @Column(
-            name = "maximum_stock"
-    )
+    @Column(name = "maximum_stock")
     private Integer maximumStock;
-
 
     @Column(
             name = "unit_price",
@@ -102,23 +113,18 @@ public class Inventory {
     )
     private BigDecimal unitPrice = BigDecimal.ZERO;
 
-
     // =====================================================
-    // SUPPLIER INFORMATION
+    // SUPPLIER
     // =====================================================
 
-    @Column(
-            length = 200
-    )
+    @Column(length = 200)
     private String supplier;
-
 
     @Column(
             name = "supplier_contact",
             length = 100
     )
     private String supplierContact;
-
 
     // =====================================================
     // BATCH / EXPIRY
@@ -130,12 +136,8 @@ public class Inventory {
     )
     private String batchNumber;
 
-
-    @Column(
-            name = "expiry_date"
-    )
+    @Column(name = "expiry_date")
     private LocalDate expiryDate;
-
 
     // =====================================================
     // STORAGE
@@ -147,7 +149,6 @@ public class Inventory {
     )
     private String storageLocation;
 
-
     // =====================================================
     // STATUS
     // =====================================================
@@ -158,19 +159,11 @@ public class Inventory {
     )
     private String status;
 
-
-    // =====================================================
-    // NOTES
-    // =====================================================
-
-    @Column(
-            columnDefinition = "TEXT"
-    )
+    @Column(columnDefinition = "TEXT")
     private String notes;
 
-
     // =====================================================
-    // AUDIT DATES
+    // AUDIT
     // =====================================================
 
     @Column(
@@ -179,12 +172,8 @@ public class Inventory {
     )
     private LocalDateTime createdAt;
 
-
-    @Column(
-            name = "updated_at"
-    )
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
 
     // =====================================================
     // PRE-PERSIST
@@ -197,363 +186,194 @@ public class Inventory {
                 LocalDateTime.now();
 
         if (createdAt == null) {
-
             createdAt = now;
-
         }
 
         updatedAt = now;
 
-
         if (quantity == null) {
-
             quantity = 0;
-
         }
-
 
         if (minimumStock == null) {
-
             minimumStock = 0;
-
         }
-
 
         if (unitPrice == null) {
-
             unitPrice = BigDecimal.ZERO;
-
         }
 
-
-        if (status == null ||
-                status.isBlank()) {
-
+        if (status == null || status.isBlank()) {
             status = "In Stock";
-
         }
-
     }
-
-
-    // =====================================================
-    // PRE UPDATE
-    // =====================================================
 
     @PreUpdate
     protected void onUpdate() {
-
-        updatedAt =
-                LocalDateTime.now();
-
+        updatedAt = LocalDateTime.now();
     }
 
-
     // =====================================================
-    // GETTERS AND SETTERS
+    // GETTERS / SETTERS
     // =====================================================
 
     public String getId() {
-
         return id;
-
     }
 
-
-    public void setId(
-            String id
-    ) {
-
+    public void setId(String id) {
         this.id = id;
-
     }
 
+    public Tenant getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(Tenant tenant) {
+        this.tenant = tenant;
+    }
 
     public String getItemName() {
-
         return itemName;
-
     }
 
-
-    public void setItemName(
-            String itemName
-    ) {
-
+    public void setItemName(String itemName) {
         this.itemName = itemName;
-
     }
-
 
     public String getItemCode() {
-
         return itemCode;
-
     }
 
-
-    public void setItemCode(
-            String itemCode
-    ) {
-
+    public void setItemCode(String itemCode) {
         this.itemCode = itemCode;
-
     }
-
 
     public String getCategory() {
-
         return category;
-
     }
 
-
-    public void setCategory(
-            String category
-    ) {
-
+    public void setCategory(String category) {
         this.category = category;
-
     }
-
 
     public String getUnit() {
-
         return unit;
-
     }
 
-
-    public void setUnit(
-            String unit
-    ) {
-
+    public void setUnit(String unit) {
         this.unit = unit;
-
     }
-
 
     public String getDescription() {
-
         return description;
-
     }
 
-
-    public void setDescription(
-            String description
-    ) {
-
+    public void setDescription(String description) {
         this.description = description;
-
     }
-
 
     public Integer getQuantity() {
-
         return quantity;
-
     }
 
-
-    public void setQuantity(
-            Integer quantity
-    ) {
-
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
-
     }
-
 
     public Integer getMinimumStock() {
-
         return minimumStock;
-
     }
 
-
-    public void setMinimumStock(
-            Integer minimumStock
-    ) {
-
+    public void setMinimumStock(Integer minimumStock) {
         this.minimumStock = minimumStock;
-
     }
-
 
     public Integer getMaximumStock() {
-
         return maximumStock;
-
     }
 
-
-    public void setMaximumStock(
-            Integer maximumStock
-    ) {
-
+    public void setMaximumStock(Integer maximumStock) {
         this.maximumStock = maximumStock;
-
     }
-
 
     public BigDecimal getUnitPrice() {
-
         return unitPrice;
-
     }
 
-
-    public void setUnitPrice(
-            BigDecimal unitPrice
-    ) {
-
+    public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
-
     }
-
 
     public String getSupplier() {
-
         return supplier;
-
     }
 
-
-    public void setSupplier(
-            String supplier
-    ) {
-
+    public void setSupplier(String supplier) {
         this.supplier = supplier;
-
     }
-
 
     public String getSupplierContact() {
-
         return supplierContact;
-
     }
 
-
-    public void setSupplierContact(
-            String supplierContact
-    ) {
-
+    public void setSupplierContact(String supplierContact) {
         this.supplierContact = supplierContact;
-
     }
-
 
     public String getBatchNumber() {
-
         return batchNumber;
-
     }
 
-
-    public void setBatchNumber(
-            String batchNumber
-    ) {
-
+    public void setBatchNumber(String batchNumber) {
         this.batchNumber = batchNumber;
-
     }
-
 
     public LocalDate getExpiryDate() {
-
         return expiryDate;
-
     }
 
-
-    public void setExpiryDate(
-            LocalDate expiryDate
-    ) {
-
+    public void setExpiryDate(LocalDate expiryDate) {
         this.expiryDate = expiryDate;
-
     }
-
 
     public String getStorageLocation() {
-
         return storageLocation;
-
     }
 
-
-    public void setStorageLocation(
-            String storageLocation
-    ) {
-
+    public void setStorageLocation(String storageLocation) {
         this.storageLocation = storageLocation;
-
     }
-
 
     public String getStatus() {
-
         return status;
-
     }
 
-
-    public void setStatus(
-            String status
-    ) {
-
+    public void setStatus(String status) {
         this.status = status;
-
     }
-
 
     public String getNotes() {
-
         return notes;
-
     }
 
-
-    public void setNotes(
-            String notes
-    ) {
-
+    public void setNotes(String notes) {
         this.notes = notes;
-
     }
-
 
     public LocalDateTime getCreatedAt() {
-
         return createdAt;
-
     }
 
-
-    public void setCreatedAt(
-            LocalDateTime createdAt
-    ) {
-
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-
     }
-
 
     public LocalDateTime getUpdatedAt() {
-
         return updatedAt;
-
     }
 
-
-    public void setUpdatedAt(
-            LocalDateTime updatedAt
-    ) {
-
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-
     }
-
 }
