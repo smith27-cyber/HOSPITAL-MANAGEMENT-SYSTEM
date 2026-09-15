@@ -7,6 +7,7 @@
 package com.hms.backend.config;
 
 import com.hms.backend.auth.security.JwtAuthenticationFilter;
+import com.hms.backend.platform.filter.ModuleAccessFilter;
 import com.hms.backend.tenant.security.TenantContextFilter;
 
 import java.util.List;
@@ -28,7 +29,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-
 // =====================================================
 // CONFIGURATION
 // =====================================================
@@ -49,23 +49,27 @@ public class SecurityConfig {
 
     private final TenantContextFilter tenantContextFilter;
 
+    // =====================================================
+    // MODULE ACCESS FILTER
+    // =====================================================
+
+    private final ModuleAccessFilter moduleAccessFilter;
 
     // =====================================================
     // CONSTRUCTOR
     // =====================================================
 
     public SecurityConfig(
-        JwtAuthenticationFilter jwtAuthenticationFilter,
-        TenantContextFilter tenantContextFilter
-    ) {
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            TenantContextFilter tenantContextFilter,
+            ModuleAccessFilter moduleAccessFilter) {
 
-        this.jwtAuthenticationFilter =
-            jwtAuthenticationFilter;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 
-        this.tenantContextFilter =
-            tenantContextFilter;
+        this.tenantContextFilter = tenantContextFilter;
+
+        this.moduleAccessFilter = moduleAccessFilter;
     }
-
 
     // =====================================================
     // SECURITY FILTER CHAIN
@@ -73,259 +77,227 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(
-        HttpSecurity http
-    ) throws Exception {
+            HttpSecurity http) throws Exception {
 
         http
 
-            // =================================================
-            // CSRF
-            // =================================================
+                // =================================================
+                // CSRF
+                // =================================================
 
-            .csrf(
-                AbstractHttpConfigurer::disable
-            )
+                .csrf(
+                        AbstractHttpConfigurer::disable)
 
+                // =================================================
+                // CORS
+                // =================================================
 
-            // =================================================
-            // CORS
-            // =================================================
+                .cors(
+                        cors -> cors.configurationSource(
+                                corsConfigurationSource()))
 
-            .cors(
-                cors ->
-                    cors.configurationSource(
-                        corsConfigurationSource()
-                    )
-            )
+                // =================================================
+                // SESSION MANAGEMENT
+                // =================================================
 
+                .sessionManagement(
+                        session -> session.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS))
 
-            // =================================================
-            // SESSION MANAGEMENT
-            // =================================================
+                // =================================================
+                // AUTHORIZATION
+                // =================================================
 
-            .sessionManagement(
-                session ->
-                    session.sessionCreationPolicy(
-                        SessionCreationPolicy.STATELESS
-                    )
-            )
+                .authorizeHttpRequests(
+                        auth -> auth
 
+                                // -----------------------------------------
+                                // PUBLIC AUTHENTICATION ENDPOINTS
+                                // -----------------------------------------
 
-            // =================================================
-            // AUTHORIZATION
-            // =================================================
+                                .requestMatchers(
+                                        "/api/auth/**")
+                                .permitAll()
 
-            .authorizeHttpRequests(
-                auth -> auth
+                                // -----------------------------------------
+                                // PUBLIC HEALTH CHECK
+                                // -----------------------------------------
 
-                    // -----------------------------------------
-                    // PUBLIC AUTHENTICATION ENDPOINTS
-                    // -----------------------------------------
+                                .requestMatchers(
+                                        "/api/health")
+                                .permitAll()
 
-                    .requestMatchers(
-                        "/api/auth/**"
-                    )
-                    .permitAll()
+                                // -----------------------------------------
+                                // CORS PREFLIGHT
+                                // -----------------------------------------
 
+                                .requestMatchers(
+                                        HttpMethod.OPTIONS,
+                                        "/**")
+                                .permitAll()
 
-                    // -----------------------------------------
-                    // PUBLIC HEALTH CHECK
-                    // -----------------------------------------
+                                // -----------------------------------------
+                                // SPRING ERROR ENDPOINT
+                                // -----------------------------------------
 
-                    .requestMatchers(
-                        "/api/health"
-                    )
-                    .permitAll()
+                                .requestMatchers(
+                                        "/error")
+                                .permitAll()
 
+                                // -----------------------------------------
+                                // ANGULAR FRONTEND
+                                // -----------------------------------------
 
-                    // -----------------------------------------
-                    // CORS PREFLIGHT
-                    // -----------------------------------------
+                                .requestMatchers(
 
-                    .requestMatchers(
-                        HttpMethod.OPTIONS,
-                        "/**"
-                    )
-                    .permitAll()
+                                        // =====================================
+                                        // ANGULAR ENTRY POINT
+                                        // =====================================
 
+                                        "/",
+                                        "/index.html",
+                                        "/favicon.ico",
 
-                    // -----------------------------------------
-                    // SPRING ERROR ENDPOINT
-                    // -----------------------------------------
-                    //
-                    // Important:
-                    //
-                    // When a controller/service returns a 404,
-                    // Spring Boot may dispatch through /error.
-                    //
-                    // If /error is protected, Spring Security
-                    // can replace the original 404 with 403.
-                    //
-                    // We permit the error endpoint so the
-                    // original HTTP status is preserved.
-                    // -----------------------------------------
+                                        // =====================================
+                                        // ANGULAR STATIC FILES
+                                        // =====================================
 
-                    .requestMatchers(
-                        "/error"
-                    )
-                    .permitAll()
+                                        "/assets/**",
 
+                                        "/*.js",
+                                        "/*.css",
+                                        "/*.ico",
+                                        "/*.png",
+                                        "/*.jpg",
+                                        "/*.jpeg",
+                                        "/*.svg",
+                                        "/*.webp",
+                                        "/*.woff",
+                                        "/*.woff2",
+                                        "/*.ttf",
 
-                    // -----------------------------------------
-                    // ANGULAR FRONTEND
-                    // -----------------------------------------
-                    //
-                    // Spring Boot serves the Angular application
-                    // from src/main/resources/static/.
-                    //
-                    // These frontend resources/routes must be
-                    // publicly accessible so the login page can
-                    // load before authentication.
-                    // -----------------------------------------
+                                        // =====================================
+                                        // ANGULAR APPLICATION ROUTES
+                                        // =====================================
 
-                    .requestMatchers(
+                                        "/login",
 
-                        // =====================================
-                        // ANGULAR ENTRY POINT
-                        // =====================================
+                                        "/dashboard",
 
-                        "/",
-                        "/index.html",
-                        "/favicon.ico",
+                                        "/patients",
+                                        "/patients/**",
 
+                                        "/doctors",
+                                        "/doctors/**",
 
-                        // =====================================
-                        // ANGULAR STATIC FILES
-                        // =====================================
+                                        "/departments",
+                                        "/departments/**",
 
-                        "/assets/**",
+                                        "/appointments",
+                                        "/appointments/**",
 
-                        "/*.js",
-                        "/*.css",
-                        "/*.ico",
-                        "/*.png",
-                        "/*.jpg",
-                        "/*.jpeg",
-                        "/*.svg",
-                        "/*.webp",
-                        "/*.woff",
-                        "/*.woff2",
-                        "/*.ttf",
+                                        "/consultations",
+                                        "/consultations/**",
 
+                                        "/pharmacy",
+                                        "/pharmacy/**",
 
-                        // =====================================
-                        // ANGULAR APPLICATION ROUTES
-                        // =====================================
+                                        "/laboratory",
+                                        "/laboratory/**",
 
-                        "/login",
+                                        "/admissions",
+                                        "/admissions/**",
 
-                        "/dashboard",
+                                        "/billing",
+                                        "/billing/**",
 
-                        "/patients",
-                        "/patients/**",
+                                        "/inventory",
+                                        "/inventory/**",
 
-                        "/doctors",
-                        "/doctors/**",
+                                        "/reports",
+                                        "/reports/**",
 
-                        "/departments",
-                        "/departments/**",
+                                        "/settings",
+                                        "/settings/**",
+                                        // =====================================
+                                        // OLIVES TECH PLATFORM
+                                        // =====================================
 
-                        "/appointments",
-                        "/appointments/**",
+                                        "/platform",
+                                        "/platform/**")
+                                .permitAll()
 
-                        "/consultations",
-                        "/consultations/**",
+                                // -----------------------------------------
+                                // EVERYTHING ELSE
+                                // -----------------------------------------
 
-                        "/pharmacy",
-                        "/pharmacy/**",
+                                .anyRequest()
+                                .authenticated())
 
-                        "/laboratory",
-                        "/laboratory/**",
+                // =================================================
+                // JWT AUTHENTICATION FILTER
+                // =================================================
+                //
+                // 1. Validate JWT
+                // 2. Extract roles
+                // 3. Extract permissions
+                // 4. Create SecurityContext
+                //
+                // =================================================
 
-                        "/admissions",
-                        "/admissions/**",
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class)
 
-                        "/billing",
-                        "/billing/**",
+                // =================================================
+                // TENANT CONTEXT FILTER
+                // =================================================
+                //
+                // JWT
+                // ↓
+                // JwtAuthenticationFilter
+                // ↓
+                // TenantContextFilter
+                // ↓
+                // ModuleAccessFilter
+                // ↓
+                // Controller
+                //
+                // =================================================
 
-                        "/inventory",
-                        "/inventory/**",
+                .addFilterAfter(
+                        tenantContextFilter,
+                        JwtAuthenticationFilter.class)
 
-                        "/reports",
-                        "/reports/**",
+                // =================================================
+                // MODULE ACCESS FILTER
+                // =================================================
+                //
+                // Checks whether the current tenant has the
+                // requested HMS module enabled.
+                //
+                // Example:
+                //
+                // Atamba Pharmacy
+                // Pharmacy ✅
+                // Billing ✅
+                // Inventory ✅
+                // Laboratory ❌
+                //
+                // A request to:
+                //
+                // /api/laboratory/tests
+                //
+                // will therefore return 403.
+                //
+                // =================================================
 
-                        "/settings",
-                        "/settings/**"
-                    )
-                    .permitAll()
-
-
-                    // -----------------------------------------
-                    // EVERYTHING ELSE
-                    // -----------------------------------------
-                    //
-                    // API endpoints and other protected
-                    // resources require authentication.
-                    //
-                    // Fine-grained authorization is handled
-                    // by @PreAuthorize on controllers.
-                    // -----------------------------------------
-
-                    .anyRequest()
-                    .authenticated()
-            )
-
-
-            // =================================================
-            // JWT AUTHENTICATION FILTER
-            // =================================================
-            //
-            // Runs first to:
-            //
-            // 1. Validate JWT
-            // 2. Extract roles
-            // 3. Extract permissions
-            // 4. Create SecurityContext
-            //
-            // =================================================
-
-            .addFilterBefore(
-                jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter.class
-            )
-
-
-            // =================================================
-            // TENANT CONTEXT FILTER
-            // =================================================
-            //
-            // Runs after the JWT authentication filter.
-            //
-            // Flow:
-            //
-            // JWT
-            //   ↓
-            // JwtAuthenticationFilter
-            //   ↓
-            // TenantContextFilter
-            //   ↓
-            // Controller
-            //   ↓
-            // Service
-            //   ↓
-            // Tenant-aware Repository
-            //
-            // =================================================
-
-            .addFilterAfter(
-                tenantContextFilter,
-                JwtAuthenticationFilter.class
-            );
-
+                .addFilterAfter(
+                        moduleAccessFilter,
+                        TenantContextFilter.class);
 
         return http.build();
     }
-
 
     // =====================================================
     // GLOBAL CORS CONFIGURATION
@@ -334,91 +306,68 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
-        CorsConfiguration configuration =
-            new CorsConfiguration();
-
+        CorsConfiguration configuration = new CorsConfiguration();
 
         // =================================================
         // FRONTEND
         // =================================================
 
         configuration.setAllowedOrigins(
-            List.of(
-                "http://localhost:4200"
-            )
-        );
-
-
+                List.of(
+                         "http://localhost:4200"));
         // =================================================
         // METHODS
         // =================================================
 
         configuration.setAllowedMethods(
-            List.of(
-                "GET",
-                "POST",
-                "PUT",
-                "PATCH",
-                "DELETE",
-                "OPTIONS"
-            )
-        );
-
+                List.of(
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "PATCH",
+                        "DELETE",
+                        "OPTIONS"));
 
         // =================================================
         // HEADERS
         // =================================================
 
         configuration.setAllowedHeaders(
-            List.of(
-                "*"
-            )
-        );
-
+                List.of(
+                        "*"));
 
         // =================================================
         // EXPOSED HEADERS
         // =================================================
 
         configuration.setExposedHeaders(
-            List.of(
-                "Authorization",
-                "Content-Type"
-            )
-        );
-
+                List.of(
+                        "Authorization",
+                        "Content-Type"));
 
         // =================================================
         // CREDENTIALS
         // =================================================
 
         configuration.setAllowCredentials(
-            false
-        );
-
+                false);
 
         // =================================================
         // PREFLIGHT CACHE
         // =================================================
 
         configuration.setMaxAge(
-            3600L
-        );
-
+                3600L);
 
         // =================================================
         // REGISTER CORS
         // =================================================
 
-        UrlBasedCorsConfigurationSource source =
-            new UrlBasedCorsConfigurationSource();
-
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
         source.registerCorsConfiguration(
-            "/**",
-            configuration
-        );
-
+                "/**",
+                configuration);
 
         return source;
     }

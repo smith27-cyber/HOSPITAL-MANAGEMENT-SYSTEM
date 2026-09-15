@@ -1,0 +1,453 @@
+/* =====================================================
+   CREATE PLATFORM TENANT
+   File:
+   src/app/platform/tenants/create-tenant/create-tenant.css
+   ===================================================== */
+
+.create-tenant-page {
+  max-width: 1050px;
+  margin: 0 auto;
+}
+
+
+/* =====================================================
+   PAGE HEADER
+   ===================================================== */
+
+.page-header {
+  margin-bottom: 26px;
+}
+
+.back-link {
+  display: inline-block;
+
+  margin-bottom: 14px;
+
+  color: #6d805f;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: #4f6845;
+}
+
+.eyebrow {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #789b62;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 1.2px;
+}
+
+.page-title h1 {
+  margin: 0;
+
+  color: #1d2922;
+
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.page-title p {
+  margin: 7px 0 0;
+
+  color: #717b75;
+
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   MESSAGES
+   ===================================================== */
+
+.success-card,
+.error-card {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 18px;
+
+  padding: 14px 16px;
+
+  border-radius: 10px;
+}
+
+.success-card {
+  border: 1px solid #d4e4d2;
+  background: #f1f7f0;
+  color: #4c7049;
+}
+
+.error-card {
+  border: 1px solid #ead6d6;
+  background: #faf2f2;
+  color: #814d4d;
+}
+
+.message-icon {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  font-weight: 700;
+}
+
+.success-card .message-icon {
+  background: #dcebd9;
+}
+
+.error-card .message-icon {
+  background: #f0dcdc;
+}
+
+.message-content {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.message-content span {
+  font-size: 12px;
+}
+
+
+/* =====================================================
+   FORM CARD
+   ===================================================== */
+
+.form-card {
+  margin-bottom: 18px;
+
+  padding: 22px;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e7e3;
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 2px 8px rgba(27, 43, 34, 0.04);
+}
+
+
+/* =====================================================
+   SECTION HEADER
+   ===================================================== */
+
+.section-header {
+  margin-bottom: 22px;
+
+  padding-bottom: 15px;
+
+  border-bottom: 1px solid #edf0ee;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 11px;
+}
+
+.section-number {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 7px;
+
+  background: #edf3eb;
+
+  color: #668953;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.section-header h2 {
+  margin: 1px 0 3px;
+
+  color: #344039;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.section-header p {
+  margin: 0;
+
+  color: #8a938e;
+
+  font-size: 11px;
+}
+
+
+/* =====================================================
+   FORM GRID
+   ===================================================== */
+
+.form-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 18px;
+}
+
+.form-field {
+  min-width: 0;
+}
+
+.form-field-wide {
+  grid-column: 1 / -1;
+}
+
+
+/* =====================================================
+   LABELS
+   ===================================================== */
+
+.form-field label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #4f5c54;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.required {
+  color: #9a5c5c;
+}
+
+
+/* =====================================================
+   INPUTS
+   ===================================================== */
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  border: 1px solid #dce2de;
+
+  border-radius: 7px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #29362e;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.form-field input,
+.form-field select {
+  height: 42px;
+
+  padding: 0 12px;
+}
+
+.form-field textarea {
+  padding: 11px 12px;
+
+  resize: vertical;
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+  color: #a0a8a3;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  border-color: #8aa477;
+
+  box-shadow:
+    0 0 0 3px rgba(102, 137, 83, 0.10);
+}
+
+.form-field small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #929b96;
+
+  font-size: 10px;
+
+  line-height: 1.4;
+}
+
+
+/* =====================================================
+   ACTIONS
+   ===================================================== */
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 9px;
+
+  padding: 4px 0 20px;
+}
+
+.cancel-button,
+.reset-button,
+.save-button {
+  height: 40px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 16px;
+
+  border-radius: 7px;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  text-decoration: none;
+}
+
+.cancel-button {
+  border: 1px solid #d8dfda;
+
+  background: #ffffff;
+
+  color: #65716a;
+}
+
+.cancel-button:hover {
+  background: #f4f6f5;
+}
+
+.reset-button {
+  border: 1px solid #d8dfda;
+
+  background: #ffffff;
+
+  color: #65716a;
+}
+
+.reset-button:hover:not(:disabled) {
+  background: #f4f6f5;
+}
+
+.save-button {
+  min-width: 125px;
+
+  border: none;
+
+  background: #668953;
+
+  color: #ffffff;
+}
+
+.save-button:hover:not(:disabled) {
+  background: #587846;
+}
+
+.reset-button:disabled,
+.save-button:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 700px) {
+
+  .create-tenant-page {
+    width: 100%;
+  }
+
+  .form-card {
+    padding: 17px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-field-wide {
+    grid-column: auto;
+  }
+
+  .form-actions {
+    flex-wrap: wrap;
+  }
+
+  .cancel-button,
+  .reset-button,
+  .save-button {
+    flex: 1;
+  }
+}
+
+
+@media (max-width: 450px) {
+
+  .page-title h1 {
+    font-size: 23px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .cancel-button,
+  .reset-button,
+  .save-button {
+    width: 100%;
+  }
+}

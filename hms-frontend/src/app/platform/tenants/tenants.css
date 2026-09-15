@@ -1,0 +1,494 @@
+/* =====================================================
+   PLATFORM TENANTS
+   ===================================================== */
+
+.tenants-page {
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  color: #718044;
+  margin-bottom: 8px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+  color: #20261d;
+}
+
+.page-header p {
+  margin: 8px 0 0;
+  color: #6f756c;
+  font-size: 14px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+
+/* =====================================================
+   BUTTONS
+   ===================================================== */
+
+.btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #68763d;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #596633;
+}
+
+.btn-secondary {
+  background: white;
+  color: #4c5545;
+  border: 1px solid #dfe3da;
+}
+
+.btn-secondary:hover {
+  background: #f6f7f3;
+}
+
+
+/* =====================================================
+   FILTERS
+   ===================================================== */
+
+.filters-panel {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 180px 180px auto;
+  gap: 12px;
+  padding: 16px;
+  background: white;
+  border: 1px solid #e5e8df;
+  border-radius: 14px;
+  margin-bottom: 18px;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  border: 1px solid #dfe3da;
+  border-radius: 9px;
+  background: #fafbf8;
+}
+
+.search-icon {
+  padding-left: 12px;
+  color: #7a8272;
+  font-size: 18px;
+}
+
+.search-box input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  padding: 11px 12px 11px 8px;
+  font-size: 13px;
+}
+
+.filters-panel select {
+  border: 1px solid #dfe3da;
+  border-radius: 9px;
+  padding: 0 12px;
+  background: #fafbf8;
+  color: #3f463a;
+  outline: none;
+}
+
+.clear-button {
+  border: 0;
+  background: transparent;
+  color: #68763d;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0 10px;
+}
+
+
+/* =====================================================
+   ERROR
+   ===================================================== */
+
+.error-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 18px;
+  margin-bottom: 18px;
+  background: #fff7f7;
+  border: 1px solid #efd5d5;
+  border-radius: 12px;
+  color: #9a4040;
+}
+
+.error-card button {
+  border: 0;
+  background: transparent;
+  color: #8c3434;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+
+/* =====================================================
+   TABLE
+   ===================================================== */
+
+.table-panel {
+  background: white;
+  border: 1px solid #e5e8df;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.table-header {
+  padding: 20px 22px;
+  border-bottom: 1px solid #edf0e9;
+}
+
+.table-header h2 {
+  margin: 0 0 4px;
+  font-size: 17px;
+  color: #262c23;
+}
+
+.table-header span {
+  font-size: 12px;
+  color: #858b81;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  padding: 13px 18px;
+  background: #fafbf8;
+  border-bottom: 1px solid #e5e8df;
+  color: #7b8274;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+}
+
+td {
+  padding: 15px 18px;
+  border-bottom: 1px solid #eef0eb;
+  color: #3c4338;
+  font-size: 13px;
+}
+
+tbody tr:hover {
+  background: #fbfcfa;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+
+/* =====================================================
+   TENANT CELL
+   ===================================================== */
+
+.tenant-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tenant-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: #eef1e5;
+  color: #68763d;
+  font-weight: 800;
+}
+
+.tenant-cell strong {
+  display: block;
+  color: #282e25;
+  font-size: 13px;
+}
+
+.tenant-cell small {
+  display: block;
+  margin-top: 3px;
+  color: #8a9086;
+  font-size: 11px;
+}
+
+
+/* =====================================================
+   TYPE
+   ===================================================== */
+
+.type-badge {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 7px;
+  background: #f2f4ee;
+  color: #626b59;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+
+/* =====================================================
+   STATUS
+   ===================================================== */
+
+.status-badge {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.status-badge.trial {
+  background: #fff5dc;
+  color: #936c1e;
+}
+
+.status-badge.active {
+  background: #e9f5ea;
+  color: #397143;
+}
+
+.status-badge.grace-period {
+  background: #f1edff;
+  color: #6951a2;
+}
+
+.status-badge.suspended {
+  background: #fff0e9;
+  color: #a34f31;
+}
+
+.status-badge.cancelled,
+.status-badge.expired {
+  background: #f1f1f1;
+  color: #777;
+}
+
+
+/* =====================================================
+   LOCATION
+   ===================================================== */
+
+.location-cell span {
+  display: block;
+}
+
+.location-cell small {
+  color: #92978e;
+  font-size: 11px;
+}
+
+
+/* =====================================================
+   DATE
+   ===================================================== */
+
+.date {
+  color: #777e73;
+  white-space: nowrap;
+}
+
+
+/* =====================================================
+   VIEW
+   ===================================================== */
+
+.view-link {
+  color: #68763d;
+  text-decoration: none;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.view-link:hover {
+  text-decoration: underline;
+}
+
+
+/* =====================================================
+   LOADING
+   ===================================================== */
+
+.loading-card {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #e5e8df;
+  border-radius: 14px;
+}
+
+.loading-card p {
+  color: #777e73;
+  font-size: 13px;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #e5e8df;
+  border-top-color: #68763d;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =====================================================
+   EMPTY
+   ===================================================== */
+
+.empty-state {
+  text-align: center;
+  padding: 70px 20px;
+}
+
+.empty-icon {
+  font-size: 34px;
+  margin-bottom: 12px;
+}
+
+.empty-state h3 {
+  margin: 0;
+  color: #30362d;
+}
+
+.empty-state p {
+  color: #80867c;
+  font-size: 13px;
+  margin: 8px 0 20px;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 900px) {
+
+  .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .filters-panel {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .search-box {
+    grid-column: 1 / -1;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .page-header h1 {
+    font-size: 26px;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .header-actions .btn {
+    flex: 1;
+  }
+
+  .filters-panel {
+    grid-template-columns: 1fr;
+  }
+
+}
+.tenant-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modules-link {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 6px 10px;
+
+  border: 1px solid #d5e0d8;
+  border-radius: 6px;
+
+  background: #f4f8f5;
+
+  color: #456a50;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  text-decoration: none;
+
+  transition:
+    background .15s ease,
+    border-color .15s ease;
+}
+
+.modules-link:hover {
+  background: #e8f1ea;
+  border-color: #bfd2c3;
+}

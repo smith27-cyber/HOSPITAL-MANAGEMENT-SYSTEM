@@ -1,0 +1,279 @@
+<div class="tenant-modules-page">
+
+  <!-- HEADER -->
+
+  <header class="page-header">
+
+    <div>
+
+      <div class="eyebrow">
+        OLIVES TECH PLATFORM
+      </div>
+
+      <h1>
+        Tenant Modules
+      </h1>
+
+      <p *ngIf="tenant">
+        Control the HMS features available to
+        <strong>{{ tenant.name }}</strong>.
+      </p>
+
+    </div>
+
+    <a
+      routerLink="/platform/tenants"
+      class="btn btn-secondary"
+    >
+      ← Back to Tenants
+    </a>
+
+  </header>
+
+
+  <!-- LOADING -->
+
+  <section
+    *ngIf="loading"
+    class="loading-card"
+  >
+
+    <div class="spinner"></div>
+
+    <p>
+      Loading tenant modules...
+    </p>
+
+  </section>
+
+
+  <!-- ERROR -->
+
+  <section
+    *ngIf="!loading && errorMessage"
+    class="error-card"
+  >
+
+    <div>
+      <strong>
+        Unable to load tenant modules
+      </strong>
+
+      <p>
+        {{ errorMessage }}
+      </p>
+    </div>
+
+    <button
+      type="button"
+      (click)="
+        tenant &&
+        loadTenant(tenant.id)
+      "
+    >
+      Try Again
+    </button>
+
+  </section>
+
+
+  <div
+    *ngIf="!loading && !errorMessage && tenant"
+  >
+
+
+    <!-- TENANT SUMMARY -->
+
+    <section class="tenant-summary">
+
+      <div class="tenant-avatar">
+        {{ tenant.name.charAt(0) }}
+      </div>
+
+      <div class="tenant-info">
+
+        <span class="tenant-code">
+          {{ tenant.code }}
+        </span>
+
+        <h2>
+          {{ tenant.name }}
+        </h2>
+
+        <span class="tenant-type">
+          {{ tenant.type }}
+        </span>
+
+      </div>
+
+    </section>
+
+
+    <!-- SUCCESS -->
+
+    <div
+      *ngIf="successMessage"
+      class="success-card"
+    >
+      ✓ {{ successMessage }}
+    </div>
+
+
+    <!-- COUNTS -->
+
+    <section class="stats-grid">
+
+      <div class="stat-card">
+
+        <span>
+          Total Modules
+        </span>
+
+        <strong>
+          {{ modules.length }}
+        </strong>
+
+      </div>
+
+
+      <div class="stat-card enabled">
+
+        <span>
+          Enabled
+        </span>
+
+        <strong>
+          {{ enabledCount() }}
+        </strong>
+
+      </div>
+
+
+      <div class="stat-card disabled">
+
+        <span>
+          Disabled
+        </span>
+
+        <strong>
+          {{ disabledCount() }}
+        </strong>
+
+      </div>
+
+    </section>
+
+
+    <!-- MODULES -->
+
+    <section class="modules-card">
+
+      <div class="section-header">
+
+        <div>
+
+          <h2>
+            Module Entitlements
+          </h2>
+
+          <p>
+            Enable or disable individual HMS features
+            for this tenant.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="modules-list">
+
+        <article
+          *ngFor="
+            let module of modules;
+            trackBy: trackByModuleId
+          "
+          class="module-row"
+          [class.enabled]="
+            isModuleEnabled(module.id)
+          "
+          [class.disabled]="
+            !isModuleEnabled(module.id)
+          "
+        >
+
+          <div class="module-icon">
+
+            {{ module.name.charAt(0) }}
+
+          </div>
+
+
+          <div class="module-details">
+
+            <h3>
+              {{ module.name }}
+            </h3>
+
+            <span class="module-code">
+              {{ module.code }}
+            </span>
+
+            <p *ngIf="module.description">
+              {{ module.description }}
+            </p>
+
+          </div>
+
+
+          <div class="module-status">
+
+            <span
+              class="status-label"
+              [class.active]="
+                isModuleEnabled(module.id)
+              "
+              [class.inactive]="
+                !isModuleEnabled(module.id)
+              "
+            >
+              {{
+                isModuleEnabled(module.id)
+                  ? 'Enabled'
+                  : 'Disabled'
+              }}
+            </span>
+
+
+            <button
+              type="button"
+              class="toggle"
+              [class.on]="
+                isModuleEnabled(module.id)
+              "
+              [disabled]="
+                savingModuleId === module.id
+              "
+              (click)="toggleModule(module)"
+              [attr.aria-label]="
+                isModuleEnabled(module.id)
+                  ? 'Disable module'
+                  : 'Enable module'
+              "
+            >
+
+              <span class="toggle-knob"></span>
+
+            </button>
+
+          </div>
+
+        </article>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</div>

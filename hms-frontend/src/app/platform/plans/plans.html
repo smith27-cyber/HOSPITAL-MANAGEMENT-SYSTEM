@@ -1,0 +1,306 @@
+<div class="plans-page">
+
+  <!-- ================================================= -->
+  <!-- PAGE HEADER -->
+  <!-- ================================================= -->
+
+  <header class="page-header">
+
+    <div>
+
+      <div class="eyebrow">
+        OLIVES TECH PLATFORM
+      </div>
+
+      <h1>Plans</h1>
+
+      <p>
+        Manage subscription plans offered to organizations
+        using the Olives Tech HMS platform.
+      </p>
+
+    </div>
+
+    <div class="header-actions">
+
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="loadPlans()"
+        [disabled]="loading">
+
+        ↻ Refresh
+
+      </button>
+
+      <a
+        class="btn btn-primary"
+        routerLink="/platform/plans/create">
+
+        + Create Plan
+
+      </a>
+
+    </div>
+
+  </header>
+
+
+  <!-- ================================================= -->
+  <!-- ERROR -->
+  <!-- ================================================= -->
+
+  <div
+    *ngIf="errorMessage"
+    class="error-card">
+
+    <div>
+
+      {{ errorMessage }}
+
+    </div>
+
+    <button
+      type="button"
+      (click)="loadPlans()">
+
+      Try Again
+
+    </button>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- LOADING -->
+  <!-- ================================================= -->
+
+  <section
+    *ngIf="loading"
+    class="loading-card">
+
+    <div class="spinner"></div>
+
+    <p>
+      Loading plans...
+    </p>
+
+  </section>
+
+
+  <!-- ================================================= -->
+  <!-- EMPTY -->
+  <!-- ================================================= -->
+
+  <section
+    *ngIf="!loading && plans.length === 0"
+    class="empty-card">
+
+    <div class="empty-icon">
+      📋
+    </div>
+
+    <h2>No plans found</h2>
+
+    <p>
+      There are currently no subscription plans configured.
+    </p>
+
+    <a
+      class="btn btn-primary"
+      routerLink="/platform/plans/create">
+
+      + Create First Plan
+
+    </a>
+
+  </section>
+
+
+  <!-- ================================================= -->
+  <!-- PLANS -->
+  <!-- ================================================= -->
+
+  <section
+    *ngIf="!loading && plans.length > 0"
+    class="plans-grid">
+
+    <article
+      class="plan-card"
+      *ngFor="
+        let plan of plans;
+        trackBy: trackByPlanId
+      ">
+
+      <!-- ============================================= -->
+      <!-- PLAN HEADER -->
+      <!-- ============================================= -->
+
+      <div class="plan-header">
+
+        <div>
+
+          <span class="plan-code">
+            {{ plan.code }}
+          </span>
+
+          <h2>
+            {{ plan.name }}
+          </h2>
+
+        </div>
+
+        <span
+          class="status-badge"
+          [class.active]="plan.active"
+          [class.inactive]="!plan.active">
+
+          {{ plan.active ? 'Active' : 'Inactive' }}
+
+        </span>
+
+      </div>
+
+
+      <!-- ============================================= -->
+      <!-- DESCRIPTION -->
+      <!-- ============================================= -->
+
+      <p
+        class="plan-description"
+        *ngIf="plan.description">
+
+        {{ plan.description }}
+
+      </p>
+
+      <p
+        class="plan-description muted"
+        *ngIf="!plan.description">
+
+        No description provided.
+
+      </p>
+
+
+      <!-- ============================================= -->
+      <!-- PRICE -->
+      <!-- ============================================= -->
+
+      <div class="price-section">
+
+        <strong>
+          {{ formatCurrency(plan.price, plan.currency) }}
+        </strong>
+
+        <span>
+          / {{ formatBillingCycle(plan.billingCycle) }}
+        </span>
+
+      </div>
+
+
+      <!-- ============================================= -->
+      <!-- PLAN INFORMATION -->
+      <!-- ============================================= -->
+
+      <div class="plan-info">
+
+        <div class="info-item">
+
+          <span class="info-label">
+            Trial
+          </span>
+
+          <strong>
+            {{ plan.trialDays }} days
+          </strong>
+
+        </div>
+
+
+        <div class="info-item">
+
+          <span class="info-label">
+            Modules
+          </span>
+
+          <strong>
+            {{ getModuleCount(plan) }}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <!-- ============================================= -->
+      <!-- MODULES -->
+      <!-- ============================================= -->
+
+      <div class="modules-section">
+
+        <div class="section-title">
+          Included Modules
+        </div>
+
+        <div
+          *ngIf="plan.modules?.length"
+          class="module-list">
+
+          <span
+            class="module-badge"
+            *ngFor="let module of plan.modules">
+
+            {{ module.name }}
+
+          </span>
+
+        </div>
+
+        <div
+          *ngIf="!plan.modules?.length"
+          class="no-modules">
+
+          No modules assigned.
+
+        </div>
+
+      </div>
+
+
+      <!-- ============================================= -->
+      <!-- ACTIONS -->
+      <!-- ============================================= -->
+
+      <div class="plan-actions">
+
+        <button
+          type="button"
+          class="action-button"
+          [disabled]="updatingPlanId === plan.id"
+          (click)="togglePlan(plan)">
+
+          <span
+            *ngIf="updatingPlanId === plan.id">
+
+            Updating...
+
+          </span>
+
+          <span
+            *ngIf="updatingPlanId !== plan.id">
+
+            {{ plan.active ? 'Deactivate' : 'Activate' }}
+
+          </span>
+
+        </button>
+
+      </div>
+
+    </article>
+
+  </section>
+
+</div>

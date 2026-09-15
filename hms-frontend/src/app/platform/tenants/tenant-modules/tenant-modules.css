@@ -1,0 +1,581 @@
+.tenant-modules-page {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  gap: 24px;
+  margin-bottom: 26px;
+}
+
+.eyebrow {
+  margin-bottom: 7px;
+
+  color: #607d68;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  letter-spacing: 1.4px;
+}
+
+.page-header h1 {
+  margin: 0;
+
+  color: #18231d;
+
+  font-size: 30px;
+}
+
+.page-header p {
+  margin: 8px 0 0;
+
+  color: #6b756e;
+
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   BUTTON
+   ===================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 42px;
+  padding: 0 17px;
+
+  border-radius: 8px;
+
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.btn-secondary {
+  border: 1px solid #d3dcd5;
+
+  background: #ffffff;
+
+  color: #445149;
+}
+
+.btn-secondary:hover {
+  background: #f5f7f5;
+}
+
+
+/* =====================================================
+   TENANT SUMMARY
+   ===================================================== */
+
+.tenant-summary {
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+
+  margin-bottom: 20px;
+  padding: 20px;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e7e3;
+  border-radius: 14px;
+
+  box-shadow:
+    0 3px 12px rgba(25, 45, 32, 0.04);
+}
+
+.tenant-avatar {
+  width: 58px;
+  height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  background: #e6efe8;
+
+  color: #386447;
+
+  font-size: 23px;
+  font-weight: 800;
+}
+
+.tenant-code {
+  display: inline-block;
+
+  color: #60786a;
+
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tenant-info h2 {
+  margin: 4px 0;
+
+  color: #253129;
+
+  font-size: 21px;
+}
+
+.tenant-type {
+  color: #7a847d;
+
+  font-size: 12px;
+}
+
+
+/* =====================================================
+   STATS
+   ===================================================== */
+
+.stats-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 14px;
+
+  margin-bottom: 22px;
+}
+
+.stat-card {
+  padding: 17px;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e7e3;
+  border-radius: 11px;
+}
+
+.stat-card span {
+  display: block;
+
+  color: #7a847d;
+
+  font-size: 12px;
+}
+
+.stat-card strong {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #2c3830;
+
+  font-size: 23px;
+}
+
+.stat-card.enabled strong {
+  color: #3d704a;
+}
+
+.stat-card.disabled strong {
+  color: #777f79;
+}
+
+
+/* =====================================================
+   MODULES CARD
+   ===================================================== */
+
+.modules-card {
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e7e3;
+  border-radius: 14px;
+
+  box-shadow:
+    0 3px 12px rgba(25, 45, 32, 0.04);
+}
+
+.section-header {
+  padding: 21px;
+
+  border-bottom: 1px solid #edf0ee;
+}
+
+.section-header h2 {
+  margin: 0;
+
+  color: #29352e;
+
+  font-size: 18px;
+}
+
+.section-header p {
+  margin: 5px 0 0;
+
+  color: #7a847d;
+
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   MODULE ROW
+   ===================================================== */
+
+.modules-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.module-row {
+  display: flex;
+  align-items: center;
+
+  gap: 15px;
+
+  padding: 18px 21px;
+
+  border-bottom: 1px solid #edf0ee;
+
+  transition:
+    background .15s ease;
+}
+
+.module-row:last-child {
+  border-bottom: none;
+}
+
+.module-row:hover {
+  background: #fafcfb;
+}
+
+.module-row.disabled {
+  opacity: .7;
+}
+
+
+/* =====================================================
+   MODULE ICON
+   ===================================================== */
+
+.module-icon {
+  width: 43px;
+  height: 43px;
+  min-width: 43px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: #edf4ef;
+
+  color: #386447;
+
+  font-weight: 800;
+}
+
+.module-row.disabled .module-icon {
+  background: #f0f2f0;
+  color: #7c857f;
+}
+
+
+/* =====================================================
+   DETAILS
+   ===================================================== */
+
+.module-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.module-details h3 {
+  margin: 0;
+
+  color: #29352e;
+
+  font-size: 15px;
+}
+
+.module-code {
+  display: inline-block;
+
+  margin-top: 4px;
+
+  color: #77827b;
+
+  font-family: monospace;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.module-details p {
+  margin: 5px 0 0;
+
+  color: #89918c;
+
+  font-size: 12px;
+}
+
+
+/* =====================================================
+   STATUS
+   ===================================================== */
+
+.module-status {
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+}
+
+.status-label {
+  min-width: 60px;
+
+  text-align: right;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-label.active {
+  color: #397047;
+}
+
+.status-label.inactive {
+  color: #7c847f;
+}
+
+
+/* =====================================================
+   TOGGLE
+   ===================================================== */
+
+.toggle {
+  position: relative;
+
+  width: 46px;
+  height: 26px;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 20px;
+
+  background: #cdd4cf;
+
+  cursor: pointer;
+
+  transition:
+    background .18s ease;
+}
+
+.toggle.on {
+  background: #4d7658;
+}
+
+.toggle:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.toggle-knob {
+  position: absolute;
+
+  top: 3px;
+  left: 3px;
+
+  width: 20px;
+  height: 20px;
+
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, .2);
+
+  transition:
+    transform .18s ease;
+}
+
+.toggle.on .toggle-knob {
+  transform: translateX(20px);
+}
+
+
+/* =====================================================
+   SUCCESS / ERROR
+   ===================================================== */
+
+.success-card {
+  margin-bottom: 18px;
+  padding: 13px 15px;
+
+  border: 1px solid #cde3d1;
+  border-radius: 9px;
+
+  background: #edf7ef;
+
+  color: #356440;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.error-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 20px;
+
+  padding: 15px;
+
+  border: 1px solid #efcaca;
+  border-radius: 10px;
+
+  background: #fff3f3;
+
+  color: #9d2b2b;
+}
+
+.error-card p {
+  margin: 4px 0 0;
+
+  font-size: 13px;
+}
+
+.error-card button {
+  padding: 8px 13px;
+
+  border: 1px solid #d9a9a9;
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  color: #9d2b2b;
+
+  cursor: pointer;
+}
+
+
+/* =====================================================
+   LOADING
+   ===================================================== */
+
+.loading-card {
+  min-height: 260px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e7e3;
+  border-radius: 14px;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+
+  border: 3px solid #dfe7e1;
+  border-top-color: #4e7458;
+
+  border-radius: 50%;
+
+  animation: spin .8s linear infinite;
+}
+
+.loading-card p {
+  margin-top: 12px;
+
+  color: #737d76;
+
+  font-size: 14px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 700px) {
+
+  .page-header {
+    flex-direction: column;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .module-row {
+    align-items: flex-start;
+  }
+
+  .module-status {
+    flex-direction: column;
+
+    align-items: flex-end;
+
+    gap: 7px;
+  }
+
+  .status-label {
+    min-width: auto;
+  }
+}
+
+
+@media (max-width: 500px) {
+
+  .tenant-summary {
+    align-items: flex-start;
+  }
+
+  .module-row {
+    flex-wrap: wrap;
+  }
+
+  .module-details {
+    width: calc(100% - 58px);
+  }
+
+  .module-status {
+    width: 100%;
+
+    flex-direction: row;
+
+    justify-content: flex-end;
+
+    padding-left: 58px;
+  }
+}

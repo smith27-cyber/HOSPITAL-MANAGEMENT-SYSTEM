@@ -1,0 +1,152 @@
+<aside
+  class="platform-sidebar"
+  [class.collapsed]="collapsed"
+  [class.mobile-open]="mobileOpen"
+>
+
+  <div class="sidebar-brand">
+
+    <div class="brand-icon">
+      O
+    </div>
+
+    <div class="brand-text">
+      <strong>Olives Tech</strong>
+      <span>Platform</span>
+    </div>
+
+  </div>
+
+
+  <nav class="platform-nav">
+
+    <div class="nav-section">
+
+      <span class="section-title">
+        PLATFORM
+      </span>
+
+
+      <!-- Dashboard -->
+      <a
+        routerLink="/platform/dashboard"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-item"
+        (click)="close()"
+      >
+        <span class="nav-icon">⌂</span>
+        <span class="nav-label">
+          Dashboard
+        </span>
+      </a>
+
+
+      <!-- Tenants -->
+      <a
+        routerLink="/platform/tenants"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="close()"
+      >
+        <span class="nav-icon">▣</span>
+        <span class="nav-label">
+          Tenants
+        </span>
+      </a>
+
+
+      <!-- Users -->
+      <a
+        routerLink="/platform/users"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="close()"
+      >
+        <span class="nav-icon">♙</span>
+        <span class="nav-label">
+          Users
+        </span>
+      </a>
+
+
+      <!-- Plans -->
+      <a
+        routerLink="/platform/plans"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="close()"
+      >
+        <span class="nav-icon">◇</span>
+        <span class="nav-label">
+          Plans
+        </span>
+      </a>
+
+
+      <!-- Subscriptions -->
+      <a
+        routerLink="/platform/subscriptions"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="close()"
+      >
+        <span class="nav-icon">◈</span>
+        <span class="nav-label">
+          Subscriptions
+        </span>
+      </a>
+
+
+      <!-- Modules -->
+      <a
+        routerLink="/platform/modules"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="close()"
+      >
+        <span class="nav-icon">▦</span>
+        <span class="nav-label">
+          Modules
+        </span>
+      </a>
+
+    </div>
+
+  </nav>
+
+
+  <!-- Sidebar Footer -->
+  <div class="sidebar-footer">
+
+    <div class="footer-label">
+      Faith Driven Technology
+    </div>
+
+
+    <!-- Logout -->
+    <button
+      type="button"
+      class="logout-button"
+      (click)="logout()"
+    >
+      <span class="nav-icon">↪</span>
+
+      <span class="nav-label">
+        Logout
+      </span>
+    </button>
+
+  </div>
+
+</aside>
+
+
+@if (mobileOpen) {
+
+  <div
+    class="sidebar-overlay"
+    (click)="close()"
+  ></div>
+
+}

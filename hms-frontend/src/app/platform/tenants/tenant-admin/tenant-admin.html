@@ -1,0 +1,472 @@
+<div class="tenant-admin-page">
+
+  <!-- HEADER -->
+  <header class="page-header">
+
+    <div>
+      <div class="eyebrow">
+        OLIVES TECH PLATFORM
+      </div>
+
+      <h1>Create Tenant Administrator</h1>
+
+      <p>
+        Create the administrator account for this organization.
+      </p>
+    </div>
+
+    <div class="header-actions">
+
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="goBack()">
+
+        ← Back to Tenants
+
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- LOADING -->
+  <section
+    *ngIf="loading"
+    class="loading-card">
+
+    <div class="spinner"></div>
+
+    <p>
+      Loading tenant...
+    </p>
+
+  </section>
+
+
+  <!-- ERROR -->
+  <div
+    *ngIf="errorMessage"
+    class="error-card">
+
+    <strong>
+      Unable to create administrator
+    </strong>
+
+    <p>
+      {{ errorMessage }}
+    </p>
+
+  </div>
+
+
+  <!-- CONTENT -->
+  <div
+    *ngIf="!loading && tenant && !createdAdmin"
+    class="content-grid">
+
+
+    <!-- TENANT INFORMATION -->
+    <section class="tenant-card">
+
+      <div class="card-header">
+
+        <div>
+
+          <span class="section-label">
+            TENANT
+          </span>
+
+          <h2>
+            {{ tenant.name }}
+          </h2>
+
+          <p>
+            {{ tenant.code }}
+          </p>
+
+        </div>
+
+        <div class="tenant-avatar">
+          {{ tenant.name.charAt(0).toUpperCase() }}
+        </div>
+
+      </div>
+
+
+      <div class="tenant-details">
+
+        <div>
+          <span>Type</span>
+
+          <strong>
+            {{ tenant.type }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Status</span>
+
+          <strong>
+            {{ tenant.status }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Location</span>
+
+          <strong>
+            {{ tenant.city || '—' }}
+          </strong>
+        </div>
+
+      </div>
+
+
+      <!-- SECURITY INFORMATION -->
+      <div class="security-note">
+
+        <strong>
+          🔐 Security
+        </strong>
+
+        <p>
+          This account will automatically belong to
+          <strong>{{ tenant.name }}</strong>
+          and receive the
+          <strong>ADMIN</strong>
+          role.
+        </p>
+
+        <p>
+          The tenant administrator cannot choose another
+          tenant or platform role during creation.
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <!-- CREATE ADMIN FORM -->
+    <section class="form-card">
+
+      <div class="card-header">
+
+        <div>
+
+          <span class="section-label">
+            ADMINISTRATOR ACCOUNT
+          </span>
+
+          <h2>
+            Account Details
+          </h2>
+
+          <p>
+            Enter the login information for the tenant administrator.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <form
+        [formGroup]="adminForm"
+        (ngSubmit)="submit()">
+
+
+        <!-- FULL NAME -->
+        <div class="form-group">
+
+          <label for="fullName">
+            Full Name
+          </label>
+
+          <input
+            id="fullName"
+            type="text"
+            formControlName="fullName"
+            placeholder="e.g. Atamba Administrator"
+            autocomplete="name">
+
+          <small
+            *ngIf="hasError('fullName', 'required')"
+            class="field-error">
+
+            Full name is required.
+
+          </small>
+
+          <small
+            *ngIf="hasError('fullName', 'maxlength')"
+            class="field-error">
+
+            Full name cannot exceed 100 characters.
+
+          </small>
+
+        </div>
+
+
+        <!-- USERNAME -->
+        <div class="form-group">
+
+          <label for="username">
+            Username
+          </label>
+
+          <input
+            id="username"
+            type="text"
+            formControlName="username"
+            placeholder="e.g. atamba_admin"
+            autocomplete="username">
+
+          <small
+            *ngIf="hasError('username', 'required')"
+            class="field-error">
+
+            Username is required.
+
+          </small>
+
+          <small
+            *ngIf="hasError('username', 'maxlength')"
+            class="field-error">
+
+            Username cannot exceed 50 characters.
+
+          </small>
+
+          <small class="field-hint">
+            Usernames are automatically converted to lowercase.
+          </small>
+
+        </div>
+
+
+        <!-- PASSWORD -->
+        <div class="form-group">
+
+          <label for="password">
+            Password
+          </label>
+
+          <div class="password-field">
+
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Enter a secure password"
+              autocomplete="new-password">
+
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="togglePassword()">
+
+              {{ showPassword ? 'Hide' : 'Show' }}
+
+            </button>
+
+          </div>
+
+          <small
+            *ngIf="hasError('password', 'required')"
+            class="field-error">
+
+            Password is required.
+
+          </small>
+
+          <small
+            *ngIf="hasError('password', 'minlength')"
+            class="field-error">
+
+            Password must be at least 6 characters.
+
+          </small>
+
+          <small
+            *ngIf="hasError('password', 'maxlength')"
+            class="field-error">
+
+            Password cannot exceed 100 characters.
+
+          </small>
+
+        </div>
+
+
+        <!-- CONFIRM PASSWORD -->
+        <div class="form-group">
+
+          <label for="confirmPassword">
+            Confirm Password
+          </label>
+
+          <div class="password-field">
+
+            <input
+              id="confirmPassword"
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              placeholder="Enter the password again"
+              autocomplete="new-password">
+
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="toggleConfirmPassword()">
+
+              {{ showConfirmPassword ? 'Hide' : 'Show' }}
+
+            </button>
+
+          </div>
+
+          <small
+            *ngIf="hasError('confirmPassword', 'required')"
+            class="field-error">
+
+            Please confirm the password.
+
+          </small>
+
+          <small
+            *ngIf="passwordMismatch"
+            class="field-error">
+
+            Passwords do not match.
+
+          </small>
+
+        </div>
+
+
+        <!-- BUTTONS -->
+        <div class="form-actions">
+
+          <button
+            type="button"
+            class="btn btn-secondary"
+            [disabled]="saving"
+            (click)="goBack()">
+
+            Cancel
+
+          </button>
+
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="saving">
+
+            <span *ngIf="!saving">
+              Create Administrator
+            </span>
+
+            <span *ngIf="saving">
+              Creating...
+            </span>
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+  </div>
+
+
+  <!-- SUCCESS -->
+  <section
+    *ngIf="createdAdmin"
+    class="success-card">
+
+    <div class="success-icon">
+      ✓
+    </div>
+
+    <div>
+
+      <h2>
+        Administrator Created
+      </h2>
+
+      <p>
+        The tenant administrator was created successfully.
+      </p>
+
+
+      <!-- CREATED ADMIN DETAILS -->
+      <div class="credentials">
+
+        <div>
+          <span>Tenant</span>
+
+          <strong>
+            {{ createdAdmin.tenantName }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Username</span>
+
+          <strong>
+            {{ createdAdmin.username }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Role</span>
+
+          <strong>
+            {{ createdAdmin.role }}
+          </strong>
+        </div>
+
+      </div>
+
+
+      <p class="password-warning">
+        The password you entered is not displayed here.
+        Make sure the administrator receives the password securely.
+      </p>
+
+
+      <!-- SUCCESS ACTIONS -->
+      <div class="success-actions">
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="goBack()">
+
+          Back to Tenants
+
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="refreshTenant()">
+
+          Done
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</div>

@@ -175,7 +175,62 @@ public class RbacDataInitializer {
                 definitions.put(
                                 "TENANT_STATUS_UPDATE",
                                 "Activate, suspend or cancel tenants");
+
                 // =================================================
+                // PLATFORM MODULE MANAGEMENT
+                // =================================================
+
+                definitions.put(
+                                "PLATFORM_MODULE_VIEW",
+                                "View available platform modules");
+
+                definitions.put(
+                                "PLATFORM_MODULE_MANAGE",
+                                "Enable or disable modules for tenants");
+
+                // =================================================
+                // PLATFORM PLAN MANAGEMENT
+                // =================================================
+
+                definitions.put(
+                                "PLATFORM_PLAN_VIEW",
+                                "View platform subscription plans");
+
+                definitions.put(
+                                "PLATFORM_PLAN_MANAGE",
+                                "Create and manage platform subscription plans");
+
+                // =================================================
+                // PLATFORM SUBSCRIPTION MANAGEMENT
+                // =================================================
+
+                definitions.put(
+                                "PLATFORM_SUBSCRIPTION_VIEW",
+                                "View tenant subscriptions");
+
+                definitions.put(
+                                "PLATFORM_SUBSCRIPTION_MANAGE",
+                                "Create and manage tenant subscriptions");
+
+                // =================================================
+                // PLATFORM USER MANAGEMENT
+                // =================================================
+
+                definitions.put(
+                                "PLATFORM_USER_VIEW",
+                                "View users across all platform tenants");
+
+                definitions.put(
+                                "PLATFORM_USER_MANAGE",
+                                "Manage users across all platform tenants");
+
+                definitions.put(
+                                "PLATFORM_USER_STATUS_UPDATE",
+                                "Enable or disable users across all platform tenants");
+
+                definitions.put(
+                                "PLATFORM_USER_DELETE",
+                                "Delete users across all platform tenants"); // =================================================
                 // DASHBOARD
                 // =================================================
 

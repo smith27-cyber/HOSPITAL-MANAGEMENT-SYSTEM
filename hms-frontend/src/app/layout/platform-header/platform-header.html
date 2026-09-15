@@ -1,0 +1,35 @@
+<header class="platform-header">
+
+  <button
+    type="button"
+    class="menu-button"
+    (click)="toggle()"
+    aria-label="Toggle platform menu"
+  >
+    ☰
+  </button>
+
+  <div class="header-title">
+    <span class="eyebrow">OLIVES TECH</span>
+    <strong>Platform Administration</strong>
+  </div>
+
+  <div class="header-user">
+
+    <div class="user-avatar">
+      {{ (authService.getFullName() || 'A').charAt(0).toUpperCase() }}
+    </div>
+
+    <div class="user-details">
+      <strong>
+        {{ authService.getFullName() || 'Administrator' }}
+      </strong>
+
+      <span>
+        {{ authService.getRole() || 'ADMIN' }}
+      </span>
+    </div>
+
+  </div>
+
+</header>

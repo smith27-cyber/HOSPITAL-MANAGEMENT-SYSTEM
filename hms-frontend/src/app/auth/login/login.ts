@@ -1,4 +1,3 @@
-
 // =====================================================
 // LOGIN COMPONENT
 // File:
@@ -84,16 +83,16 @@ export class Login {
 
   constructor() {
 
+    // -------------------------------------------------
     // If the user is already authenticated,
-    // don't show the login page again.
+    // send them to the correct application area.
+    // -------------------------------------------------
 
     if (
       this.authService.isAuthenticated()
     ) {
 
-      this.router.navigate(
-        ['/dashboard']
-      );
+      this.navigateAfterLogin();
 
     }
 
@@ -168,13 +167,21 @@ export class Login {
         // SUCCESS
         // ============================================
 
-        next: () => {
+        next: response => {
 
           this.loading = false;
 
-          this.router.navigate(
-            ['/dashboard']
+          console.log(
+            'Login successful. Redirecting user:',
+            {
+              username: response.username,
+              role: response.role,
+              roles: response.roles,
+              permissions: response.permissions
+            }
           );
+
+          this.navigateAfterLogin();
 
         },
 
@@ -255,6 +262,83 @@ export class Login {
 
 
   // ===================================================
+  // NAVIGATION AFTER LOGIN
+  // ===================================================
+
+  private navigateAfterLogin(): void {
+
+    // -------------------------------------------------
+    // ONLY SUPER_ADMIN ENTERS THE PLATFORM PANEL
+    // -------------------------------------------------
+    //
+    // IMPORTANT:
+    //
+    // ADMIN is a TENANT administrator.
+    //
+    // SUPER_ADMIN is the OLIVES TECH platform
+    // administrator.
+    //
+    // Do not determine platform access using
+    // individual platform permissions because a
+    // tenant administrator may legitimately have
+    // permissions such as TENANT_VIEW.
+    //
+    // -------------------------------------------------
+
+    if (
+      this.hasPlatformAccess()
+    ) {
+
+      console.log(
+        'Platform administrator detected. Redirecting to /platform/dashboard'
+      );
+
+      this.router.navigate(
+        ['/platform/dashboard']
+      );
+
+      return;
+
+    }
+
+
+    // -------------------------------------------------
+    // NORMAL TENANT HMS USER
+    // -------------------------------------------------
+
+    console.log(
+      'Tenant HMS user detected. Redirecting to /dashboard'
+    );
+
+    this.router.navigate(
+      ['/dashboard']
+    );
+
+  }
+
+
+  // ===================================================
+  // PLATFORM ACCESS CHECK
+  // ===================================================
+  //
+  // Only SUPER_ADMIN should enter the Olives Tech
+  // Platform Panel.
+  //
+  // Tenant ADMIN users must remain inside their
+  // tenant's HMS application.
+  //
+  // ===================================================
+
+  private hasPlatformAccess(): boolean {
+
+    return this.authService.hasRole(
+      'SUPER_ADMIN'
+    );
+
+  }
+
+
+  // ===================================================
   // TOGGLE PASSWORD VISIBILITY
   // ===================================================
 
@@ -266,4 +350,3 @@ export class Login {
   }
 
 }
-

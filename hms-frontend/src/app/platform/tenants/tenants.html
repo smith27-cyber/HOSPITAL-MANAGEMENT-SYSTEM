@@ -1,0 +1,387 @@
+<div class="tenants-page">
+
+  <!-- ================================================= -->
+  <!-- PAGE HEADER -->
+  <!-- ================================================= -->
+
+  <header class="page-header">
+
+    <div>
+
+      <div class="eyebrow">
+        OLIVES TECH PLATFORM
+      </div>
+
+      <h1>Tenants</h1>
+
+      <p>
+        Manage organizations using the Olives Tech HMS platform.
+      </p>
+
+    </div>
+
+
+    <div class="header-actions">
+
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="loadTenants()">
+
+        ↻ Refresh
+
+      </button>
+
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        routerLink="/platform/tenants/create">
+
+        + Add Tenant
+
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- ================================================= -->
+  <!-- ERROR -->
+  <!-- ================================================= -->
+
+  <div
+    *ngIf="errorMessage"
+    class="error-card">
+
+    <div>
+      {{ errorMessage }}
+    </div>
+
+    <button
+      type="button"
+      (click)="loadTenants()">
+
+      Try Again
+
+    </button>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- FILTERS -->
+  <!-- ================================================= -->
+
+  <section
+    class="filters-panel"
+    *ngIf="!loading">
+
+    <div class="search-box">
+
+      <span class="search-icon">⌕</span>
+
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="Search by tenant name, code or city">
+
+    </div>
+
+
+    <select
+      [(ngModel)]="selectedType">
+
+      <option value="">
+        All Types
+      </option>
+
+      <option
+        *ngFor="let type of tenantTypes"
+        [value]="type">
+
+        {{ formatType(type) }}
+
+      </option>
+
+    </select>
+
+
+    <select
+      [(ngModel)]="selectedStatus">
+
+      <option value="">
+        All Statuses
+      </option>
+
+      <option
+        *ngFor="let status of tenantStatuses"
+        [value]="status">
+
+        {{ formatStatus(status) }}
+
+      </option>
+
+    </select>
+
+
+    <button
+      type="button"
+      class="clear-button"
+      (click)="clearFilters()">
+
+      Clear
+
+    </button>
+
+  </section>
+
+
+  <!-- ================================================= -->
+  <!-- LOADING -->
+  <!-- ================================================= -->
+
+  <section
+    *ngIf="loading"
+    class="loading-card">
+
+    <div class="spinner"></div>
+
+    <p>
+      Loading tenants...
+    </p>
+
+  </section>
+
+
+  <!-- ================================================= -->
+  <!-- TENANT TABLE -->
+  <!-- ================================================= -->
+
+  <section
+    *ngIf="!loading"
+    class="table-panel">
+
+    <div class="table-header">
+
+      <div>
+
+        <h2>Organizations</h2>
+
+        <span>
+          {{ filteredTenants.length }}
+          tenant{{ filteredTenants.length === 1 ? '' : 's' }}
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- EMPTY STATE -->
+
+    <div
+      *ngIf="filteredTenants.length === 0"
+      class="empty-state">
+
+      <div class="empty-icon">
+        🏢
+      </div>
+
+      <h3>No tenants found</h3>
+
+      <p>
+        Try changing your search or filters,
+        or create a new tenant.
+      </p>
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        routerLink="/platform/tenants/create">
+
+        + Add Tenant
+
+      </button>
+
+    </div>
+
+
+    <!-- TABLE -->
+
+    <div
+      *ngIf="filteredTenants.length > 0"
+      class="table-wrapper">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>Tenant</th>
+
+            <th>Type</th>
+
+            <th>Status</th>
+
+            <th>Location</th>
+
+            <th>Created</th>
+
+            <th>Actions</th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          <tr
+            *ngFor="
+              let tenant of filteredTenants;
+              trackBy: trackByTenantId
+            "
+          >
+
+            <!-- TENANT -->
+
+            <td>
+
+              <div class="tenant-cell">
+
+                <div class="tenant-avatar">
+
+                  {{ getInitial(tenant) }}
+
+                </div>
+
+                <div>
+
+                  <strong>
+                    {{ tenant.name }}
+                  </strong>
+
+                  <small>
+                    {{ tenant.code }}
+                  </small>
+
+                </div>
+
+              </div>
+
+            </td>
+
+
+            <!-- TYPE -->
+
+            <td>
+
+              <span class="type-badge">
+
+                {{ formatType(tenant.type) }}
+
+              </span>
+
+            </td>
+
+
+            <!-- STATUS -->
+
+            <td>
+
+              <span
+                class="status-badge"
+                [ngClass]="statusClass(tenant.status)">
+
+                {{ formatStatus(tenant.status) }}
+
+              </span>
+
+            </td>
+
+
+            <!-- LOCATION -->
+
+            <td>
+
+              <div class="location-cell">
+
+                <span>
+                  {{ tenant.city || '—' }}
+                </span>
+
+                <small>
+                  {{ tenant.country || '' }}
+                </small>
+
+              </div>
+
+            </td>
+
+
+            <!-- CREATED -->
+
+            <td>
+
+              <span class="date">
+
+                {{
+                  tenant.createdAt
+                    ? (tenant.createdAt | date:'dd MMM yyyy')
+                    : '—'
+                }}
+
+              </span>
+
+            </td>
+
+
+            <!-- ACTIONS -->
+
+            <td>
+
+              <div class="tenant-actions">
+
+  <a
+  class="view-link"
+  [routerLink]="[
+    '/platform/tenants',
+    tenant.id,
+    'admin'
+  ]">
+
+  View →
+
+</a>
+
+
+                <a
+                  class="modules-link"
+                  [routerLink]="[
+                    '/platform/tenants',
+                    tenant.id,
+                    'modules'
+                  ]">
+
+                  Modules
+
+                </a>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</div>

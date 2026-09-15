@@ -21,17 +21,21 @@ public interface UserRepository
 
     boolean existsByUsername(String username);
 
-
     // =====================================================
     // TENANT-SCOPED USERS
     // =====================================================
 
     List<User> findAllByTenant_Id(
-        Long tenantId
-    );
+            Long tenantId);
 
     Optional<User> findByIdAndTenant_Id(
-        Long id,
-        Long tenantId
-    );
+            Long id,
+            Long tenantId);
+
+    // =====================================================
+    // PLATFORM USER MANAGEMENT
+    // =====================================================
+
+    List<User> findAllByOrderByCreatedAtDesc();
+
 }

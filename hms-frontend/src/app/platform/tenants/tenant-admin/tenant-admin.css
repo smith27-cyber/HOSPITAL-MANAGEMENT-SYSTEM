@@ -1,0 +1,411 @@
+.tenant-admin-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.eyebrow {
+  color: #55745d;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 30px;
+  color: #1f3025;
+}
+
+.page-header p {
+  margin: 8px 0 0;
+  color: #6d7971;
+}
+
+
+/* =====================================================
+   CONTENT
+   ===================================================== */
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 24px;
+}
+
+
+/* =====================================================
+   CARDS
+   ===================================================== */
+
+.tenant-card,
+.form-card {
+  background: #ffffff;
+  border: 1px solid #e0e7e2;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(35, 55, 42, 0.04);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.section-label {
+  display: block;
+  color: #708077;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.3px;
+  margin-bottom: 7px;
+}
+
+.card-header h2 {
+  margin: 0;
+  color: #26372c;
+  font-size: 21px;
+}
+
+.card-header p {
+  margin: 5px 0 0;
+  color: #7a857e;
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   TENANT AVATAR
+   ===================================================== */
+
+.tenant-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #edf4ef;
+  color: #41624a;
+  font-weight: 800;
+  font-size: 20px;
+}
+
+
+/* =====================================================
+   TENANT DETAILS
+   ===================================================== */
+
+.tenant-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.tenant-details div {
+  background: #f7f9f8;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.tenant-details span {
+  display: block;
+  color: #7b857f;
+  font-size: 11px;
+  margin-bottom: 5px;
+}
+
+.tenant-details strong {
+  display: block;
+  color: #34483a;
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   SECURITY NOTE
+   ===================================================== */
+
+.security-note {
+  border: 1px solid #dce9df;
+  background: #f4f9f5;
+  border-radius: 9px;
+  padding: 16px;
+}
+
+.security-note strong {
+  color: #385c42;
+}
+
+.security-note p {
+  margin: 8px 0 0;
+  color: #607067;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+
+/* =====================================================
+   FORM
+   ===================================================== */
+
+.form-group {
+  margin-bottom: 19px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 7px;
+  color: #34443a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.form-group input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d5ddd7;
+  border-radius: 7px;
+  padding: 11px 12px;
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+  color: #26372c;
+}
+
+.form-group input:focus {
+  border-color: #75967d;
+  box-shadow: 0 0 0 3px rgba(91, 128, 100, 0.1);
+}
+
+.field-hint {
+  display: block;
+  margin-top: 6px;
+  color: #7d8981;
+  font-size: 11px;
+}
+
+.field-error {
+  display: block;
+  margin-top: 6px;
+  color: #b24747;
+  font-size: 11px;
+}
+
+
+/* =====================================================
+   BUTTONS
+   ===================================================== */
+
+.header-actions,
+.form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.form-actions {
+  justify-content: flex-end;
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px solid #edf0ed;
+}
+
+.btn {
+  border: 0;
+  border-radius: 7px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #486b51;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #3d5d46;
+}
+
+.btn-secondary {
+  background: #eef2ef;
+  color: #435249;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #e3e9e4;
+}
+
+
+/* =====================================================
+   ERROR / SUCCESS
+   ===================================================== */
+
+.error-card {
+  background: #fff5f5;
+  border: 1px solid #efd1d1;
+  color: #9c4141;
+  border-radius: 9px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+
+.error-card p {
+  margin: 5px 0 0;
+}
+
+.success-card {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-top: 24px;
+  padding: 20px;
+  background: #f2f9f4;
+  border: 1px solid #cfe3d3;
+  border-radius: 10px;
+}
+
+.success-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #4f7b59;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.success-card h2 {
+  margin: 0;
+  color: #35563d;
+  font-size: 19px;
+}
+
+.success-card p {
+  color: #647269;
+  font-size: 13px;
+}
+
+.credentials {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.credentials div {
+  background: white;
+  border: 1px solid #dce8de;
+  border-radius: 7px;
+  padding: 12px;
+}
+
+.credentials span {
+  display: block;
+  color: #78847b;
+  font-size: 10px;
+  margin-bottom: 5px;
+}
+
+.credentials strong {
+  color: #304637;
+  font-size: 13px;
+}
+
+.password-warning {
+  margin-bottom: 0;
+  font-size: 11px !important;
+}
+
+
+/* =====================================================
+   LOADING
+   ===================================================== */
+
+.loading-card {
+  background: white;
+  border: 1px solid #e1e7e2;
+  border-radius: 10px;
+  padding: 50px;
+  text-align: center;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  margin: 0 auto 12px;
+  border: 3px solid #dce5de;
+  border-top-color: #4e7257;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.loading-card p {
+  color: #748078;
+  font-size: 13px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 850px) {
+
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+@media (max-width: 600px) {
+
+  .page-header {
+    flex-direction: column;
+  }
+
+  .tenant-details,
+  .credentials {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+
+}

@@ -1,0 +1,565 @@
+<!-- =====================================================
+     PLATFORM DASHBOARD
+     File:
+     src/app/platform/dashboard/dashboard.html
+     ===================================================== -->
+
+<section class="dashboard-page">
+
+  <!-- ===================================================
+       PAGE HEADER
+       =================================================== -->
+
+  <div class="page-header">
+
+    <div>
+      <span class="eyebrow">
+        OLIVES TECH PLATFORM
+      </span>
+
+      <h1>
+        Platform Dashboard
+      </h1>
+
+      <p>
+        Monitor tenants, subscriptions, plans and
+        platform modules from one place.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="refresh-button"
+      (click)="loadDashboard()"
+      [disabled]="loading"
+    >
+      <span *ngIf="!loading">
+        ↻ Refresh
+      </span>
+
+      <span *ngIf="loading">
+        Loading...
+      </span>
+    </button>
+
+  </div>
+
+
+  <!-- ===================================================
+       ERROR
+       =================================================== -->
+
+  <div
+    *ngIf="errorMessage"
+    class="error-card"
+  >
+
+    <strong>
+      Dashboard unavailable
+    </strong>
+
+    <span>
+      {{ errorMessage }}
+    </span>
+
+    <button
+      type="button"
+      (click)="loadDashboard()"
+    >
+      Try Again
+    </button>
+
+  </div>
+
+
+  <!-- ===================================================
+       LOADING
+       =================================================== -->
+
+  <div
+    *ngIf="loading"
+    class="loading-card"
+  >
+
+    <div class="spinner"></div>
+
+    <span>
+      Loading platform information...
+    </span>
+
+  </div>
+
+
+  <!-- ===================================================
+       DASHBOARD CONTENT
+       =================================================== -->
+
+  <ng-container *ngIf="!loading && !errorMessage">
+
+    <!-- =================================================
+         TENANT STATISTICS
+         ================================================= -->
+
+    <section class="section">
+
+      <div class="section-heading">
+
+        <div>
+          <h2>
+            Tenants
+          </h2>
+
+          <p>
+            Organizations using the HMS platform.
+          </p>
+        </div>
+
+      </div>
+
+
+      <div class="stats-grid">
+
+        <!-- TOTAL -->
+
+        <article class="stat-card">
+
+          <div class="stat-icon">
+            ◉
+          </div>
+
+          <div class="stat-content">
+
+            <span class="stat-label">
+              Total Tenants
+            </span>
+
+            <strong class="stat-value">
+              {{ totalTenants }}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <!-- ACTIVE -->
+
+        <article class="stat-card">
+
+          <div class="stat-icon">
+            ✓
+          </div>
+
+          <div class="stat-content">
+
+            <span class="stat-label">
+              Active
+            </span>
+
+            <strong class="stat-value">
+              {{ activeTenants }}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <!-- TRIAL -->
+
+        <article class="stat-card">
+
+          <div class="stat-icon">
+            ◷
+          </div>
+
+          <div class="stat-content">
+
+            <span class="stat-label">
+              Trial
+            </span>
+
+            <strong class="stat-value">
+              {{ trialTenants }}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <!-- SUSPENDED -->
+
+        <article class="stat-card">
+
+          <div class="stat-icon">
+            !
+          </div>
+
+          <div class="stat-content">
+
+            <span class="stat-label">
+              Suspended
+            </span>
+
+            <strong class="stat-value">
+              {{ suspendedTenants }}
+            </strong>
+
+          </div>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         PLATFORM STATISTICS
+         ================================================= -->
+
+    <section class="section">
+
+      <div class="section-heading">
+
+        <div>
+          <h2>
+            Platform
+          </h2>
+
+          <p>
+            Plans, subscriptions and available modules.
+          </p>
+        </div>
+
+      </div>
+
+
+      <div class="stats-grid">
+
+        <!-- PLANS -->
+
+        <article class="stat-card">
+
+          <div class="stat-icon">
+            ◇
+          </div>
+
+          <div class="stat-content">
+
+            <span class="stat-label">
+              Plans
+            </span>
+
+            <strong class="stat-value">
+              {{ totalPlans }}
+            </strong>
+
+            <span class="stat-detail">
+              {{ activePlans }} active
+            </span>
+
+          </div>
+
+        </article>
+
+
+        <!-- SUBSCRIPTIONS -->
+
+        <article class="stat-card">
+
+          <div class="stat-icon">
+            ◈
+          </div>
+
+          <div class="stat-content">
+
+            <span class="stat-label">
+              Subscriptions
+            </span>
+
+            <strong class="stat-value">
+              {{ totalSubscriptions }}
+            </strong>
+
+            <span class="stat-detail">
+              {{ activeSubscriptions }} active
+            </span>
+
+          </div>
+
+        </article>
+
+
+        <!-- TRIAL SUBSCRIPTIONS -->
+
+        <article class="stat-card">
+
+          <div class="stat-icon">
+            ◷
+          </div>
+
+          <div class="stat-content">
+
+            <span class="stat-label">
+              Trial Subscriptions
+            </span>
+
+            <strong class="stat-value">
+              {{ trialSubscriptions }}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <!-- MODULES -->
+
+        <article class="stat-card">
+
+          <div class="stat-icon">
+            ▦
+          </div>
+
+          <div class="stat-content">
+
+            <span class="stat-label">
+              Modules
+            </span>
+
+            <strong class="stat-value">
+              {{ totalModules }}
+            </strong>
+
+            <span class="stat-detail">
+              {{ activeModules }} active
+            </span>
+
+          </div>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         LOWER DASHBOARD
+         ================================================= -->
+
+    <section class="dashboard-columns">
+
+
+      <!-- =================================================
+           RECENT TENANTS
+           ================================================= -->
+
+      <article class="panel-card">
+
+        <div class="panel-header">
+
+          <div>
+
+            <h2>
+              Recent Tenants
+            </h2>
+
+            <p>
+              Recently registered organizations.
+            </p>
+
+          </div>
+
+          <a
+            routerLink="/platform/tenants"
+            class="view-link"
+          >
+            View all
+          </a>
+
+        </div>
+
+
+        <div
+          *ngIf="recentTenants.length === 0"
+          class="empty-state"
+        >
+          No tenants found.
+        </div>
+
+
+        <div
+          *ngIf="recentTenants.length > 0"
+          class="tenant-list"
+        >
+
+          <div
+            *ngFor="
+              let tenant of recentTenants
+            "
+            class="tenant-row"
+          >
+
+            <div class="tenant-avatar">
+              {{ tenant.name.charAt(0).toUpperCase() }}
+            </div>
+
+            <div class="tenant-info">
+
+              <strong>
+                {{ tenant.name }}
+              </strong>
+
+              <span>
+                {{ tenant.code }}
+              </span>
+
+            </div>
+
+            <span
+              class="status-badge"
+              [class]="statusClass(tenant.status)"
+            >
+              {{ tenant.status }}
+            </span>
+
+          </div>
+
+        </div>
+
+      </article>
+
+
+      <!-- =================================================
+           SUBSCRIPTION OVERVIEW
+           ================================================= -->
+
+      <article class="panel-card">
+
+        <div class="panel-header">
+
+          <div>
+
+            <h2>
+              Subscription Overview
+            </h2>
+
+            <p>
+              Current subscription distribution.
+            </p>
+
+          </div>
+
+          <a
+            routerLink="/platform/subscriptions"
+            class="view-link"
+          >
+            View all
+          </a>
+
+        </div>
+
+
+        <div class="subscription-list">
+
+
+          <!-- ACTIVE -->
+
+          <div class="subscription-item">
+
+            <div class="subscription-label">
+
+              <span class="dot active"></span>
+
+              <span>
+                Active
+              </span>
+
+            </div>
+
+            <strong>
+              {{ activeSubscriptions }}
+            </strong>
+
+          </div>
+
+
+          <!-- TRIAL -->
+
+          <div class="subscription-item">
+
+            <div class="subscription-label">
+
+              <span class="dot trial"></span>
+
+              <span>
+                Trial
+              </span>
+
+            </div>
+
+            <strong>
+              {{ trialSubscriptions }}
+            </strong>
+
+          </div>
+
+
+          <!-- SUSPENDED -->
+
+          <div class="subscription-item">
+
+            <div class="subscription-label">
+
+              <span class="dot suspended"></span>
+
+              <span>
+                Suspended
+              </span>
+
+            </div>
+
+            <strong>
+              {{ suspendedSubscriptions }}
+            </strong>
+
+          </div>
+
+
+          <!-- OTHER -->
+
+          <div class="subscription-item">
+
+            <div class="subscription-label">
+
+              <span class="dot other"></span>
+
+              <span>
+                Other
+              </span>
+
+            </div>
+
+            <strong>
+              {{
+                totalSubscriptions
+                - activeSubscriptions
+                - trialSubscriptions
+                - suspendedSubscriptions
+              }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </article>
+
+    </section>
+
+  </ng-container>
+
+</section>

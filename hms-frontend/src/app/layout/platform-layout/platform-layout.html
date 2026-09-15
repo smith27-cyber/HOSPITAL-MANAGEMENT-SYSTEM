@@ -1,0 +1,25 @@
+<div
+  class="platform-shell"
+  [class.sidebar-collapsed]="sidebarCollapsed"
+  [class.sidebar-open]="sidebarOpen"
+>
+
+  <app-platform-sidebar
+    [collapsed]="sidebarCollapsed"
+    [mobileOpen]="sidebarOpen"
+    (closeSidebar)="closeSidebar()"
+  />
+
+  <div class="platform-main">
+
+    <app-platform-header
+      (toggleSidebar)="toggleSidebar()"
+    />
+
+    <main class="platform-content">
+      <router-outlet />
+    </main>
+
+  </div>
+
+</div>

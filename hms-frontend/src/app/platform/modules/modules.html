@@ -1,0 +1,210 @@
+<div class="modules-page">
+
+  <header class="page-header">
+
+    <div>
+      <div class="eyebrow">OLIVES TECH PLATFORM</div>
+
+      <h1>Modules</h1>
+
+      <p>
+        Manage the features available across the HMS platform.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-secondary"
+      (click)="loadModules()"
+      [disabled]="loading"
+    >
+      ↻ Refresh
+    </button>
+
+  </header>
+
+
+  <!-- SUMMARY -->
+
+  <section
+    *ngIf="!loading && !errorMessage"
+    class="summary-grid"
+  >
+
+    <div class="summary-card">
+
+      <div class="summary-icon">
+        ◈
+      </div>
+
+      <div>
+        <span>Total Modules</span>
+        <strong>{{ modules.length }}</strong>
+      </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+      <div class="summary-icon active">
+        ✓
+      </div>
+
+      <div>
+        <span>Active Modules</span>
+        <strong>{{ activeModules() }}</strong>
+      </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+      <div class="summary-icon inactive">
+        —
+      </div>
+
+      <div>
+        <span>Inactive Modules</span>
+        <strong>{{ inactiveModules() }}</strong>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ERROR -->
+
+  <section
+    *ngIf="errorMessage"
+    class="error-card"
+  >
+
+    <div>
+      <strong>Unable to load modules</strong>
+      <p>{{ errorMessage }}</p>
+    </div>
+
+    <button
+      type="button"
+      (click)="loadModules()"
+    >
+      Try Again
+    </button>
+
+  </section>
+
+
+  <!-- LOADING -->
+
+  <section
+    *ngIf="loading"
+    class="loading-card"
+  >
+
+    <div class="spinner"></div>
+
+    <p>Loading modules...</p>
+
+  </section>
+
+
+  <!-- MODULES -->
+
+  <section
+    *ngIf="!loading && !errorMessage"
+    class="modules-section"
+  >
+
+    <div
+      *ngIf="modules.length === 0"
+      class="empty-card"
+    >
+
+      <div class="empty-icon">
+        ◈
+      </div>
+
+      <h2>No modules found</h2>
+
+      <p>
+        No platform modules have been configured.
+      </p>
+
+    </div>
+
+
+    <div
+      *ngIf="modules.length > 0"
+      class="modules-grid"
+    >
+
+      <article
+        *ngFor="
+          let module of modules;
+          trackBy: trackByModuleId
+        "
+        class="module-card"
+        [class.inactive]="!module.active"
+      >
+
+        <div class="module-card-header">
+
+          <div class="module-icon">
+            {{ module.name.charAt(0) }}
+          </div>
+
+          <span
+            class="status-badge"
+            [class.active]="module.active"
+            [class.inactive]="!module.active"
+          >
+            {{ module.active ? 'Active' : 'Inactive' }}
+          </span>
+
+        </div>
+
+
+        <div class="module-body">
+
+          <h2>
+            {{ module.name }}
+          </h2>
+
+          <div class="module-code">
+            {{ module.code }}
+          </div>
+
+          <p
+            *ngIf="module.description"
+          >
+            {{ module.description }}
+          </p>
+
+          <p
+            *ngIf="!module.description"
+            class="no-description"
+          >
+            No description available.
+          </p>
+
+        </div>
+
+
+        <div class="module-footer">
+
+          <span>
+            Module ID: {{ module.id }}
+          </span>
+
+        </div>
+
+      </article>
+
+    </div>
+
+  </section>
+
+</div>

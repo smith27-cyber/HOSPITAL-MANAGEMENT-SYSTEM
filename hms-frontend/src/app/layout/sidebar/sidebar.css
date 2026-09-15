@@ -863,10 +863,9 @@
   }
 
 
-  .sidebar.mobile-open {
-    transform:
-      translateX(0);
-  }
+ :host(.mobile-open) .sidebar {
+  transform: translateX(0);
+}
 
 
   .sidebar-brand {

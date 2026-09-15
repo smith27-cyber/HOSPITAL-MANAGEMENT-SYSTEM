@@ -3,11 +3,11 @@
      File:
      src/app/layout/sidebar/sidebar.html
      ===================================================== -->
+
 <aside
   class="sidebar"
   [class.collapsed]="collapsed"
 >
-
 
   <!-- =====================================================
        BRAND / HOSPITAL IDENTITY
@@ -21,10 +21,6 @@
       aria-label="HMS Dashboard"
       (click)="navigate()"
     >
-
-      <!-- =================================================
-           HOSPITAL LOGO
-           ================================================= -->
 
       <div class="brand-icon">
 
@@ -50,18 +46,11 @@
       </div>
 
 
-      <!-- =================================================
-           HOSPITAL NAME
-           ================================================= -->
-
       <div class="brand-text">
 
-        <h2
-          [title]="hospitalName"
-        >
+        <h2 [title]="hospitalName">
           {{ hospitalName }}
         </h2>
-
 
         <span
           [title]="hospitalCity || 'Hospital Management System'"
@@ -74,7 +63,6 @@
     </a>
 
   </div>
-
 
 
   <!-- =====================================================
@@ -92,13 +80,30 @@
          =================================================== -->
 
     @if (
-      hasAnyPermission([
-        'DASHBOARD_VIEW',
-        'PATIENT_VIEW',
-        'APPOINTMENT_VIEW',
-        'DOCTOR_VIEW',
-        'DEPARTMENT_VIEW'
-      ])
+      hasModuleAnyPermission(
+        'DASHBOARD',
+        ['DASHBOARD_VIEW']
+      )
+      ||
+      hasModuleAnyPermission(
+        'PATIENTS',
+        ['PATIENT_VIEW']
+      )
+      ||
+      hasModuleAnyPermission(
+        'APPOINTMENTS',
+        ['APPOINTMENT_VIEW']
+      )
+      ||
+      hasModuleAnyPermission(
+        'DOCTORS',
+        ['DOCTOR_VIEW']
+      )
+      ||
+      hasModuleAnyPermission(
+        'DEPARTMENTS',
+        ['DEPARTMENT_VIEW']
+      )
     ) {
 
       <div class="nav-section">
@@ -108,9 +113,16 @@
         </span>
 
 
-        <!-- DASHBOARD -->
+        <!-- =================================================
+             DASHBOARD
+             ================================================= -->
 
-        @if (hasPermission('DASHBOARD_VIEW')) {
+        @if (
+          hasModulePermission(
+            'DASHBOARD',
+            'DASHBOARD_VIEW'
+          )
+        ) {
 
           <a
             class="nav-item"
@@ -133,9 +145,16 @@
         }
 
 
-        <!-- PATIENTS -->
+        <!-- =================================================
+             PATIENTS
+             ================================================= -->
 
-        @if (hasPermission('PATIENT_VIEW')) {
+        @if (
+          hasModulePermission(
+            'PATIENTS',
+            'PATIENT_VIEW'
+          )
+        ) {
 
           <a
             class="nav-item"
@@ -157,9 +176,16 @@
         }
 
 
-        <!-- APPOINTMENTS -->
+        <!-- =================================================
+             APPOINTMENTS
+             ================================================= -->
 
-        @if (hasPermission('APPOINTMENT_VIEW')) {
+        @if (
+          hasModulePermission(
+            'APPOINTMENTS',
+            'APPOINTMENT_VIEW'
+          )
+        ) {
 
           <a
             class="nav-item"
@@ -181,9 +207,16 @@
         }
 
 
-        <!-- DOCTORS -->
+        <!-- =================================================
+             DOCTORS
+             ================================================= -->
 
-        @if (hasPermission('DOCTOR_VIEW')) {
+        @if (
+          hasModulePermission(
+            'DOCTORS',
+            'DOCTOR_VIEW'
+          )
+        ) {
 
           <a
             class="nav-item"
@@ -205,9 +238,16 @@
         }
 
 
-        <!-- DEPARTMENTS -->
+        <!-- =================================================
+             DEPARTMENTS
+             ================================================= -->
 
-        @if (hasPermission('DEPARTMENT_VIEW')) {
+        @if (
+          hasModulePermission(
+            'DEPARTMENTS',
+            'DEPARTMENT_VIEW'
+          )
+        ) {
 
           <a
             class="nav-item"
@@ -233,19 +273,33 @@
     }
 
 
-
     <!-- ===================================================
          CLINICAL
          =================================================== -->
 
     @if (
-      hasAnyPermission([
-        'CONSULTATION_VIEW',
-        'PHARMACY_VIEW',
-        'LABORATORY_VIEW',
-        'LABORATORY_REQUEST_VIEW',
-        'ADMISSION_VIEW'
-      ])
+      hasModuleAnyPermission(
+        'CONSULTATIONS',
+        ['CONSULTATION_VIEW']
+      )
+      ||
+      hasModuleAnyPermission(
+        'PHARMACY',
+        ['PHARMACY_VIEW']
+      )
+      ||
+      hasModuleAnyPermission(
+        'LABORATORY',
+        [
+          'LABORATORY_VIEW',
+          'LABORATORY_REQUEST_VIEW'
+        ]
+      )
+      ||
+      hasModuleAnyPermission(
+        'ADMISSIONS',
+        ['ADMISSION_VIEW']
+      )
     ) {
 
       <div class="nav-section">
@@ -255,9 +309,16 @@
         </span>
 
 
-        <!-- CONSULTATIONS -->
+        <!-- =================================================
+             CONSULTATIONS
+             ================================================= -->
 
-        @if (hasPermission('CONSULTATION_VIEW')) {
+        @if (
+          hasModulePermission(
+            'CONSULTATIONS',
+            'CONSULTATION_VIEW'
+          )
+        ) {
 
           <a
             class="nav-item"
@@ -279,9 +340,16 @@
         }
 
 
-        <!-- PHARMACY -->
+        <!-- =================================================
+             PHARMACY
+             ================================================= -->
 
-        @if (hasPermission('PHARMACY_VIEW')) {
+        @if (
+          hasModulePermission(
+            'PHARMACY',
+            'PHARMACY_VIEW'
+          )
+        ) {
 
           <a
             class="nav-item"
@@ -303,9 +371,16 @@
         }
 
 
-        <!-- LABORATORY -->
+        <!-- =================================================
+             LABORATORY
+             ================================================= -->
 
-        @if (hasPermission('LABORATORY_VIEW')) {
+        @if (
+          hasModulePermission(
+            'LABORATORY',
+            'LABORATORY_VIEW'
+          )
+        ) {
 
           <a
             class="nav-item"
@@ -328,9 +403,16 @@
         }
 
 
-        <!-- LAB REQUESTS -->
+        <!-- =================================================
+             LAB REQUESTS
+             ================================================= -->
 
-        @if (hasPermission('LABORATORY_REQUEST_VIEW')) {
+        @if (
+          hasModulePermission(
+            'LABORATORY',
+            'LABORATORY_REQUEST_VIEW'
+          )
+        ) {
 
           <a
             class="nav-item"
@@ -352,9 +434,16 @@
         }
 
 
-        <!-- ADMISSIONS -->
+        <!-- =================================================
+             ADMISSIONS
+             ================================================= -->
 
-        @if (hasPermission('ADMISSION_VIEW')) {
+        @if (
+          hasModulePermission(
+            'ADMISSIONS',
+            'ADMISSION_VIEW'
+          )
+        ) {
 
           <a
             class="nav-item"
@@ -381,19 +470,33 @@
     }
 
 
-
     <!-- ===================================================
          MANAGEMENT
          =================================================== -->
 
     @if (
-      hasAnyPermission([
-        'BILLING_VIEW',
-        'INVENTORY_VIEW',
-        'REPORT_VIEW',
-        'SETTINGS_VIEW',
-        'PHARMACY_STOCK_VIEW'
-      ])
+      hasModuleAnyPermission(
+        'BILLING',
+        ['BILLING_VIEW']
+      )
+      ||
+      hasModuleAnyPermission(
+        'INVENTORY',
+        [
+          'INVENTORY_VIEW',
+          'PHARMACY_STOCK_VIEW'
+        ]
+      )
+      ||
+      hasModuleAnyPermission(
+        'REPORTS',
+        ['REPORT_VIEW']
+      )
+      ||
+      hasModuleAnyPermission(
+        'SETTINGS',
+        ['SETTINGS_VIEW']
+      )
     ) {
 
       <div class="nav-section">
@@ -403,9 +506,16 @@
         </span>
 
 
-        <!-- BILLING -->
+        <!-- =================================================
+             BILLING
+             ================================================= -->
 
-        @if (hasPermission('BILLING_VIEW')) {
+        @if (
+          hasModulePermission(
+            'BILLING',
+            'BILLING_VIEW'
+          )
+        ) {
 
           <a
             class="nav-item"
@@ -428,9 +538,16 @@
         }
 
 
-        <!-- INVENTORY -->
+        <!-- =================================================
+             INVENTORY
+             ================================================= -->
 
-        @if (hasPermission('INVENTORY_VIEW')) {
+        @if (
+          hasModulePermission(
+            'INVENTORY',
+            'INVENTORY_VIEW'
+          )
+        ) {
 
           <a
             class="nav-item"
@@ -453,13 +570,18 @@
         }
 
 
-        <!-- STOCK MANAGEMENT -->
+        <!-- =================================================
+             STOCK MANAGEMENT
+             ================================================= -->
 
         @if (
-          hasAnyPermission([
-            'INVENTORY_VIEW',
-            'PHARMACY_STOCK_VIEW'
-          ])
+          hasModuleAnyPermission(
+            'INVENTORY',
+            [
+              'INVENTORY_VIEW',
+              'PHARMACY_STOCK_VIEW'
+            ]
+          )
         ) {
 
           <a
@@ -482,9 +604,16 @@
         }
 
 
-        <!-- REPORTS -->
+        <!-- =================================================
+             REPORTS
+             ================================================= -->
 
-        @if (hasPermission('REPORT_VIEW')) {
+        @if (
+          hasModulePermission(
+            'REPORTS',
+            'REPORT_VIEW'
+          )
+        ) {
 
           <a
             class="nav-item"
@@ -507,15 +636,21 @@
         }
 
 
-        <!-- SETTINGS -->
+        <!-- =================================================
+             SETTINGS
+             ================================================= -->
 
-        @if (hasPermission('SETTINGS_VIEW')) {
+        @if (
+          hasModulePermission(
+            'SETTINGS',
+            'SETTINGS_VIEW'
+          )
+        ) {
 
           <a
             class="nav-item"
             routerLink="/settings"
             routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
             (click)="navigate()"
           >
 
@@ -536,7 +671,6 @@
     }
 
   </nav>
-
 
 
   <!-- =====================================================
@@ -570,7 +704,6 @@
       </div>
 
     </div>
-
 
 
     <!-- ===================================================

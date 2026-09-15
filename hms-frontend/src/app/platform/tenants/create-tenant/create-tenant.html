@@ -1,0 +1,516 @@
+<!-- =====================================================
+     CREATE PLATFORM TENANT
+     File:
+     src/app/platform/tenants/create-tenant/create-tenant.html
+     ===================================================== -->
+
+<section class="create-tenant-page">
+
+  <div class="page-header">
+
+    <div class="page-title">
+
+      <a
+        routerLink="/platform/tenants"
+        class="back-link"
+      >
+        ← Back to Tenants
+      </a>
+
+      <span class="eyebrow">
+        OLIVES TECH PLATFORM
+      </span>
+
+      <h1>
+        Create Tenant
+      </h1>
+
+      <p>
+        Register a new organization on the HMS platform.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       SUCCESS MESSAGE
+       =================================================== -->
+
+  <div
+    *ngIf="successMessage"
+    class="success-card"
+  >
+
+    <div class="message-icon">
+      ✓
+    </div>
+
+    <div class="message-content">
+
+      <strong>
+        Tenant created successfully
+      </strong>
+
+      <span>
+        {{ successMessage }}
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       ERROR MESSAGE
+       =================================================== -->
+
+  <div
+    *ngIf="errorMessage"
+    class="error-card"
+  >
+
+    <div class="message-icon">
+      !
+    </div>
+
+    <div class="message-content">
+
+      <strong>
+        Unable to create tenant
+      </strong>
+
+      <span>
+        {{ errorMessage }}
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       FORM
+       =================================================== -->
+
+  <form
+    class="tenant-form"
+    #tenantForm="ngForm"
+    (ngSubmit)="submit()"
+  >
+
+    <!-- =================================================
+         ORGANIZATION INFORMATION
+         ================================================= -->
+
+    <section class="form-card">
+
+      <div class="section-header">
+
+        <div class="section-heading">
+
+          <span class="section-number">
+            01
+          </span>
+
+          <div>
+
+            <h2>
+              Organization Information
+            </h2>
+
+            <p>
+              Enter the basic details of the organization.
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <!-- TENANT CODE -->
+
+        <div class="form-field">
+
+          <label for="code">
+            Tenant Code
+            <span class="required">*</span>
+          </label>
+
+          <input
+            id="code"
+            name="code"
+            type="text"
+            [(ngModel)]="form.code"
+            placeholder="e.g. ATAMBA-PHARMACY"
+            minlength="3"
+            maxlength="50"
+            autocomplete="off"
+            required
+          />
+
+          <small>
+            3–50 characters. Letters, numbers, hyphens and
+            underscores are allowed.
+          </small>
+
+        </div>
+
+
+        <!-- ORGANIZATION NAME -->
+
+        <div class="form-field">
+
+          <label for="name">
+            Organization Name
+            <span class="required">*</span>
+          </label>
+
+          <input
+            id="name"
+            name="name"
+            type="text"
+            [(ngModel)]="form.name"
+            placeholder="e.g. Atamba Pharmacy"
+            maxlength="200"
+            required
+          />
+
+        </div>
+
+
+        <!-- TYPE -->
+
+        <div class="form-field">
+
+          <label for="type">
+            Organization Type
+            <span class="required">*</span>
+          </label>
+
+          <select
+            id="type"
+            name="type"
+            [(ngModel)]="form.type"
+            required
+          >
+
+            <option
+              *ngFor="let type of tenantTypes"
+              [ngValue]="type"
+            >
+              {{ formatType(type) }}
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         CONTACT INFORMATION
+         ================================================= -->
+
+    <section class="form-card">
+
+      <div class="section-header">
+
+        <div class="section-heading">
+
+          <span class="section-number">
+            02
+          </span>
+
+          <div>
+
+            <h2>
+              Contact Information
+            </h2>
+
+            <p>
+              Contact details for the organization.
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <!-- PHONE -->
+
+        <div class="form-field">
+
+          <label for="phone">
+            Phone Number
+          </label>
+
+          <input
+            id="phone"
+            name="phone"
+            type="tel"
+            [(ngModel)]="form.phone"
+            placeholder="+256 7XX XXX XXX"
+            maxlength="50"
+          />
+
+        </div>
+
+
+        <!-- EMAIL -->
+
+        <div class="form-field">
+
+          <label for="email">
+            Email Address
+          </label>
+
+          <input
+            id="email"
+            name="email"
+            type="email"
+            [(ngModel)]="form.email"
+            placeholder="example@organization.com"
+            maxlength="150"
+          />
+
+        </div>
+
+
+        <!-- WEBSITE -->
+
+        <div class="form-field form-field-wide">
+
+          <label for="website">
+            Website
+          </label>
+
+          <input
+            id="website"
+            name="website"
+            type="url"
+            [(ngModel)]="form.website"
+            placeholder="https://example.com"
+            maxlength="300"
+          />
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         LOCATION
+         ================================================= -->
+
+    <section class="form-card">
+
+      <div class="section-header">
+
+        <div class="section-heading">
+
+          <span class="section-number">
+            03
+          </span>
+
+          <div>
+
+            <h2>
+              Location
+            </h2>
+
+            <p>
+              Physical location of the organization.
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <!-- ADDRESS -->
+
+        <div class="form-field form-field-wide">
+
+          <label for="address">
+            Address
+          </label>
+
+          <textarea
+            id="address"
+            name="address"
+            [(ngModel)]="form.address"
+            placeholder="Street, building or detailed address"
+            maxlength="500"
+            rows="3"
+          ></textarea>
+
+        </div>
+
+
+        <!-- CITY -->
+
+        <div class="form-field">
+
+          <label for="city">
+            City
+          </label>
+
+          <input
+            id="city"
+            name="city"
+            type="text"
+            [(ngModel)]="form.city"
+            placeholder="e.g. Kampala"
+            maxlength="100"
+          />
+
+        </div>
+
+
+        <!-- COUNTRY -->
+
+        <div class="form-field">
+
+          <label for="country">
+            Country
+          </label>
+
+          <input
+            id="country"
+            name="country"
+            type="text"
+            [(ngModel)]="form.country"
+            placeholder="e.g. Uganda"
+            maxlength="100"
+          />
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         BRANDING
+         ================================================= -->
+
+    <section class="form-card">
+
+      <div class="section-header">
+
+        <div class="section-heading">
+
+          <span class="section-number">
+            04
+          </span>
+
+          <div>
+
+            <h2>
+              Branding
+            </h2>
+
+            <p>
+              Optional branding information.
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <div class="form-field form-field-wide">
+
+          <label for="logoUrl">
+            Logo URL
+          </label>
+
+          <input
+            id="logoUrl"
+            name="logoUrl"
+            type="url"
+            [(ngModel)]="form.logoUrl"
+            placeholder="https://example.com/logo.png"
+            maxlength="500"
+          />
+
+          <small>
+            Optional. You can add the logo later.
+          </small>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         FORM ACTIONS
+         ================================================= -->
+
+    <div class="form-actions">
+
+      <a
+        routerLink="/platform/tenants"
+        class="cancel-button"
+      >
+        Cancel
+      </a>
+
+
+      <button
+        type="button"
+        class="reset-button"
+        (click)="resetForm()"
+        [disabled]="saving"
+      >
+        Reset
+      </button>
+
+
+      <button
+        type="submit"
+        class="save-button"
+        [disabled]="saving || tenantForm.invalid"
+      >
+
+        <span *ngIf="!saving">
+          Create Tenant
+        </span>
+
+        <span *ngIf="saving">
+          Creating...
+        </span>
+
+      </button>
+
+    </div>
+
+  </form>
+
+</section>

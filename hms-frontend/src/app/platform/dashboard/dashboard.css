@@ -1,0 +1,584 @@
+/* =====================================================
+   PLATFORM DASHBOARD
+   File:
+   src/app/platform/dashboard/dashboard.css
+   ===================================================== */
+
+.dashboard-page {
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+
+/* =====================================================
+   PAGE HEADER
+   ===================================================== */
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 6px;
+  color: #789b62;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+.page-header h1 {
+  margin: 0;
+  color: #1d2922;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.page-header p {
+  margin: 7px 0 0;
+  color: #717b75;
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   REFRESH BUTTON
+   ===================================================== */
+
+.refresh-button {
+  border: 1px solid #d8dfda;
+  background: #ffffff;
+  color: #26332b;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.refresh-button:hover:not(:disabled) {
+  background: #f1f5f2;
+}
+
+.refresh-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+/* =====================================================
+   SECTION
+   ===================================================== */
+
+.section {
+  margin-bottom: 30px;
+}
+
+.section-heading {
+  margin-bottom: 14px;
+}
+
+.section-heading h2 {
+  margin: 0;
+  color: #26332b;
+  font-size: 18px;
+}
+
+.section-heading p {
+  margin: 4px 0 0;
+  color: #7b847e;
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   STAT GRID
+   ===================================================== */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 16px;
+}
+
+
+/* =====================================================
+   STAT CARD
+   ===================================================== */
+
+.stat-card {
+  min-height: 120px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 20px;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e7e3;
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 2px 8px
+    rgba(27, 43, 34, 0.04);
+}
+
+.stat-icon {
+  width: 44px;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 10px;
+
+  background: #edf3eb;
+
+  color: #668953;
+
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.stat-content {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  color: #737d77;
+  font-size: 12px;
+}
+
+.stat-value {
+  margin-top: 4px;
+
+  color: #1d2922;
+
+  font-size: 25px;
+  line-height: 1;
+}
+
+.stat-detail {
+  margin-top: 5px;
+
+  color: #87908b;
+
+  font-size: 11px;
+}
+
+
+/* =====================================================
+   LOWER COLUMNS
+   ===================================================== */
+
+.dashboard-columns {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.4fr)
+    minmax(300px, 1fr);
+
+  gap: 20px;
+}
+
+
+/* =====================================================
+   PANEL
+   ===================================================== */
+
+.panel-card {
+  background: #ffffff;
+
+  border: 1px solid #e2e7e3;
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 2px 8px
+    rgba(27, 43, 34, 0.04);
+
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 20px;
+
+  border-bottom: 1px solid #edf0ee;
+}
+
+.panel-header h2 {
+  margin: 0;
+
+  color: #26332b;
+
+  font-size: 16px;
+}
+
+.panel-header p {
+  margin: 4px 0 0;
+
+  color: #7b847e;
+
+  font-size: 12px;
+}
+
+.view-link {
+  color: #668953;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  text-decoration: none;
+}
+
+.view-link:hover {
+  text-decoration: underline;
+}
+
+
+/* =====================================================
+   TENANT LIST
+   ===================================================== */
+
+.tenant-list {
+  padding: 4px 20px 10px;
+}
+
+.tenant-row {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  min-height: 66px;
+
+  border-bottom: 1px solid #f0f2f1;
+}
+
+.tenant-row:last-child {
+  border-bottom: none;
+}
+
+.tenant-avatar {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 9px;
+
+  background: #edf3eb;
+
+  color: #668953;
+
+  font-weight: 700;
+}
+
+.tenant-info {
+  flex: 1;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.tenant-info strong {
+  overflow: hidden;
+
+  color: #29352e;
+
+  font-size: 13px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tenant-info span {
+  margin-top: 3px;
+
+  color: #89918c;
+
+  font-size: 11px;
+}
+
+
+/* =====================================================
+   STATUS BADGES
+   ===================================================== */
+
+.status-badge {
+  padding: 5px 9px;
+
+  border-radius: 20px;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.status-badge.active {
+  background: #e8f3e8;
+  color: #477047;
+}
+
+.status-badge.trial {
+  background: #f2eedc;
+  color: #806d2c;
+}
+
+.status-badge.suspended {
+  background: #f4e8e8;
+  color: #8a4f4f;
+}
+
+.status-badge.grace-period {
+  background: #eeeaf5;
+  color: #685781;
+}
+
+.status-badge.cancelled,
+.status-badge.expired {
+  background: #eeeeee;
+  color: #707070;
+}
+
+
+/* =====================================================
+   SUBSCRIPTIONS
+   ===================================================== */
+
+.subscription-list {
+  padding: 12px 20px;
+}
+
+.subscription-item {
+  min-height: 54px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom: 1px solid #f0f2f1;
+}
+
+.subscription-item:last-child {
+  border-bottom: none;
+}
+
+.subscription-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  color: #536059;
+
+  font-size: 13px;
+}
+
+.subscription-item strong {
+  color: #26332b;
+  font-size: 15px;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+
+  border-radius: 50%;
+}
+
+.dot.active {
+  background: #6e9a61;
+}
+
+.dot.trial {
+  background: #c4a945;
+}
+
+.dot.suspended {
+  background: #a85d5d;
+}
+
+.dot.other {
+  background: #9b9b9b;
+}
+
+
+/* =====================================================
+   EMPTY STATE
+   ===================================================== */
+
+.empty-state {
+  padding: 35px 20px;
+
+  text-align: center;
+
+  color: #8a938e;
+
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   ERROR
+   ===================================================== */
+
+.error-card {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 20px;
+
+  padding: 15px 18px;
+
+  border: 1px solid #ead7d7;
+
+  border-radius: 10px;
+
+  background: #faf3f3;
+
+  color: #7d4b4b;
+}
+
+.error-card strong {
+  font-size: 13px;
+}
+
+.error-card span {
+  flex: 1;
+  font-size: 12px;
+}
+
+.error-card button {
+  border: none;
+
+  background: #ffffff;
+
+  padding: 7px 12px;
+
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  color: #6f4848;
+
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   LOADING
+   ===================================================== */
+
+.loading-card {
+  min-height: 240px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+
+  color: #737d77;
+
+  font-size: 13px;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+
+  border: 2px solid #dce4dd;
+
+  border-top-color: #789b62;
+
+  border-radius: 50%;
+
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =====================================================
+   TABLET
+   ===================================================== */
+
+@media (max-width: 1050px) {
+
+  .stats-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-columns {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+/* =====================================================
+   MOBILE
+   ===================================================== */
+
+@media (max-width: 650px) {
+
+  .page-header {
+    flex-direction: column;
+  }
+
+  .page-header h1 {
+    font-size: 23px;
+  }
+
+  .refresh-button {
+    width: 100%;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    min-height: 95px;
+  }
+
+  .panel-header {
+    padding: 16px;
+  }
+
+  .tenant-list {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+}

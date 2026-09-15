@@ -1,0 +1,376 @@
+<div class="subscriptions-page">
+
+  <!-- ================================================= -->
+  <!-- PAGE HEADER -->
+  <!-- ================================================= -->
+
+  <header class="page-header">
+
+    <div>
+
+      <div class="eyebrow">
+        OLIVES TECH PLATFORM
+      </div>
+
+      <h1>
+        Subscriptions
+      </h1>
+
+      <p>
+        Monitor and manage tenant subscriptions,
+        plans and billing periods.
+      </p>
+
+    </div>
+
+    <div class="header-actions">
+
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="loadSubscriptions()"
+        [disabled]="loading">
+
+        ↻ Refresh
+
+      </button>
+
+      <a
+        routerLink="/platform/subscriptions/create"
+        class="btn btn-primary">
+
+        + Create Subscription
+
+      </a>
+
+    </div>
+
+  </header>
+
+
+  <!-- ================================================= -->
+  <!-- ERROR -->
+  <!-- ================================================= -->
+
+  <div
+    *ngIf="errorMessage"
+    class="error-card">
+
+    <div>
+
+      {{ errorMessage }}
+
+    </div>
+
+    <button
+      type="button"
+      (click)="loadSubscriptions()">
+
+      Try Again
+
+    </button>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- LOADING -->
+  <!-- ================================================= -->
+
+  <section
+    *ngIf="loading"
+    class="loading-card">
+
+    <div class="spinner"></div>
+
+    <p>
+      Loading subscriptions...
+    </p>
+
+  </section>
+
+
+  <!-- ================================================= -->
+  <!-- EMPTY -->
+  <!-- ================================================= -->
+
+  <section
+    *ngIf="!loading && subscriptions.length === 0"
+    class="empty-card">
+
+    <div class="empty-icon">
+      ◈
+    </div>
+
+    <h2>
+      No subscriptions found
+    </h2>
+
+    <p>
+      No tenant subscriptions have been created yet.
+    </p>
+
+    <a
+      routerLink="/platform/subscriptions/create"
+      class="btn btn-primary">
+
+      + Create First Subscription
+
+    </a>
+
+  </section>
+
+
+  <!-- ================================================= -->
+  <!-- SUBSCRIPTIONS -->
+  <!-- ================================================= -->
+
+  <section
+    *ngIf="!loading && subscriptions.length > 0"
+    class="subscriptions-grid">
+
+    <article
+      class="subscription-card"
+      *ngFor="
+        let subscription of subscriptions;
+        trackBy: trackBySubscriptionId
+      ">
+
+
+      <!-- ============================================= -->
+      <!-- HEADER -->
+      <!-- ============================================= -->
+
+      <div class="subscription-header">
+
+        <div>
+
+          <span class="tenant-code">
+
+            {{ subscription.tenant.code }}
+
+          </span>
+
+          <h2>
+
+            {{ subscription.tenant.name }}
+
+          </h2>
+
+        </div>
+
+        <span
+          class="status-badge"
+          [ngClass]="statusClass(subscription.status)">
+
+          {{ formatStatus(subscription.status) }}
+
+        </span>
+
+      </div>
+
+
+      <!-- ============================================= -->
+      <!-- PLAN -->
+      <!-- ============================================= -->
+
+      <div class="plan-section">
+
+        <span class="label">
+          Plan
+        </span>
+
+        <strong>
+          {{ subscription.plan.name }}
+        </strong>
+
+        <span class="plan-code">
+          {{ subscription.plan.code }}
+        </span>
+
+      </div>
+
+
+      <!-- ============================================= -->
+      <!-- PRICE -->
+      <!-- ============================================= -->
+
+      <div class="price-section">
+
+        <strong>
+
+          {{
+            formatCurrency(
+              subscription.plan.price,
+              subscription.plan.currency
+            )
+          }}
+
+        </strong>
+
+        <span>
+
+          /
+          {{ subscription.plan.billingCycle | lowercase }}
+
+        </span>
+
+      </div>
+
+
+      <!-- ============================================= -->
+      <!-- DATES -->
+      <!-- ============================================= -->
+
+      <div class="subscription-info">
+
+        <div class="info-item">
+
+          <span class="label">
+            Started
+          </span>
+
+          <strong>
+            {{ formatDate(subscription.startDate) }}
+          </strong>
+
+        </div>
+
+
+        <div class="info-item">
+
+          <span class="label">
+            Trial Ends
+          </span>
+
+          <strong>
+            {{ formatDate(subscription.trialEndsAt) }}
+          </strong>
+
+        </div>
+
+
+        <div class="info-item">
+
+          <span class="label">
+            Current Period
+          </span>
+
+          <strong>
+
+            {{ formatDate(subscription.currentPeriodStart) }}
+
+            <span class="date-separator">
+              →
+            </span>
+
+            {{ formatDate(subscription.currentPeriodEnd) }}
+
+          </strong>
+
+        </div>
+
+
+        <div class="info-item">
+
+          <span class="label">
+            Next Billing
+          </span>
+
+          <strong>
+            {{ formatDate(subscription.nextBillingDate) }}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <!-- ============================================= -->
+      <!-- MODULES -->
+      <!-- ============================================= -->
+
+      <div class="modules-section">
+
+        <div class="section-title">
+          Included Modules
+        </div>
+
+        <div
+          *ngIf="subscription.plan.modules?.length"
+          class="module-list">
+
+          <span
+            class="module-badge"
+            *ngFor="
+              let module of subscription.plan.modules
+            ">
+
+            {{ module.name }}
+
+          </span>
+
+        </div>
+
+        <div
+          *ngIf="!subscription.plan.modules?.length"
+          class="no-modules">
+
+          No modules assigned.
+
+        </div>
+
+      </div>
+
+
+      <!-- ============================================= -->
+      <!-- ACTIONS -->
+      <!-- ============================================= -->
+
+      <div class="subscription-actions">
+
+        <button
+          type="button"
+          class="action-button activate"
+          [disabled]="
+            updatingSubscriptionId === subscription.id
+          "
+          (click)="updateStatus(subscription, 'ACTIVE')">
+
+          Activate
+
+        </button>
+
+
+        <button
+          type="button"
+          class="action-button suspend"
+          [disabled]="
+            updatingSubscriptionId === subscription.id
+          "
+          (click)="updateStatus(subscription, 'SUSPENDED')">
+
+          Suspend
+
+        </button>
+
+
+        <button
+          type="button"
+          class="action-button cancel"
+          [disabled]="
+            updatingSubscriptionId === subscription.id
+          "
+          (click)="updateStatus(subscription, 'CANCELLED')">
+
+          Cancel
+
+        </button>
+
+      </div>
+
+    </article>
+
+  </section>
+
+</div>

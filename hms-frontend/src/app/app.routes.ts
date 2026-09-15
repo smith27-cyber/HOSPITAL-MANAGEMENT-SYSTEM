@@ -8,7 +8,7 @@ import { Routes } from '@angular/router';
 
 import { authGuard } from './core/guards/auth.guard';
 import { permissionGuard } from './core/guards/permission.guard';
-
+import { platformGuard } from './core/guards/platform.guard';
 
 // =====================================================
 // APPLICATION ROUTES
@@ -42,7 +42,324 @@ export const routes: Routes = [
 
 
   // =====================================================
-  // MAIN APPLICATION LAYOUT
+  // OLIVES TECH PLATFORM
+  //
+  // Separate layout for platform administration.
+  // =====================================================
+
+  {
+    path: 'platform',
+
+    canActivate: [
+      authGuard,
+      platformGuard
+    ],
+
+    loadComponent: () =>
+      import('./layout/platform-layout/platform-layout')
+        .then(m => m.PlatformLayout),
+
+    children: [
+
+      // =================================================
+      // /platform
+      // =================================================
+
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'dashboard'
+      },
+
+
+      // =================================================
+      // /platform/dashboard
+      // =================================================
+
+      {
+        path: 'dashboard',
+
+        loadComponent: () =>
+          import('./platform/dashboard/dashboard')
+            .then(m => m.PlatformDashboard)
+      },
+
+
+      // =================================================
+      // TENANTS
+      // =================================================
+
+      {
+        path: 'tenants',
+
+        children: [
+
+          // -----------------------------------------------
+          // /platform/tenants
+          // -----------------------------------------------
+
+          {
+            path: '',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'TENANT_VIEW'
+            },
+
+            loadComponent: () =>
+              import('./platform/tenants/tenants')
+                .then(m => m.Tenants)
+          },
+
+
+          // -----------------------------------------------
+          // /platform/tenants/create
+          // -----------------------------------------------
+
+          {
+            path: 'create',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'TENANT_CREATE'
+            },
+
+            loadComponent: () =>
+              import(
+                './platform/tenants/create-tenant/create-tenant'
+              )
+                .then(m => m.CreateTenant)
+          },
+
+
+          // -----------------------------------------------
+          // /platform/tenants/:id/modules
+          // -----------------------------------------------
+
+          {
+            path: ':id/modules',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'PLATFORM_MODULE_MANAGE'
+            },
+
+            loadComponent: () =>
+              import(
+                './platform/tenants/tenant-modules/tenant-modules'
+              )
+                .then(m => m.TenantModules)
+          },
+
+
+          // -----------------------------------------------
+          // /platform/tenants/:id/admin
+          // -----------------------------------------------
+
+          {
+            path: ':id/admin',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'TENANT_ADMIN_CREATE'
+            },
+
+            loadComponent: () =>
+              import(
+                './platform/tenants/tenant-admin/tenant-admin'
+              )
+                .then(m => m.TenantAdmin)
+          }
+
+        ]
+      },
+
+
+      // =================================================
+      // PLATFORM USERS
+      //
+      // Platform-wide users.
+      //
+      // URL:
+      // /platform/users
+      //
+      // This is intentionally OUTSIDE the tenants
+      // children because it is not tenant-scoped.
+      // =================================================
+
+      {
+        path: 'users',
+
+        canActivate: [
+          permissionGuard
+        ],
+
+        data: {
+          permission: 'PLATFORM_USER_VIEW'
+        },
+
+        loadComponent: () =>
+          import('./platform/users/users')
+            .then(m => m.Users)
+      },
+
+
+      // =================================================
+      // PLANS
+      // =================================================
+
+      {
+        path: 'plans',
+
+        children: [
+
+          // -----------------------------------------------
+          // /platform/plans
+          // -----------------------------------------------
+
+          {
+            path: '',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'PLATFORM_PLAN_VIEW'
+            },
+
+            loadComponent: () =>
+              import('./platform/plans/plans')
+                .then(m => m.Plans)
+          },
+
+
+          // -----------------------------------------------
+          // /platform/plans/create
+          // -----------------------------------------------
+
+          {
+            path: 'create',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'PLATFORM_PLAN_MANAGE'
+            },
+
+            loadComponent: () =>
+              import(
+                './platform/plans/create-plan/create-plan'
+              )
+                .then(m => m.CreatePlan)
+          }
+
+        ]
+      },
+
+
+      // =================================================
+      // SUBSCRIPTIONS
+      // =================================================
+
+      {
+        path: 'subscriptions',
+
+        children: [
+
+          // -----------------------------------------------
+          // /platform/subscriptions
+          // -----------------------------------------------
+
+          {
+            path: '',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'PLATFORM_SUBSCRIPTION_VIEW'
+            },
+
+            loadComponent: () =>
+              import(
+                './platform/subscriptions/subscriptions'
+              )
+                .then(m => m.Subscriptions)
+          },
+
+
+          // -----------------------------------------------
+          // /platform/subscriptions/create
+          // -----------------------------------------------
+
+          {
+            path: 'create',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'PLATFORM_SUBSCRIPTION_MANAGE'
+            },
+
+            loadComponent: () =>
+              import(
+                './platform/subscriptions/create-subscription/create-subscription'
+              )
+                .then(m => m.CreateSubscription)
+          }
+
+        ]
+      },
+
+
+      // =================================================
+      // MODULES
+      // =================================================
+
+      // -------------------------------------------------
+      // /platform/modules
+      // -------------------------------------------------
+
+      {
+        path: 'modules',
+
+        canActivate: [
+          permissionGuard
+        ],
+
+        data: {
+          permission: 'PLATFORM_MODULE_VIEW'
+        },
+
+        loadComponent: () =>
+          import('./platform/modules/modules')
+            .then(m => m.Modules)
+      }
+
+    ]
+  },
+
+
+  // =====================================================
+  // MAIN HMS APPLICATION LAYOUT
   // AUTHENTICATED USERS ONLY
   // =====================================================
 
@@ -108,6 +425,7 @@ export const routes: Routes = [
                 .then(m => m.PatientList)
           },
 
+
           // /patients/register
           {
             path: 'register',
@@ -127,6 +445,7 @@ export const routes: Routes = [
                 .then(m => m.PatientForm)
           },
 
+
           // /patients/:id/edit
           {
             path: ':id/edit',
@@ -145,6 +464,7 @@ export const routes: Routes = [
               )
                 .then(m => m.PatientForm)
           },
+
 
           // /patients/:id
           {
@@ -197,6 +517,7 @@ export const routes: Routes = [
                 .then(m => m.DoctorList)
           },
 
+
           // /doctors/register
           {
             path: 'register',
@@ -216,6 +537,7 @@ export const routes: Routes = [
                 .then(m => m.DoctorForm)
           },
 
+
           // /doctors/:id/edit
           {
             path: ':id/edit',
@@ -234,6 +556,7 @@ export const routes: Routes = [
               )
                 .then(m => m.DoctorForm)
           },
+
 
           // /doctors/:id
           {
@@ -286,6 +609,7 @@ export const routes: Routes = [
                 .then(m => m.DepartmentList)
           },
 
+
           // /departments/register
           {
             path: 'register',
@@ -305,6 +629,7 @@ export const routes: Routes = [
                 .then(m => m.DepartmentForm)
           },
 
+
           // /departments/:id/edit
           {
             path: ':id/edit',
@@ -323,6 +648,7 @@ export const routes: Routes = [
               )
                 .then(m => m.DepartmentForm)
           },
+
 
           // /departments/:id
           {
@@ -375,6 +701,7 @@ export const routes: Routes = [
                 .then(m => m.AppointmentList)
           },
 
+
           // /appointments/register
           {
             path: 'register',
@@ -393,6 +720,7 @@ export const routes: Routes = [
               )
                 .then(m => m.AppointmentRegister)
           },
+
 
           // /appointments/queue
           {
@@ -413,6 +741,7 @@ export const routes: Routes = [
                 .then(m => m.AppointmentQueue)
           },
 
+
           // /appointments/:id/edit
           {
             path: ':id/edit',
@@ -432,6 +761,7 @@ export const routes: Routes = [
                 .then(m => m.AppointmentRegister)
           },
 
+
           // /appointments/:id/consultation
           {
             path: ':id/consultation',
@@ -450,6 +780,7 @@ export const routes: Routes = [
               )
                 .then(m => m.ConsultationForm)
           },
+
 
           // /appointments/:id
           {
@@ -502,6 +833,7 @@ export const routes: Routes = [
                 .then(m => m.ConsultationList)
           },
 
+
           // /consultations/register
           {
             path: 'register',
@@ -521,6 +853,7 @@ export const routes: Routes = [
                 .then(m => m.ConsultationForm)
           },
 
+
           // /consultations/:id/edit
           {
             path: ':id/edit',
@@ -539,6 +872,7 @@ export const routes: Routes = [
               )
                 .then(m => m.ConsultationForm)
           },
+
 
           // /consultations/:id
           {
@@ -591,6 +925,7 @@ export const routes: Routes = [
                 .then(m => m.PharmacyDashboard)
           },
 
+
           // /pharmacy/queue
           {
             path: 'queue',
@@ -610,6 +945,7 @@ export const routes: Routes = [
                 .then(m => m.PharmacyQueue)
           },
 
+
           // /pharmacy/stock
           {
             path: 'stock',
@@ -628,6 +964,7 @@ export const routes: Routes = [
               )
                 .then(m => m.PharmacyStock)
           },
+
 
           // /pharmacy/prescriptions/:id
           {
@@ -661,10 +998,7 @@ export const routes: Routes = [
 
         children: [
 
-          // -------------------------------------------------
           // /laboratory
-          // -------------------------------------------------
-
           {
             path: '',
 
@@ -684,10 +1018,7 @@ export const routes: Routes = [
           },
 
 
-          // -------------------------------------------------
           // /laboratory/register
-          // -------------------------------------------------
-
           {
             path: 'register',
 
@@ -735,6 +1066,7 @@ export const routes: Routes = [
                     .then(m => m.LaboratoryRequestList)
               },
 
+
               // /laboratory/requests/register
               {
                 path: 'register',
@@ -754,6 +1086,7 @@ export const routes: Routes = [
                     .then(m => m.LaboratoryRequestForm)
               },
 
+
               // /laboratory/requests/:id/edit
               {
                 path: ':id/edit',
@@ -772,6 +1105,7 @@ export const routes: Routes = [
                   )
                     .then(m => m.LaboratoryRequestForm)
               },
+
 
               // /laboratory/requests/:id
               {
@@ -796,10 +1130,7 @@ export const routes: Routes = [
           },
 
 
-          // -------------------------------------------------
           // /laboratory/:id/edit
-          // -------------------------------------------------
-
           {
             path: ':id/edit',
 
@@ -819,10 +1150,7 @@ export const routes: Routes = [
           },
 
 
-          // -------------------------------------------------
           // /laboratory/:id
-          // -------------------------------------------------
-
           {
             path: ':id',
 
@@ -873,6 +1201,7 @@ export const routes: Routes = [
                 .then(m => m.AdmissionList)
           },
 
+
           // /admissions/register
           {
             path: 'register',
@@ -892,6 +1221,7 @@ export const routes: Routes = [
                 .then(m => m.AdmissionRegister)
           },
 
+
           // /admissions/:id/edit
           {
             path: ':id/edit',
@@ -910,6 +1240,7 @@ export const routes: Routes = [
               )
                 .then(m => m.AdmissionEdit)
           },
+
 
           // /admissions/:id
           {
@@ -962,6 +1293,7 @@ export const routes: Routes = [
                 .then(m => m.BillingList)
           },
 
+
           // /billing/register
           {
             path: 'register',
@@ -981,6 +1313,7 @@ export const routes: Routes = [
                 .then(m => m.BillingRegister)
           },
 
+
           // /billing/:id/edit
           {
             path: ':id/edit',
@@ -999,6 +1332,7 @@ export const routes: Routes = [
               )
                 .then(m => m.BillingEdit)
           },
+
 
           // /billing/:id
           {
@@ -1051,6 +1385,7 @@ export const routes: Routes = [
                 .then(m => m.InventoryList)
           },
 
+
           // /inventory/register
           {
             path: 'register',
@@ -1069,6 +1404,7 @@ export const routes: Routes = [
               )
                 .then(m => m.InventoryRegister)
           },
+
 
           // /inventory/stock
           {
@@ -1089,6 +1425,7 @@ export const routes: Routes = [
                 .then(m => m.InventoryStock)
           },
 
+
           // /inventory/:id/edit
           {
             path: ':id/edit',
@@ -1107,6 +1444,7 @@ export const routes: Routes = [
               )
                 .then(m => m.InventoryEdit)
           },
+
 
           // /inventory/:id
           {
@@ -1163,10 +1501,7 @@ export const routes: Routes = [
 
         children: [
 
-          // -------------------------------------------------
           // /settings
-          // -------------------------------------------------
-
           {
             path: '',
 
@@ -1186,10 +1521,7 @@ export const routes: Routes = [
           },
 
 
-          // -------------------------------------------------
           // /settings/hospital
-          // -------------------------------------------------
-
           {
             path: 'hospital',
 
@@ -1209,10 +1541,7 @@ export const routes: Routes = [
           },
 
 
-          // -------------------------------------------------
           // /settings/system
-          // -------------------------------------------------
-
           {
             path: 'system',
 
@@ -1232,10 +1561,7 @@ export const routes: Routes = [
           },
 
 
-          // -------------------------------------------------
           // /settings/notifications
-          // -------------------------------------------------
-
           {
             path: 'notifications',
 
@@ -1254,49 +1580,45 @@ export const routes: Routes = [
                 .then(m => m.NotificationSettingsComponent)
           },
 
-// -------------------------------------------------
-// /settings/users
-// USER MANAGEMENT
-// -------------------------------------------------
 
-{
-  path: 'users',
+          // /settings/users
+          {
+            path: 'users',
 
-  canActivate: [
-    permissionGuard
-  ],
+            canActivate: [
+              permissionGuard
+            ],
 
-  data: {
-    permission: 'SETTINGS_USER_MANAGE'
-  },
+            data: {
+              permission: 'SETTINGS_USER_MANAGE'
+            },
 
-  loadComponent: () =>
-    import(
-      './features/settings/user-management/user-management'
-    )
-      .then(m => m.UserManagementComponent)
-},// -------------------------------------------------
-// /settings/profile
-// PROFILE SETTINGS
-// -------------------------------------------------
+            loadComponent: () =>
+              import(
+                './features/settings/user-management/user-management'
+              )
+                .then(m => m.UserManagementComponent)
+          },
 
-{
-  path: 'profile',
 
-  canActivate: [
-    permissionGuard
-  ],
+          // /settings/profile
+          {
+            path: 'profile',
 
-  data: {
-    permission: 'SETTINGS_VIEW'
-  },
+            canActivate: [
+              permissionGuard
+            ],
 
-  loadComponent: () =>
-    import(
-      './features/settings/profile-settings/profile-settings'
-    )
-      .then(m => m.ProfileSettings)
-},
+            data: {
+              permission: 'SETTINGS_VIEW'
+            },
+
+            loadComponent: () =>
+              import(
+                './features/settings/profile-settings/profile-settings'
+              )
+                .then(m => m.ProfileSettings)
+          }
 
         ]
       }

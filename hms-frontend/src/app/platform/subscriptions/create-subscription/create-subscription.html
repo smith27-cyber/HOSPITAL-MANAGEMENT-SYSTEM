@@ -1,0 +1,425 @@
+<div class="create-subscription-page">
+
+  <header class="page-header">
+    <div>
+      <div class="eyebrow">OLIVES TECH PLATFORM</div>
+
+      <h1>Create Subscription</h1>
+
+      <p>
+        Assign a plan to a tenant and create their subscription.
+      </p>
+    </div>
+
+    <a
+      routerLink="/platform/subscriptions"
+      class="btn btn-secondary"
+    >
+      ← Back to Subscriptions
+    </a>
+  </header>
+
+
+  <section *ngIf="loading" class="loading-card">
+
+    <div class="spinner"></div>
+
+    <p>Loading tenants and plans...</p>
+
+  </section>
+
+
+  <section *ngIf="!loading" class="form-card">
+
+    <div
+      *ngIf="errorMessage"
+      class="error-card"
+    >
+      <strong>Unable to create subscription</strong>
+      <p>{{ errorMessage }}</p>
+    </div>
+
+
+    <div
+      *ngIf="successMessage"
+      class="success-card"
+    >
+      {{ successMessage }}
+    </div>
+
+
+    <form
+      [formGroup]="subscriptionForm"
+      (ngSubmit)="createSubscription()"
+    >
+
+      <!-- TENANT -->
+
+      <div class="form-section">
+
+        <div class="section-heading">
+          <div class="section-number">1</div>
+
+          <div>
+            <h2>Select Tenant</h2>
+            <p>Choose the business that will receive the subscription.</p>
+          </div>
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="tenantId">
+            Tenant
+            <span>*</span>
+          </label>
+
+          <select
+            id="tenantId"
+            formControlName="tenantId"
+          >
+
+            <option value="">
+              Select a tenant
+            </option>
+
+            <option
+              *ngFor="let tenant of tenants"
+              [value]="tenant.id"
+            >
+              {{ tenant.name }} — {{ tenant.code }}
+            </option>
+
+          </select>
+
+          <small
+            *ngIf="
+              subscriptionForm.controls.tenantId.touched &&
+              subscriptionForm.controls.tenantId.invalid
+            "
+            class="field-error"
+          >
+            Please select a tenant.
+          </small>
+
+        </div>
+
+
+        <div
+          *ngIf="getSelectedTenant() as tenant"
+          class="selected-preview"
+        >
+
+          <div class="preview-icon">
+            {{ tenant.name.charAt(0) }}
+          </div>
+
+          <div>
+            <strong>{{ tenant.name }}</strong>
+
+            <span>
+              {{ tenant.code }} · {{ tenant.type }}
+            </span>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- PLAN -->
+
+      <div class="form-section">
+
+        <div class="section-heading">
+          <div class="section-number">2</div>
+
+          <div>
+            <h2>Select Plan</h2>
+            <p>
+              The selected plan determines pricing and enabled modules.
+            </p>
+          </div>
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="planId">
+            Plan
+            <span>*</span>
+          </label>
+
+          <select
+            id="planId"
+            formControlName="planId"
+          >
+
+            <option value="">
+              Select a plan
+            </option>
+
+            <option
+              *ngFor="let plan of plans"
+              [value]="plan.id"
+            >
+              {{ plan.name }}
+              — {{ plan.code }}
+              — {{ plan.price | currency:plan.currency:'symbol':'1.0-0' }}
+              / {{ plan.billingCycle | lowercase }}
+            </option>
+
+          </select>
+
+          <small
+            *ngIf="
+              subscriptionForm.controls.planId.touched &&
+              subscriptionForm.controls.planId.invalid
+            "
+            class="field-error"
+          >
+            Please select a plan.
+          </small>
+
+        </div>
+
+
+        <div
+          *ngIf="getSelectedPlan() as plan"
+          class="plan-preview"
+        >
+
+          <div class="plan-preview-header">
+
+            <div>
+              <span class="plan-code">
+                {{ plan.code }}
+              </span>
+
+              <h3>{{ plan.name }}</h3>
+            </div>
+
+            <div class="plan-price">
+
+              <strong>
+                {{ plan.price | currency:plan.currency:'symbol':'1.0-0' }}
+              </strong>
+
+              <span>
+                / {{ plan.billingCycle | lowercase }}
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <p *ngIf="plan.description">
+            {{ plan.description }}
+          </p>
+
+
+          <div class="trial-info">
+
+            <strong>
+              {{ plan.trialDays }} day{{ plan.trialDays === 1 ? '' : 's' }}
+            </strong>
+
+            <span>
+              trial period
+            </span>
+
+          </div>
+
+
+          <div class="modules-title">
+            Included Modules
+          </div>
+
+
+          <div
+            *ngIf="plan.modules?.length"
+            class="module-list"
+          >
+
+            <span
+              *ngFor="let module of plan.modules"
+              class="module-badge"
+            >
+              {{ module.name }}
+            </span>
+
+          </div>
+
+
+          <div
+            *ngIf="!plan.modules?.length"
+            class="no-modules"
+          >
+            No modules assigned to this plan.
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- STATUS -->
+
+      <div class="form-section">
+
+        <div class="section-heading">
+
+          <div class="section-number">3</div>
+
+          <div>
+            <h2>Subscription Status</h2>
+
+            <p>
+              Choose how the subscription should start.
+            </p>
+          </div>
+
+        </div>
+
+
+        <div class="status-options">
+
+          <label
+            *ngFor="let option of statusOptions"
+            class="status-option"
+            [class.selected]="
+              subscriptionForm.controls.status.value ===
+              (option.value ?? '')
+            "
+          >
+
+            <input
+              type="radio"
+              formControlName="status"
+              [value]="option.value ?? ''"
+            />
+
+            <div class="status-content">
+
+              <strong>
+                {{ option.label }}
+              </strong>
+
+              <span>
+                {{ option.description }}
+              </span>
+
+            </div>
+
+          </label>
+
+        </div>
+
+      </div>
+
+
+      <!-- SUMMARY -->
+
+      <div
+        *ngIf="getSelectedTenant() as tenant"
+        class="summary-card"
+      >
+
+        <div class="summary-header">
+          <h2>Subscription Summary</h2>
+        </div>
+
+
+        <div class="summary-row">
+
+          <span>Tenant</span>
+
+          <strong>
+            {{ tenant.name }}
+          </strong>
+
+        </div>
+
+
+        <div
+          *ngIf="getSelectedPlan() as plan"
+          class="summary-row"
+        >
+
+          <span>Plan</span>
+
+          <strong>
+            {{ plan.name }}
+          </strong>
+
+        </div>
+
+
+        <div
+          *ngIf="getSelectedPlan() as plan"
+          class="summary-row"
+        >
+
+          <span>Price</span>
+
+          <strong>
+            {{ plan.price | currency:plan.currency:'symbol':'1.0-0' }}
+            / {{ plan.billingCycle | lowercase }}
+          </strong>
+
+        </div>
+
+
+        <div class="summary-row">
+
+          <span>Status</span>
+
+          <strong>
+            {{
+              subscriptionForm.controls.status.value === ''
+                ? 'Automatic'
+                : subscriptionForm.controls.status.value
+            }}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <!-- ACTIONS -->
+
+      <div class="form-actions">
+
+        <a
+          routerLink="/platform/subscriptions"
+          class="btn btn-secondary"
+        >
+          Cancel
+        </a>
+
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="saving"
+        >
+
+          <span *ngIf="!saving">
+            Create Subscription
+          </span>
+
+          <span *ngIf="saving">
+            Creating...
+          </span>
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </section>
+
+</div>

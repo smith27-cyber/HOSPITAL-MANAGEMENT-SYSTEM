@@ -1,0 +1,441 @@
+<div class="create-plan-page">
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <header class="page-header">
+
+    <div>
+
+      <a
+        routerLink="/platform/plans"
+        class="back-link">
+
+        ← Back to Plans
+
+      </a>
+
+      <div class="eyebrow">
+        OLIVES TECH PLATFORM
+      </div>
+
+      <h1>Create Plan</h1>
+
+      <p>
+        Create a subscription plan and choose the modules
+        available to organizations using it.
+      </p>
+
+    </div>
+
+  </header>
+
+
+  <!-- ================================================= -->
+  <!-- SUCCESS -->
+  <!-- ================================================= -->
+
+  <div
+    *ngIf="successMessage"
+    class="success-card">
+
+    {{ successMessage }}
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- ERROR -->
+  <!-- ================================================= -->
+
+  <div
+    *ngIf="errorMessage"
+    class="error-card">
+
+    {{ errorMessage }}
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- FORM -->
+  <!-- ================================================= -->
+
+  <form
+    #planForm="ngForm"
+    (ngSubmit)="submit()"
+    class="plan-form">
+
+    <!-- =============================================== -->
+    <!-- PLAN INFORMATION -->
+    <!-- =============================================== -->
+
+    <section class="form-section">
+
+      <div class="section-header">
+
+        <div>
+
+          <h2>
+            Plan Information
+          </h2>
+
+          <p>
+            Basic information about the subscription plan.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <!-- CODE -->
+
+        <div class="form-group">
+
+          <label for="code">
+            Plan Code
+            <span>*</span>
+          </label>
+
+          <input
+            id="code"
+            name="code"
+            type="text"
+            [(ngModel)]="form.code"
+            placeholder="e.g. CLINIC_STARTER"
+            autocomplete="off">
+
+          <small>
+            Use letters, numbers, hyphens or underscores.
+          </small>
+
+        </div>
+
+
+        <!-- NAME -->
+
+        <div class="form-group">
+
+          <label for="name">
+            Plan Name
+            <span>*</span>
+          </label>
+
+          <input
+            id="name"
+            name="name"
+            type="text"
+            [(ngModel)]="form.name"
+            placeholder="e.g. Clinic Starter">
+
+        </div>
+
+
+        <!-- PRICE -->
+
+        <div class="form-group">
+
+          <label for="price">
+            Price
+            <span>*</span>
+          </label>
+
+          <input
+            id="price"
+            name="price"
+            type="number"
+            min="0"
+            step="1000"
+            [(ngModel)]="form.price"
+            placeholder="250000">
+
+        </div>
+
+
+        <!-- CURRENCY -->
+
+        <div class="form-group">
+
+          <label for="currency">
+            Currency
+            <span>*</span>
+          </label>
+
+          <input
+            id="currency"
+            name="currency"
+            type="text"
+            maxlength="10"
+            [(ngModel)]="form.currency"
+            placeholder="UGX">
+
+        </div>
+
+
+        <!-- BILLING CYCLE -->
+
+        <div class="form-group">
+
+          <label for="billingCycle">
+            Billing Cycle
+            <span>*</span>
+          </label>
+
+          <select
+            id="billingCycle"
+            name="billingCycle"
+            [(ngModel)]="form.billingCycle">
+
+            <option
+              *ngFor="let cycle of billingCycles"
+              [ngValue]="cycle">
+
+              {{ formatBillingCycle(cycle) }}
+
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- TRIAL -->
+
+        <div class="form-group">
+
+          <label for="trialDays">
+            Trial Period
+            <span>*</span>
+          </label>
+
+          <div class="input-with-suffix">
+
+            <input
+              id="trialDays"
+              name="trialDays"
+              type="number"
+              min="0"
+              [(ngModel)]="form.trialDays">
+
+            <span>
+              days
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- DESCRIPTION -->
+
+        <div class="form-group full-width">
+
+          <label for="description">
+            Description
+          </label>
+
+          <textarea
+            id="description"
+            name="description"
+            rows="4"
+            [(ngModel)]="form.description"
+            placeholder="Describe what this plan is designed for...">
+          </textarea>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =============================================== -->
+    <!-- MODULES -->
+    <!-- =============================================== -->
+
+    <section class="form-section">
+
+      <div class="section-header module-header">
+
+        <div>
+
+          <h2>
+            Included Modules
+          </h2>
+
+          <p>
+            Choose the HMS features organizations on this
+            plan will be allowed to use.
+          </p>
+
+        </div>
+
+
+        <div class="module-actions">
+
+          <button
+            type="button"
+            class="small-button"
+            (click)="selectAllModules()"
+            [disabled]="loadingModules || !modules.length">
+
+            Select All
+
+          </button>
+
+          <button
+            type="button"
+            class="small-button"
+            (click)="clearModules()"
+            [disabled]="loadingModules">
+
+            Clear
+
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- MODULE LOADING -->
+
+      <div
+        *ngIf="loadingModules"
+        class="modules-loading">
+
+        <div class="spinner"></div>
+
+        <p>
+          Loading available modules...
+        </p>
+
+      </div>
+
+
+      <!-- MODULE LIST -->
+
+      <div
+        *ngIf="!loadingModules && modules.length > 0"
+        class="module-grid">
+
+        <button
+          type="button"
+          class="module-option"
+          *ngFor="let module of modules"
+          [class.selected]="isModuleSelected(module.id)"
+          (click)="toggleModule(module.id)">
+
+          <div class="module-check">
+
+            <span
+              *ngIf="isModuleSelected(module.id)">
+
+              ✓
+
+            </span>
+
+          </div>
+
+          <div class="module-content">
+
+            <strong>
+              {{ module.name }}
+            </strong>
+
+            <span>
+              {{ module.code }}
+            </span>
+
+            <small
+              *ngIf="module.description">
+
+              {{ module.description }}
+
+            </small>
+
+          </div>
+
+        </button>
+
+      </div>
+
+
+      <!-- NO MODULES -->
+
+      <div
+        *ngIf="!loadingModules && modules.length === 0"
+        class="no-modules">
+
+        No active platform modules are available.
+
+      </div>
+
+
+      <!-- SELECTION SUMMARY -->
+
+      <div
+        class="selection-summary"
+        *ngIf="!loadingModules">
+
+        <strong>
+          {{ form.moduleIds.length }}
+        </strong>
+
+        modules selected
+
+      </div>
+
+    </section>
+
+
+    <!-- =============================================== -->
+    <!-- ACTIONS -->
+    <!-- =============================================== -->
+
+    <div class="form-actions">
+
+      <a
+        routerLink="/platform/plans"
+        class="btn btn-secondary">
+
+        Cancel
+
+      </a>
+
+
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="resetForm()"
+        [disabled]="saving">
+
+        Reset
+
+      </button>
+
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="saving || loadingModules">
+
+        <span *ngIf="!saving">
+          Create Plan
+        </span>
+
+        <span *ngIf="saving">
+          Creating...
+        </span>
+
+      </button>
+
+    </div>
+
+  </form>
+
+</div>

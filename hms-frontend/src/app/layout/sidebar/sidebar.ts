@@ -32,7 +32,9 @@ import {
 import {
   SettingsService
 } from '../../core/services/settings.service';
-
+import {
+  TenantModuleService
+} from '../../core/services/tenant/tenant-module.service';
 
 // =====================================================
 // SIDEBAR
@@ -57,15 +59,14 @@ export class Sidebar implements OnInit, OnDestroy {
   // DESKTOP COLLAPSE STATE
   // =====================================================
 
-  @Input()
-  collapsed = false;
-  // ===================================================
-  // SIDEBAR EVENT
-  // ===================================================
+   @Input() collapsed = false;
+  @Input() mobileOpen = false;
 
-  @Output()
-  closeSidebar =
-    new EventEmitter<void>();
+  @Output() closeSidebar = new EventEmitter<void>();
+
+  close(): void {
+    this.closeSidebar.emit();
+  }
 
 
   // ===================================================
@@ -80,7 +81,8 @@ export class Sidebar implements OnInit, OnDestroy {
 
   private readonly settingsService =
     inject(SettingsService);
-
+private readonly tenantModuleService =
+  inject(TenantModuleService);
   private readonly changeDetectorRef =
     inject(ChangeDetectorRef);
 
@@ -111,13 +113,47 @@ export class Sidebar implements OnInit, OnDestroy {
   // LIFECYCLE
   // ===================================================
 
-  ngOnInit(): void {
+ ngOnInit(): void {
 
-    this.loadHospitalIdentity();
+  this.loadHospitalIdentity();
 
-  }
+  this.loadTenantModules();
 
+}
 
+// ===================================================
+// LOAD TENANT MODULES
+// ===================================================
+
+private loadTenantModules(): void {
+
+  this.tenantModuleService
+    .loadModules()
+    .pipe(
+      takeUntil(this.destroy$)
+    )
+    .subscribe({
+
+      next: () => {
+
+        this.changeDetectorRef.detectChanges();
+
+      },
+
+      error: error => {
+
+        console.error(
+          'Failed to load tenant modules:',
+          error
+        );
+
+        this.changeDetectorRef.detectChanges();
+
+      }
+
+    });
+
+}
   // ===================================================
   // LOAD HOSPITAL IDENTITY
   // ===================================================
@@ -219,7 +255,53 @@ export class Sidebar implements OnInit, OnDestroy {
     );
 
   }
+// ===================================================
+// MODULE CHECK
+// ===================================================
 
+hasModule(
+  moduleCode: string
+): boolean {
+
+  return this.tenantModuleService.hasModule(
+    moduleCode
+  );
+
+}
+
+
+// ===================================================
+// MODULE + PERMISSION CHECK
+// ===================================================
+
+hasModulePermission(
+  moduleCode: string,
+  permission: string
+): boolean {
+
+  return (
+    this.hasModule(moduleCode) &&
+    this.hasPermission(permission)
+  );
+
+}
+
+
+// ===================================================
+// MODULE + ANY PERMISSION CHECK
+// ===================================================
+
+hasModuleAnyPermission(
+  moduleCode: string,
+  permissions: string[]
+): boolean {
+
+  return (
+    this.hasModule(moduleCode) &&
+    this.hasAnyPermission(permissions)
+  );
+
+}
 
   // ===================================================
   // NAVIGATION

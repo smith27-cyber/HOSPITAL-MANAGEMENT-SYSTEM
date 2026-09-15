@@ -1,0 +1,634 @@
+.create-subscription-page {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+
+/* =====================================================
+   PAGE HEADER
+   ===================================================== */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  color: #607d68;
+  margin-bottom: 7px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 30px;
+  color: #18231d;
+}
+
+.page-header p {
+  margin: 8px 0 0;
+  color: #6b756e;
+}
+
+
+/* =====================================================
+   CARD
+   ===================================================== */
+
+.form-card {
+  background: #ffffff;
+  border: 1px solid #e1e7e3;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 16px rgba(25, 45, 32, 0.05);
+}
+
+
+/* =====================================================
+   FORM SECTION
+   ===================================================== */
+
+.form-section {
+  padding: 26px 0;
+  border-bottom: 1px solid #edf0ee;
+}
+
+.form-section:first-child {
+  padding-top: 0;
+}
+
+.form-section:last-of-type {
+  border-bottom: none;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.section-number {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #edf4ef;
+  color: #386447;
+
+  font-weight: 800;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: 19px;
+  color: #1e2922;
+}
+
+.section-heading p {
+  margin: 5px 0 0;
+  color: #778079;
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   FORM CONTROLS
+   ===================================================== */
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+
+  font-size: 14px;
+  font-weight: 700;
+  color: #26332b;
+}
+
+.form-group label span {
+  color: #c62828;
+}
+
+.form-group select {
+  width: 100%;
+  box-sizing: border-box;
+
+  min-height: 48px;
+  padding: 0 14px;
+
+  border: 1px solid #cfd8d2;
+  border-radius: 9px;
+
+  background: #ffffff;
+  color: #26332b;
+
+  font-size: 14px;
+  outline: none;
+}
+
+.form-group select:focus {
+  border-color: #527b60;
+  box-shadow: 0 0 0 3px rgba(82, 123, 96, 0.12);
+}
+
+.field-error {
+  display: block;
+  margin-top: 6px;
+  color: #c62828;
+  font-size: 12px;
+}
+
+
+/* =====================================================
+   TENANT PREVIEW
+   ===================================================== */
+
+.selected-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 14px;
+
+  border-radius: 10px;
+  background: #f6f9f7;
+  border: 1px solid #e2ebe5;
+}
+
+.preview-icon {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: #dfece3;
+  color: #386447;
+
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.selected-preview strong {
+  display: block;
+  color: #26332b;
+}
+
+.selected-preview span {
+  display: block;
+  margin-top: 3px;
+
+  color: #778079;
+  font-size: 12px;
+}
+
+
+/* =====================================================
+   PLAN PREVIEW
+   ===================================================== */
+
+.plan-preview {
+  margin-top: 16px;
+
+  padding: 20px;
+
+  border-radius: 12px;
+
+  background: #f7faf8;
+  border: 1px solid #dfe8e2;
+}
+
+.plan-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.plan-code {
+  display: inline-block;
+
+  padding: 4px 8px;
+
+  border-radius: 5px;
+
+  background: #e7efe9;
+  color: #4c6d56;
+
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .5px;
+}
+
+.plan-preview h3 {
+  margin: 7px 0 0;
+
+  font-size: 20px;
+  color: #26332b;
+}
+
+.plan-price {
+  text-align: right;
+}
+
+.plan-price strong {
+  display: block;
+
+  font-size: 19px;
+  color: #315b3e;
+}
+
+.plan-price span {
+  color: #78827b;
+  font-size: 12px;
+}
+
+.plan-preview > p {
+  margin: 15px 0;
+
+  color: #6e7771;
+  font-size: 14px;
+}
+
+.trial-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  margin-bottom: 18px;
+
+  padding: 7px 10px;
+
+  border-radius: 6px;
+
+  background: #eef5ef;
+  color: #42604b;
+
+  font-size: 12px;
+}
+
+.trial-info strong {
+  font-weight: 800;
+}
+
+.modules-title {
+  margin-bottom: 9px;
+
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+
+  color: #69746d;
+}
+
+.module-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.module-badge {
+  padding: 6px 9px;
+
+  border-radius: 6px;
+
+  background: #ffffff;
+  border: 1px solid #dce5df;
+
+  color: #526158;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.no-modules {
+  color: #8a938d;
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   STATUS OPTIONS
+   ===================================================== */
+
+.status-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.status-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+
+  padding: 16px;
+
+  border: 1px solid #dce3de;
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  transition:
+    border-color .15s ease,
+    background .15s ease;
+}
+
+.status-option:hover {
+  background: #f8faf8;
+}
+
+.status-option.selected {
+  border-color: #63816b;
+  background: #f2f7f3;
+}
+
+.status-option input {
+  margin-top: 3px;
+}
+
+.status-content strong {
+  display: block;
+
+  color: #29352e;
+  font-size: 14px;
+}
+
+.status-content span {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #7a847d;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+
+/* =====================================================
+   SUMMARY
+   ===================================================== */
+
+.summary-card {
+  margin-top: 26px;
+
+  padding: 20px;
+
+  border-radius: 12px;
+
+  background: #f7f9f8;
+  border: 1px solid #e0e7e2;
+}
+
+.summary-header {
+  margin-bottom: 15px;
+}
+
+.summary-header h2 {
+  margin: 0;
+
+  font-size: 16px;
+  color: #28342d;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+
+  padding: 11px 0;
+
+  border-top: 1px solid #e7ece9;
+
+  font-size: 14px;
+}
+
+.summary-row span {
+  color: #78827c;
+}
+
+.summary-row strong {
+  color: #29352e;
+  text-align: right;
+}
+
+
+/* =====================================================
+   ACTIONS
+   ===================================================== */
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  margin-top: 28px;
+  padding-top: 22px;
+
+  border-top: 1px solid #edf0ee;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 44px;
+  padding: 0 18px;
+
+  border-radius: 8px;
+
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+}
+
+.btn-primary {
+  border: 1px solid #456a50;
+
+  background: #456a50;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: #385942;
+}
+
+.btn-primary:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  border: 1px solid #d3dcd5;
+
+  background: #ffffff;
+  color: #445149;
+}
+
+.btn-secondary:hover {
+  background: #f5f7f5;
+}
+
+
+/* =====================================================
+   MESSAGES
+   ===================================================== */
+
+.error-card {
+  margin-bottom: 20px;
+  padding: 15px;
+
+  border-radius: 9px;
+
+  background: #fff3f3;
+  border: 1px solid #efcaca;
+
+  color: #9d2b2b;
+}
+
+.error-card strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.error-card p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.success-card {
+  margin-bottom: 20px;
+  padding: 14px;
+
+  border-radius: 9px;
+
+  background: #edf7ef;
+  border: 1px solid #cde3d1;
+
+  color: #356440;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   LOADING
+   ===================================================== */
+
+.loading-card {
+  min-height: 260px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e7e3;
+  border-radius: 16px;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+
+  border: 3px solid #dfe7e1;
+  border-top-color: #4e7458;
+
+  border-radius: 50%;
+
+  animation: spin .8s linear infinite;
+}
+
+.loading-card p {
+  margin-top: 12px;
+
+  color: #737d76;
+  font-size: 14px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 800px) {
+
+  .status-options {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header {
+    flex-direction: column;
+  }
+
+  .plan-preview-header {
+    flex-direction: column;
+  }
+
+  .plan-price {
+    text-align: left;
+  }
+}
+
+
+@media (max-width: 600px) {
+
+  .form-card {
+    padding: 20px;
+  }
+
+  .page-header h1 {
+    font-size: 25px;
+  }
+
+  .summary-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .summary-row strong {
+    text-align: left;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+}

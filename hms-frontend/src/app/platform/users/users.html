@@ -1,0 +1,391 @@
+<div class="users-page">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+
+    <div>
+      <h1>Users</h1>
+
+      <p>
+        Manage users across all Olives Tech tenants.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="refresh-btn"
+      (click)="refresh()"
+      [disabled]="loading">
+
+      <span
+        class="refresh-icon"
+        [class.spinning]="loading">
+        ↻
+      </span>
+
+      Refresh
+    </button>
+
+  </div>
+
+
+  <!-- ERROR -->
+  <div
+    *ngIf="errorMessage"
+    class="error-message">
+
+    <strong>Unable to load users</strong>
+
+    <span>
+      {{ errorMessage }}
+    </span>
+
+  </div>
+
+
+  <!-- FILTERS -->
+  <div class="filters-card">
+
+    <div class="search-wrapper">
+
+      <span class="search-icon">
+        🔍
+      </span>
+
+      <input
+        type="text"
+        placeholder="Search users, usernames or tenants..."
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()"
+      />
+
+    </div>
+
+
+    <select
+      [(ngModel)]="selectedTenant"
+      (ngModelChange)="applyFilters()">
+
+      <option value="">
+        All tenants
+      </option>
+
+      <option
+        *ngFor="let tenant of tenants"
+        [value]="tenant">
+
+        {{ tenant }}
+
+      </option>
+
+    </select>
+
+
+    <select
+      [(ngModel)]="selectedRole"
+      (ngModelChange)="applyFilters()">
+
+      <option value="">
+        All roles
+      </option>
+
+      <option
+        *ngFor="let role of roles"
+        [value]="role">
+
+        {{ role }}
+
+      </option>
+
+    </select>
+
+
+    <select
+      [(ngModel)]="selectedStatus"
+      (ngModelChange)="applyFilters()">
+
+      <option value="">
+        All status
+      </option>
+
+      <option value="enabled">
+        Enabled
+      </option>
+
+      <option value="disabled">
+        Disabled
+      </option>
+
+    </select>
+
+
+    <button
+      type="button"
+      class="clear-btn"
+      (click)="clearFilters()">
+
+      Clear
+
+    </button>
+
+  </div>
+
+
+  <!-- LOADING -->
+  <div
+    *ngIf="loading"
+    class="loading-state">
+
+    <div class="spinner"></div>
+
+    <p>
+      Loading users...
+    </p>
+
+  </div>
+
+
+  <!-- TABLE -->
+  <div
+    *ngIf="!loading"
+    class="table-card">
+
+    <div class="table-header">
+
+      <div>
+        <h2>Platform Users</h2>
+
+        <span>
+          {{ filteredUsers.length }}
+          user{{ filteredUsers.length === 1 ? '' : 's' }}
+        </span>
+      </div>
+
+    </div>
+
+
+    <!-- EMPTY -->
+    <div
+      *ngIf="filteredUsers.length === 0"
+      class="empty-state">
+
+      <div class="empty-icon">
+        👥
+      </div>
+
+      <h3>No users found</h3>
+
+      <p>
+        No users match the current search or filters.
+      </p>
+
+    </div>
+
+
+    <!-- USERS TABLE -->
+    <div
+      *ngIf="filteredUsers.length > 0"
+      class="table-wrapper">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>User</th>
+
+            <th>Username</th>
+
+            <th>Tenant</th>
+
+            <th>Role</th>
+
+            <th>Status</th>
+
+            <th>Created</th>
+
+            <th class="actions-column">
+              Actions
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          <tr
+            *ngFor="let user of filteredUsers">
+
+            <!-- USER -->
+            <td>
+
+              <div class="user-cell">
+
+                <div
+                  class="avatar"
+                  [class.platform-avatar]="isSuperAdmin(user)">
+
+                  {{
+                    user.fullName
+                      ?.charAt(0)
+                      ?.toUpperCase() || '?'
+                  }}
+
+                </div>
+
+                <div>
+
+                  <strong>
+                    {{ user.fullName || 'Unnamed User' }}
+                  </strong>
+
+                  <small>
+                    ID #{{ user.id }}
+                  </small>
+
+                </div>
+
+              </div>
+
+            </td>
+
+
+            <!-- USERNAME -->
+            <td>
+
+              <span class="username">
+                {{ user.username }}
+              </span>
+
+            </td>
+
+
+            <!-- TENANT -->
+            <td>
+
+              <div class="tenant-cell">
+
+                <strong>
+                  {{ user.tenantName }}
+                </strong>
+
+                <small>
+                  {{ user.tenantCode }}
+                </small>
+
+              </div>
+
+            </td>
+
+
+            <!-- ROLE -->
+            <td>
+
+              <span
+                class="role-badge"
+                [class.super-admin]="isSuperAdmin(user)">
+
+                {{ user.role }}
+
+              </span>
+
+            </td>
+
+
+            <!-- STATUS -->
+            <td>
+
+              <span
+                class="status-badge"
+                [class.enabled]="user.enabled"
+                [class.disabled]="!user.enabled">
+
+                <span class="status-dot"></span>
+
+                {{ user.enabled ? 'Enabled' : 'Disabled' }}
+
+              </span>
+
+            </td>
+
+
+            <!-- CREATED -->
+            <td>
+
+              <span class="created-date">
+                {{ formatDate(user.createdAt) }}
+              </span>
+
+            </td>
+
+
+            <!-- ACTIONS -->
+            <td>
+
+              <div class="actions">
+
+                <!-- SUPER ADMIN PROTECTION -->
+                <span
+                  *ngIf="isSuperAdmin(user)"
+                  class="protected-label">
+
+                  🔒 Protected
+
+                </span>
+
+
+                <!-- NORMAL USER ACTIONS -->
+                <ng-container
+                  *ngIf="!isSuperAdmin(user)">
+
+                  <button
+                    type="button"
+                    class="action-btn status-action"
+                    [disabled]="updatingUserId === user.id"
+                    (click)="toggleUserStatus(user)">
+
+                    {{
+                      updatingUserId === user.id
+                        ? 'Updating...'
+                        : user.enabled
+                          ? 'Disable'
+                          : 'Enable'
+                    }}
+
+                  </button>
+
+
+                  <button
+                    type="button"
+                    class="action-btn delete-action"
+                    [disabled]="deletingUserId === user.id"
+                    (click)="deleteUser(user)">
+
+                    {{
+                      deletingUserId === user.id
+                        ? 'Deleting...'
+                        : 'Delete'
+                    }}
+
+                  </button>
+
+                </ng-container>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>

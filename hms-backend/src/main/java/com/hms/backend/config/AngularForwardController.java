@@ -45,7 +45,9 @@ public class AngularForwardController {
         "/reports/**",
 
         "/settings",
-        "/settings/**"
+        "/settings/**",
+        "/platform",
+"/platform/**"
     })
     public String forward() {
         return "forward:/index.html";
