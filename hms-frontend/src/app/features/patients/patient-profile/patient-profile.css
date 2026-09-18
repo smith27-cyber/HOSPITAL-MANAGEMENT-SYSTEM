@@ -1,18 +1,29 @@
 /* =========================================================
    PATIENT PROFILE PAGE
-========================================================= */
+   HMS GLOBAL THEME
+   ========================================================= */
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+
+/* =========================================================
+   PROFILE PAGE
+   ========================================================= */
 
 .profile-page {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding-bottom: 30px;
+  padding-bottom: 32px;
 }
 
 
 /* =========================================================
-   HEADER
-========================================================= */
+   PAGE HEADER
+   ========================================================= */
 
 .page-header {
   display: flex;
@@ -25,30 +36,43 @@
 
 /* =========================================================
    BACK BUTTON
-========================================================= */
+   ========================================================= */
 
 .back-button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+
   padding: 8px 0;
-  border: none;
+
+  border: 0;
   background: transparent;
-  color: #0f766e;
+
+  color: var(--hms-primary);
+
+  font-family: inherit;
   font-size: 13px;
   font-weight: 600;
+
   cursor: pointer;
+
   transition:
-    color 0.2s ease,
-    transform 0.2s ease;
+    color var(--hms-transition),
+    transform var(--hms-transition);
 }
 
 .back-button:hover {
-  color: #115e59;
+  color: var(--hms-primary-hover);
 }
 
 .back-button:active {
   transform: translateX(-2px);
+}
+
+.back-button:focus-visible {
+  outline: 2px solid var(--hms-primary);
+  outline-offset: 3px;
+  border-radius: var(--hms-radius-sm);
 }
 
 .back-button .material-symbols-outlined {
@@ -58,7 +82,7 @@
 
 /* =========================================================
    HEADER ACTIONS
-========================================================= */
+   ========================================================= */
 
 .header-actions {
   display: flex;
@@ -70,8 +94,8 @@
 
 
 /* =========================================================
-   BUTTONS
-========================================================= */
+   BUTTON BASE
+   ========================================================= */
 
 .secondary-button,
 .primary-button,
@@ -84,7 +108,7 @@
   min-height: 38px;
   padding: 9px 14px;
 
-  border-radius: 8px;
+  border-radius: var(--hms-radius);
 
   font-family: inherit;
   font-size: 12px;
@@ -93,81 +117,25 @@
   cursor: pointer;
 
   transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.15s ease;
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition),
+    box-shadow var(--hms-transition),
+    transform var(--hms-transition);
 }
 
-
-/* =========================================================
-   SECONDARY BUTTON
-========================================================= */
-
-.secondary-button {
-  border: 1px solid #d1d5db;
-  background: #ffffff;
-  color: #374151;
+.secondary-button:focus-visible,
+.primary-button:focus-visible,
+.danger-button:focus-visible {
+  outline: 2px solid var(--hms-primary);
+  outline-offset: 2px;
 }
 
-.secondary-button:hover {
-  background: #f9fafb;
-  border-color: #9ca3af;
-}
-
-.secondary-button:active {
-  transform: translateY(1px);
-}
-
-
-/* =========================================================
-   PRIMARY BUTTON
-========================================================= */
-
-.primary-button {
-  border: 1px solid #0f766e;
-  background: #0f766e;
-  color: #ffffff;
-}
-
-.primary-button:hover {
-  background: #115e59;
-  border-color: #115e59;
-}
-
-.primary-button:active {
-  transform: translateY(1px);
-}
-
-
-/* =========================================================
-   DANGER BUTTON
-========================================================= */
-
-.danger-button {
-  border: 1px solid #fecaca;
-  background: #fff1f2;
-  color: #dc2626;
-}
-
-.danger-button:hover:not(:disabled) {
-  background: #fee2e2;
-  border-color: #fca5a5;
-}
-
+.secondary-button:active,
+.primary-button:active,
 .danger-button:active:not(:disabled) {
   transform: translateY(1px);
 }
-
-.danger-button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-
-/* =========================================================
-   BUTTON ICONS
-========================================================= */
 
 .secondary-button .material-symbols-outlined,
 .primary-button .material-symbols-outlined,
@@ -177,8 +145,63 @@
 
 
 /* =========================================================
+   SECONDARY BUTTON
+   ========================================================= */
+
+.secondary-button {
+  border: 1px solid var(--hms-border);
+  background: var(--hms-surface);
+  color: var(--hms-text);
+}
+
+.secondary-button:hover {
+  background: var(--hms-surface-secondary);
+  border-color: var(--hms-primary);
+  color: var(--hms-primary);
+}
+
+
+/* =========================================================
+   PRIMARY BUTTON
+   ========================================================= */
+
+.primary-button {
+  border: 1px solid var(--hms-primary);
+  background: var(--hms-primary);
+  color: #ffffff;
+}
+
+.primary-button:hover {
+  background: var(--hms-primary-hover);
+  border-color: var(--hms-primary-hover);
+  box-shadow: var(--hms-shadow-md);
+}
+
+
+/* =========================================================
+   DANGER BUTTON
+   ========================================================= */
+
+.danger-button {
+  border: 1px solid var(--hms-danger-light);
+  background: var(--hms-danger-light);
+  color: var(--hms-danger);
+}
+
+.danger-button:hover:not(:disabled) {
+  border-color: var(--hms-danger);
+  background: var(--hms-danger-light);
+}
+
+.danger-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
    PATIENT HEADER CARD
-========================================================= */
+   ========================================================= */
 
 .patient-header-card {
   display: flex;
@@ -188,19 +211,25 @@
   padding: 25px;
   margin-bottom: 20px;
 
-  background: #ffffff;
+  background: var(--hms-surface);
+  color: var(--hms-text);
 
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
 
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.03);
+  box-shadow: var(--hms-shadow);
+
+  transition:
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition),
+    box-shadow var(--hms-transition);
 }
 
 
 /* =========================================================
-   AVATAR
-========================================================= */
+   LARGE AVATAR
+   ========================================================= */
 
 .large-avatar {
   width: 78px;
@@ -214,8 +243,8 @@
 
   border-radius: 50%;
 
-  background: #ccfbf1;
-  color: #0f766e;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 
   font-size: 28px;
   font-weight: 700;
@@ -226,7 +255,7 @@
 
 /* =========================================================
    PATIENT MAIN INFORMATION
-========================================================= */
+   ========================================================= */
 
 .patient-main-info {
   min-width: 0;
@@ -236,7 +265,7 @@
 
 /* =========================================================
    NAME ROW
-========================================================= */
+   ========================================================= */
 
 .name-row {
   display: flex;
@@ -248,42 +277,49 @@
 .name-row h1 {
   margin: 0;
 
-  color: #111827;
+  color: var(--hms-text);
 
   font-size: 24px;
   font-weight: 700;
-
   line-height: 1.25;
 }
 
 
 /* =========================================================
    PATIENT ID
-========================================================= */
+   ========================================================= */
 
 .patient-id {
   margin: 6px 0 15px;
 
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 
   font-size: 12px;
+  line-height: 1.5;
+}
+
+.patient-id strong {
+  color: var(--hms-text);
+  font-weight: 600;
 }
 
 
 /* =========================================================
-   STATUS
-========================================================= */
+   STATUS BADGE
+   ========================================================= */
 
 .status {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
 
-  padding: 5px 10px;
+  min-height: 24px;
+  padding: 4px 10px;
 
-  border-radius: 20px;
+  border-radius: 999px;
 
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text-secondary);
 
   font-size: 10px;
   font-weight: 700;
@@ -292,84 +328,85 @@
 }
 
 .status.active {
-  background: #dcfce7;
-  color: #15803d;
+  background: var(--hms-success-light);
+  color: var(--hms-success);
 }
 
 .status.inactive {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--hms-danger-light);
+  color: var(--hms-danger);
 }
 
 
 /* =========================================================
    QUICK INFORMATION
-========================================================= */
+   ========================================================= */
 
 .quick-info {
   display: flex;
   align-items: center;
-
   flex-wrap: wrap;
-
   gap: 12px 20px;
 }
 
 .quick-info > span {
   display: inline-flex;
   align-items: center;
-
   gap: 5px;
 
-  color: #4b5563;
+  color: var(--hms-text-secondary);
 
   font-size: 12px;
+  line-height: 1.5;
 
   white-space: nowrap;
 }
 
 .quick-info .material-symbols-outlined {
-  color: #0f766e;
+  color: var(--hms-primary);
   font-size: 17px;
 }
 
 
 /* =========================================================
    PROFILE GRID
-========================================================= */
+   ========================================================= */
 
 .profile-grid {
   display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
 
 
 /* =========================================================
    PROFILE CARD
-========================================================= */
+   ========================================================= */
 
 .profile-card {
   min-width: 0;
 
   padding: 22px;
 
-  background: #ffffff;
+  background: var(--hms-surface);
+  color: var(--hms-text);
 
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
 
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.03);
+  box-shadow: var(--hms-shadow);
+
+  transition:
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition),
+    box-shadow var(--hms-transition);
 }
 
 
 /* =========================================================
    CARD HEADER
-========================================================= */
+   ========================================================= */
 
 .card-header {
   display: flex;
@@ -381,22 +418,23 @@
   margin-bottom: 20px;
   padding-bottom: 15px;
 
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--hms-border);
 }
 
 .card-header h2 {
   margin: 0;
 
-  color: #111827;
+  color: var(--hms-text);
 
   font-size: 16px;
   font-weight: 700;
+  line-height: 1.35;
 }
 
 .card-header p {
   margin: 4px 0 0;
 
-  color: #9ca3af;
+  color: var(--hms-text-secondary);
 
   font-size: 11px;
   line-height: 1.5;
@@ -405,7 +443,7 @@
 .card-header > .material-symbols-outlined {
   flex-shrink: 0;
 
-  color: #0f766e;
+  color: var(--hms-primary);
 
   font-size: 21px;
 }
@@ -413,14 +451,11 @@
 
 /* =========================================================
    INFORMATION GRID
-========================================================= */
+   ========================================================= */
 
 .information-grid {
   display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
 
@@ -435,36 +470,34 @@
 
 /* =========================================================
    INFORMATION LABELS
-========================================================= */
+   ========================================================= */
 
 .information-grid label {
   display: block;
 
   margin-bottom: 6px;
 
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 
   font-size: 10px;
   font-weight: 600;
 
   letter-spacing: 0.3px;
-
   text-transform: uppercase;
 }
 
 
 /* =========================================================
    INFORMATION VALUES
-========================================================= */
+   ========================================================= */
 
 .information-grid strong {
   display: block;
 
-  color: #374151;
+  color: var(--hms-text);
 
   font-size: 12px;
   font-weight: 600;
-
   line-height: 1.5;
 
   overflow-wrap: anywhere;
@@ -473,7 +506,7 @@
 
 /* =========================================================
    CLINICAL RECORD
-========================================================= */
+   ========================================================= */
 
 .medical-card {
   grid-column: 1 / -1;
@@ -482,13 +515,12 @@
 
 /* =========================================================
    CLINICAL ITEMS
-========================================================= */
+   ========================================================= */
 
 .clinical-items {
   display: grid;
 
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 
   gap: 15px;
 }
@@ -503,30 +535,38 @@
 
   padding: 16px;
 
-  border: 1px solid #e5e7eb;
-  border-radius: 9px;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius);
 
-  background: #fafafa;
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text);
 
   transition:
-    border-color 0.2s ease,
-    background 0.2s ease;
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    transform var(--hms-transition),
+    box-shadow var(--hms-transition);
 }
 
 .clinical-item:hover {
-  border-color: #ccfbf1;
-  background: #f9fffe;
+  border-color: var(--hms-primary);
+
+  background: var(--hms-primary-light);
+
+  transform: translateY(-1px);
+
+  box-shadow: var(--hms-shadow);
 }
 
 
 /* =========================================================
    CLINICAL ICON
-========================================================= */
+   ========================================================= */
 
 .clinical-item > .material-symbols-outlined {
   flex-shrink: 0;
 
-  color: #0f766e;
+  color: var(--hms-primary);
 
   font-size: 22px;
 }
@@ -534,21 +574,22 @@
 
 /* =========================================================
    CLINICAL TEXT
-========================================================= */
+   ========================================================= */
 
 .clinical-item strong {
   display: block;
 
-  color: #374151;
+  color: var(--hms-text);
 
   font-size: 12px;
   font-weight: 700;
+  line-height: 1.4;
 }
 
 .clinical-item p {
   margin: 5px 0 0;
 
-  color: #9ca3af;
+  color: var(--hms-text-secondary);
 
   font-size: 10px;
   line-height: 1.5;
@@ -557,13 +598,11 @@
 
 /* =========================================================
    NOT FOUND
-========================================================= */
+   ========================================================= */
 
 .not-found {
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
 
@@ -573,27 +612,30 @@
 
   text-align: center;
 
-  color: #9ca3af;
+  color: var(--hms-text-secondary);
 }
 
 .not-found > .material-symbols-outlined {
+  color: var(--hms-text-muted);
   font-size: 50px;
 }
 
 .not-found h2 {
   margin: 12px 0 5px;
 
-  color: #374151;
+  color: var(--hms-text);
 
   font-size: 20px;
+  line-height: 1.3;
 }
 
 .not-found p {
   margin: 0 0 20px;
 
-  color: #9ca3af;
+  color: var(--hms-text-secondary);
 
   font-size: 12px;
+  line-height: 1.5;
 }
 
 .not-found .primary-button {
@@ -602,20 +644,33 @@
 
 
 /* =========================================================
-   FOCUS STATES
-========================================================= */
+   GLOBAL FOCUS
+   ========================================================= */
 
 button:focus-visible {
-  outline: 2px solid #14b8a6;
+  outline: 2px solid var(--hms-primary);
   outline-offset: 2px;
 }
 
 
 /* =========================================================
-   RESPONSIVE — TABLET
-========================================================= */
+   RESPONSIVE — LARGE TABLET
+   ========================================================= */
 
-@media (max-width: 1000px) {
+@media (max-width: 1100px) {
+
+  .clinical-items {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
 
   .profile-grid {
     grid-template-columns: 1fr;
@@ -625,37 +680,28 @@ button:focus-visible {
     grid-column: auto;
   }
 
-  .clinical-items {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
-  }
-
 }
 
 
 /* =========================================================
    RESPONSIVE — SMALL TABLET
-========================================================= */
+   ========================================================= */
 
 @media (max-width: 750px) {
 
   .page-header {
     align-items: flex-start;
-
     flex-direction: column;
-
     gap: 15px;
   }
 
   .header-actions {
     width: 100%;
-
     justify-content: flex-start;
   }
 
   .patient-header-card {
     align-items: flex-start;
-
     padding: 20px;
   }
 
@@ -663,27 +709,18 @@ button:focus-visible {
     gap: 16px;
   }
 
-  .clinical-items {
-    grid-template-columns: 1fr;
-  }
-
 }
 
 
 /* =========================================================
    RESPONSIVE — MOBILE
-========================================================= */
+   ========================================================= */
 
 @media (max-width: 600px) {
 
   .profile-page {
     padding-bottom: 20px;
   }
-
-
-  /* =====================================================
-     HEADER
-  ===================================================== */
 
   .page-header {
     margin-bottom: 15px;
@@ -692,8 +729,7 @@ button:focus-visible {
   .header-actions {
     display: grid;
 
-    grid-template-columns:
-      1fr 1fr;
+    grid-template-columns: 1fr 1fr;
 
     width: 100%;
 
@@ -707,11 +743,6 @@ button:focus-visible {
   .header-actions .primary-button {
     grid-column: 1 / -1;
   }
-
-
-  /* =====================================================
-     PATIENT HEADER
-  ===================================================== */
 
   .patient-header-card {
     flex-direction: column;
@@ -734,7 +765,6 @@ button:focus-visible {
 
   .name-row {
     align-items: flex-start;
-
     flex-direction: column;
 
     gap: 8px;
@@ -744,16 +774,10 @@ button:focus-visible {
     font-size: 21px;
   }
 
-
-  /* =====================================================
-     QUICK INFORMATION
-  ===================================================== */
-
   .quick-info {
     display: grid;
 
-    grid-template-columns:
-      1fr 1fr;
+    grid-template-columns: 1fr 1fr;
 
     gap: 10px;
   }
@@ -761,11 +785,6 @@ button:focus-visible {
   .quick-info > span {
     white-space: normal;
   }
-
-
-  /* =====================================================
-     CARDS
-  ===================================================== */
 
   .profile-card {
     padding: 18px;
@@ -783,10 +802,9 @@ button:focus-visible {
     grid-column: auto;
   }
 
-
-  /* =====================================================
-     BUTTONS
-  ===================================================== */
+  .clinical-items {
+    grid-template-columns: 1fr;
+  }
 
   .secondary-button,
   .primary-button,
@@ -803,7 +821,7 @@ button:focus-visible {
 
 /* =========================================================
    VERY SMALL MOBILE
-========================================================= */
+   ========================================================= */
 
 @media (max-width: 400px) {
 
@@ -824,7 +842,7 @@ button:focus-visible {
 
 /* =========================================================
    PRINT
-========================================================= */
+   ========================================================= */
 
 @media print {
 
@@ -834,14 +852,12 @@ button:focus-visible {
 
   .profile-page {
     max-width: none;
-
     padding: 0;
   }
 
   .patient-header-card,
   .profile-card {
     box-shadow: none;
-
     break-inside: avoid;
   }
 

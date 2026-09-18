@@ -1,1317 +1,2046 @@
-
 // =====================================================
-// REPORT COMPONENT
+// HMS REPORT DASHBOARD
 // File:
-// src/app/features/reports/report.ts
+// src/app/features/reports/report/report.ts
 // =====================================================
-
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-
-import { ReportService } from '../../../core/services/report.service';
 
 import {
-  Report,
-  ReportType,
-  ReportStatus
-} from '../../../shared/models/report.model';
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnInit
+} from '@angular/core';
 
+import {
+  CommonModule
+} from '@angular/common';
+
+import {
+  FormsModule
+} from '@angular/forms';
+
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import * as XLSX from 'xlsx';
+
+import {
+  ReportDashboardResponse,
+  ReportService
+} from '../../../core/services/report.service';
 
 @Component({
   selector: 'app-report',
-
   standalone: true,
-
   imports: [
     CommonModule,
     FormsModule
   ],
-
   templateUrl: './report.html',
-
-  styleUrl: './report.css'
+  styleUrl: './report.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ReportComponent implements OnInit {
+export class Report implements OnInit {
 
   // =====================================================
-  // STORAGE KEY
+  // REPORT DATA
   // =====================================================
 
-  private readonly storageKey = 'hms_reports';
-
-
-  // =====================================================
-  // REPORTS
-  // =====================================================
-
-  reports: Report[] = [];
-
-  filteredReports: Report[] = [];
-
+  dashboard: ReportDashboardResponse | null = null;
 
   // =====================================================
   // FILTERS
   // =====================================================
 
-  selectedType: ReportType | 'All' = 'All';
-
-  selectedStatus: ReportStatus | 'All' = 'All';
-
-  searchTerm = '';
-
   startDate = '';
-
   endDate = '';
 
-
   // =====================================================
-  // REPORT TYPES
-  // =====================================================
-
-  reportTypes: (ReportType | 'All')[] = [
-
-    'All',
-
-    'Appointments',
-
-    'Patients',
-
-    'Doctors',
-
-    'Departments',
-
-    'Consultations',
-
-    'Pharmacy',
-
-    'Laboratory',
-
-    'Admissions',
-
-    'Billing',
-
-    'Inventory',
-
-    'General'
-
-  ];
-
-
-  // =====================================================
-  // REPORT STATUSES
+  // UI STATE
   // =====================================================
 
-  reportStatuses: (ReportStatus | 'All')[] = [
+  loading = false;
+  exporting = false;
 
-    'All',
+  errorMessage = '';
 
-    'Generated',
+  lastLoadedAt: Date | null = null;
 
-    'Pending',
-
-    'Failed'
-
-  ];
-
+  reportNumber = '';
 
   // =====================================================
   // CONSTRUCTOR
   // =====================================================
 
   constructor(
-    private reportService: ReportService
+    private readonly reportService: ReportService,
+    private readonly cdr: ChangeDetectorRef
   ) {}
 
-
   // =====================================================
-  // INITIALIZATION
+  // INIT
   // =====================================================
 
   ngOnInit(): void {
 
-    this.loadReports();
+    const today = new Date();
 
+    this.endDate =
+      this.toInputDate(today);
+
+    this.startDate =
+      this.toInputDate(
+        new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          1
+        )
+      );
+
+    this.loadReport();
   }
 
-
   // =====================================================
-  // LOAD REPORTS
-  // =====================================================
-
-  loadReports(): void {
-
-    const storedReports =
-      localStorage.getItem(
-        this.storageKey
-      );
-
-
-    if (!storedReports) {
-
-      this.reports = [];
-
-      this.filteredReports = [];
-
-      return;
-
-    }
-
-
-    try {
-
-      const parsedReports =
-        JSON.parse(
-          storedReports
-        );
-
-
-      if (
-        Array.isArray(parsedReports)
-      ) {
-
-        this.reports =
-          parsedReports as Report[];
-
-      } else {
-
-        this.reports = [];
-
-      }
-
-    } catch (error) {
-
-      console.error(
-        'Failed to load reports:',
-        error
-      );
-
-      this.reports = [];
-
-    }
-
-
-    this.applyFilters();
-
-  }
-
-
-  // =====================================================
-  // APPLY FILTERS
+  // LOAD REPORT
   // =====================================================
 
-  applyFilters(): void {
+  loadReport(): void {
 
-    const search =
-      this.searchTerm
-        .trim()
-        .toLowerCase();
-
-
-    this.filteredReports =
-      this.reports.filter(
-        report => {
-
-          // ---------------------------------------------
-          // SEARCH
-          // ---------------------------------------------
-
-          const matchesSearch =
-
-            !search ||
-
-            (report.name || '')
-              .toLowerCase()
-              .includes(search) ||
-
-            (report.type || '')
-              .toLowerCase()
-              .includes(search) ||
-
-            (report.description || '')
-              .toLowerCase()
-              .includes(search) ||
-
-            (report.generatedBy || '')
-              .toLowerCase()
-              .includes(search);
-
-
-          // ---------------------------------------------
-          // REPORT TYPE
-          // ---------------------------------------------
-
-          const matchesType =
-
-            this.selectedType === 'All' ||
-
-            report.type ===
-              this.selectedType;
-
-
-          // ---------------------------------------------
-          // STATUS
-          // ---------------------------------------------
-
-          const matchesStatus =
-
-            this.selectedStatus === 'All' ||
-
-            report.status ===
-              this.selectedStatus;
-
-
-          // ---------------------------------------------
-          // START DATE
-          // ---------------------------------------------
-
-          const matchesStartDate =
-
-            !this.startDate ||
-
-            !report.startDate ||
-
-            report.startDate >=
-              this.startDate;
-
-
-          // ---------------------------------------------
-          // END DATE
-          // ---------------------------------------------
-
-          const matchesEndDate =
-
-            !this.endDate ||
-
-            !report.endDate ||
-
-            report.endDate <=
-              this.endDate;
-
-
-          // ---------------------------------------------
-          // FINAL RESULT
-          // ---------------------------------------------
-
-          return (
-
-            matchesSearch &&
-
-            matchesType &&
-
-            matchesStatus &&
-
-            matchesStartDate &&
-
-            matchesEndDate
-
-          );
-
-        }
-      );
-
-  }
-
-
-  // =====================================================
-  // CLEAR FILTERS
-  // =====================================================
-
-  clearFilters(): void {
-
-    this.searchTerm = '';
-
-    this.selectedType = 'All';
-
-    this.selectedStatus = 'All';
-
-    this.startDate = '';
-
-    this.endDate = '';
-
-
-    this.applyFilters();
-
-  }
-
-
-  // =====================================================
-  // GENERATE REPORT
-  // =====================================================
-
-  generateReport(
-    type: ReportType
-  ): void {
-
-    try {
-
-      const report =
-        this.reportService.getReportByType(
-          type
-        );
-
-
-      // -----------------------------------------------
-      // DATE RANGE
-      // -----------------------------------------------
-
-      report.startDate =
-        this.startDate ||
-        this.getToday();
-
-
-      report.endDate =
-        this.endDate ||
-        this.getToday();
-
-
-      // -----------------------------------------------
-      // REPORT INFORMATION
-      // -----------------------------------------------
-
-      report.generatedBy =
-        report.generatedBy ||
-        'Administrator';
-
-
-      report.generatedAt =
-        new Date().toISOString();
-
-
-      report.status =
-        'Generated';
-
-
-      // -----------------------------------------------
-      // ADD TO HISTORY
-      // -----------------------------------------------
-
-      this.reports.unshift(
-        report
-      );
-
-
-      // -----------------------------------------------
-      // SAVE
-      // -----------------------------------------------
-
-      this.saveReports();
-
-
-      // -----------------------------------------------
-      // REFRESH
-      // -----------------------------------------------
-
-      this.applyFilters();
-
-
-      // -----------------------------------------------
-      // SUCCESS MESSAGE
-      // -----------------------------------------------
-
-      window.alert(
-
-        `${type} report generated successfully.\n\n` +
-
-        `Records: ${report.totalRecords ?? 0}\n` +
-
-        `Report ID: ${report.id}`
-
-      );
-
-    } catch (error) {
-
-      console.error(
-        'Report generation failed:',
-        error
-      );
-
-
-      window.alert(
-        `Failed to generate ${type} report.`
-      );
-
-    }
-
-  }
-
-
-  // =====================================================
-  // GENERATE ALL REPORTS
-  // =====================================================
-
-  generateAllReports(): void {
-
-    const types: ReportType[] = [
-
-      'Appointments',
-
-      'Patients',
-
-      'Doctors',
-
-      'Departments',
-
-      'Consultations',
-
-      'Pharmacy',
-
-      'Laboratory',
-
-      'Admissions',
-
-      'Billing',
-
-      'Inventory',
-
-      'General'
-
-    ];
-
-
-    let generatedCount = 0;
-
-
-    try {
-
-      for (
-        const type of types
-      ) {
-
-        const report =
-          this.reportService.getReportByType(
-            type
-          );
-
-
-        report.startDate =
-          this.startDate ||
-          this.getToday();
-
-
-        report.endDate =
-          this.endDate ||
-          this.getToday();
-
-
-        report.generatedBy =
-          'Administrator';
-
-
-        report.generatedAt =
-          new Date().toISOString();
-
-
-        report.status =
-          'Generated';
-
-
-        this.reports.unshift(
-          report
-        );
-
-
-        generatedCount++;
-
-      }
-
-
-      this.saveReports();
-
-      this.applyFilters();
-
-
-      window.alert(
-
-        `${generatedCount} reports generated successfully.`
-
-      );
-
-    } catch (error) {
-
-      console.error(
-        'Failed to generate reports:',
-        error
-      );
-
-
-      window.alert(
-        'Failed to generate all reports.'
-      );
-
-    }
-
-  }
-
-
-  // =====================================================
-  // VIEW REPORT
-  // =====================================================
-
-  viewReport(
-    report: Report
-  ): void {
-
-    const start =
-      report.startDate ||
-      'Not specified';
-
-
-    const end =
-      report.endDate ||
-      'Not specified';
-
-
-    const generated =
-      this.formatDate(
-        report.generatedAt
-      );
-
-
-    window.alert(
-
-      `REPORT DETAILS\n\n` +
-
-      `Report: ${report.name}\n` +
-
-      `Report ID: ${report.id}\n` +
-
-      `Type: ${report.type}\n` +
-
-      `Status: ${report.status}\n` +
-
-      `Date Range: ${start} → ${end}\n` +
-
-      `Generated By: ${report.generatedBy || 'System'}\n` +
-
-      `Generated At: ${generated}\n` +
-
-      `Total Records: ${report.totalRecords ?? 0}\n\n` +
-
-      `${report.description || 'No description available.'}`
-
-    );
-
-  }
-
-
-  // =====================================================
-  // DOWNLOAD REPORT
-  // =====================================================
-
-  downloadReport(
-    report: Report
-  ): void {
-
-    const reportData =
-      this.prepareReportData(
-        report
-      );
-
+    this.errorMessage = '';
 
     if (
-      reportData.length === 0
+      this.startDate &&
+      this.endDate &&
+      this.startDate > this.endDate
     ) {
 
-      window.alert(
-        'There is no report data available to download.'
-      );
+      this.errorMessage =
+        'Start date cannot be later than the end date.';
+
+      this.cdr.markForCheck();
 
       return;
-
     }
 
+    this.loading = true;
 
-    const csv =
-      this.convertToCsv(
-        reportData
-      );
+    this.cdr.markForCheck();
 
-
-    const blob =
-      new Blob(
-        [csv],
-        {
-          type:
-            'text/csv;charset=utf-8;'
-        }
-      );
-
-
-    const url =
-      URL.createObjectURL(
-        blob
-      );
-
-
-    const link =
-      document.createElement(
-        'a'
-      );
-
-
-    link.href =
-      url;
-
-
-    link.download =
-      report.fileName ||
-      `${this.slugify(report.name)}.csv`;
-
-
-    document.body.appendChild(
-      link
-    );
-
-
-    link.click();
-
-
-    document.body.removeChild(
-      link
-    );
-
-
-    URL.revokeObjectURL(
-      url
-    );
-
-  }
-
-
-  // =====================================================
-  // PREPARE REPORT DATA
-  // =====================================================
-
-  private prepareReportData(
-    report: Report
-  ): any[] {
-
-    // -----------------------------------------------
-    // DIRECT ARRAY
-    // -----------------------------------------------
-
-    if (
-      Array.isArray(report.data)
-    ) {
-
-      return report.data;
-
-    }
-
-
-    // -----------------------------------------------
-    // RECORDS ARRAY
-    // -----------------------------------------------
-
-    if (
-
-      report.data &&
-
-      typeof report.data === 'object' &&
-
-      Array.isArray(
-        (report.data as any).records
+    this.reportService
+      .getDashboard(
+        this.startDate || undefined,
+        this.endDate || undefined
       )
+      .subscribe({
 
-    ) {
+        next: (response) => {
 
-      return (
-        (report.data as any).records
-      );
+          this.dashboard = response;
 
-    }
+          this.lastLoadedAt =
+            new Date();
 
-
-    // -----------------------------------------------
-    // OBJECT DATA
-    // -----------------------------------------------
-
-    if (
-
-      report.data &&
-
-      typeof report.data === 'object'
-
-    ) {
-
-      const data =
-        report.data as any;
-
-
-      const rows: any[] = [];
-
-
-      Object.keys(data).forEach(
-        key => {
-
-          const value =
-            data[key];
-
-
-          if (
-            Array.isArray(value)
-          ) {
-
-            value.forEach(
-              item => {
-
-                if (
-                  item &&
-                  typeof item === 'object'
-                ) {
-
-                  rows.push({
-
-                    module:
-                      key,
-
-                    ...item
-
-                  });
-
-                } else {
-
-                  rows.push({
-
-                    module:
-                      key,
-
-                    value:
-                      item
-
-                  });
-
-                }
-
-              }
+          this.reportNumber =
+            this.generateReportNumber(
+              response
             );
 
-          }
+          this.loading = false;
 
-        }
-      );
+          this.cdr.markForCheck();
+        },
 
+        error: (error) => {
 
-      if (
-        rows.length > 0
-      ) {
-
-        return rows;
-
-      }
-
-    }
-
-
-    // -----------------------------------------------
-    // FALLBACK REPORT DATA
-    // -----------------------------------------------
-
-    return [
-
-      {
-
-        reportId:
-          report.id,
-
-        reportName:
-          report.name,
-
-        type:
-          report.type,
-
-        description:
-          report.description || '',
-
-        startDate:
-          report.startDate || '',
-
-        endDate:
-          report.endDate || '',
-
-        generatedBy:
-          report.generatedBy || 'System',
-
-        generatedAt:
-          report.generatedAt || '',
-
-        status:
-          report.status,
-
-        totalRecords:
-          report.totalRecords ?? 0,
-
-        totalPatients:
-          report.totalPatients ?? 0,
-
-        totalAppointments:
-          report.totalAppointments ?? 0,
-
-        totalDoctors:
-          report.totalDoctors ?? 0,
-
-        totalRevenue:
-          report.totalRevenue ?? 0
-
-      }
-
-    ];
-
-  }
-
-
-  // =====================================================
-  // CONVERT TO CSV
-  // =====================================================
-
-  private convertToCsv(
-    data: any[]
-  ): string {
-
-    if (
-      !data ||
-      data.length === 0
-    ) {
-
-      return '';
-
-    }
-
-
-    // -----------------------------------------------
-    // COLLECT COLUMN NAMES
-    // -----------------------------------------------
-
-    const headers =
-      new Set<string>();
-
-
-    data.forEach(
-      row => {
-
-        if (
-          row &&
-          typeof row === 'object'
-        ) {
-
-          Object.keys(row).forEach(
-            key => {
-
-              headers.add(key);
-
-            }
+          console.error(
+            'Report loading failed:',
+            error
           );
 
+          this.dashboard = null;
+
+          this.loading = false;
+
+          this.errorMessage =
+            error?.error?.message ||
+            'Unable to load the report. Please try again.';
+
+          this.cdr.markForCheck();
         }
+      });
+  }
 
-      }
-    );
+  // =====================================================
+  // APPLY FILTER
+  // =====================================================
 
+  applyDateFilter(): void {
+    this.loadReport();
+  }
 
-    const headerArray =
-      Array.from(headers);
+  // =====================================================
+  // RESET FILTER
+  // =====================================================
 
+  resetDateFilter(): void {
 
-    // -----------------------------------------------
-    // HEADER
-    // -----------------------------------------------
+    const today = new Date();
 
-    const headerRow =
-      headerArray
-        .map(
-          header =>
-            this.escapeCsvValue(
-              header
-            )
+    this.endDate =
+      this.toInputDate(today);
+
+    this.startDate =
+      this.toInputDate(
+        new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          1
         )
-        .join(',');
-
-
-    // -----------------------------------------------
-    // DATA ROWS
-    // -----------------------------------------------
-
-    const rows =
-      data.map(
-        row => {
-
-          return headerArray
-            .map(
-              header => {
-
-                const value =
-                  row?.[header];
-
-
-                if (
-
-                  value === null ||
-
-                  value === undefined
-
-                ) {
-
-                  return '';
-
-                }
-
-
-                if (
-                  typeof value === 'object'
-                ) {
-
-                  return this.escapeCsvValue(
-                    JSON.stringify(
-                      value
-                    )
-                  );
-
-                }
-
-
-                return this.escapeCsvValue(
-                  String(value)
-                );
-
-              }
-            )
-            .join(',');
-
-        }
       );
 
-
-    return (
-
-      headerRow +
-
-      '\n' +
-
-      rows.join('\n')
-
-    );
-
+    this.loadReport();
   }
 
+  // =====================================================
+  // MODULE ACCESS
+  // =====================================================
+
+  isModuleEnabled(
+    moduleCode: string
+  ): boolean {
+
+    if (!this.dashboard) {
+      return false;
+    }
+
+    /*
+     * REPORTS is the current report module itself.
+     * The backend has already confirmed that this tenant
+     * can access reports before this dashboard is returned.
+     */
+    if (
+      moduleCode === 'REPORTS'
+    ) {
+      return true;
+    }
+
+    /*
+     * The backend returns the enabled modules for the
+     * CURRENT TENANT.
+     *
+     * We intentionally do not send tenantId from Angular.
+     * Tenant identity comes from the authenticated request.
+     */
+    return this.dashboard.enabledReportModules
+      ?.includes(moduleCode) ?? false;
+  }
 
   // =====================================================
-  // ESCAPE CSV VALUE
+  // REPORT PERIOD
   // =====================================================
 
-  private escapeCsvValue(
-    value: string
+  reportPeriodLabel(): string {
+
+    if (!this.dashboard?.metadata?.period) {
+      return '—';
+    }
+
+    const start =
+      this.formatDate(
+        this.dashboard.metadata.period.startDate
+      );
+
+    const end =
+      this.formatDate(
+        this.dashboard.metadata.period.endDate
+      );
+
+    return `${start} – ${end}`;
+  }
+
+  // =====================================================
+  // REPORT NUMBER
+  // =====================================================
+
+  private generateReportNumber(
+    dashboard: ReportDashboardResponse
   ): string {
 
-    return (
+    const tenantCode =
+      dashboard.tenant?.code ||
+      'TENANT';
 
-      `"${String(value)
+    const safeTenantCode =
+      tenantCode
         .replace(
-          /"/g,
-          '""'
-        )}"`
+          /[^a-zA-Z0-9]/g,
+          ''
+        )
+        .toUpperCase();
 
-    );
+    const generatedAt =
+      dashboard.metadata?.generatedAt
+        ? new Date(
+            dashboard.metadata.generatedAt
+          )
+        : new Date();
 
-  }
-
-
-  // =====================================================
-  // DELETE REPORT
-  // =====================================================
-
-  deleteReport(
-    id: string
-  ): void {
-
-    const report =
-      this.reports.find(
-        item =>
-          item.id === id
+    const datePart =
+      this.formatCompactDate(
+        generatedAt
       );
 
-
-    if (!report) {
-
-      return;
-
-    }
-
-
-    const confirmed =
-      window.confirm(
-
-        `Are you sure you want to delete this report?\n\n` +
-
-        `${report.name}\n` +
-
-        `Report ID: ${report.id}\n\n` +
-
-        `This action cannot be undone.`
-
+    const timePart =
+      this.formatCompactTime(
+        generatedAt
       );
 
-
-    if (!confirmed) {
-
-      return;
-
-    }
-
-
-    this.reports =
-      this.reports.filter(
-        item =>
-          item.id !== id
-      );
-
-
-    this.saveReports();
-
-    this.applyFilters();
-
+    return `RPT-${safeTenantCode}-${datePart}-${timePart}`;
   }
 
-
   // =====================================================
-  // STATISTICS
-  // =====================================================
-
-  get totalReports(): number {
-
-    return this.reports.length;
-
-  }
-
-
-  get generatedReports(): number {
-
-    return this.reports.filter(
-      report =>
-        report.status ===
-        'Generated'
-    ).length;
-
-  }
-
-
-  get pendingReports(): number {
-
-    return this.reports.filter(
-      report =>
-        report.status ===
-        'Pending'
-    ).length;
-
-  }
-
-
-  get failedReports(): number {
-
-    return this.reports.filter(
-      report =>
-        report.status ===
-        'Failed'
-    ).length;
-
-  }
-
-
-  // =====================================================
-  // TOTAL RECORDS
-  // =====================================================
-
-  get totalRecords(): number {
-
-    return this.reports.reduce(
-      (
-        total,
-        report
-      ) =>
-
-        total +
-        (report.totalRecords ?? 0),
-
-      0
-    );
-
-  }
-
-
-  // =====================================================
-  // REPORT TYPE COUNT
-  // =====================================================
-
-  getTypeCount(
-    type: ReportType
-  ): number {
-
-    return this.reports.filter(
-      report =>
-        report.type === type
-    ).length;
-
-  }
-
-
-  // =====================================================
-  // STATUS CSS CLASS
-  // =====================================================
-
-  getStatusClass(
-    status: ReportStatus
-  ): string {
-
-    switch (status) {
-
-      case 'Generated':
-
-        return 'status-generated';
-
-
-      case 'Pending':
-
-        return 'status-pending';
-
-
-      case 'Failed':
-
-        return 'status-failed';
-
-
-      default:
-
-        return '';
-
-    }
-
-  }
-
-
-  // =====================================================
-  // FORMAT DATE
+  // DATE FORMATTING
   // =====================================================
 
   formatDate(
-    date?: string
+    value: string | Date | null | undefined
   ): string {
 
-    if (!date) {
-
+    if (!value) {
       return '—';
-
     }
 
+    const date =
+      value instanceof Date
+        ? value
+        : new Date(value);
 
-    const parsedDate =
-      new Date(date);
-
-
-    if (
-      Number.isNaN(
-        parsedDate.getTime()
-      )
-    ) {
-
-      return date;
-
+    if (Number.isNaN(date.getTime())) {
+      return '—';
     }
-
 
     return new Intl.DateTimeFormat(
-      'en-US',
+      'en-UG',
       {
-        dateStyle:
-          'medium',
-
-        timeStyle:
-          'short'
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
       }
-    ).format(
-      parsedDate
-    );
-
+    ).format(date);
   }
 
-
   // =====================================================
-  // SAVE REPORTS
-  // =====================================================
-
-  private saveReports(): void {
-
-    localStorage.setItem(
-
-      this.storageKey,
-
-      JSON.stringify(
-        this.reports
-      )
-
-    );
-
-  }
-
-
-  // =====================================================
-  // GET TODAY
+  // DATETIME FORMATTING
   // =====================================================
 
-  private getToday(): string {
-
-    const now =
-      new Date();
-
-
-    const year =
-      now.getFullYear();
-
-
-    const month =
-      String(
-        now.getMonth() + 1
-      ).padStart(
-        2,
-        '0'
-      );
-
-
-    const day =
-      String(
-        now.getDate()
-      ).padStart(
-        2,
-        '0'
-      );
-
-
-    return `${year}-${month}-${day}`;
-
-  }
-
-
-  // =====================================================
-  // SLUGIFY FILE NAME
-  // =====================================================
-
-  private slugify(
-    value: string
+  formatDateTime(
+    value: string | Date | null | undefined
   ): string {
 
-    return value
+    if (!value) {
+      return '—';
+    }
 
-      .toLowerCase()
+    const date =
+      value instanceof Date
+        ? value
+        : new Date(value);
 
-      .replace(
-        /[^a-z0-9]+/g,
-        '-'
-      )
+    if (Number.isNaN(date.getTime())) {
+      return '—';
+    }
 
-      .replace(
-        /(^-|-$)/g,
-        '');
-
+    return new Intl.DateTimeFormat(
+      'en-UG',
+      {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }
+    ).format(date);
   }
 
-}
+  // =====================================================
+  // NUMBER FORMATTING
+  // =====================================================
 
+  formatNumber(
+    value: number | null | undefined
+  ): string {
+
+    if (
+      value === null ||
+      value === undefined ||
+      Number.isNaN(Number(value))
+    ) {
+      return '0';
+    }
+
+    return new Intl.NumberFormat(
+      'en-UG'
+    ).format(
+      Number(value)
+    );
+  }
+
+  // =====================================================
+  // MONEY FORMATTING
+  // =====================================================
+
+  formatMoney(
+    value: number | null | undefined
+  ): string {
+
+    const currency =
+      this.dashboard?.metadata?.currency ||
+      'UGX';
+
+    const amount =
+      Number(value ?? 0);
+
+    return new Intl.NumberFormat(
+      'en-UG',
+      {
+        style: 'currency',
+        currency,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      }
+    ).format(
+      Number.isFinite(amount)
+        ? amount
+        : 0
+    );
+  }
+
+  // =====================================================
+  // PERCENTAGE
+  // =====================================================
+
+  formatPercentage(
+    value: number | null | undefined
+  ): string {
+
+    const amount =
+      Number(value ?? 0);
+
+    if (!Number.isFinite(amount)) {
+      return '0%';
+    }
+
+    return `${amount.toFixed(1)}%`;
+  }
+
+  // =====================================================
+  // PRINT REPORT
+  // =====================================================
+
+  printReport(): void {
+
+    if (!this.dashboard) {
+      return;
+    }
+
+    const reportElement =
+      document.querySelector(
+        '.report-page'
+      ) as HTMLElement | null;
+
+    if (!reportElement) {
+      return;
+    }
+
+    const printWindow =
+      window.open(
+        '',
+        '_blank',
+        'width=1200,height=900'
+      );
+
+    if (!printWindow) {
+
+      this.errorMessage =
+        'Unable to open the print window. Please allow pop-ups for this application.';
+
+      this.cdr.markForCheck();
+
+      return;
+    }
+
+    const styles =
+      Array.from(
+        document.querySelectorAll(
+          'link[rel="stylesheet"], style'
+        )
+      )
+      .map(
+        element =>
+          element.outerHTML
+      )
+      .join('\n');
+
+    printWindow.document.open();
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+
+          <title>
+            ${this.dashboard.tenant.name}
+            - HMS Report
+          </title>
+
+          <meta charset="UTF-8">
+
+          ${styles}
+
+        </head>
+
+        <body class="print-document">
+
+          ${reportElement.outerHTML}
+
+          <script>
+            window.onload = function () {
+
+              setTimeout(function () {
+
+                window.focus();
+
+                window.print();
+
+              }, 500);
+
+            };
+
+            window.onafterprint = function () {
+
+              window.close();
+
+            };
+          <\/script>
+
+        </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+  }
+
+  // =====================================================
+  // EXPORT PDF
+  // =====================================================
+
+  async exportPdf(): Promise<void> {
+
+    const reportElement =
+      document.querySelector(
+        '.report-page'
+      ) as HTMLElement | null;
+
+    if (
+      !reportElement ||
+      !this.dashboard
+    ) {
+      return;
+    }
+
+    this.exporting = true;
+
+    this.errorMessage = '';
+
+    this.cdr.markForCheck();
+
+    try {
+
+      /*
+       * html2canvas captures the rendered report.
+       *
+       * Elements marked with the "screen-only" class
+       * are intentionally excluded from the PDF.
+       *
+       * This keeps:
+       *
+       * - Download PDF
+       * - Print / Save PDF
+       * - Excel
+       * - CSV
+       * - Date filters
+       *
+       * visible in the browser while preventing them
+       * from appearing inside the generated PDF.
+       */
+      const canvas =
+        await html2canvas(
+          reportElement,
+          {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff',
+            logging: false,
+
+            scrollX: 0,
+            scrollY: -window.scrollY,
+
+            windowWidth:
+              reportElement.scrollWidth,
+
+            ignoreElements:
+              (element: Element): boolean =>
+                element.classList.contains(
+                  'screen-only'
+                )
+          }
+        );
+
+      const pdf =
+        new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4',
+          compress: true
+        });
+
+      const pageWidth =
+        pdf.internal.pageSize.getWidth();
+
+      const pageHeight =
+        pdf.internal.pageSize.getHeight();
+
+      const margin = 10;
+
+      const usableWidth =
+        pageWidth -
+        (margin * 2);
+
+      const usableHeight =
+        pageHeight -
+        (margin * 2);
+
+      const imageWidth =
+        usableWidth;
+
+      const imageHeight =
+        (
+          canvas.height *
+          imageWidth
+        ) /
+        canvas.width;
+
+      const imageData =
+        canvas.toDataURL(
+          'image/jpeg',
+          0.95
+        );
+
+      let remainingHeight =
+        imageHeight;
+
+      let offsetY = 0;
+
+      pdf.setProperties({
+
+        title:
+          `${this.dashboard.tenant.name} HMS Report`,
+
+        subject:
+          `Management report ${this.reportNumber}`,
+
+        author:
+          'Hospital Management System',
+
+        creator:
+          'HMS'
+      });
+
+      while (
+        remainingHeight > 0
+      ) {
+
+        if (
+          offsetY !== 0
+        ) {
+          pdf.addPage();
+        }
+
+        pdf.addImage(
+          imageData,
+          'JPEG',
+          margin,
+          margin - offsetY,
+          imageWidth,
+          imageHeight
+        );
+
+        remainingHeight -=
+          usableHeight;
+
+        offsetY +=
+          usableHeight;
+      }
+
+      const fileName =
+        this.createExportFileName(
+          'pdf'
+        );
+
+      pdf.save(
+        fileName
+      );
+
+    } catch (error) {
+
+      console.error(
+        'PDF export failed:',
+        error
+      );
+
+      this.errorMessage =
+        'Unable to generate the PDF report. Please try again.';
+
+    } finally {
+
+      this.exporting = false;
+
+      this.cdr.markForCheck();
+    }
+  }
+
+  // =====================================================
+  // EXPORT EXCEL
+  // =====================================================
+
+  exportExcel(): void {
+
+    if (!this.dashboard) {
+      return;
+    }
+
+    this.exporting = true;
+
+    this.errorMessage = '';
+
+    this.cdr.markForCheck();
+
+    try {
+
+      const workbook =
+        XLSX.utils.book_new();
+
+      // =================================================
+      // REPORT INFORMATION
+      // =================================================
+
+      const informationRows = [
+
+        [
+          'Report Information',
+          ''
+        ],
+
+        [
+          'Report Number',
+          this.reportNumber
+        ],
+
+        [
+          'Tenant',
+          this.dashboard.tenant.name
+        ],
+
+        [
+          'Tenant Code',
+          this.dashboard.tenant.code
+        ],
+
+        [
+          'Tenant Type',
+          this.dashboard.tenant.type
+        ],
+
+        [
+          'Registration Number',
+          this.dashboard.tenant.registrationNumber || ''
+        ],
+
+        [
+          'Phone',
+          this.dashboard.tenant.phone || ''
+        ],
+
+        [
+          'Email',
+          this.dashboard.tenant.email || ''
+        ],
+
+        [
+          'Address',
+          this.dashboard.tenant.address || ''
+        ],
+
+        [
+          'City',
+          this.dashboard.tenant.city || ''
+        ],
+
+        [
+          'Country',
+          this.dashboard.tenant.country || ''
+        ],
+
+        [
+          'Website',
+          this.dashboard.tenant.website || ''
+        ],
+
+        [
+          'Reporting Period',
+          this.reportPeriodLabel()
+        ],
+
+        [
+          'Generated At',
+          this.formatDateTime(
+            this.dashboard.metadata.generatedAt
+          )
+        ],
+
+        [
+          'Currency',
+          this.dashboard.metadata.currency
+        ]
+      ];
+
+      const informationSheet =
+        XLSX.utils.aoa_to_sheet(
+          informationRows
+        );
+
+      informationSheet['!cols'] = [
+        { wch: 28 },
+        { wch: 45 }
+      ];
+
+      this.styleExcelHeader(
+        informationSheet,
+        'A1:B1'
+      );
+
+      XLSX.utils.book_append_sheet(
+        workbook,
+        informationSheet,
+        'Report Information'
+      );
+
+      // =================================================
+      // SUMMARY
+      // =================================================
+
+      const summaryRows:
+        (string | number)[][] = [
+          [
+            'Metric',
+            'Value'
+          ]
+        ];
+
+      const summary =
+        this.dashboard.summary;
+
+      if (
+        this.isModuleEnabled(
+          'PATIENTS'
+        )
+      ) {
+
+        summaryRows.push(
+          [
+            'Patients',
+            summary.patients
+          ]
+        );
+      }
+
+      if (
+        this.isModuleEnabled(
+          'DOCTORS'
+        )
+      ) {
+
+        summaryRows.push(
+          [
+            'Doctors',
+            summary.doctors
+          ]
+        );
+      }
+
+      if (
+        this.isModuleEnabled(
+          'DEPARTMENTS'
+        )
+      ) {
+
+        summaryRows.push(
+          [
+            'Departments',
+            summary.departments
+          ]
+        );
+      }
+
+      if (
+        this.isModuleEnabled(
+          'APPOINTMENTS'
+        )
+      ) {
+
+        summaryRows.push(
+          [
+            'Appointments',
+            summary.appointments
+          ]
+        );
+      }
+
+      if (
+        this.isModuleEnabled(
+          'CONSULTATIONS'
+        )
+      ) {
+
+        summaryRows.push(
+          [
+            'Consultations',
+            summary.consultations
+          ]
+        );
+      }
+
+      if (
+        this.isModuleEnabled(
+          'ADMISSIONS'
+        )
+      ) {
+
+        summaryRows.push(
+          [
+            'Admissions',
+            summary.admissions
+          ]
+        );
+      }
+
+      if (
+        this.isModuleEnabled(
+          'LABORATORY'
+        )
+      ) {
+
+        summaryRows.push(
+          [
+            'Laboratory Requests',
+            summary.laboratoryRequests
+          ]
+        );
+      }
+
+      if (
+        this.isModuleEnabled(
+          'PHARMACY'
+        )
+      ) {
+
+        summaryRows.push(
+          [
+            'Pharmacy Prescriptions',
+            summary.pharmacyPrescriptions
+          ]
+        );
+      }
+
+      if (
+        this.isModuleEnabled(
+          'INVENTORY'
+        )
+      ) {
+
+        summaryRows.push(
+          [
+            'Inventory Items',
+            summary.inventoryItems
+          ]
+        );
+
+        summaryRows.push(
+          [
+            'Low Stock Items',
+            summary.lowStockItems
+          ]
+        );
+      }
+
+      if (
+        this.isModuleEnabled(
+          'BILLING'
+        )
+      ) {
+
+        summaryRows.push(
+          [
+            'Billing Records',
+            summary.billingRecords
+          ]
+        );
+
+        summaryRows.push(
+          [
+            'Billed Amount',
+            Number(
+              summary.billedAmount || 0
+            )
+          ]
+        );
+
+        summaryRows.push(
+          [
+            'Amount Paid',
+            Number(
+              summary.amountPaid || 0
+            )
+          ]
+        );
+
+        summaryRows.push(
+          [
+            'Outstanding Balance',
+            Number(
+              summary.outstandingBalance || 0
+            )
+          ]
+        );
+      }
+
+      const summarySheet =
+        XLSX.utils.aoa_to_sheet(
+          summaryRows
+        );
+
+      summarySheet['!cols'] = [
+        { wch: 32 },
+        { wch: 24 }
+      ];
+
+      this.styleExcelHeader(
+        summarySheet,
+        'A1:B1'
+      );
+
+      XLSX.utils.book_append_sheet(
+        workbook,
+        summarySheet,
+        'Summary'
+      );
+
+      // =================================================
+      // FINANCIAL
+      // =================================================
+
+      if (
+        this.isModuleEnabled(
+          'BILLING'
+        )
+      ) {
+
+        const financial =
+          this.dashboard.financial;
+
+        const financialRows = [
+
+          [
+            'Financial Metric',
+            'Value'
+          ],
+
+          [
+            'Total Revenue',
+            Number(
+              financial.totalRevenue || 0
+            )
+          ],
+
+          [
+            'Billed Amount',
+            Number(
+              financial.billedAmount || 0
+            )
+          ],
+
+          [
+            'Amount Paid',
+            Number(
+              financial.amountPaid || 0
+            )
+          ],
+
+          [
+            'Outstanding Balance',
+            Number(
+              financial.outstandingBalance || 0
+            )
+          ],
+
+          [
+            'Collection Rate',
+            Number(
+              financial.collectionRate || 0
+            )
+          ]
+        ];
+
+        const financialSheet =
+          XLSX.utils.aoa_to_sheet(
+            financialRows
+          );
+
+        financialSheet['!cols'] = [
+          { wch: 32 },
+          { wch: 24 }
+        ];
+
+        this.styleExcelHeader(
+          financialSheet,
+          'A1:B1'
+        );
+
+        XLSX.utils.book_append_sheet(
+          workbook,
+          financialSheet,
+          'Financial'
+        );
+      }
+
+      // =================================================
+      // PHARMACY
+      // =================================================
+
+      if (
+        this.isModuleEnabled(
+          'PHARMACY'
+        )
+      ) {
+
+        const pharmacy =
+          this.dashboard.pharmacy;
+
+        const pharmacyRows:
+          (string | number)[][] = [
+
+          [
+            'Pharmacy Metric',
+            'Value'
+          ],
+
+          [
+            'Total Sales',
+            Number(
+              pharmacy.totalSales || 0
+            )
+          ],
+
+          [
+            'Total Prescriptions',
+            pharmacy.totalPrescriptions
+          ],
+
+          [
+            'Total Dispensed Items',
+            pharmacy.totalDispensedItems
+          ],
+
+          [
+            'Amount Paid',
+            Number(
+              pharmacy.amountPaid || 0
+            )
+          ],
+
+          [
+            'Outstanding Balance',
+            Number(
+              pharmacy.outstandingBalance || 0
+            )
+          ]
+        ];
+
+        const pharmacySheet =
+          XLSX.utils.aoa_to_sheet(
+            pharmacyRows
+          );
+
+        pharmacySheet['!cols'] = [
+          { wch: 34 },
+          { wch: 24 }
+        ];
+
+        this.styleExcelHeader(
+          pharmacySheet,
+          'A1:B1'
+        );
+
+        XLSX.utils.book_append_sheet(
+          workbook,
+          pharmacySheet,
+          'Pharmacy'
+        );
+
+        // ===============================================
+        // TOP MEDICINES
+        // ===============================================
+
+        const medicineRows:
+          (string | number)[][] = [
+
+          [
+            'Medicine',
+            'Quantity',
+            'Revenue'
+          ]
+        ];
+
+        for (
+          const medicine
+          of pharmacy.topMedicines ?? []
+        ) {
+
+          medicineRows.push(
+            [
+              medicine.medicineName,
+              medicine.quantity,
+              Number(
+                medicine.revenue || 0
+              )
+            ]
+          );
+        }
+
+        const medicineSheet =
+          XLSX.utils.aoa_to_sheet(
+            medicineRows
+          );
+
+        medicineSheet['!cols'] = [
+          { wch: 35 },
+          { wch: 16 },
+          { wch: 20 }
+        ];
+
+        this.styleExcelHeader(
+          medicineSheet,
+          'A1:C1'
+        );
+
+        XLSX.utils.book_append_sheet(
+          workbook,
+          medicineSheet,
+          'Top Medicines'
+        );
+      }
+
+      // =================================================
+      // INVENTORY
+      // =================================================
+
+      if (
+        this.isModuleEnabled(
+          'INVENTORY'
+        )
+      ) {
+
+        const inventory =
+          this.dashboard.inventory;
+
+        const inventoryRows = [
+
+          [
+            'Inventory Metric',
+            'Value'
+          ],
+
+          [
+            'Total Stock Value',
+            Number(
+              inventory.totalStockValue || 0
+            )
+          ],
+
+          [
+            'Total Items',
+            inventory.totalItems
+          ],
+
+          [
+            'Low Stock Items',
+            inventory.lowStockItems
+          ],
+
+          [
+            'Out of Stock Items',
+            inventory.outOfStockItems
+          ],
+
+          [
+            'Expiring Items',
+            inventory.expiringItems
+          ]
+        ];
+
+        const inventorySheet =
+          XLSX.utils.aoa_to_sheet(
+            inventoryRows
+          );
+
+        inventorySheet['!cols'] = [
+          { wch: 32 },
+          { wch: 24 }
+        ];
+
+        this.styleExcelHeader(
+          inventorySheet,
+          'A1:B1'
+        );
+
+        XLSX.utils.book_append_sheet(
+          workbook,
+          inventorySheet,
+          'Inventory'
+        );
+      }
+
+      // =================================================
+      // ENABLED MODULES
+      // =================================================
+
+      const moduleRows =
+        [
+          [
+            'Enabled Report Modules'
+          ],
+
+          ...(
+            this.dashboard
+              .enabledReportModules ?? []
+          ).map(
+            module => [module]
+          )
+        ];
+
+      const moduleSheet =
+        XLSX.utils.aoa_to_sheet(
+          moduleRows
+        );
+
+      moduleSheet['!cols'] = [
+        { wch: 30 }
+      ];
+
+      this.styleExcelHeader(
+        moduleSheet,
+        'A1:A1'
+      );
+
+      XLSX.utils.book_append_sheet(
+        workbook,
+        moduleSheet,
+        'Modules'
+      );
+
+      // =================================================
+      // SAVE
+      // =================================================
+
+      const fileName =
+        this.createExportFileName(
+          'xlsx'
+        );
+
+      XLSX.writeFile(
+        workbook,
+        fileName
+      );
+
+    } catch (error) {
+
+      console.error(
+        'Excel export failed:',
+        error
+      );
+
+      this.errorMessage =
+        'Unable to generate the Excel report. Please try again.';
+
+    } finally {
+
+      this.exporting = false;
+
+      this.cdr.markForCheck();
+    }
+  }
+
+  // =====================================================
+  // EXCEL HEADER HELPER
+  // =====================================================
+
+  private styleExcelHeader(
+    sheet: XLSX.WorkSheet,
+    range: string
+  ): void {
+
+    const decoded =
+      XLSX.utils.decode_range(
+        range
+      );
+
+    for (
+      let row = decoded.s.r;
+      row <= decoded.e.r;
+      row++
+    ) {
+
+      for (
+        let column = decoded.s.c;
+        column <= decoded.e.c;
+        column++
+      ) {
+
+        const address =
+          XLSX.utils.encode_cell({
+            r: row,
+            c: column
+          });
+
+        const cell =
+          sheet[address];
+
+        if (cell) {
+
+          cell.s = {
+            font: {
+              bold: true
+            }
+          };
+        }
+      }
+    }
+  }
+
+  // =====================================================
+  // EXPORT CSV
+  // =====================================================
+
+  exportCsv(): void {
+
+    if (!this.dashboard) {
+      return;
+    }
+
+    this.exporting = true;
+
+    this.errorMessage = '';
+
+    this.cdr.markForCheck();
+
+    try {
+
+      const rows:
+        (string | number)[][] = [];
+
+      const add =
+        (
+          section: string,
+          metric: string,
+          value:
+            string |
+            number |
+            null |
+            undefined
+        ) => {
+
+          rows.push(
+            [
+              section,
+              metric,
+              value ?? ''
+            ]
+          );
+        };
+
+      // =================================================
+      // HEADER
+      // =================================================
+
+      add(
+        'REPORT',
+        'Report Number',
+        this.reportNumber
+      );
+
+      add(
+        'REPORT',
+        'Tenant',
+        this.dashboard.tenant.name
+      );
+
+      add(
+        'REPORT',
+        'Tenant Code',
+        this.dashboard.tenant.code
+      );
+
+      add(
+        'REPORT',
+        'Tenant Type',
+        this.dashboard.tenant.type
+      );
+
+      add(
+        'REPORT',
+        'Reporting Period',
+        this.reportPeriodLabel()
+      );
+
+      add(
+        'REPORT',
+        'Generated At',
+        this.formatDateTime(
+          this.dashboard.metadata.generatedAt
+        )
+      );
+
+      add(
+        'REPORT',
+        'Currency',
+        this.dashboard.metadata.currency
+      );
+
+      // =================================================
+      // SUMMARY
+      // =================================================
+
+      const summary =
+        this.dashboard.summary;
+
+      if (
+        this.isModuleEnabled(
+          'PATIENTS'
+        )
+      ) {
+
+        add(
+          'SUMMARY',
+          'Patients',
+          summary.patients
+        );
+      }
+
+      if (
+        this.isModuleEnabled(
+          'DOCTORS'
+        )
+      ) {
+
+        add(
+          'SUMMARY',
+          'Doctors',
+          summary.doctors
+        );
+      }
+
+      if (
+        this.isModuleEnabled(
+          'DEPARTMENTS'
+        )
+      ) {
+
+        add(
+          'SUMMARY',
+          'Departments',
+          summary.departments
+        );
+      }
+
+      if (
+        this.isModuleEnabled(
+          'APPOINTMENTS'
+        )
+      ) {
+
+        add(
+          'SUMMARY',
+          'Appointments',
+          summary.appointments
+        );
+      }
+
+      if (
+        this.isModuleEnabled(
+          'CONSULTATIONS'
+        )
+      ) {
+
+        add(
+          'SUMMARY',
+          'Consultations',
+          summary.consultations
+        );
+      }
+
+      if (
+        this.isModuleEnabled(
+          'ADMISSIONS'
+        )
+      ) {
+
+        add(
+          'SUMMARY',
+          'Admissions',
+          summary.admissions
+        );
+      }
+
+      if (
+        this.isModuleEnabled(
+          'LABORATORY'
+        )
+      ) {
+
+        add(
+          'SUMMARY',
+          'Laboratory Requests',
+          summary.laboratoryRequests
+        );
+      }
+
+      if (
+        this.isModuleEnabled(
+          'PHARMACY'
+        )
+      ) {
+
+        add(
+          'SUMMARY',
+          'Pharmacy Prescriptions',
+          summary.pharmacyPrescriptions
+        );
+      }
+
+      if (
+        this.isModuleEnabled(
+          'INVENTORY'
+        )
+      ) {
+
+        add(
+          'SUMMARY',
+          'Inventory Items',
+          summary.inventoryItems
+        );
+
+        add(
+          'SUMMARY',
+          'Low Stock Items',
+          summary.lowStockItems
+        );
+      }
+
+      // =================================================
+      // BILLING
+      // =================================================
+
+      if (
+        this.isModuleEnabled(
+          'BILLING'
+        )
+      ) {
+
+        const financial =
+          this.dashboard.financial;
+
+        add(
+          'FINANCIAL',
+          'Total Revenue',
+          financial.totalRevenue
+        );
+
+        add(
+          'FINANCIAL',
+          'Billed Amount',
+          financial.billedAmount
+        );
+
+        add(
+          'FINANCIAL',
+          'Amount Paid',
+          financial.amountPaid
+        );
+
+        add(
+          'FINANCIAL',
+          'Outstanding Balance',
+          financial.outstandingBalance
+        );
+
+        add(
+          'FINANCIAL',
+          'Collection Rate',
+          this.formatPercentage(
+            financial.collectionRate
+          )
+        );
+      }
+
+      // =================================================
+      // PHARMACY
+      // =================================================
+
+      if (
+        this.isModuleEnabled(
+          'PHARMACY'
+        )
+      ) {
+
+        const pharmacy =
+          this.dashboard.pharmacy;
+
+        add(
+          'PHARMACY',
+          'Total Sales',
+          pharmacy.totalSales
+        );
+
+        add(
+          'PHARMACY',
+          'Total Prescriptions',
+          pharmacy.totalPrescriptions
+        );
+
+        add(
+          'PHARMACY',
+          'Total Dispensed Items',
+          pharmacy.totalDispensedItems
+        );
+
+        add(
+          'PHARMACY',
+          'Amount Paid',
+          pharmacy.amountPaid
+        );
+
+        add(
+          'PHARMACY',
+          'Outstanding Balance',
+          pharmacy.outstandingBalance
+        );
+
+        // ===============================================
+        // TOP MEDICINES
+        // ===============================================
+
+        for (
+          const medicine
+          of pharmacy.topMedicines ?? []
+        ) {
+
+          add(
+            'PHARMACY TOP MEDICINES',
+            `${medicine.medicineName} - Quantity`,
+            medicine.quantity
+          );
+
+          add(
+            'PHARMACY TOP MEDICINES',
+            `${medicine.medicineName} - Revenue`,
+            medicine.revenue
+          );
+        }
+      }
+
+      // =================================================
+      // INVENTORY
+      // =================================================
+
+      if (
+        this.isModuleEnabled(
+          'INVENTORY'
+        )
+      ) {
+
+        const inventory =
+          this.dashboard.inventory;
+
+        add(
+          'INVENTORY',
+          'Total Stock Value',
+          inventory.totalStockValue
+        );
+
+        add(
+          'INVENTORY',
+          'Total Items',
+          inventory.totalItems
+        );
+
+        add(
+          'INVENTORY',
+          'Low Stock Items',
+          inventory.lowStockItems
+        );
+
+        add(
+          'INVENTORY',
+          'Out of Stock Items',
+          inventory.outOfStockItems
+        );
+
+        add(
+          'INVENTORY',
+          'Expiring Items',
+          inventory.expiringItems
+        );
+      }
+
+      // =================================================
+      // MODULES
+      // =================================================
+
+      for (
+        const module
+        of this.dashboard.enabledReportModules ?? []
+      ) {
+
+        add(
+          'MODULES',
+          'Enabled Module',
+          module
+        );
+      }
+
+      // =================================================
+      // CSV CREATION
+      // =================================================
+
+      const csv =
+        rows
+          .map(
+            row =>
+              row
+                .map(
+                  value =>
+                    this.escapeCsvValue(
+                      value
+                    )
+                )
+                .join(',')
+          )
+          .join('\n');
+
+      const blob =
+        new Blob(
+          [
+            '\uFEFF' + csv
+          ],
+          {
+            type:
+              'text/csv;charset=utf-8;'
+          }
+        );
+
+      const url =
+        URL.createObjectURL(
+          blob
+        );
+
+      const link =
+        document.createElement(
+          'a'
+        );
+
+      link.href = url;
+
+      link.download =
+        this.createExportFileName(
+          'csv'
+        );
+
+      document.body.appendChild(
+        link
+      );
+
+      link.click();
+
+      document.body.removeChild(
+        link
+      );
+
+      URL.revokeObjectURL(
+        url
+      );
+
+    } catch (error) {
+
+      console.error(
+        'CSV export failed:',
+        error
+      );
+
+      this.errorMessage =
+        'Unable to generate the CSV report. Please try again.';
+
+    } finally {
+
+      this.exporting = false;
+
+      this.cdr.markForCheck();
+    }
+  }
+
+  // =====================================================
+  // CSV ESCAPE
+  // =====================================================
+
+  private escapeCsvValue(
+    value:
+      string |
+      number |
+      null |
+      undefined
+  ): string {
+
+    const text =
+      String(
+        value ?? ''
+      );
+
+    if (
+      text.includes(',') ||
+      text.includes('"') ||
+      text.includes('\n') ||
+      text.includes('\r')
+    ) {
+
+      return `"${text.replace(
+        /"/g,
+        '""'
+      )}"`;
+    }
+
+    return text;
+  }
+
+  // =====================================================
+  // EXPORT FILE NAME
+  // =====================================================
+
+  private createExportFileName(
+    extension: string
+  ): string {
+
+    const tenantCode =
+      this.dashboard?.tenant?.code ||
+      'TENANT';
+
+    const safeTenantCode =
+      tenantCode
+        .replace(
+          /[^a-zA-Z0-9]/g,
+          '-'
+        )
+        .toUpperCase();
+
+    const today =
+      new Date();
+
+    const date =
+      [
+        today.getFullYear(),
+
+        String(
+          today.getMonth() + 1
+        ).padStart(2, '0'),
+
+        String(
+          today.getDate()
+        ).padStart(2, '0')
+      ].join('');
+
+    return `HMS-${safeTenantCode}-REPORT-${date}.${extension}`;
+  }
+
+  // =====================================================
+  // INPUT DATE
+  // =====================================================
+
+  private toInputDate(
+    date: Date
+  ): string {
+
+    return [
+      date.getFullYear(),
+
+      String(
+        date.getMonth() + 1
+      ).padStart(2, '0'),
+
+      String(
+        date.getDate()
+      ).padStart(2, '0')
+    ].join('-');
+  }
+
+  // =====================================================
+  // COMPACT DATE
+  // =====================================================
+
+  private formatCompactDate(
+    date: Date
+  ): string {
+
+    return [
+      date.getFullYear(),
+
+      String(
+        date.getMonth() + 1
+      ).padStart(2, '0'),
+
+      String(
+        date.getDate()
+      ).padStart(2, '0')
+    ].join('');
+  }
+
+  // =====================================================
+  // COMPACT TIME
+  // =====================================================
+
+  private formatCompactTime(
+    date: Date
+  ): string {
+
+    return [
+      String(
+        date.getHours()
+      ).padStart(2, '0'),
+
+      String(
+        date.getMinutes()
+      ).padStart(2, '0'),
+
+      String(
+        date.getSeconds()
+      ).padStart(2, '0')
+    ].join('');
+  }
+}

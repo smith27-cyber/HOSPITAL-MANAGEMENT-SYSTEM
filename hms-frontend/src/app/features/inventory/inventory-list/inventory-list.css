@@ -1,10 +1,16 @@
-
+/* =====================================================
+   INVENTORY LIST PAGE
+   ===================================================== */
 
 .inventory-page {
   padding: 28px;
   max-width: 1600px;
   margin: 0 auto;
 }
+
+/* =====================================================
+   PAGE HEADER
+   ===================================================== */
 
 .page-header {
   display: flex;
@@ -16,14 +22,19 @@
 
 .page-header h1 {
   margin: 0 0 6px;
+  color: var(--hms-text);
   font-size: 28px;
   font-weight: 700;
 }
 
 .page-header p {
   margin: 0;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
+
+/* =====================================================
+   BUTTONS
+   ===================================================== */
 
 .primary-button,
 .secondary-button,
@@ -32,32 +43,55 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: 0;
   border-radius: 8px;
   padding: 11px 18px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  transition:
+    background var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition),
+    transform var(--hms-transition);
 }
 
 .primary-button {
-  background: #0ea5a8;
-  color: white;
+  border: 1px solid var(--hms-primary);
+  background: var(--hms-primary);
+  color: #ffffff;
 }
 
 .primary-button:hover {
-  background: #0b8f92;
+  border-color: var(--hms-primary-hover);
+  background: var(--hms-primary-hover);
 }
 
 .secondary-button {
-  background: #eef2f7;
-  color: #374151;
+  border: 1px solid var(--hms-border);
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text);
+}
+
+.secondary-button:hover {
+  background: var(--hms-surface);
+  border-color: var(--hms-primary);
 }
 
 .clear-button {
-  background: #f3f4f6;
-  color: #374151;
+  border: 1px solid var(--hms-border);
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text-secondary);
 }
+
+.clear-button:hover {
+  background: var(--hms-surface);
+  border-color: var(--hms-primary);
+  color: var(--hms-text);
+}
+
+/* =====================================================
+   STATISTICS
+   ===================================================== */
 
 .stats-grid {
   display: grid;
@@ -70,18 +104,18 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
   border-radius: 12px;
   padding: 18px;
 }
 
 .stat-card.warning {
-  border-left: 4px solid #f59e0b;
+  border-left: 4px solid var(--hms-warning);
 }
 
 .stat-card.danger {
-  border-left: 4px solid #ef4444;
+  border-left: 4px solid var(--hms-danger);
 }
 
 .stat-icon {
@@ -91,28 +125,33 @@
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  background: #e6f7f7;
-  color: #0ea5a8;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .stat-label {
   display: block;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
   font-size: 12px;
   margin-bottom: 4px;
 }
 
 .stat-card strong {
   display: block;
+  color: var(--hms-text);
   font-size: 19px;
 }
+
+/* =====================================================
+   FILTER CARD
+   ===================================================== */
 
 .filter-card {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 22px;
@@ -124,9 +163,19 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--hms-border);
   border-radius: 8px;
   padding: 0 12px;
+  background: var(--hms-input-bg);
+}
+
+.search-box:focus-within {
+  border-color: var(--hms-primary);
+  box-shadow: 0 0 0 3px var(--hms-primary-light);
+}
+
+.search-box .material-symbols-outlined {
+  color: var(--hms-text-muted);
 }
 
 .search-box input {
@@ -134,36 +183,54 @@
   border: 0;
   outline: none;
   padding: 11px 0;
+  background: transparent;
+  color: var(--hms-input-text);
   font-size: 14px;
+}
+
+.search-box input::placeholder {
+  color: var(--hms-text-muted);
 }
 
 .filter-card select {
   min-width: 170px;
   padding: 11px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--hms-border);
   border-radius: 8px;
-  background: white;
+  outline: none;
+  background: var(--hms-input-bg);
+  color: var(--hms-input-text);
 }
 
+.filter-card select:focus {
+  border-color: var(--hms-primary);
+  box-shadow: 0 0 0 3px var(--hms-primary-light);
+}
+
+/* =====================================================
+   TABLE CARD
+   ===================================================== */
+
 .table-card {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
   border-radius: 12px;
   overflow: hidden;
 }
 
 .table-header {
   padding: 20px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--hms-border);
 }
 
 .table-header h2 {
   margin: 0 0 5px;
+  color: var(--hms-text);
   font-size: 18px;
 }
 
 .table-header span {
-  color: #6b7280;
+  color: var(--hms-text-secondary);
   font-size: 13px;
 }
 
@@ -182,30 +249,40 @@ th,
 td {
   padding: 15px 18px;
   text-align: left;
-  border-bottom: 1px solid #eef0f3;
+  border-bottom: 1px solid var(--hms-border);
 }
 
 th {
-  background: #f8fafc;
-  color: #6b7280;
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text-secondary);
   font-size: 12px;
   text-transform: uppercase;
 }
 
 td {
+  color: var(--hms-text);
   font-size: 14px;
+}
+
+tbody tr:hover {
+  background: var(--hms-surface-secondary);
 }
 
 .item-info strong {
   display: block;
+  color: var(--hms-text);
 }
 
 .item-info small,
 td small {
   display: block;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
   margin-top: 3px;
 }
+
+/* =====================================================
+   STATUS BADGES
+   ===================================================== */
 
 .status-badge {
   display: inline-flex;
@@ -216,25 +293,29 @@ td small {
 }
 
 .in-stock {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--hms-success-light);
+  color: var(--hms-success);
 }
 
 .low-stock {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--hms-warning-light);
+  color: var(--hms-warning);
 }
 
 .out-of-stock,
 .expired {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--hms-danger-light);
+  color: var(--hms-danger);
 }
 
 .discontinued {
-  background: #e5e7eb;
-  color: #374151;
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text-secondary);
 }
+
+/* =====================================================
+   ACTION BUTTONS
+   ===================================================== */
 
 .action-buttons {
   display: flex;
@@ -244,23 +325,38 @@ td small {
 .action-buttons button {
   width: 34px;
   height: 34px;
-  border: 0;
+  border: 1px solid var(--hms-border);
   border-radius: 7px;
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition:
+    background var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition);
 }
 
 .action-buttons button:hover {
-  background: #e5e7eb;
+  background: var(--hms-surface);
+  border-color: var(--hms-primary);
+  color: var(--hms-text);
 }
 
 .action-buttons .delete-action {
-  color: #dc2626;
+  color: var(--hms-danger);
 }
+
+.action-buttons .delete-action:hover {
+  background: var(--hms-danger-light);
+  border-color: var(--hms-danger);
+}
+
+/* =====================================================
+   EMPTY STATE
+   ===================================================== */
 
 .empty-state {
   padding: 70px 20px;
@@ -269,17 +365,22 @@ td small {
 
 .empty-state > .material-symbols-outlined {
   font-size: 55px;
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 }
 
 .empty-state h3 {
   margin: 15px 0 8px;
+  color: var(--hms-text);
 }
 
 .empty-state p {
-  color: #6b7280;
+  color: var(--hms-text-secondary);
   margin-bottom: 20px;
 }
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
 
 @media (max-width: 1200px) {
   .stats-grid {
@@ -320,4 +421,3 @@ td small {
     grid-template-columns: 1fr;
   }
 }
-

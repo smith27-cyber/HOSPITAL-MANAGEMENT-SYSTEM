@@ -1,65 +1,61 @@
 <div class="pharmacy-queue-page">
 
-  <!-- ===================================================== -->
-  <!-- PAGE HEADER -->
-  <!-- ===================================================== -->
-
   <div class="page-header">
 
     <div class="page-title">
 
       <div class="title-icon">
-
         <span class="material-symbols-outlined">
           queue
         </span>
-
       </div>
 
       <div>
-
-        <h1>
-          Pharmacy Queue
-        </h1>
+        <h1>Pharmacy Queue</h1>
 
         <p>
           Manage prescriptions received from completed consultations
         </p>
-
       </div>
 
     </div>
 
-
     <div class="header-actions">
+
+      <button
+        type="button"
+        class="primary-button"
+        routerLink="/pharmacy/add-prescription"
+      >
+        <span class="material-symbols-outlined">
+          add
+        </span>
+
+        Add Prescription
+      </button>
 
       <button
         type="button"
         class="secondary-button"
         (click)="loadQueue()"
       >
-
         <span class="material-symbols-outlined">
           refresh
         </span>
 
         Refresh
-
       </button>
-
 
       <button
         type="button"
         class="primary-button"
         routerLink="/pharmacy"
       >
-
         <span class="material-symbols-outlined">
           dashboard
         </span>
 
         Pharmacy Dashboard
-
       </button>
 
     </div>
@@ -67,13 +63,7 @@
   </div>
 
 
-  <!-- ===================================================== -->
-  <!-- QUEUE STATISTICS -->
-  <!-- ===================================================== -->
-
   <div class="stats-grid">
-
-    <!-- TOTAL -->
 
     <div
       class="stat-card"
@@ -82,18 +72,13 @@
     >
 
       <div class="stat-icon total">
-
         <span class="material-symbols-outlined">
           prescriptions
         </span>
-
       </div>
 
       <div class="stat-content">
-
-        <span>
-          Total
-        </span>
+        <span>Total</span>
 
         <strong>
           {{ totalCount }}
@@ -102,13 +87,10 @@
         <small>
           Prescriptions
         </small>
-
       </div>
 
     </div>
 
-
-    <!-- WAITING -->
 
     <div
       class="stat-card"
@@ -117,18 +99,13 @@
     >
 
       <div class="stat-icon waiting">
-
         <span class="material-symbols-outlined">
           schedule
         </span>
-
       </div>
 
       <div class="stat-content">
-
-        <span>
-          Waiting
-        </span>
+        <span>Waiting</span>
 
         <strong>
           {{ waitingCount }}
@@ -137,13 +114,10 @@
         <small>
           New prescriptions
         </small>
-
       </div>
 
     </div>
 
-
-    <!-- PREPARING -->
 
     <div
       class="stat-card"
@@ -152,18 +126,13 @@
     >
 
       <div class="stat-icon preparing">
-
         <span class="material-symbols-outlined">
           medication
         </span>
-
       </div>
 
       <div class="stat-content">
-
-        <span>
-          Preparing
-        </span>
+        <span>Preparing</span>
 
         <strong>
           {{ preparingCount }}
@@ -172,13 +141,10 @@
         <small>
           Being prepared
         </small>
-
       </div>
 
     </div>
 
-
-    <!-- PAYMENT -->
 
     <div
       class="stat-card"
@@ -187,18 +153,13 @@
     >
 
       <div class="stat-icon payment">
-
         <span class="material-symbols-outlined">
           payments
         </span>
-
       </div>
 
       <div class="stat-content">
-
-        <span>
-          Awaiting Payment
-        </span>
+        <span>Awaiting Payment</span>
 
         <strong>
           {{ awaitingPaymentCount }}
@@ -207,13 +168,10 @@
         <small>
           At Billing
         </small>
-
       </div>
 
     </div>
 
-
-    <!-- READY -->
 
     <div
       class="stat-card"
@@ -222,18 +180,13 @@
     >
 
       <div class="stat-icon ready">
-
         <span class="material-symbols-outlined">
           check_circle
         </span>
-
       </div>
 
       <div class="stat-content">
-
-        <span>
-          Ready
-        </span>
+        <span>Ready</span>
 
         <strong>
           {{ readyForPickupCount }}
@@ -242,13 +195,10 @@
         <small>
           Ready for pickup
         </small>
-
       </div>
 
     </div>
 
-
-    <!-- DISPENSED -->
 
     <div
       class="stat-card"
@@ -257,18 +207,13 @@
     >
 
       <div class="stat-icon dispensed">
-
         <span class="material-symbols-outlined">
           done_all
         </span>
-
       </div>
 
       <div class="stat-content">
-
-        <span>
-          Dispensed
-        </span>
+        <span>Dispensed</span>
 
         <strong>
           {{ dispensedCount }}
@@ -277,17 +222,12 @@
         <small>
           Completed
         </small>
-
       </div>
 
     </div>
 
   </div>
 
-
-  <!-- ===================================================== -->
-  <!-- FILTERS -->
-  <!-- ===================================================== -->
 
   <section class="filter-card">
 
@@ -357,10 +297,7 @@
     </div>
 
 
-    @if (
-      searchTerm ||
-      selectedStatus !== 'All'
-    ) {
+    @if (searchTerm || selectedStatus !== 'All') {
 
       <button
         type="button"
@@ -380,10 +317,6 @@
 
   </section>
 
-
-  <!-- ===================================================== -->
-  <!-- QUEUE TABLE -->
-  <!-- ===================================================== -->
 
   <section class="queue-card">
 
@@ -406,13 +339,7 @@
     </div>
 
 
-    <!-- =================================================== -->
-    <!-- EMPTY STATE -->
-    <!-- =================================================== -->
-
-    @if (
-      filteredPrescriptions.length === 0
-    ) {
+    @if (filteredPrescriptions.length === 0) {
 
       <div class="empty-state">
 
@@ -434,19 +361,14 @@
         </p>
 
 
-        @if (
-          searchTerm ||
-          selectedStatus !== 'All'
-        ) {
+        @if (searchTerm || selectedStatus !== 'All') {
 
           <button
             type="button"
             class="primary-button"
             (click)="clearFilters()"
           >
-
             Clear Filters
-
           </button>
 
         }
@@ -456,56 +378,23 @@
     }
 
 
-    <!-- =================================================== -->
-    <!-- TABLE -->
-    <!-- =================================================== -->
-
-    @if (
-      filteredPrescriptions.length > 0
-    ) {
+    @if (filteredPrescriptions.length > 0) {
 
       <div class="queue-table">
 
-        <!-- TABLE HEADER -->
-
         <div class="table-header">
 
-          <span>
-            Patient
-          </span>
-
-          <span>
-            Prescription
-          </span>
-
-          <span>
-            Doctor
-          </span>
-
-          <span>
-            Medicines
-          </span>
-
-          <span>
-            Amount
-          </span>
-
-          <span>
-            Status
-          </span>
-
-          <span>
-            Date
-          </span>
-
-          <span>
-            Actions
-          </span>
+          <span>Patient</span>
+          <span>Prescription</span>
+          <span>Doctor</span>
+          <span>Medicines</span>
+          <span>Amount</span>
+          <span>Status</span>
+          <span>Date</span>
+          <span>Actions</span>
 
         </div>
 
-
-        <!-- TABLE ROWS -->
 
         @for (
           prescription of filteredPrescriptions;
@@ -513,10 +402,6 @@
         ) {
 
           <div class="table-row">
-
-            <!-- ========================================= -->
-            <!-- PATIENT -->
-            <!-- ========================================= -->
 
             <div class="patient-cell">
 
@@ -527,7 +412,6 @@
                 </span>
 
               </div>
-
 
               <div class="patient-info">
 
@@ -545,10 +429,6 @@
             </div>
 
 
-            <!-- ========================================= -->
-            <!-- PRESCRIPTION -->
-            <!-- ========================================= -->
-
             <div class="table-cell">
 
               <strong class="prescription-number">
@@ -558,10 +438,6 @@
             </div>
 
 
-            <!-- ========================================= -->
-            <!-- DOCTOR -->
-            <!-- ========================================= -->
-
             <div class="table-cell">
 
               <span>
@@ -570,10 +446,6 @@
 
             </div>
 
-
-            <!-- ========================================= -->
-            <!-- MEDICINES -->
-            <!-- ========================================= -->
 
             <div class="table-cell">
 
@@ -592,19 +464,13 @@
             </div>
 
 
-            <!-- ========================================= -->
-            <!-- AMOUNT -->
-            <!-- ========================================= -->
-
             <div class="table-cell amount-cell">
 
               <strong>
                 {{ formatCurrency(prescription.subtotal) }}
               </strong>
 
-              @if (
-                prescription.balance > 0
-              ) {
+              @if (prescription.balance > 0) {
 
                 <span class="balance-text">
 
@@ -618,31 +484,17 @@
             </div>
 
 
-            <!-- ========================================= -->
-            <!-- STATUS -->
-            <!-- ========================================= -->
-
             <div class="table-cell">
 
               <span
                 class="status-badge"
-                [ngClass]="
-                  getStatusClass(
-                    prescription.status
-                  )
-                "
+                [ngClass]="getStatusClass(prescription.status)"
               >
-
                 {{ prescription.status }}
-
               </span>
 
             </div>
 
-
-            <!-- ========================================= -->
-            <!-- DATE -->
-            <!-- ========================================= -->
 
             <div class="table-cell">
 
@@ -653,13 +505,7 @@
             </div>
 
 
-            <!-- ========================================= -->
-            <!-- ACTIONS -->
-            <!-- ========================================= -->
-
             <div class="actions-cell">
-
-              <!-- VIEW -->
 
               <button
                 type="button"
@@ -675,11 +521,7 @@
               </button>
 
 
-              <!-- WAITING -->
-
-              @if (
-                prescription.status === 'Waiting'
-              ) {
+              @if (prescription.status === 'Waiting') {
 
                 <button
                   type="button"
@@ -697,11 +539,7 @@
               }
 
 
-              <!-- PREPARING -->
-
-              @if (
-                prescription.status === 'Preparing'
-              ) {
+              @if (prescription.status === 'Preparing') {
 
                 <button
                   type="button"
@@ -719,12 +557,7 @@
               }
 
 
-              <!-- AWAITING PAYMENT -->
-
-              @if (
-                prescription.status ===
-                'Awaiting Payment'
-              ) {
+              @if (prescription.status === 'Awaiting Payment') {
 
                 <button
                   type="button"
@@ -742,12 +575,7 @@
               }
 
 
-              <!-- READY -->
-
-              @if (
-                prescription.status ===
-                'Ready for Pickup'
-              ) {
+              @if (prescription.status === 'Ready for Pickup') {
 
                 <button
                   type="button"
@@ -765,12 +593,7 @@
               }
 
 
-              <!-- DISPENSED -->
-
-              @if (
-                prescription.status ===
-                'Dispensed'
-              ) {
+              @if (prescription.status === 'Dispensed') {
 
                 <span
                   class="completed-icon"
@@ -797,10 +620,6 @@
 
   </section>
 
-
-  <!-- ===================================================== -->
-  <!-- WORKFLOW INFORMATION -->
-  <!-- ===================================================== -->
 
   <section class="workflow-card">
 
@@ -831,8 +650,6 @@
 
     <div class="workflow-steps">
 
-      <!-- WAITING -->
-
       <div class="workflow-step">
 
         <div class="step-number">
@@ -858,8 +675,6 @@
         arrow_forward
       </span>
 
-
-      <!-- PREPARING -->
 
       <div class="workflow-step">
 
@@ -887,8 +702,6 @@
       </span>
 
 
-      <!-- BILLING -->
-
       <div class="workflow-step">
 
         <div class="step-number">
@@ -914,8 +727,6 @@
         arrow_forward
       </span>
 
-
-      <!-- PICKUP -->
 
       <div class="workflow-step">
 

@@ -23,7 +23,15 @@ public interface ConsultationRepository
             String id,
             Long tenantId
     );
+// =====================================================
+// REPORT AGGREGATION
+// =====================================================
 
+long countByTenant_IdAndConsultationDateBetween(
+        Long tenantId,
+        LocalDate startDate,
+        LocalDate endDate
+);
     // =====================================================
     // PATIENT
     // =====================================================

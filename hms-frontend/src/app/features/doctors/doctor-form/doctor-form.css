@@ -1,82 +1,113 @@
+/* =========================================================
+   DOCTOR FORM PAGE
+========================================================= */
+
+:host {
+  display: block;
+  width: 100%;
+}
+
 .doctor-form-page {
   max-width: 1400px;
   margin: 0 auto;
 }
 
-/* =========================
-   Header
-========================= */
+
+/* =========================================================
+   HEADER
+========================================================= */
 
 .page-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   margin-bottom: 20px;
 }
 
 .page-header h1 {
   margin: 0;
-  color: #111827;
+
+  color: var(--hms-text);
+
   font-size: 24px;
+  font-weight: 700;
 }
 
 .page-header p {
   margin: 5px 0 0;
-  color: #9ca3af;
+
+  color: var(--hms-text-secondary);
+
   font-size: 12px;
 }
 
 
-/* =========================
-   Buttons
-========================= */
+/* =========================================================
+   BUTTONS
+========================================================= */
 
 .secondary-button,
 .cancel-button,
 .save-button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+
   gap: 7px;
 
   padding: 10px 15px;
 
-  border-radius: 8px;
+  border-radius: var(--hms-radius);
 
   font-size: 12px;
   font-weight: 600;
 
   cursor: pointer;
+
+  transition:
+    background-color var(--hms-transition),
+    color var(--hms-transition),
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition);
 }
 
-.secondary-button {
-  border: 1px solid #d1d5db;
-  background: #fff;
-  color: #374151;
-}
-
-.secondary-button:hover {
-  background: #f9fafb;
-}
-
+.secondary-button,
 .cancel-button {
-  border: 1px solid #d1d5db;
-  background: #fff;
-  color: #374151;
+  border: 1px solid var(--hms-border);
+
+  background: var(--hms-surface);
+
+  color: var(--hms-text);
 }
 
+.secondary-button:hover,
 .cancel-button:hover {
-  background: #f9fafb;
+  background: var(--hms-surface-secondary);
+
+  border-color: var(--hms-text-muted);
 }
 
 .save-button {
-  border: none;
-  background: #0f766e;
-  color: #fff;
+  border: 1px solid var(--hms-primary);
+
+  background: var(--hms-primary);
+
+  color: #ffffff;
 }
 
 .save-button:hover {
-  background: #115e59;
+  background: var(--hms-primary-hover);
+
+  border-color: var(--hms-primary-hover);
+}
+
+.save-button:disabled,
+.cancel-button:disabled,
+.secondary-button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
 }
 
 .material-symbols-outlined {
@@ -84,39 +115,49 @@
 }
 
 
-/* =========================
-   Form
-========================= */
+/* =========================================================
+   FORM
+========================================================= */
 
 .doctor-form {
   display: flex;
+
   flex-direction: column;
+
   gap: 20px;
 }
 
 .form-card {
   padding: 22px;
 
-  background: #fff;
+  background: var(--hms-surface);
 
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border: 1px solid var(--hms-border);
+
+  border-radius: var(--hms-radius-lg);
+
+  box-shadow: var(--hms-shadow);
+
+  transition:
+    background-color var(--hms-transition),
+    border-color var(--hms-transition);
 }
 
 
-/* =========================
-   Section Header
-========================= */
+/* =========================================================
+   SECTION HEADER
+========================================================= */
 
 .section-header {
   display: flex;
   align-items: center;
+
   gap: 12px;
 
   margin-bottom: 22px;
   padding-bottom: 15px;
 
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--hms-border);
 }
 
 .section-icon {
@@ -127,10 +168,11 @@
   align-items: center;
   justify-content: center;
 
-  border-radius: 9px;
+  border-radius: var(--hms-radius);
 
-  background: #ccfbf1;
-  color: #0f766e;
+  background: var(--hms-primary-light);
+
+  color: var(--hms-primary);
 }
 
 .section-icon .material-symbols-outlined {
@@ -140,21 +182,23 @@
 .section-header h2 {
   margin: 0;
 
-  color: #111827;
+  color: var(--hms-text);
+
   font-size: 16px;
 }
 
 .section-header p {
   margin: 4px 0 0;
 
-  color: #9ca3af;
+  color: var(--hms-text-muted);
+
   font-size: 11px;
 }
 
 
-/* =========================
-   Grid
-========================= */
+/* =========================================================
+   GRID
+========================================================= */
 
 .form-grid {
   display: grid;
@@ -165,89 +209,110 @@
 }
 
 
-/* =========================
-   Form Groups
-========================= */
+/* =========================================================
+   FORM GROUPS
+========================================================= */
 
 .form-group {
   display: flex;
+
   flex-direction: column;
+
   gap: 6px;
 }
 
 .form-group label {
-  color: #374151;
+  color: var(--hms-text);
 
   font-size: 11px;
   font-weight: 600;
 }
 
 .form-group label span {
-  color: #dc2626;
+  color: var(--hms-danger);
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
   width: 100%;
+
   box-sizing: border-box;
 
   padding: 11px 12px;
 
-  border: 1px solid #d1d5db;
-  border-radius: 7px;
+  border: 1px solid var(--hms-border);
 
-  background: #fff;
+  border-radius: var(--hms-radius-sm);
 
-  color: #374151;
+  background: var(--hms-input-bg);
+
+  color: var(--hms-input-text);
 
   font-family: inherit;
+
   font-size: 12px;
 
   outline: none;
 
   transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition),
+    background-color var(--hms-transition);
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  border-color: #0f766e;
+  border-color: var(--hms-primary);
 
-  box-shadow:
-    0 0 0 3px
-    rgba(15, 118, 110, 0.1);
+  box-shadow: 0 0 0 3px var(--hms-primary-light);
 }
 
-.form-group input::placeholder {
-  color: #9ca3af;
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--hms-text-muted);
 }
 
 
-/* =========================
-   Form Actions
-========================= */
+/* =========================================================
+   FORM ACTIONS
+========================================================= */
 
 .form-actions {
   display: flex;
+
   justify-content: flex-end;
+
   gap: 10px;
 
   padding-bottom: 20px;
 }
 
 
-/* =========================
-   Responsive
-========================= */
+/* =========================================================
+   FOCUS
+========================================================= */
+
+.secondary-button:focus-visible,
+.cancel-button:focus-visible,
+.save-button:focus-visible {
+  outline: 2px solid var(--hms-primary);
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
 @media (max-width: 700px) {
 
   .page-header {
     align-items: flex-start;
+
     flex-direction: column;
+
     gap: 15px;
   }
 
@@ -266,5 +331,4 @@
   .form-actions button {
     width: 100%;
   }
-
 }

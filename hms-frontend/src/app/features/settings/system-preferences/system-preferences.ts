@@ -1,9 +1,3 @@
-// =====================================================
-// SYSTEM PREFERENCES COMPONENT
-// File:
-// src/app/features/settings/system-preferences/system-preferences.ts
-// =====================================================
-
 import {
   ChangeDetectorRef,
   Component,
@@ -31,22 +25,14 @@ import {
 } from '../../../core/services/settings.service';
 
 
-// =====================================================
-// SYSTEM PREFERENCES COMPONENT
-// =====================================================
-
 @Component({
   selector: 'app-system-preferences',
-
   standalone: true,
-
   imports: [
     CommonModule,
     FormsModule
   ],
-
   templateUrl: './system-preferences.html',
-
   styleUrl: './system-preferences.css'
 })
 export class SystemPreferencesComponent
@@ -54,39 +40,54 @@ export class SystemPreferencesComponent
 
 
   // =====================================================
-  // SYSTEM SETTINGS
+  // SETTINGS
   // =====================================================
 
-  settings: SystemSettings = {
+  settings:
+    SystemSettings = {
 
-    theme: 'System',
+    theme:
+      'System',
 
-    dateFormat: 'DD/MM/YYYY',
+    dateFormat:
+      'DD/MM/YYYY',
 
-    timeFormat: '24-hour',
+    timeFormat:
+      '24-hour',
 
-    currency: 'UGX',
+    currency:
+      'UGX',
 
-    currencySymbol: 'UGX',
+    currencySymbol:
+      'UGX',
 
-    language: 'English',
+    language:
+      'English',
 
-    timezone: 'Africa/Kampala',
+    timezone:
+      'Africa/Kampala',
 
-    enableNotifications: true,
+    enableNotifications:
+      true,
 
-    enableEmailNotifications: true,
+    enableEmailNotifications:
+      true,
 
-    enableSmsNotifications: false
+    enableSmsNotifications:
+      false
 
   };
 
 
   // =====================================================
-  // SAVING
+  // UI STATE
   // =====================================================
 
+  loading = false;
+
   saving = false;
+
+  resetting = false;
 
 
   // =====================================================
@@ -95,35 +96,24 @@ export class SystemPreferencesComponent
 
   themeOptions:
     SystemSettings['theme'][] = [
-
       'Light',
-
       'Dark',
-
       'System'
-
     ];
 
 
   dateFormatOptions:
     SystemSettings['dateFormat'][] = [
-
       'DD/MM/YYYY',
-
       'MM/DD/YYYY',
-
       'YYYY-MM-DD'
-
     ];
 
 
   timeFormatOptions:
     SystemSettings['timeFormat'][] = [
-
       '12-hour',
-
       '24-hour'
-
     ];
 
 
@@ -132,7 +122,6 @@ export class SystemPreferencesComponent
   // =====================================================
 
   constructor(
-
     private readonly settingsService:
       SettingsService,
 
@@ -141,12 +130,11 @@ export class SystemPreferencesComponent
 
     private readonly changeDetectorRef:
       ChangeDetectorRef
-
   ) {}
 
 
   // =====================================================
-  // INITIALIZE
+  // INIT
   // =====================================================
 
   ngOnInit(): void {
@@ -162,28 +150,51 @@ export class SystemPreferencesComponent
 
   loadSettings(): void {
 
-    try {
-
-      this.settings =
-        this.settingsService
-          .getSystemSettings();
-
-
-    } catch (error) {
-
-      console.error(
-        'Failed to load system preferences:',
-        error
-      );
-
+    if (this.loading) {
+      return;
     }
 
 
-    // ---------------------------------------------------
-    // Force immediate UI rendering
-    // ---------------------------------------------------
+    this.loading = true;
 
     this.changeDetectorRef.detectChanges();
+
+
+    this.settingsService
+      .getSystemPreferences()
+      .subscribe({
+
+        next: settings => {
+
+          this.settings = {
+            ...settings
+          };
+
+          this.loading = false;
+
+          this.changeDetectorRef.detectChanges();
+
+        },
+
+
+        error: error => {
+
+          console.error(
+            'Failed to load system preferences:',
+            error
+          );
+
+          this.loading = false;
+
+          this.changeDetectorRef.detectChanges();
+
+          alert(
+            'Failed to load system preferences. Please try again.'
+          );
+
+        }
+
+      });
 
   }
 
@@ -194,11 +205,11 @@ export class SystemPreferencesComponent
 
   saveSettings(): void {
 
-    // ---------------------------------------------------
-    // Prevent duplicate saves
-    // ---------------------------------------------------
-
-    if (this.saving) {
+    if (
+      this.saving ||
+      this.loading ||
+      this.resetting
+    ) {
 
       return;
 
@@ -210,55 +221,47 @@ export class SystemPreferencesComponent
     this.changeDetectorRef.detectChanges();
 
 
-    try {
+    this.settingsService
+      .updateSystemPreferences(
+        this.settings
+      )
+      .subscribe({
 
-      // -------------------------------------------------
-      // Save system settings
-      // -------------------------------------------------
+        next: updatedSettings => {
 
-      this.settingsService
-        .updateSystemSettings(
-          this.settings
-        );
+          this.settings = {
+            ...updatedSettings
+          };
 
+          this.saving = false;
 
-      // -------------------------------------------------
-      // Keep the latest state
-      // -------------------------------------------------
+          this.changeDetectorRef.detectChanges();
 
-      this.settings =
-        this.settingsService
-          .getSystemSettings();
+          alert(
+            'System preferences saved successfully.'
+          );
 
-
-      this.saving = false;
-
-      this.changeDetectorRef.detectChanges();
+        },
 
 
-      alert(
-        'System preferences saved successfully.'
-      );
+        error: error => {
 
+          console.error(
+            'Failed to save system preferences:',
+            error
+          );
 
-    } catch (error) {
+          this.saving = false;
 
-      console.error(
-        'Failed to save system preferences:',
-        error
-      );
+          this.changeDetectorRef.detectChanges();
 
+          alert(
+            'Failed to save system preferences. Please try again.'
+          );
 
-      this.saving = false;
+        }
 
-      this.changeDetectorRef.detectChanges();
-
-
-      alert(
-        'Failed to save system preferences. Please try again.'
-      );
-
-    }
+      });
 
   }
 
@@ -269,11 +272,11 @@ export class SystemPreferencesComponent
 
   resetSettings(): void {
 
-    // ---------------------------------------------------
-    // Prevent reset while saving
-    // ---------------------------------------------------
-
-    if (this.saving) {
+    if (
+      this.saving ||
+      this.loading ||
+      this.resetting
+    ) {
 
       return;
 
@@ -287,64 +290,54 @@ export class SystemPreferencesComponent
 
 
     if (!confirmed) {
-
       return;
-
     }
 
 
-    this.saving = true;
+    this.resetting = true;
 
     this.changeDetectorRef.detectChanges();
 
 
-    try {
+    this.settingsService
+      .resetSystemPreferences()
+      .subscribe({
 
-      // -------------------------------------------------
-      // Reset through service
-      // -------------------------------------------------
+        next: resetSettings => {
 
-      this.settingsService
-        .resetSettings();
+          this.settings = {
+            ...resetSettings
+          };
 
+          this.resetting = false;
 
-      // -------------------------------------------------
-      // Reload reset values
-      // -------------------------------------------------
+          this.changeDetectorRef.detectChanges();
 
-      this.settings =
-        this.settingsService
-          .getSystemSettings();
+          alert(
+            'System preferences have been reset.'
+          );
 
-
-      this.saving = false;
-
-      this.changeDetectorRef.detectChanges();
+        },
 
 
-      alert(
-        'System preferences have been reset.'
-      );
+        error: error => {
 
+          console.error(
+            'Failed to reset system preferences:',
+            error
+          );
 
-    } catch (error) {
+          this.resetting = false;
 
-      console.error(
-        'Failed to reset system preferences:',
-        error
-      );
+          this.changeDetectorRef.detectChanges();
 
+          alert(
+            'Failed to reset system preferences. Please try again.'
+          );
 
-      this.saving = false;
+        }
 
-      this.changeDetectorRef.detectChanges();
-
-
-      alert(
-        'Failed to reset system preferences. Please try again.'
-      );
-
-    }
+      });
 
   }
 

@@ -1,11 +1,10 @@
 <!-- =====================================================
-     DASHBOARD
+     HMS DASHBOARD
      File:
      src/app/features/dashboard/dashboard.html
      ===================================================== -->
 
 <div class="dashboard">
-
 
   <!-- ===================================================
        LOADING
@@ -17,9 +16,10 @@
 
       <div class="loading-spinner"></div>
 
-      <span>
-        Loading dashboard...
-      </span>
+      <div class="loading-text">
+        <strong>Loading dashboard</strong>
+        <span>Preparing your workspace...</span>
+      </div>
 
     </div>
 
@@ -42,18 +42,17 @@
 
       </div>
 
-      <div>
-
-        <span class="header-eyebrow">
-          Hospital Management System
-        </span>
+      <div class="header-copy">
+<span class="header-eyebrow">
+  {{ hospitalName }}
+</span>
 
         <h1>
           Dashboard
         </h1>
 
         <p>
-          Overview of your hospital activities
+          Overview of your organization's current activity
         </p>
 
       </div>
@@ -85,7 +84,8 @@
 
 
   <!-- ===================================================
-       STATISTICS
+       KPI STATISTICS
+       Only show cards for enabled modules
        =================================================== -->
 
   <section class="stats-grid">
@@ -93,194 +93,758 @@
 
     <!-- PATIENTS -->
 
-    <article class="stat-card patients-card">
+    @if (moduleAvailability.patients) {
 
-      <div class="stat-icon patients">
+      <article class="stat-card patients-card">
 
-        <span class="material-symbols-outlined">
-          group
-        </span>
+        <div class="stat-icon patients">
 
-      </div>
+          <span class="material-symbols-outlined">
+            group
+          </span>
 
-      <div class="stat-content">
+        </div>
 
-        <span class="stat-label">
-          Total Patients
-        </span>
+        <div class="stat-content">
 
-        <h2>
-          {{ totalPatients }}
-        </h2>
+          <span class="stat-label">
+            Total Patients
+          </span>
 
-        <span class="stat-change">
-          Registered patients
-        </span>
+          <h2>
+            {{ totalPatients }}
+          </h2>
 
-      </div>
+          <span class="stat-change">
+            Registered patients
+          </span>
 
-      <div class="stat-arrow">
+        </div>
 
-        <span class="material-symbols-outlined">
-          groups
-        </span>
+        <div class="stat-arrow">
 
-      </div>
+          <span class="material-symbols-outlined">
+            groups
+          </span>
 
-    </article>
+        </div>
+
+      </article>
+
+    }
 
 
     <!-- DOCTORS -->
 
-    <article class="stat-card doctors-card">
+    @if (moduleAvailability.doctors) {
 
-      <div class="stat-icon doctors">
+      <article class="stat-card doctors-card">
 
-        <span class="material-symbols-outlined">
-          medical_services
-        </span>
+        <div class="stat-icon doctors">
 
-      </div>
+          <span class="material-symbols-outlined">
+            medical_services
+          </span>
 
-      <div class="stat-content">
+        </div>
 
-        <span class="stat-label">
-          Active Doctors
-        </span>
+        <div class="stat-content">
 
-        <h2>
-          {{ activeDoctors }}
-        </h2>
+          <span class="stat-label">
+            Active Doctors
+          </span>
 
-        <span class="stat-change">
-          Currently active
-        </span>
+          <h2>
+            {{ activeDoctors }}
+          </h2>
 
-      </div>
+          <span class="stat-change">
+            Currently active
+          </span>
 
-      <div class="stat-arrow">
+        </div>
 
-        <span class="material-symbols-outlined">
-          verified
-        </span>
+        <div class="stat-arrow">
 
-      </div>
+          <span class="material-symbols-outlined">
+            verified
+          </span>
 
-    </article>
+        </div>
+
+      </article>
+
+    }
 
 
     <!-- DEPARTMENTS -->
 
-    <article class="stat-card departments-card">
+    @if (moduleAvailability.departments) {
 
-      <div class="stat-icon departments">
+      <article class="stat-card departments-card">
 
-        <span class="material-symbols-outlined">
-          apartment
-        </span>
+        <div class="stat-icon departments">
 
-      </div>
+          <span class="material-symbols-outlined">
+            apartment
+          </span>
 
-      <div class="stat-content">
+        </div>
 
-        <span class="stat-label">
-          Departments
-        </span>
+        <div class="stat-content">
 
-        <h2>
-          {{ totalDepartments }}
-        </h2>
+          <span class="stat-label">
+            Departments
+          </span>
 
-        <span class="stat-change">
-          Active departments
-        </span>
+          <h2>
+            {{ totalDepartments }}
+          </h2>
 
-      </div>
+          <span class="stat-change">
+            Active departments
+          </span>
 
-      <div class="stat-arrow">
+        </div>
 
-        <span class="material-symbols-outlined">
-          domain
-        </span>
+        <div class="stat-arrow">
 
-      </div>
+          <span class="material-symbols-outlined">
+            domain
+          </span>
 
-    </article>
+        </div>
+
+      </article>
+
+    }
 
 
     <!-- APPOINTMENTS -->
 
-    <article class="stat-card appointments-card-stat">
+    @if (moduleAvailability.appointments) {
 
-      <div class="stat-icon appointments">
+      <article class="stat-card appointments-card-stat">
 
-        <span class="material-symbols-outlined">
-          calendar_month
-        </span>
+        <div class="stat-icon appointments">
 
-      </div>
+          <span class="material-symbols-outlined">
+            calendar_month
+          </span>
 
-      <div class="stat-content">
+        </div>
 
-        <span class="stat-label">
-          Total Appointments
-        </span>
+        <div class="stat-content">
 
-        <h2>
-          {{ totalAppointments }}
-        </h2>
+          <span class="stat-label">
+            Today's Appointments
+          </span>
 
-        <span class="stat-change">
-
-          @if (todaysAppointments === 0) {
-
-            No appointments today
-
-          } @else {
-
+          <h2>
             {{ todaysAppointments }}
-            scheduled today
+          </h2>
 
-          }
+          <span class="stat-change">
+            {{ totalAppointments }} total appointments
+          </span>
 
-        </span>
+        </div>
 
-      </div>
+        <div class="stat-arrow">
 
-      <div class="stat-arrow">
+          <span class="material-symbols-outlined">
+            event_available
+          </span>
 
-        <span class="material-symbols-outlined">
-          event_available
-        </span>
+        </div>
 
-      </div>
+      </article>
 
-    </article>
+    }
+
+
+    <!-- BILLING -->
+
+    @if (moduleAvailability.billing) {
+
+      <article class="stat-card revenue-card">
+
+        <div class="stat-icon revenue">
+
+          <span class="material-symbols-outlined">
+            payments
+          </span>
+
+        </div>
+
+        <div class="stat-content">
+
+          <span class="stat-label">
+            Total Revenue
+          </span>
+
+          <h2>
+            UGX {{ formatCurrency(totalRevenue) }}
+          </h2>
+
+          <span class="stat-change">
+            {{ paidBills }} paid invoice{{ paidBills === 1 ? '' : 's' }}
+          </span>
+
+        </div>
+
+        <div class="stat-arrow">
+
+          <span class="material-symbols-outlined">
+            trending_up
+          </span>
+
+        </div>
+
+      </article>
+
+    }
+
+
+    <!-- OUTSTANDING -->
+
+    @if (moduleAvailability.billing) {
+
+      <article class="stat-card balance-card">
+
+        <div class="stat-icon balance">
+
+          <span class="material-symbols-outlined">
+            account_balance_wallet
+          </span>
+
+        </div>
+
+        <div class="stat-content">
+
+          <span class="stat-label">
+            Outstanding Balance
+          </span>
+
+          <h2>
+            UGX {{ formatCurrency(totalOutstandingBalance) }}
+          </h2>
+
+          <span class="stat-change">
+            Amount still due
+          </span>
+
+        </div>
+
+        <div class="stat-arrow">
+
+          <span class="material-symbols-outlined">
+            pending_actions
+          </span>
+
+        </div>
+
+      </article>
+
+    }
+
+
+    <!-- PHARMACY -->
+
+    @if (moduleAvailability.pharmacy) {
+
+      <article class="stat-card pharmacy-card">
+
+        <div class="stat-icon pharmacy">
+
+          <span class="material-symbols-outlined">
+            medication
+          </span>
+
+        </div>
+
+        <div class="stat-content">
+
+          <span class="stat-label">
+            Pharmacy Queue
+          </span>
+
+          <h2>
+            {{ totalPharmacyPrescriptions }}
+          </h2>
+
+          <span class="stat-change">
+            {{ readyForPickupPrescriptions }} ready for pickup
+          </span>
+
+        </div>
+
+        <div class="stat-arrow">
+
+          <span class="material-symbols-outlined">
+            local_pharmacy
+          </span>
+
+        </div>
+
+      </article>
+
+    }
+
+
+    <!-- INVENTORY -->
+
+    @if (moduleAvailability.inventory) {
+
+      <article class="stat-card inventory-card">
+
+        <div class="stat-icon inventory">
+
+          <span class="material-symbols-outlined">
+            inventory_2
+          </span>
+
+        </div>
+
+        <div class="stat-content">
+
+          <span class="stat-label">
+            Inventory Items
+          </span>
+
+          <h2>
+            {{ totalInventoryItems }}
+          </h2>
+
+          <span class="stat-change">
+
+            @if (outOfStockItems > 0) {
+
+              {{ outOfStockItems }} out of stock
+
+            } @else if (lowStockItems > 0) {
+
+              {{ lowStockItems }} low stock
+
+            } @else {
+
+              Stock levels healthy
+
+            }
+
+          </span>
+
+        </div>
+
+        <div class="stat-arrow">
+
+          <span class="material-symbols-outlined">
+            inventory
+          </span>
+
+        </div>
+
+      </article>
+
+    }
 
   </section>
 
 
   <!-- ===================================================
-       ANALYTICS CHARTS
+       PHARMACY + BILLING OVERVIEW
        =================================================== -->
 
-  <section class="charts-grid">
+  <section class="overview-grid">
 
 
     <!-- =================================================
-         APPOINTMENTS OVERVIEW
+         PHARMACY WORKFLOW
          ================================================= -->
 
-    <article class="dashboard-card chart-card appointments-chart-card">
+    @if (moduleAvailability.pharmacy) {
+
+      <article class="dashboard-card workflow-card">
+
+        <div class="card-header">
+
+          <div class="card-title">
+
+            <div class="card-title-icon pharmacy-title">
+
+              <span class="material-symbols-outlined">
+                medication
+              </span>
+
+            </div>
+
+            <div>
+
+              <h3>
+                Pharmacy Workflow
+              </h3>
+
+              <span>
+                Current prescription pipeline
+              </span>
+
+            </div>
+
+          </div>
+
+          <button
+            type="button"
+            class="view-button"
+            (click)="createPrescription()">
+
+            <span>
+              Open Pharmacy
+            </span>
+
+            <span class="material-symbols-outlined">
+              arrow_forward
+            </span>
+
+          </button>
+
+        </div>
+
+
+        <div class="workflow-grid">
+
+
+          <div class="workflow-item">
+
+            <div class="workflow-icon waiting">
+
+              <span class="material-symbols-outlined">
+                hourglass_empty
+              </span>
+
+            </div>
+
+            <div>
+
+              <strong>
+                {{ waitingPrescriptions }}
+              </strong>
+
+              <span>
+                Waiting
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="workflow-item">
+
+            <div class="workflow-icon preparing">
+
+              <span class="material-symbols-outlined">
+                medication_liquid
+              </span>
+
+            </div>
+
+            <div>
+
+              <strong>
+                {{ preparingPrescriptions }}
+              </strong>
+
+              <span>
+                Preparing
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="workflow-item">
+
+            <div class="workflow-icon payment">
+
+              <span class="material-symbols-outlined">
+                payments
+              </span>
+
+            </div>
+
+            <div>
+
+              <strong>
+                {{ awaitingPaymentPrescriptions }}
+              </strong>
+
+              <span>
+                Awaiting Payment
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="workflow-item">
+
+            <div class="workflow-icon ready">
+
+              <span class="material-symbols-outlined">
+                package_2
+              </span>
+
+            </div>
+
+            <div>
+
+              <strong>
+                {{ readyForPickupPrescriptions }}
+              </strong>
+
+              <span>
+                Ready for Pickup
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="workflow-item">
+
+            <div class="workflow-icon dispensed">
+
+              <span class="material-symbols-outlined">
+                check_circle
+              </span>
+
+            </div>
+
+            <div>
+
+              <strong>
+                {{ dispensedPrescriptions }}
+              </strong>
+
+              <span>
+                Dispensed
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </article>
+
+    }
+
+
+    <!-- =================================================
+         BILLING OVERVIEW
+         ================================================= -->
+
+    @if (moduleAvailability.billing) {
+
+      <article class="dashboard-card billing-overview-card">
+
+        <div class="card-header">
+
+          <div class="card-title">
+
+            <div class="card-title-icon billing-title">
+
+              <span class="material-symbols-outlined">
+                receipt_long
+              </span>
+
+            </div>
+
+            <div>
+
+              <h3>
+                Billing Overview
+              </h3>
+
+              <span>
+                Revenue and payment position
+              </span>
+
+            </div>
+
+          </div>
+
+          <button
+            type="button"
+            class="view-button"
+            (click)="createInvoice()">
+
+            <span>
+              Billing
+            </span>
+
+            <span class="material-symbols-outlined">
+              arrow_forward
+            </span>
+
+          </button>
+
+        </div>
+
+
+        <div class="billing-overview-body">
+
+          <div class="billing-total">
+
+            <span>
+              Total Billed
+            </span>
+
+            <strong>
+              UGX {{ formatCurrency(totalRevenue) }}
+            </strong>
+
+          </div>
+
+
+          <div class="billing-progress">
+
+            <div class="progress-top">
+
+              <span>
+                Paid
+              </span>
+
+              <strong>
+                UGX {{ formatCurrency(totalAmountPaid) }}
+              </strong>
+
+            </div>
+
+            <div class="progress-track">
+
+              <div
+                class="progress-fill"
+                [style.width.%]="
+                  totalRevenue > 0
+                    ? (totalAmountPaid / totalRevenue) * 100
+                    : 0
+                ">
+              </div>
+
+            </div>
+
+            <div class="progress-bottom">
+
+              <span>
+                {{ paidBills }} paid
+              </span>
+
+              <span>
+                {{ pendingBills + partiallyPaidBills }}
+                outstanding invoice{{ (pendingBills + partiallyPaidBills) === 1 ? '' : 's' }}
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="billing-mini-grid">
+
+            <div class="billing-mini-item pending">
+
+              <span class="material-symbols-outlined">
+                schedule
+              </span>
+
+              <div>
+
+                <strong>
+                  {{ pendingBills }}
+                </strong>
+
+                <span>
+                  Pending
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <div class="billing-mini-item partial">
+
+              <span class="material-symbols-outlined">
+                payments
+              </span>
+
+              <div>
+
+                <strong>
+                  {{ partiallyPaidBills }}
+                </strong>
+
+                <span>
+                  Partial
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <div class="billing-mini-item paid">
+
+              <span class="material-symbols-outlined">
+                check_circle
+              </span>
+
+              <div>
+
+                <strong>
+                  {{ paidBills }}
+                </strong>
+
+                <span>
+                  Paid
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </article>
+
+    }
+
+  </section>
+
+
+  <!-- ===================================================
+       INVENTORY ALERTS
+       =================================================== -->
+
+  @if (moduleAvailability.inventory) {
+
+    <section class="dashboard-card inventory-alert-card">
 
       <div class="card-header">
 
         <div class="card-title">
 
-          <div class="card-title-icon">
+          <div class="card-title-icon inventory-title">
 
             <span class="material-symbols-outlined">
-              bar_chart
+              inventory
             </span>
 
           </div>
@@ -288,174 +852,100 @@
           <div>
 
             <h3>
-              Appointments Overview
+              Inventory Alerts
             </h3>
 
             <span>
-              Appointment distribution by status
+              Current stock health
             </span>
 
           </div>
 
         </div>
 
-      </div>
+        <div class="inventory-alert-count">
 
+          @if (outOfStockItems > 0) {
 
-      <div class="chart-container">
+            <span class="danger">
+              {{ outOfStockItems }} out of stock
+            </span>
 
-        <canvas
-          #appointmentsChart>
-        </canvas>
+          } @else if (lowStockItems > 0) {
 
-      </div>
+            <span class="warning">
+              {{ lowStockItems }} low stock
+            </span>
 
+          } @else {
 
-      <div class="chart-summary">
+            <span class="healthy">
+              Stock Healthy
+            </span>
 
-        <div>
-
-          <span class="summary-dot scheduled"></span>
-
-          <span>
-            Scheduled
-          </span>
-
-          <strong>
-            {{ scheduledAppointments }}
-          </strong>
-
-        </div>
-
-        <div>
-
-          <span class="summary-dot completed"></span>
-
-          <span>
-            Completed
-          </span>
-
-          <strong>
-            {{ completedAppointments }}
-          </strong>
-
-        </div>
-
-        <div>
-
-          <span class="summary-dot cancelled"></span>
-
-          <span>
-            Cancelled
-          </span>
-
-          <strong>
-            {{ cancelledAppointments }}
-          </strong>
+          }
 
         </div>
 
       </div>
 
-    </article>
+
+      <div class="inventory-alert-grid">
 
 
-    <!-- =================================================
-         HOSPITAL OVERVIEW
-         ================================================= -->
+        <div class="inventory-alert-item low-stock">
 
-    <article class="dashboard-card chart-card hospital-chart-card">
-
-      <div class="card-header">
-
-        <div class="card-title">
-
-          <div class="card-title-icon hospital">
+          <div class="alert-icon">
 
             <span class="material-symbols-outlined">
-              donut_large
+              warning
             </span>
 
           </div>
 
           <div>
 
-            <h3>
-              Hospital Overview
-            </h3>
+            <strong>
+              {{ lowStockItems }}
+            </strong>
 
             <span>
-              Current system records
+              Low Stock
             </span>
 
           </div>
 
         </div>
 
-      </div>
 
+        <div class="inventory-alert-item out-of-stock">
 
-      <div class="chart-container doughnut-container">
-
-        <canvas
-          #hospitalChart>
-        </canvas>
-
-      </div>
-
-    </article>
-
-
-    <!-- =================================================
-         TODAY'S STATUS
-         ================================================= -->
-
-    <article class="dashboard-card chart-card status-chart-card">
-
-      <div class="card-header">
-
-        <div class="card-title">
-
-          <div class="card-title-icon today">
+          <div class="alert-icon">
 
             <span class="material-symbols-outlined">
-              today
+              production_quantity_limits
             </span>
 
           </div>
 
           <div>
 
-            <h3>
-              Today's Appointment Status
-            </h3>
+            <strong>
+              {{ outOfStockItems }}
+            </strong>
 
             <span>
-              Status distribution for today
+              Out of Stock
             </span>
 
           </div>
 
         </div>
 
-      </div>
 
+        <div class="inventory-alert-item expired">
 
-      @if (todaysAppointments > 0) {
-
-        <div class="chart-container doughnut-container">
-
-          <canvas
-            #statusChart>
-          </canvas>
-
-        </div>
-
-      } @else {
-
-        <div class="chart-empty-state">
-
-          <div class="chart-empty-icon">
+          <div class="alert-icon">
 
             <span class="material-symbols-outlined">
               event_busy
@@ -463,47 +953,39 @@
 
           </div>
 
-          <h4>
-            No appointments today
-          </h4>
+          <div>
 
-          <p>
-            There are no appointments scheduled for today.
-          </p>
+            <strong>
+              {{ expiredItems }}
+            </strong>
+
+            <span>
+              Expired
+            </span>
+
+          </div>
 
         </div>
 
-      }
 
-    </article>
+        <div class="inventory-alert-item total">
 
-
-    <!-- =================================================
-         APPOINTMENT STATUS SUMMARY
-         ================================================= -->
-
-    <article class="dashboard-card status-summary-card">
-
-      <div class="card-header">
-
-        <div class="card-title">
-
-          <div class="card-title-icon summary">
+          <div class="alert-icon">
 
             <span class="material-symbols-outlined">
-              analytics
+              inventory_2
             </span>
 
           </div>
 
           <div>
 
-            <h3>
-              Appointment Summary
-            </h3>
+            <strong>
+              {{ totalInventoryItems }}
+            </strong>
 
             <span>
-              Overall appointment activity
+              Total Items
             </span>
 
           </div>
@@ -512,405 +994,204 @@
 
       </div>
 
+    </section>
 
-      <div class="appointment-summary-grid">
+  }
 
 
-        <div class="appointment-summary-item">
+  <!-- ===================================================
+       APPOINTMENT ANALYTICS
+       Only when appointments are enabled
+       =================================================== -->
 
-          <div class="summary-status-icon scheduled">
+  @if (moduleAvailability.appointments) {
 
-            <span class="material-symbols-outlined">
-              event
-            </span>
+    <section class="charts-grid">
+
+
+      <!-- APPOINTMENTS OVERVIEW -->
+
+      <article class="dashboard-card chart-card appointments-chart-card">
+
+        <div class="card-header">
+
+          <div class="card-title">
+
+            <div class="card-title-icon">
+
+              <span class="material-symbols-outlined">
+                bar_chart
+              </span>
+
+            </div>
+
+            <div>
+
+              <h3>
+                Appointments Overview
+              </h3>
+
+              <span>
+                Appointment distribution by status
+              </span>
+
+            </div>
 
           </div>
 
+        </div>
+
+
+        <div class="chart-container">
+
+          <canvas
+            #appointmentsChart>
+          </canvas>
+
+        </div>
+
+
+        <div class="chart-summary">
+
           <div>
 
-            <strong>
-              {{ scheduledAppointments }}
-            </strong>
+            <span class="summary-dot scheduled"></span>
 
             <span>
               Scheduled
             </span>
 
-          </div>
-
-        </div>
-
-
-        <div class="appointment-summary-item">
-
-          <div class="summary-status-icon confirmed">
-
-            <span class="material-symbols-outlined">
-              check_circle
-            </span>
+            <strong>
+              {{ scheduledAppointments }}
+            </strong>
 
           </div>
 
           <div>
 
-            <strong>
-              {{ confirmedAppointments }}
-            </strong>
-
-            <span>
-              Confirmed
-            </span>
-
-          </div>
-
-        </div>
-
-
-        <div class="appointment-summary-item">
-
-          <div class="summary-status-icon consultation">
-
-            <span class="material-symbols-outlined">
-              stethoscope
-            </span>
-
-          </div>
-
-          <div>
-
-            <strong>
-              {{ inConsultationAppointments }}
-            </strong>
-
-            <span>
-              In Consultation
-            </span>
-
-          </div>
-
-        </div>
-
-
-        <div class="appointment-summary-item">
-
-          <div class="summary-status-icon completed">
-
-            <span class="material-symbols-outlined">
-              task_alt
-            </span>
-
-          </div>
-
-          <div>
-
-            <strong>
-              {{ completedAppointments }}
-            </strong>
+            <span class="summary-dot completed"></span>
 
             <span>
               Completed
             </span>
 
-          </div>
-
-        </div>
-
-
-        <div class="appointment-summary-item">
-
-          <div class="summary-status-icon cancelled">
-
-            <span class="material-symbols-outlined">
-              cancel
-            </span>
+            <strong>
+              {{ completedAppointments }}
+            </strong>
 
           </div>
 
           <div>
 
-            <strong>
-              {{ cancelledAppointments }}
-            </strong>
+            <span class="summary-dot cancelled"></span>
 
             <span>
               Cancelled
             </span>
 
-          </div>
-
-        </div>
-
-
-        <div class="appointment-summary-item">
-
-          <div class="summary-status-icon no-show">
-
-            <span class="material-symbols-outlined">
-              person_off
-            </span>
-
-          </div>
-
-          <div>
-
             <strong>
-              {{ noShowAppointments }}
+              {{ cancelledAppointments }}
             </strong>
 
-            <span>
-              No Show
-            </span>
-
           </div>
 
         </div>
 
-      </div>
-
-    </article>
-
-  </section>
+      </article>
 
 
-  <!-- ===================================================
-       MAIN DASHBOARD GRID
-       =================================================== -->
+      <!-- SYSTEM OVERVIEW -->
 
-  <div class="dashboard-grid">
+      <article class="dashboard-card chart-card hospital-chart-card">
 
+        <div class="card-header">
 
-    <!-- =================================================
-         TODAY'S APPOINTMENTS
-         ================================================= -->
+          <div class="card-title">
 
-    <section class="dashboard-card appointments-panel">
+            <div class="card-title-icon hospital">
 
+              <span class="material-symbols-outlined">
+                donut_large
+              </span>
 
-      <div class="card-header">
+            </div>
 
-        <div class="card-title">
+            <div>
 
-          <div class="card-title-icon">
+              <h3>
+                System Overview
+              </h3>
 
-            <span class="material-symbols-outlined">
-              event
-            </span>
+              <span>
+                Available module activity
+              </span>
 
-          </div>
-
-          <div>
-
-            <h3>
-              Today's Appointments
-            </h3>
-
-            <span>
-              {{ todaysAppointments }}
-              appointment{{ todaysAppointments === 1 ? '' : 's' }}
-              scheduled for today
-            </span>
+            </div>
 
           </div>
 
         </div>
 
 
-        <button
-          type="button"
-          class="view-button"
-          (click)="viewAppointments()">
+        <div class="chart-container doughnut-container">
 
-          <span>
-            View All
-          </span>
+          <canvas
+            #hospitalChart>
+          </canvas>
 
-          <span class="material-symbols-outlined">
-            arrow_forward
-          </span>
+        </div>
 
-        </button>
+      </article>
 
-      </div>
 
+      <!-- TODAY STATUS -->
 
-      <div class="table-wrapper">
+      <article class="dashboard-card chart-card status-chart-card">
 
-        @if (todayAppointments.length > 0) {
+        <div class="card-header">
 
-          <table>
+          <div class="card-title">
 
-            <thead>
+            <div class="card-title-icon today">
 
-              <tr>
+              <span class="material-symbols-outlined">
+                today
+              </span>
 
-                <th>Patient</th>
+            </div>
 
-                <th>Doctor</th>
+            <div>
 
-                <th>Time</th>
+              <h3>
+                Today's Appointment Status
+              </h3>
 
-                <th>Department</th>
+              <span>
+                Status distribution for today
+              </span>
 
-                <th>Type</th>
+            </div>
 
-                <th>Status</th>
+          </div>
 
-              </tr>
+        </div>
 
-            </thead>
 
+        @if (todaysAppointments > 0) {
 
-            <tbody>
+          <div class="chart-container doughnut-container">
 
-              @for (
-                appointment of todayAppointments;
-                track appointment.id
-              ) {
+            <canvas
+              #statusChart>
+            </canvas>
 
-                <tr>
-
-                  <td>
-
-                    <div class="patient-cell">
-
-                      <div class="patient-avatar">
-
-                        {{
-                          getPatientInitials(
-                            appointment
-                          )
-                        }}
-
-                      </div>
-
-                      <div class="patient-details">
-
-                        <strong>
-                          {{
-                            getPatientName(
-                              appointment
-                            )
-                          }}
-                        </strong>
-
-                        <span>
-                          {{
-                            getPatientId(
-                              appointment
-                            )
-                          }}
-                        </span>
-
-                      </div>
-
-                    </div>
-
-                  </td>
-
-
-                  <td>
-
-                    <div class="doctor-cell">
-
-                      <div class="doctor-icon">
-
-                        <span class="material-symbols-outlined">
-                          stethoscope
-                        </span>
-
-                      </div>
-
-                      <span>
-                        {{
-                          getDoctorName(
-                            appointment
-                          )
-                        }}
-                      </span>
-
-                    </div>
-
-                  </td>
-
-
-                  <td>
-
-                    <div class="time-cell">
-
-                      <span class="material-symbols-outlined">
-                        schedule
-                      </span>
-
-                      <strong>
-                        {{
-                          formatAppointmentTime(
-                            appointment.appointmentTime
-                          )
-                        }}
-                      </strong>
-
-                    </div>
-
-                  </td>
-
-
-                  <td>
-
-                    <span class="department-text">
-                      {{
-                        getDepartment(
-                          appointment
-                        )
-                      }}
-                    </span>
-
-                  </td>
-
-
-                  <td>
-
-                    <span class="type-badge">
-                      {{
-                        getAppointmentType(
-                          appointment
-                        )
-                      }}
-                    </span>
-
-                  </td>
-
-
-                  <td>
-
-                    <span
-                      class="status"
-                      [class]="
-                        getStatusClass(
-                          appointment.status
-                        )
-                      ">
-
-                      <span class="status-dot"></span>
-
-                      {{ appointment.status }}
-
-                    </span>
-
-                  </td>
-
-                </tr>
-
-              }
-
-            </tbody>
-
-          </table>
+          </div>
 
         } @else {
 
-          <div class="empty-state">
+          <div class="chart-empty-state">
 
-            <div class="empty-icon">
+            <div class="chart-empty-icon">
 
               <span class="material-symbols-outlined">
                 event_busy
@@ -923,239 +1204,745 @@
             </h4>
 
             <p>
-
-              You have
-              <strong>
-                {{ totalAppointments }}
-              </strong>
-              total appointment{{ totalAppointments === 1 ? '' : 's' }}
-              in the system, but none are scheduled for today.
-
+              There are no appointments scheduled for today.
             </p>
-
-            <div class="empty-actions">
-
-              <button
-                type="button"
-                class="empty-action primary"
-                (click)="newAppointment()">
-
-                <span class="material-symbols-outlined">
-                  add
-                </span>
-
-                Schedule Appointment
-
-              </button>
-
-              <button
-                type="button"
-                class="empty-action secondary"
-                (click)="viewAppointments()">
-
-                <span class="material-symbols-outlined">
-                  calendar_month
-                </span>
-
-                View Appointments
-
-              </button>
-
-            </div>
 
           </div>
 
         }
 
-      </div>
-
-    </section>
+      </article>
 
 
-    <!-- =================================================
-         QUICK ACTIONS
-         ================================================= -->
+      <!-- APPOINTMENT SUMMARY -->
 
-    <section class="dashboard-card quick-actions-card">
+      <article class="dashboard-card status-summary-card">
 
+        <div class="card-header">
 
-      <div class="card-header">
+          <div class="card-title">
 
-        <div class="card-title">
+            <div class="card-title-icon summary">
 
-          <div class="card-title-icon quick">
+              <span class="material-symbols-outlined">
+                analytics
+              </span>
 
-            <span class="material-symbols-outlined">
-              bolt
-            </span>
+            </div>
 
-          </div>
+            <div>
 
-          <div>
+              <h3>
+                Appointment Summary
+              </h3>
 
-            <h3>
-              Quick Actions
-            </h3>
+              <span>
+                Overall appointment activity
+              </span>
 
-            <span>
-              Common hospital tasks
-            </span>
+            </div>
 
           </div>
 
         </div>
 
-      </div>
+
+        <div class="appointment-summary-grid">
 
 
-      <div class="quick-actions">
+          <div class="appointment-summary-item">
 
+            <div class="summary-status-icon scheduled">
 
-        <button
-          type="button"
-          class="quick-action"
-          (click)="registerPatient()">
+              <span class="material-symbols-outlined">
+                event
+              </span>
 
-          <div class="quick-action-icon patient">
+            </div>
 
-            <span class="material-symbols-outlined">
-              person_add
-            </span>
+            <div>
+
+              <strong>
+                {{ scheduledAppointments }}
+              </strong>
+
+              <span>
+                Scheduled
+              </span>
+
+            </div>
 
           </div>
 
-          <div class="quick-action-content">
 
-            <strong>
-              Register Patient
-            </strong>
+          <div class="appointment-summary-item">
+
+            <div class="summary-status-icon confirmed">
+
+              <span class="material-symbols-outlined">
+                check_circle
+              </span>
+
+            </div>
+
+            <div>
+
+              <strong>
+                {{ confirmedAppointments }}
+              </strong>
+
+              <span>
+                Confirmed
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="appointment-summary-item">
+
+            <div class="summary-status-icon consultation">
+
+              <span class="material-symbols-outlined">
+                stethoscope
+              </span>
+
+            </div>
+
+            <div>
+
+              <strong>
+                {{ inConsultationAppointments }}
+              </strong>
+
+              <span>
+                In Consultation
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="appointment-summary-item">
+
+            <div class="summary-status-icon completed">
+
+              <span class="material-symbols-outlined">
+                task_alt
+              </span>
+
+            </div>
+
+            <div>
+
+              <strong>
+                {{ completedAppointments }}
+              </strong>
+
+              <span>
+                Completed
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="appointment-summary-item">
+
+            <div class="summary-status-icon cancelled">
+
+              <span class="material-symbols-outlined">
+                cancel
+              </span>
+
+            </div>
+
+            <div>
+
+              <strong>
+                {{ cancelledAppointments }}
+              </strong>
+
+              <span>
+                Cancelled
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="appointment-summary-item">
+
+            <div class="summary-status-icon no-show">
+
+              <span class="material-symbols-outlined">
+                person_off
+              </span>
+
+            </div>
+
+            <div>
+
+              <strong>
+                {{ noShowAppointments }}
+              </strong>
+
+              <span>
+                No Show
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </article>
+
+    </section>
+
+  }
+
+
+  <!-- ===================================================
+       TODAY'S APPOINTMENTS + QUICK ACTIONS
+       =================================================== -->
+
+  @if (moduleAvailability.appointments) {
+
+    <div class="dashboard-grid">
+
+
+      <!-- TODAY'S APPOINTMENTS -->
+
+      <section class="dashboard-card appointments-panel">
+
+        <div class="card-header">
+
+          <div class="card-title">
+
+            <div class="card-title-icon">
+
+              <span class="material-symbols-outlined">
+                event
+              </span>
+
+            </div>
+
+            <div>
+
+              <h3>
+                Today's Appointments
+              </h3>
+
+              <span>
+                {{ todaysAppointments }}
+                appointment{{ todaysAppointments === 1 ? '' : 's' }}
+                scheduled today
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <button
+            type="button"
+            class="view-button"
+            (click)="viewAppointments()">
 
             <span>
-              Add a new patient
+              View All
             </span>
-
-          </div>
-
-          <span class="material-symbols-outlined quick-arrow">
-            chevron_right
-          </span>
-
-        </button>
-
-
-        <button
-          type="button"
-          class="quick-action"
-          (click)="newAppointment()">
-
-          <div class="quick-action-icon appointment">
 
             <span class="material-symbols-outlined">
-              event
+              arrow_forward
             </span>
+
+          </button>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+          @if (todayAppointments.length > 0) {
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>Patient</th>
+
+                  <th>Doctor</th>
+
+                  <th>Time</th>
+
+                  <th>Department</th>
+
+                  <th>Type</th>
+
+                  <th>Status</th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody>
+
+                @for (
+                  appointment of todayAppointments;
+                  track appointment.id
+                ) {
+
+                  <tr>
+
+                    <td>
+
+                      <div class="patient-cell">
+
+                        <div class="patient-avatar">
+
+                          {{
+                            getPatientInitials(
+                              appointment
+                            )
+                          }}
+
+                        </div>
+
+                        <div class="patient-details">
+
+                          <strong>
+                            {{
+                              getPatientName(
+                                appointment
+                              )
+                            }}
+                          </strong>
+
+                          <span>
+                            {{
+                              getPatientId(
+                                appointment
+                              )
+                            }}
+                          </span>
+
+                        </div>
+
+                      </div>
+
+                    </td>
+
+
+                    <td>
+
+                      <div class="doctor-cell">
+
+                        <div class="doctor-icon">
+
+                          <span class="material-symbols-outlined">
+                            stethoscope
+                          </span>
+
+                        </div>
+
+                        <span>
+                          {{
+                            getDoctorName(
+                              appointment
+                            )
+                          }}
+                        </span>
+
+                      </div>
+
+                    </td>
+
+
+                    <td>
+
+                      <div class="time-cell">
+
+                        <span class="material-symbols-outlined">
+                          schedule
+                        </span>
+
+                        <strong>
+                          {{
+                            formatAppointmentTime(
+                              appointment.appointmentTime
+                            )
+                          }}
+                        </strong>
+
+                      </div>
+
+                    </td>
+
+
+                    <td>
+
+                      <span class="department-text">
+                        {{
+                          getDepartment(
+                            appointment
+                          )
+                        }}
+                      </span>
+
+                    </td>
+
+
+                    <td>
+
+                      <span class="type-badge">
+                        {{
+                          getAppointmentType(
+                            appointment
+                          )
+                        }}
+                      </span>
+
+                    </td>
+
+
+                    <td>
+
+                      <span
+                        class="status"
+                        [class]="
+                          getStatusClass(
+                            appointment.status
+                          )
+                        ">
+
+                        <span class="status-dot"></span>
+
+                        {{ appointment.status }}
+
+                      </span>
+
+                    </td>
+
+                  </tr>
+
+                }
+
+              </tbody>
+
+            </table>
+
+          } @else {
+
+            <div class="empty-state">
+
+              <div class="empty-icon">
+
+                <span class="material-symbols-outlined">
+                  event_busy
+                </span>
+
+              </div>
+
+              <h4>
+                No appointments today
+              </h4>
+
+              <p>
+                There are currently no appointments scheduled
+                for today.
+              </p>
+
+              <div class="empty-actions">
+
+                <button
+                  type="button"
+                  class="empty-action primary"
+                  (click)="newAppointment()">
+
+                  <span class="material-symbols-outlined">
+                    add
+                  </span>
+
+                  Schedule Appointment
+
+                </button>
+
+                <button
+                  type="button"
+                  class="empty-action secondary"
+                  (click)="viewAppointments()">
+
+                  <span class="material-symbols-outlined">
+                    calendar_month
+                  </span>
+
+                  View Appointments
+
+                </button>
+
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+      </section>
+
+
+      <!-- QUICK ACTIONS -->
+
+      <section class="dashboard-card quick-actions-card">
+
+        <div class="card-header">
+
+          <div class="card-title">
+
+            <div class="card-title-icon quick">
+
+              <span class="material-symbols-outlined">
+                bolt
+              </span>
+
+            </div>
+
+            <div>
+
+              <h3>
+                Quick Actions
+              </h3>
+
+              <span>
+                Common tasks
+              </span>
+
+            </div>
 
           </div>
 
-          <div class="quick-action-content">
+        </div>
 
-            <strong>
-              New Appointment
-            </strong>
 
-            <span>
-              Schedule appointment
-            </span>
+        <div class="quick-actions">
 
-          </div>
 
-          <span class="material-symbols-outlined quick-arrow">
-            chevron_right
+          @if (moduleAvailability.patients) {
+
+            <button
+              type="button"
+              class="quick-action"
+              (click)="registerPatient()">
+
+              <div class="quick-action-icon patient">
+
+                <span class="material-symbols-outlined">
+                  person_add
+                </span>
+
+              </div>
+
+              <div class="quick-action-content">
+
+                <strong>
+                  Register Patient
+                </strong>
+
+                <span>
+                  Add a new patient
+                </span>
+
+              </div>
+
+              <span class="material-symbols-outlined quick-arrow">
+                chevron_right
+              </span>
+
+            </button>
+
+          }
+
+
+          @if (moduleAvailability.appointments) {
+
+            <button
+              type="button"
+              class="quick-action"
+              (click)="newAppointment()">
+
+              <div class="quick-action-icon appointment">
+
+                <span class="material-symbols-outlined">
+                  event
+                </span>
+
+              </div>
+
+              <div class="quick-action-content">
+
+                <strong>
+                  New Appointment
+                </strong>
+
+                <span>
+                  Schedule appointment
+                </span>
+
+              </div>
+
+              <span class="material-symbols-outlined quick-arrow">
+                chevron_right
+              </span>
+
+            </button>
+
+          }
+
+
+          @if (moduleAvailability.pharmacy) {
+
+            <button
+              type="button"
+              class="quick-action"
+              (click)="createPrescription()">
+
+              <div class="quick-action-icon pharmacy">
+
+                <span class="material-symbols-outlined">
+                  medication
+                </span>
+
+              </div>
+
+              <div class="quick-action-content">
+
+                <strong>
+                  Pharmacy
+                </strong>
+
+                <span>
+                  Open pharmacy workspace
+                </span>
+
+              </div>
+
+              <span class="material-symbols-outlined quick-arrow">
+                chevron_right
+              </span>
+
+            </button>
+
+          }
+
+
+          @if (moduleAvailability.billing) {
+
+            <button
+              type="button"
+              class="quick-action"
+              (click)="createInvoice()">
+
+              <div class="quick-action-icon billing">
+
+                <span class="material-symbols-outlined">
+                  receipt_long
+                </span>
+
+              </div>
+
+              <div class="quick-action-content">
+
+                <strong>
+                  Billing
+                </strong>
+
+                <span>
+                  Manage invoices and payments
+                </span>
+
+              </div>
+
+              <span class="material-symbols-outlined quick-arrow">
+                chevron_right
+              </span>
+
+            </button>
+
+          }
+
+        </div>
+
+
+        <div class="quick-footer">
+
+          <span class="material-symbols-outlined">
+            info
           </span>
 
-        </button>
-
-
-        <button
-          type="button"
-          class="quick-action"
-          (click)="createPrescription()">
-
-          <div class="quick-action-icon pharmacy">
-
-            <span class="material-symbols-outlined">
-              medication
-            </span>
-
-          </div>
-
-          <div class="quick-action-content">
-
-            <strong>
-              Prescription
-            </strong>
-
-            <span>
-              Create prescription
-            </span>
-
-          </div>
-
-          <span class="material-symbols-outlined quick-arrow">
-            chevron_right
+          <span>
+            Available actions depend on your enabled modules
           </span>
 
-        </button>
+        </div>
+
+      </section>
+
+    </div>
+
+  }
 
 
-        <button
-          type="button"
-          class="quick-action"
-          (click)="createInvoice()">
+  <!-- ===================================================
+       TENANT HAS NO BUSINESS MODULES
+       =================================================== -->
 
-          <div class="quick-action-icon billing">
+  @if (
+    !moduleAvailability.patients &&
+    !moduleAvailability.doctors &&
+    !moduleAvailability.departments &&
+    !moduleAvailability.appointments &&
+    !moduleAvailability.billing &&
+    !moduleAvailability.pharmacy &&
+    !moduleAvailability.inventory
+  ) {
 
-            <span class="material-symbols-outlined">
-              receipt_long
-            </span>
+    <section class="dashboard-card no-modules-card">
 
-          </div>
-
-          <div class="quick-action-content">
-
-            <strong>
-              Create Invoice
-            </strong>
-
-            <span>
-              Generate new invoice
-            </span>
-
-          </div>
-
-          <span class="material-symbols-outlined quick-arrow">
-            chevron_right
-          </span>
-
-        </button>
-
-      </div>
-
-
-      <div class="quick-footer">
+      <div class="no-modules-icon">
 
         <span class="material-symbols-outlined">
-          info
+          dashboard_customize
         </span>
 
-        <span>
-          Select an action to continue
-        </span>
+      </div>
+
+      <div>
+
+        <h3>
+          No business modules are currently available
+        </h3>
+
+        <p>
+          Your organization has access to the dashboard,
+          but no business modules are currently enabled.
+          Please contact the platform administrator.
+        </p>
 
       </div>
 
     </section>
 
-  </div>
+  }
 
 
   <!-- ===================================================
@@ -1165,113 +1952,120 @@
   <div class="dashboard-summary">
 
 
-    <div class="summary-item">
+    @if (moduleAvailability.patients) {
 
-      <span class="summary-icon patients-summary">
+      <div class="summary-item">
 
-        <span class="material-symbols-outlined">
-          group
+        <span class="summary-icon patients-summary">
+
+          <span class="material-symbols-outlined">
+            group
+          </span>
+
         </span>
 
-      </span>
+        <div>
 
-      <div>
+          <strong>
+            {{ totalPatients }}
+          </strong>
 
-        <strong>
-          {{ totalPatients }}
-        </strong>
+          <span>
+            Patients
+          </span>
 
-        <span>
-          Patients
-        </span>
+        </div>
 
       </div>
 
-    </div>
+    }
 
 
-    <div class="summary-divider"></div>
+    @if (moduleAvailability.doctors) {
 
+      <div class="summary-item">
 
-    <div class="summary-item">
+        <span class="summary-icon doctors-summary">
 
-      <span class="summary-icon doctors-summary">
+          <span class="material-symbols-outlined">
+            medical_services
+          </span>
 
-        <span class="material-symbols-outlined">
-          medical_services
         </span>
 
-      </span>
+        <div>
 
-      <div>
+          <strong>
+            {{ activeDoctors }}
+          </strong>
 
-        <strong>
-          {{ activeDoctors }}
-        </strong>
+          <span>
+            Active Doctors
+          </span>
 
-        <span>
-          Active Doctors
-        </span>
+        </div>
 
       </div>
 
-    </div>
+    }
 
 
-    <div class="summary-divider"></div>
+    @if (moduleAvailability.billing) {
 
+      <div class="summary-item">
 
-    <div class="summary-item">
+        <span class="summary-icon revenue-summary">
 
-      <span class="summary-icon departments-summary">
+          <span class="material-symbols-outlined">
+            payments
+          </span>
 
-        <span class="material-symbols-outlined">
-          apartment
         </span>
 
-      </span>
+        <div>
 
-      <div>
+          <strong>
+            UGX {{ formatCurrency(totalAmountPaid) }}
+          </strong>
 
-        <strong>
-          {{ totalDepartments }}
-        </strong>
+          <span>
+            Collected
+          </span>
 
-        <span>
-          Departments
-        </span>
+        </div>
 
       </div>
 
-    </div>
+    }
 
 
-    <div class="summary-divider"></div>
+    @if (moduleAvailability.inventory) {
 
+      <div class="summary-item">
 
-    <div class="summary-item">
+        <span class="summary-icon inventory-summary">
 
-      <span class="summary-icon appointments-summary">
+          <span class="material-symbols-outlined">
+            inventory_2
+          </span>
 
-        <span class="material-symbols-outlined">
-          calendar_month
         </span>
 
-      </span>
+        <div>
 
-      <div>
+          <strong>
+            {{ totalInventoryItems }}
+          </strong>
 
-        <strong>
-          {{ totalAppointments }}
-        </strong>
+          <span>
+            Inventory Items
+          </span>
 
-        <span>
-          Appointments
-        </span>
+        </div>
 
       </div>
 
-    </div>
+    }
 
   </div>
 

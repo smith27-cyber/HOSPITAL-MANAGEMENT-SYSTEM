@@ -5,6 +5,7 @@ import com.hms.backend.entity.LaboratoryRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +23,15 @@ public interface LaboratoryRequestRepository
         Optional<LaboratoryRequest> findByIdAndTenant_Id(
                         Long id,
                         Long tenantId);
+// =====================================================
+// REPORT AGGREGATION
+// =====================================================
 
+long countByTenant_IdAndRequestedAtGreaterThanEqualAndRequestedAtLessThan(
+        Long tenantId,
+        LocalDateTime startDateTime,
+        LocalDateTime endDateTime
+);
         // =====================================================
         // PATIENT
         // =====================================================

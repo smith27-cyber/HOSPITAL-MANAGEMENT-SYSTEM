@@ -1,4 +1,3 @@
-
 import {
   ChangeDetectorRef,
   Component,
@@ -1002,6 +1001,20 @@ export class BillingList
 
 
   // =====================================================
+  // VIEW RECEIPTS
+  // =====================================================
+
+  viewReceipts(): void {
+
+    this.router.navigate([
+      '/billing',
+      'receipts'
+    ]);
+
+  }
+
+
+  // =====================================================
   // VIEW BILL
   // =====================================================
 
@@ -1585,4 +1598,3 @@ export class BillingList
   }
 
 }
-

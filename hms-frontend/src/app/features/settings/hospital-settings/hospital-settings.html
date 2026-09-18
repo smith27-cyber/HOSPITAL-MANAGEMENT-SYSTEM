@@ -1,42 +1,47 @@
-<!-- ===================================================== -->
-<!-- HOSPITAL SETTINGS PAGE -->
-<!-- ===================================================== -->
-
 <div class="hospital-settings-page">
 
-
-  <!-- =================================================== -->
+  <!-- ================================================= -->
   <!-- PAGE HEADER -->
-  <!-- =================================================== -->
+  <!-- ================================================= -->
 
   <div class="page-header">
 
-    <div class="header-left">
+    <div class="page-heading">
 
       <button
         type="button"
         class="back-button"
-        [disabled]="saving || resetting"
-        (click)="goBack()"
+        (click)="cancel()"
         aria-label="Back to settings"
       >
-
         <span class="material-symbols-outlined">
           arrow_back
         </span>
-
       </button>
+
+
+      <div class="page-icon">
+
+        <span class="material-symbols-outlined">
+          domain
+        </span>
+
+      </div>
 
 
       <div>
 
+        <span class="page-eyebrow">
+          ORGANIZATION
+        </span>
+
         <h1>
-          Hospital Information
+          Tenant Information
         </h1>
 
         <p>
-          Manage the official hospital identity and contact
-          information used throughout the HMS.
+          Manage your organization's identity, contact details
+          and branding information.
         </p>
 
       </div>
@@ -46,51 +51,458 @@
   </div>
 
 
-
-  <!-- =================================================== -->
+  <!-- ================================================= -->
   <!-- LOADING -->
-  <!-- =================================================== -->
+  <!-- ================================================= -->
 
-  @if (loading) {
+  @if (isLoading) {
 
-    <section class="settings-card loading-card">
+    <div class="state-card">
 
-      <div class="loading-content">
+      <span class="material-symbols-outlined loading-icon">
+        progress_activity
+      </span>
 
-        <span class="material-symbols-outlined loading-icon">
-          sync
-        </span>
+      <div>
+
+        <h3>
+          Loading organization settings
+        </h3>
 
         <p>
-          Loading hospital information...
+          Retrieving the settings for your current organization.
         </p>
 
       </div>
 
-    </section>
+    </div>
 
   }
 
 
-  <!-- =================================================== -->
-  <!-- SETTINGS -->
-  <!-- =================================================== -->
+  @if (!isLoading) {
 
-  @if (!loading) {
+    <!-- =============================================== -->
+    <!-- SUCCESS -->
+    <!-- =============================================== -->
 
-    <section class="settings-card">
+    @if (successMessage) {
+
+      <div class="alert success">
+
+        <span class="material-symbols-outlined">
+          check_circle
+        </span>
+
+        <span>
+          {{ successMessage }}
+        </span>
+
+      </div>
+
+    }
 
 
-      <!-- =============================================== -->
-      <!-- CARD HEADER -->
-      <!-- =============================================== -->
+    <!-- =============================================== -->
+    <!-- ERROR -->
+    <!-- =============================================== -->
 
-      <div class="card-header">
+    @if (errorMessage) {
 
-        <div class="header-icon">
+      <div class="alert error">
+
+        <span class="material-symbols-outlined">
+          error
+        </span>
+
+        <span>
+          {{ errorMessage }}
+        </span>
+
+      </div>
+
+    }
+
+
+    <!-- =============================================== -->
+    <!-- MAIN CONTENT -->
+    <!-- =============================================== -->
+
+    <div class="settings-layout">
+
+
+      <!-- ============================================= -->
+      <!-- ORGANIZATION IDENTITY -->
+      <!-- ============================================= -->
+
+      <section class="settings-section">
+
+        <div class="section-header">
+
+          <div class="section-icon">
+
+            <span class="material-symbols-outlined">
+              business
+            </span>
+
+          </div>
+
+          <div>
+
+            <h2>
+              Organization Identity
+            </h2>
+
+            <p>
+              Basic information displayed throughout the HMS,
+              including reports and official documents.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+          <!-- ORGANIZATION NAME -->
+
+          <div class="form-field full">
+
+            <label for="hospitalName">
+              Organization Name
+              <span>*</span>
+            </label>
+
+            <input
+              id="hospitalName"
+              type="text"
+              [(ngModel)]="settings.hospitalName"
+              placeholder="Enter organization name"
+              maxlength="200"
+            />
+
+            <small>
+              This name will appear on reports, invoices and other
+              organization documents.
+            </small>
+
+          </div>
+
+
+          <!-- REGISTRATION NUMBER -->
+
+          <div class="form-field">
+
+            <label for="registrationNumber">
+              Registration Number
+            </label>
+
+            <input
+              id="registrationNumber"
+              type="text"
+              [(ngModel)]="settings.registrationNumber"
+              placeholder="e.g. REG-001234"
+              maxlength="100"
+            />
+
+          </div>
+
+
+          <!-- COUNTRY -->
+
+          <div class="form-field">
+
+            <label for="country">
+              Country
+            </label>
+
+            <input
+              id="country"
+              type="text"
+              [(ngModel)]="settings.country"
+              placeholder="Uganda"
+              maxlength="100"
+            />
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ============================================= -->
+      <!-- CONTACT INFORMATION -->
+      <!-- ============================================= -->
+
+      <section class="settings-section">
+
+        <div class="section-header">
+
+          <div class="section-icon">
+
+            <span class="material-symbols-outlined">
+              contact_phone
+            </span>
+
+          </div>
+
+          <div>
+
+            <h2>
+              Contact Information
+            </h2>
+
+            <p>
+              Contact details used for communication and
+              organization identification.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+          <!-- PHONE -->
+
+          <div class="form-field">
+
+            <label for="phone">
+              Phone Number
+            </label>
+
+            <input
+              id="phone"
+              type="tel"
+              [(ngModel)]="settings.phone"
+              placeholder="+256 700 000 000"
+              maxlength="50"
+            />
+
+          </div>
+
+
+          <!-- EMAIL -->
+
+          <div class="form-field">
+
+            <label for="email">
+              Email Address
+            </label>
+
+            <input
+              id="email"
+              type="email"
+              [(ngModel)]="settings.email"
+              placeholder="info@example.com"
+              maxlength="150"
+            />
+
+          </div>
+
+
+          <!-- WEBSITE -->
+
+          <div class="form-field full">
+
+            <label for="website">
+              Website
+            </label>
+
+            <input
+              id="website"
+              type="url"
+              [(ngModel)]="settings.website"
+              placeholder="https://example.com"
+              maxlength="300"
+            />
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ============================================= -->
+      <!-- ADDRESS -->
+      <!-- ============================================= -->
+
+      <section class="settings-section">
+
+        <div class="section-header">
+
+          <div class="section-icon">
+
+            <span class="material-symbols-outlined">
+              location_on
+            </span>
+
+          </div>
+
+          <div>
+
+            <h2>
+              Location
+            </h2>
+
+            <p>
+              Physical address information for your organization.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+          <!-- ADDRESS -->
+
+          <div class="form-field full">
+
+            <label for="address">
+              Address
+            </label>
+
+            <textarea
+              id="address"
+              [(ngModel)]="settings.address"
+              placeholder="Enter physical address"
+              rows="3"
+              maxlength="500"
+            ></textarea>
+
+          </div>
+
+
+          <!-- CITY -->
+
+          <div class="form-field">
+
+            <label for="city">
+              City
+            </label>
+
+            <input
+              id="city"
+              type="text"
+              [(ngModel)]="settings.city"
+              placeholder="Kampala"
+              maxlength="100"
+            />
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ============================================= -->
+      <!-- BRANDING -->
+      <!-- ============================================= -->
+
+      <section class="settings-section">
+
+        <div class="section-header">
+
+          <div class="section-icon">
+
+            <span class="material-symbols-outlined">
+              palette
+            </span>
+
+          </div>
+
+          <div>
+
+            <h2>
+              Organization Branding
+            </h2>
+
+            <p>
+              Configure the logo used when your organization
+              information is displayed.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="branding-layout">
+
+
+          <!-- LOGO PREVIEW -->
+
+          <div class="logo-preview">
+
+            @if (hasLogo()) {
+
+              <img
+                [src]="settings.logoUrl"
+                alt="Organization logo"
+              />
+
+            } @else {
+
+              <span class="material-symbols-outlined">
+                domain
+              </span>
+
+              <span>
+                No logo
+              </span>
+
+            }
+
+          </div>
+
+
+          <div class="form-field branding-field">
+
+            <label for="logoUrl">
+              Logo URL
+            </label>
+
+            <input
+              id="logoUrl"
+              type="url"
+              [(ngModel)]="settings.logoUrl"
+              placeholder="https://example.com/logo.png"
+              maxlength="500"
+            />
+
+            <small>
+              Enter a publicly accessible image URL. Logo upload
+              storage can be added later without changing the
+              tenant settings architecture.
+            </small>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ============================================= -->
+      <!-- TENANT SECURITY NOTICE -->
+      <!-- ============================================= -->
+
+      <section class="tenant-notice">
+
+        <div class="tenant-notice-icon">
 
           <span class="material-symbols-outlined">
-            local_hospital
+            shield
           </span>
 
         </div>
@@ -98,319 +510,63 @@
 
         <div>
 
-          <h2>
-            Hospital Details
-          </h2>
+          <span class="notice-label">
+            TENANT-SCOPED CONFIGURATION
+          </span>
+
+          <h3>
+            These settings belong to your organization
+          </h3>
 
           <p>
-            These details represent the official identity
-            of your hospital in the HMS.
+            Changes made here apply only to the organization
+            associated with your current account. Other tenants
+            cannot access or modify these settings.
           </p>
 
         </div>
 
-      </div>
+      </section>
 
 
+      <!-- ============================================= -->
+      <!-- ACTION BAR -->
+      <!-- ============================================= -->
 
-      <!-- =============================================== -->
-      <!-- FORM -->
-      <!-- =============================================== -->
+      <div class="action-bar">
 
-      <div class="form-body">
+        <button
+          type="button"
+          class="button secondary"
+          (click)="cancel()"
+          [disabled]="isSaving || isResetting"
+        >
 
+          <span class="material-symbols-outlined">
+            close
+          </span>
 
-        <!-- ============================================= -->
-        <!-- HOSPITAL NAME -->
-        <!-- ============================================= -->
+          Cancel
 
-        <div class="form-group full-width">
-
-          <label for="hospitalName">
-
-            Hospital Name
-
-            <span class="required">
-              *
-            </span>
-
-          </label>
-
-
-          <input
-            id="hospitalName"
-            type="text"
-            name="hospitalName"
-            [(ngModel)]="settings.hospitalName"
-            placeholder="Enter official hospital name"
-            maxlength="150"
-            autocomplete="organization"
-          />
-
-
-          <small>
-            This name will be used as the official hospital
-            name throughout the HMS.
-          </small>
-
-        </div>
-
-
-
-        <!-- ============================================= -->
-        <!-- REGISTRATION NUMBER -->
-        <!-- ============================================= -->
-
-        <div class="form-group">
-
-          <label for="registrationNumber">
-            Registration Number
-          </label>
-
-          <input
-            id="registrationNumber"
-            type="text"
-            name="registrationNumber"
-            [(ngModel)]="settings.registrationNumber"
-            placeholder="e.g. HOSP-001"
-            maxlength="100"
-          />
-
-        </div>
-
-
-
-        <!-- ============================================= -->
-        <!-- PHONE -->
-        <!-- ============================================= -->
-
-        <div class="form-group">
-
-          <label for="phone">
-            Phone Number
-          </label>
-
-          <input
-            id="phone"
-            type="tel"
-            name="phone"
-            [(ngModel)]="settings.phone"
-            placeholder="+256 700 000 000"
-            maxlength="30"
-            autocomplete="tel"
-          />
-
-        </div>
-
-
-
-        <!-- ============================================= -->
-        <!-- EMAIL -->
-        <!-- ============================================= -->
-
-        <div class="form-group">
-
-          <label for="email">
-            Email Address
-          </label>
-
-          <input
-            id="email"
-            type="email"
-            name="email"
-            [(ngModel)]="settings.email"
-            placeholder="info@hospital.com"
-            maxlength="150"
-            autocomplete="email"
-          />
-
-        </div>
-
-
-
-        <!-- ============================================= -->
-        <!-- WEBSITE -->
-        <!-- ============================================= -->
-
-        <div class="form-group">
-
-          <label for="website">
-            Website
-          </label>
-
-          <input
-            id="website"
-            type="url"
-            name="website"
-            [(ngModel)]="settings.website"
-            placeholder="https://www.hospital.com"
-            maxlength="250"
-            autocomplete="url"
-          />
-
-        </div>
-
-
-
-        <!-- ============================================= -->
-        <!-- ADDRESS -->
-        <!-- ============================================= -->
-
-        <div class="form-group full-width">
-
-          <label for="address">
-            Physical Address
-          </label>
-
-          <textarea
-            id="address"
-            name="address"
-            rows="3"
-            [(ngModel)]="settings.address"
-            placeholder="Enter the hospital physical address"
-            maxlength="500"
-          ></textarea>
-
-        </div>
-
-
-
-        <!-- ============================================= -->
-        <!-- CITY -->
-        <!-- ============================================= -->
-
-        <div class="form-group">
-
-          <label for="city">
-            City
-          </label>
-
-          <input
-            id="city"
-            type="text"
-            name="city"
-            [(ngModel)]="settings.city"
-            placeholder="e.g. Kampala"
-            maxlength="100"
-          />
-
-        </div>
-
-
-
-        <!-- ============================================= -->
-        <!-- COUNTRY -->
-        <!-- ============================================= -->
-
-        <div class="form-group">
-
-          <label for="country">
-            Country
-          </label>
-
-          <input
-            id="country"
-            type="text"
-            name="country"
-            [(ngModel)]="settings.country"
-            placeholder="e.g. Uganda"
-            maxlength="100"
-          />
-
-        </div>
-
-
-
-        <!-- ============================================= -->
-        <!-- LOGO -->
-        <!-- ============================================= -->
-
-        <div class="form-group full-width">
-
-          <label for="logoUrl">
-            Hospital Logo URL
-          </label>
-
-          <input
-            id="logoUrl"
-            type="url"
-            name="logoUrl"
-            [(ngModel)]="settings.logoUrl"
-            placeholder="https://example.com/logo.png"
-            maxlength="500"
-          />
-
-          <small>
-            Enter a publicly accessible HTTPS image URL.
-          </small>
-
-
-          <!-- =========================================== -->
-          <!-- LOGO PREVIEW -->
-          <!-- =========================================== -->
-
-          @if (settings.logoUrl) {
-
-            <div class="logo-preview">
-
-              <div class="logo-preview-image">
-
-                <img
-                  [src]="settings.logoUrl"
-                  [alt]="settings.hospitalName || 'Hospital logo'"
-                  (error)="$event.target.style.display = 'none'"
-                />
-
-              </div>
-
-
-              <div>
-
-                <strong>
-                  Logo Preview
-                </strong>
-
-                <p>
-                  This logo can be displayed in the HMS
-                  header, dashboard and documents.
-                </p>
-
-              </div>
-
-            </div>
-
-          }
-
-        </div>
-
-      </div>
-
-
-
-      <!-- =============================================== -->
-      <!-- ACTIONS -->
-      <!-- =============================================== -->
-
-      <div class="form-actions">
+        </button>
 
 
         <button
           type="button"
-          class="danger-button"
-          [disabled]="saving || resetting"
+          class="button danger-outline"
           (click)="resetSettings()"
+          [disabled]="isSaving || isResetting"
         >
 
-          @if (resetting) {
+          @if (isResetting) {
 
             <span class="material-symbols-outlined spinning">
-              sync
+              progress_activity
             </span>
 
             Resetting...
 
-          }
-          @else {
+          } @else {
 
             <span class="material-symbols-outlined">
               restart_alt
@@ -423,54 +579,36 @@
         </button>
 
 
+        <button
+          type="button"
+          class="button primary"
+          (click)="saveSettings()"
+          [disabled]="isSaving || isResetting"
+        >
 
-        <div class="action-right">
+          @if (isSaving) {
 
+            <span class="material-symbols-outlined spinning">
+              progress_activity
+            </span>
 
-          <button
-            type="button"
-            class="secondary-button"
-            [disabled]="saving || resetting"
-            (click)="goBack()"
-          >
-            Cancel
-          </button>
+            Saving...
 
+          } @else {
 
+            <span class="material-symbols-outlined">
+              save
+            </span>
 
-          <button
-            type="button"
-            class="primary-button"
-            [disabled]="saving || resetting"
-            (click)="saveSettings()"
-          >
+            Save Changes
 
-            @if (saving) {
+          }
 
-              <span class="material-symbols-outlined spinning">
-                sync
-              </span>
-
-              Saving...
-
-            }
-            @else {
-
-              <span class="material-symbols-outlined">
-                save
-              </span>
-
-              Save Changes
-
-            }
-
-          </button>
-
-        </div>
+        </button>
 
       </div>
 
-    </section>
+    </div>
 
   }
 

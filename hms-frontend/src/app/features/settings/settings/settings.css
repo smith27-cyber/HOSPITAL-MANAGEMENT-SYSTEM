@@ -1,49 +1,86 @@
-
 /* =====================================================
    SETTINGS PAGE
-===================================================== */
+   ===================================================== */
 
 .settings-page {
-  padding: 28px;
+  width: 100%;
   max-width: 1400px;
+  min-height: 100%;
+
   margin: 0 auto;
+  padding: 28px;
+
+  box-sizing: border-box;
+
+  background: var(--hms-bg);
+  color: var(--hms-text);
 }
 
 
 /* =====================================================
    PAGE HEADER
-===================================================== */
+   ===================================================== */
 
 .page-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   margin-bottom: 28px;
 }
 
+.page-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.page-icon {
+  width: 50px;
+  height: 50px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: var(--hms-radius-lg);
+
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
+}
+
+.page-icon .material-symbols-outlined {
+  font-size: 27px;
+}
+
 .page-header h1 {
-  margin: 0 0 6px;
+  margin: 0 0 5px;
+
   font-size: 28px;
   font-weight: 700;
-  color: #172033;
+
+  color: var(--hms-text);
 }
 
 .page-header p {
   margin: 0;
-  color: #6b7280;
+
+  color: var(--hms-text-secondary);
+
   font-size: 14px;
 }
 
 
 /* =====================================================
    SETTINGS GRID
-===================================================== */
+   ===================================================== */
 
 .settings-grid {
   display: grid;
 
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 
   gap: 18px;
 }
@@ -51,7 +88,7 @@
 
 /* =====================================================
    SETTINGS CARD
-===================================================== */
+   ===================================================== */
 
 .settings-card {
   position: relative;
@@ -60,20 +97,22 @@
   align-items: center;
 
   width: 100%;
-
-  min-height: 150px;
+  min-height: 155px;
 
   padding: 24px;
 
-  border: 1px solid #e5e7eb;
+  box-sizing: border-box;
 
-  border-radius: 14px;
+  border: 1px solid var(--hms-border);
+  border-radius: 15px;
 
-  background: #ffffff;
+  background: var(--hms-surface);
 
   text-align: left;
 
   cursor: pointer;
+
+  appearance: none;
 
   transition:
     transform 0.2s ease,
@@ -84,36 +123,38 @@
 .settings-card:hover {
   transform: translateY(-2px);
 
-  border-color: #b9d7e8;
+  border-color: var(--hms-primary);
+
+  box-shadow: var(--hms-shadow-md);
+}
+
+.settings-card:focus-visible {
+  outline: none;
+
+  border-color: var(--hms-primary);
 
   box-shadow:
-    0 8px 24px
-    rgba(15, 23, 42, 0.08);
+    0 0 0 3px var(--hms-primary-light);
 }
 
 
 /* =====================================================
-   ICON
-===================================================== */
+   SETTINGS ICONS
+   ===================================================== */
 
 .settings-icon {
-  flex-shrink: 0;
-
   width: 58px;
   height: 58px;
 
-  display: flex;
+  flex-shrink: 0;
 
+  display: flex;
   align-items: center;
   justify-content: center;
 
   margin-right: 18px;
 
-  border-radius: 12px;
-
-  background: #eaf6fb;
-
-  color: #1685a8;
+  border-radius: 13px;
 }
 
 .settings-icon .material-symbols-outlined {
@@ -121,47 +162,113 @@
 }
 
 
+/* Tenant */
+
+.settings-icon.tenant {
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
+}
+
+
+/* Profile */
+
+.settings-icon.profile {
+  background: var(--hms-info-light);
+  color: var(--hms-info);
+}
+
+
+/* Users */
+
+.settings-icon.users {
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
+}
+
+
+/* System */
+
+.settings-icon.system {
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text-secondary);
+}
+
+
+/* Notifications */
+
+.settings-icon.notifications {
+  background: var(--hms-warning-light);
+  color: var(--hms-warning);
+}
+
+
+/* Security */
+
+.settings-icon.security {
+  background: var(--hms-danger-light);
+  color: var(--hms-danger);
+}
+
+
+/* Data */
+
+.settings-icon.data {
+  background: var(--hms-success-light);
+  color: var(--hms-success);
+}
+
+
 /* =====================================================
    CONTENT
-===================================================== */
+   ===================================================== */
 
 .settings-content {
   flex: 1;
+  min-width: 0;
 
   padding-right: 35px;
+}
+
+.settings-label {
+  display: block;
+
+  margin-bottom: 5px;
+
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+
+  color: var(--hms-text-muted);
 }
 
 .settings-content h2 {
   margin: 0 0 7px;
 
   font-size: 17px;
-
   font-weight: 650;
 
-  color: #172033;
+  color: var(--hms-text);
 }
 
 .settings-content p {
   margin: 0;
 
   font-size: 13px;
-
   line-height: 1.6;
 
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 
 /* =====================================================
    ARROW
-===================================================== */
+   ===================================================== */
 
 .arrow {
   position: absolute;
-
   right: 20px;
 
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 
   transition:
     transform 0.2s ease,
@@ -169,30 +276,28 @@
 }
 
 .settings-card:hover .arrow {
-  color: #1685a8;
+  color: var(--hms-primary);
 
   transform: translateX(3px);
 }
 
 
 /* =====================================================
-   SYSTEM INFORMATION
-===================================================== */
+   INFORMATION PANEL
+   ===================================================== */
 
 .system-info {
   display: flex;
-
   align-items: center;
 
   margin-top: 24px;
 
   padding: 20px 22px;
 
-  border: 1px solid #dbeaf1;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
 
-  border-radius: 14px;
-
-  background: #f7fcfe;
+  background: var(--hms-primary-light);
 }
 
 .info-icon {
@@ -202,7 +307,6 @@
   flex-shrink: 0;
 
   display: flex;
-
   align-items: center;
   justify-content: center;
 
@@ -210,13 +314,24 @@
 
   border-radius: 50%;
 
-  background: #e1f3f8;
-
-  color: #1685a8;
+  background: var(--hms-surface);
+  color: var(--hms-primary);
 }
 
 .info-icon .material-symbols-outlined {
   font-size: 23px;
+}
+
+.info-label {
+  display: block;
+
+  margin-bottom: 3px;
+
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+
+  color: var(--hms-primary);
 }
 
 .system-info h3 {
@@ -224,35 +339,49 @@
 
   font-size: 15px;
 
-  color: #172033;
+  color: var(--hms-text);
 }
 
 .system-info p {
+  max-width: 900px;
+
   margin: 0;
 
   font-size: 13px;
+  line-height: 1.6;
 
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 
 /* =====================================================
    RESPONSIVE
-===================================================== */
+   ===================================================== */
 
 @media (max-width: 900px) {
-
   .settings-grid {
     grid-template-columns: 1fr;
   }
-
 }
 
-
 @media (max-width: 600px) {
-
   .settings-page {
     padding: 18px;
+  }
+
+  .page-heading {
+    align-items: flex-start;
+  }
+
+  .page-icon {
+    width: 46px;
+    height: 46px;
+
+    border-radius: 12px;
+  }
+
+  .page-icon .material-symbols-outlined {
+    font-size: 24px;
   }
 
   .page-header h1 {
@@ -260,9 +389,8 @@
   }
 
   .settings-card {
+    min-height: 140px;
     padding: 18px;
-
-    min-height: 135px;
   }
 
   .settings-icon {
@@ -284,12 +412,7 @@
     font-size: 12px;
   }
 
-}
-/* =====================================================
-   USER MANAGEMENT ICON
-   ===================================================== */
-
-.settings-icon.users {
-  background: #e8f4f8;
-  color: #1685a8;
+  .system-info {
+    align-items: flex-start;
+  }
 }

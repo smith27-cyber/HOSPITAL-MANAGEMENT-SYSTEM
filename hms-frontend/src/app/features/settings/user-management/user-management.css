@@ -1,55 +1,65 @@
 /* =====================================================
    USER MANAGEMENT PAGE
-===================================================== */
+   ===================================================== */
 
 .user-management-page {
   padding: 28px;
+
   max-width: 1400px;
+
   margin: 0 auto;
 }
 
 
 /* =====================================================
    PAGE HEADER
-===================================================== */
+   ===================================================== */
 
 .page-header {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
+
   gap: 20px;
+
   margin-bottom: 24px;
 }
 
 .page-header h1 {
   margin: 8px 0 6px;
+
   font-size: 28px;
   font-weight: 700;
-  color: #172033;
+
+  color: var(--hms-text);
 }
 
 .page-header p {
   margin: 0;
-  color: #6b7280;
+
+  color: var(--hms-text-secondary);
+
   font-size: 14px;
 }
 
 
 /* =====================================================
    BACK BUTTON
-===================================================== */
+   ===================================================== */
 
 .back-button {
   display: inline-flex;
   align-items: center;
+
   gap: 6px;
 
   border: 0;
+
   background: transparent;
 
   padding: 0;
 
-  color: #1685a8;
+  color: var(--hms-primary);
 
   font-size: 13px;
   font-weight: 600;
@@ -58,18 +68,19 @@
 }
 
 .back-button:hover {
-  color: #116b87;
+  color: var(--hms-primary-hover);
 }
 
 
 /* =====================================================
    PRIMARY BUTTON
-===================================================== */
+   ===================================================== */
 
 .primary-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   gap: 8px;
 
   min-height: 42px;
@@ -77,9 +88,11 @@
   padding: 0 18px;
 
   border: 0;
-  border-radius: 9px;
 
-  background: #1685a8;
+  border-radius: var(--hms-radius);
+
+  background: var(--hms-primary);
+
   color: #ffffff;
 
   font-size: 14px;
@@ -88,24 +101,26 @@
   cursor: pointer;
 
   transition:
-    background 0.2s ease,
+    background var(--hms-transition),
     transform 0.2s ease;
 }
 
 .primary-button:hover:not(:disabled) {
-  background: #116b87;
+  background: var(--hms-primary-hover);
+
   transform: translateY(-1px);
 }
 
 .primary-button:disabled {
   opacity: 0.65;
+
   cursor: not-allowed;
 }
 
 
 /* =====================================================
    TOOLBAR
-===================================================== */
+   ===================================================== */
 
 .toolbar {
   display: flex;
@@ -120,27 +135,28 @@
 
 /* =====================================================
    SEARCH
-===================================================== */
+   ===================================================== */
 
 .search-box {
   display: flex;
   align-items: center;
+
   gap: 9px;
 
   width: min(420px, 100%);
-
   height: 44px;
 
   padding: 0 13px;
 
-  border: 1px solid #d9e1e7;
-  border-radius: 9px;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius);
 
-  background: #ffffff;
+  background: var(--hms-input-bg);
 }
 
 .search-box .material-symbols-outlined {
-  color: #8b98a5;
+  color: var(--hms-text-muted);
+
   font-size: 21px;
 }
 
@@ -152,53 +168,61 @@
 
   background: transparent;
 
-  color: #172033;
+  color: var(--hms-input-text);
 
   font-size: 14px;
+}
+
+.search-box input::placeholder {
+  color: var(--hms-text-muted);
 }
 
 
 /* =====================================================
    COUNT
-===================================================== */
+   ===================================================== */
 
 .user-count {
-  color: #6b7280;
+  color: var(--hms-text-secondary);
+
   font-size: 13px;
 }
 
 .user-count strong {
-  color: #172033;
+  color: var(--hms-text);
 }
 
 
 /* =====================================================
    TABLE CARD
-===================================================== */
+   ===================================================== */
 
 .table-card {
   overflow: hidden;
 
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
+  border: 1px solid var(--hms-border);
 
-  background: #ffffff;
+  border-radius: var(--hms-radius-lg);
+
+  background: var(--hms-surface);
 }
 
 .table-wrapper {
   width: 100%;
+
   overflow-x: auto;
 }
 
 table {
   width: 100%;
+
   border-collapse: collapse;
 
   min-width: 850px;
 }
 
 thead {
-  background: #f7fafc;
+  background: var(--hms-surface-secondary);
 }
 
 th {
@@ -206,7 +230,7 @@ th {
 
   text-align: left;
 
-  color: #667085;
+  color: var(--hms-text-secondary);
 
   font-size: 12px;
   font-weight: 700;
@@ -215,15 +239,15 @@ th {
 
   letter-spacing: 0.03em;
 
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--hms-border);
 }
 
 td {
   padding: 15px 18px;
 
-  border-bottom: 1px solid #edf0f2;
+  border-bottom: 1px solid var(--hms-border);
 
-  color: #475467;
+  color: var(--hms-text-secondary);
 
   font-size: 13px;
 }
@@ -233,22 +257,24 @@ tbody tr:last-child td {
 }
 
 tbody tr:hover {
-  background: #fbfdfe;
+  background: var(--hms-surface-secondary);
 }
 
 
 /* =====================================================
    USER CELL
-===================================================== */
+   ===================================================== */
 
 .user-cell {
   display: flex;
   align-items: center;
+
   gap: 11px;
 }
 
 .user-cell strong {
-  color: #172033;
+  color: var(--hms-text);
+
   font-size: 14px;
 }
 
@@ -264,8 +290,9 @@ tbody tr:hover {
 
   border-radius: 50%;
 
-  background: #eaf6fb;
-  color: #1685a8;
+  background: var(--hms-primary-light);
+
+  color: var(--hms-primary);
 
   font-weight: 700;
 }
@@ -273,17 +300,18 @@ tbody tr:hover {
 
 /* =====================================================
    USERNAME
-===================================================== */
+   ===================================================== */
 
 .username {
-  color: #344054;
+  color: var(--hms-text-secondary);
+
   font-family: monospace;
 }
 
 
 /* =====================================================
    ROLE BADGE
-===================================================== */
+   ===================================================== */
 
 .role-badge {
   display: inline-flex;
@@ -292,9 +320,9 @@ tbody tr:hover {
 
   border-radius: 7px;
 
-  background: #eef4f7;
+  background: var(--hms-surface-secondary);
 
-  color: #3c5965;
+  color: var(--hms-text-secondary);
 
   font-size: 11px;
   font-weight: 700;
@@ -303,7 +331,7 @@ tbody tr:hover {
 
 /* =====================================================
    STATUS
-===================================================== */
+   ===================================================== */
 
 .status-badge {
   display: inline-flex;
@@ -317,19 +345,19 @@ tbody tr:hover {
 }
 
 .status-badge.active {
-  background: #e9f7ef;
-  color: #197044;
+  background: var(--hms-success-light);
+  color: var(--hms-success);
 }
 
 .status-badge.inactive {
-  background: #f3f4f6;
-  color: #667085;
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text-secondary);
 }
 
 
 /* =====================================================
    ACTIONS
-===================================================== */
+   ===================================================== */
 
 .actions-column {
   text-align: right;
@@ -337,7 +365,9 @@ tbody tr:hover {
 
 .actions {
   display: flex;
+
   justify-content: flex-end;
+
   gap: 5px;
 }
 
@@ -350,40 +380,52 @@ tbody tr:hover {
   justify-content: center;
 
   border: 1px solid transparent;
+
   border-radius: 7px;
 
   background: transparent;
-  color: #667085;
+
+  color: var(--hms-text-secondary);
 
   cursor: pointer;
+
+  transition:
+    background var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition);
 }
 
 .icon-button:hover {
-  border-color: #dbe5e9;
-  background: #f7fafc;
-  color: #1685a8;
+  border-color: var(--hms-border);
+
+  background: var(--hms-surface-secondary);
+
+  color: var(--hms-primary);
 }
 
 .icon-button.danger:hover {
-  border-color: #f3d0d0;
-  background: #fff5f5;
-  color: #c03939;
+  border-color: var(--hms-danger);
+
+  background: var(--hms-danger-light);
+
+  color: var(--hms-danger);
 }
 
 
 /* =====================================================
    LOADING
-===================================================== */
+   ===================================================== */
 
 .loading-state {
   display: flex;
   align-items: center;
   justify-content: center;
+
   gap: 10px;
 
   min-height: 260px;
 
-  color: #667085;
+  color: var(--hms-text-secondary);
 
   font-size: 14px;
 }
@@ -391,11 +433,12 @@ tbody tr:hover {
 
 /* =====================================================
    EMPTY STATE
-===================================================== */
+   ===================================================== */
 
 .empty-state {
   display: flex;
   flex-direction: column;
+
   align-items: center;
   justify-content: center;
 
@@ -403,23 +446,25 @@ tbody tr:hover {
 
   padding: 30px;
 
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
+  border: 1px solid var(--hms-border);
 
-  background: #ffffff;
+  border-radius: var(--hms-radius-lg);
+
+  background: var(--hms-surface);
 
   text-align: center;
 }
 
 .empty-state > .material-symbols-outlined {
   font-size: 48px;
-  color: #aab4bd;
+
+  color: var(--hms-text-muted);
 }
 
 .empty-state h2 {
   margin: 14px 0 5px;
 
-  color: #172033;
+  color: var(--hms-text);
 
   font-size: 18px;
 }
@@ -427,7 +472,7 @@ tbody tr:hover {
 .empty-state p {
   margin: 0;
 
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 
   font-size: 13px;
 }
@@ -435,16 +480,17 @@ tbody tr:hover {
 
 /* =====================================================
    MODAL BACKDROP
-===================================================== */
+   ===================================================== */
 
 .modal-backdrop {
   position: fixed;
 
   inset: 0;
 
-  z-index: 1000;
+  z-index: var(--hms-z-overlay);
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
@@ -456,7 +502,7 @@ tbody tr:hover {
 
 /* =====================================================
    MODAL
-===================================================== */
+   ===================================================== */
 
 .modal {
   width: min(520px, 100%);
@@ -467,17 +513,15 @@ tbody tr:hover {
 
   border-radius: 15px;
 
-  background: #ffffff;
+  background: var(--hms-surface);
 
-  box-shadow:
-    0 24px 70px
-    rgba(15, 23, 42, 0.22);
+  box-shadow: var(--hms-shadow-md);
 }
 
 
 /* =====================================================
    MODAL HEADER
-===================================================== */
+   ===================================================== */
 
 .modal-header {
   display: flex;
@@ -486,13 +530,13 @@ tbody tr:hover {
 
   padding: 22px 24px;
 
-  border-bottom: 1px solid #edf0f2;
+  border-bottom: 1px solid var(--hms-border);
 }
 
 .modal-header h2 {
   margin: 0 0 5px;
 
-  color: #172033;
+  color: var(--hms-text);
 
   font-size: 20px;
 }
@@ -500,7 +544,7 @@ tbody tr:hover {
 .modal-header p {
   margin: 0;
 
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 
   font-size: 13px;
 }
@@ -514,22 +558,26 @@ tbody tr:hover {
   justify-content: center;
 
   border: 0;
-  border-radius: 8px;
+
+  border-radius: var(--hms-radius);
 
   background: transparent;
-  color: #667085;
+
+  color: var(--hms-text-secondary);
 
   cursor: pointer;
 }
 
 .close-button:hover {
-  background: #f3f4f6;
+  background: var(--hms-surface-secondary);
+
+  color: var(--hms-text);
 }
 
 
 /* =====================================================
    FORM
-===================================================== */
+   ===================================================== */
 
 .modal form {
   padding: 24px;
@@ -544,7 +592,7 @@ tbody tr:hover {
 
   margin-bottom: 7px;
 
-  color: #344054;
+  color: var(--hms-text);
 
   font-size: 13px;
   font-weight: 600;
@@ -553,32 +601,35 @@ tbody tr:hover {
 .form-group input,
 .form-group select {
   width: 100%;
-
   height: 44px;
 
   box-sizing: border-box;
 
   padding: 0 12px;
 
-  border: 1px solid #d9e1e7;
-  border-radius: 8px;
+  border: 1px solid var(--hms-border);
+
+  border-radius: var(--hms-radius);
 
   outline: none;
 
-  background: #ffffff;
+  background: var(--hms-input-bg);
 
-  color: #172033;
+  color: var(--hms-input-text);
 
   font-size: 14px;
+
+  transition:
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition);
 }
 
 .form-group input:focus,
 .form-group select:focus {
-  border-color: #1685a8;
+  border-color: var(--hms-primary);
 
   box-shadow:
-    0 0 0 3px
-    rgba(22, 133, 168, 0.10);
+    0 0 0 3px var(--hms-primary-light);
 }
 
 .form-group small {
@@ -586,7 +637,7 @@ tbody tr:hover {
 
   margin-top: 5px;
 
-  color: #8a96a3;
+  color: var(--hms-text-muted);
 
   font-size: 11px;
 }
@@ -594,31 +645,33 @@ tbody tr:hover {
 
 /* =====================================================
    ACCOUNT SUMMARY
-===================================================== */
+   ===================================================== */
 
 .account-summary {
   display: flex;
   align-items: center;
+
   gap: 12px;
 
   margin-bottom: 20px;
 
   padding: 13px;
 
-  border-radius: 9px;
+  border-radius: var(--hms-radius);
 
-  background: #f7fafc;
+  background: var(--hms-surface-secondary);
 }
 
 .account-summary > .material-symbols-outlined {
   font-size: 31px;
-  color: #1685a8;
+
+  color: var(--hms-primary);
 }
 
 .account-summary strong {
   display: block;
 
-  color: #172033;
+  color: var(--hms-text);
 
   font-size: 14px;
 }
@@ -628,7 +681,7 @@ tbody tr:hover {
 
   margin-top: 3px;
 
-  color: #8a96a3;
+  color: var(--hms-text-muted);
 
   font-size: 11px;
 }
@@ -636,7 +689,7 @@ tbody tr:hover {
 
 /* =====================================================
    STATUS TOGGLE
-===================================================== */
+   ===================================================== */
 
 .status-toggle {
   margin-bottom: 20px;
@@ -645,9 +698,10 @@ tbody tr:hover {
 .status-toggle label {
   display: flex;
   align-items: center;
+
   gap: 9px;
 
-  color: #475467;
+  color: var(--hms-text-secondary);
 
   font-size: 13px;
 
@@ -658,17 +712,19 @@ tbody tr:hover {
   width: 17px;
   height: 17px;
 
-  accent-color: #1685a8;
+  accent-color: var(--hms-primary);
 }
 
 
 /* =====================================================
    FORM ACTIONS
-===================================================== */
+   ===================================================== */
 
 .form-actions {
   display: flex;
+
   justify-content: flex-end;
+
   gap: 10px;
 
   margin-top: 24px;
@@ -679,11 +735,13 @@ tbody tr:hover {
 
   padding: 0 18px;
 
-  border: 1px solid #d9e1e7;
-  border-radius: 9px;
+  border: 1px solid var(--hms-border);
 
-  background: #ffffff;
-  color: #475467;
+  border-radius: var(--hms-radius);
+
+  background: var(--hms-surface);
+
+  color: var(--hms-text-secondary);
 
   font-size: 14px;
   font-weight: 600;
@@ -692,20 +750,21 @@ tbody tr:hover {
 }
 
 .secondary-button:hover {
-  background: #f7fafc;
+  background: var(--hms-surface-secondary);
+
+  border-color: var(--hms-primary);
 }
 
 
 /* =====================================================
    SPINNER
-===================================================== */
+   ===================================================== */
 
 .spinning {
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-
   from {
     transform: rotate(0deg);
   }
@@ -713,32 +772,31 @@ tbody tr:hover {
   to {
     transform: rotate(360deg);
   }
-
 }
 
 
 /* =====================================================
    RESPONSIVE
-===================================================== */
+   ===================================================== */
 
 @media (max-width: 700px) {
-
   .user-management-page {
     padding: 18px;
   }
 
   .page-header {
     align-items: flex-start;
+
     flex-direction: column;
   }
 
   .toolbar {
     align-items: stretch;
+
     flex-direction: column;
   }
 
   .search-box {
     width: 100%;
   }
-
 }

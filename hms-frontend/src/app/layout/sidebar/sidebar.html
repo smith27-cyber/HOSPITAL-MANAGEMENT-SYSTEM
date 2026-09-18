@@ -45,7 +45,6 @@
 
       </div>
 
-
       <div class="brand-text">
 
         <h2 [title]="hospitalName">
@@ -74,599 +73,646 @@
     aria-label="Main navigation"
   >
 
-
     <!-- ===================================================
-         MAIN
+         MODULE LOADING
          =================================================== -->
 
-    @if (
-      hasModuleAnyPermission(
-        'DASHBOARD',
-        ['DASHBOARD_VIEW']
-      )
-      ||
-      hasModuleAnyPermission(
-        'PATIENTS',
-        ['PATIENT_VIEW']
-      )
-      ||
-      hasModuleAnyPermission(
-        'APPOINTMENTS',
-        ['APPOINTMENT_VIEW']
-      )
-      ||
-      hasModuleAnyPermission(
-        'DOCTORS',
-        ['DOCTOR_VIEW']
-      )
-      ||
-      hasModuleAnyPermission(
-        'DEPARTMENTS',
-        ['DEPARTMENT_VIEW']
-      )
-    ) {
+    @if (!modulesLoaded && !modulesLoadFailed) {
 
-      <div class="nav-section">
+      <div class="module-loading">
 
-        <span class="section-title">
-          MAIN
+        <span class="material-symbols-outlined">
+          sync
         </span>
 
-
-        <!-- =================================================
-             DASHBOARD
-             ================================================= -->
-
-        @if (
-          hasModulePermission(
-            'DASHBOARD',
-            'DASHBOARD_VIEW'
-          )
-        ) {
-
-          <a
-            class="nav-item"
-            routerLink="/dashboard"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-            (click)="navigate()"
-          >
-
-            <span class="nav-icon material-symbols-outlined">
-              dashboard
-            </span>
-
-            <span class="nav-label">
-              Dashboard
-            </span>
-
-          </a>
-
-        }
-
-
-        <!-- =================================================
-             PATIENTS
-             ================================================= -->
-
-        @if (
-          hasModulePermission(
-            'PATIENTS',
-            'PATIENT_VIEW'
-          )
-        ) {
-
-          <a
-            class="nav-item"
-            routerLink="/patients"
-            routerLinkActive="active"
-            (click)="navigate()"
-          >
-
-            <span class="nav-icon material-symbols-outlined">
-              group
-            </span>
-
-            <span class="nav-label">
-              Patients
-            </span>
-
-          </a>
-
-        }
-
-
-        <!-- =================================================
-             APPOINTMENTS
-             ================================================= -->
-
-        @if (
-          hasModulePermission(
-            'APPOINTMENTS',
-            'APPOINTMENT_VIEW'
-          )
-        ) {
-
-          <a
-            class="nav-item"
-            routerLink="/appointments"
-            routerLinkActive="active"
-            (click)="navigate()"
-          >
-
-            <span class="nav-icon material-symbols-outlined">
-              calendar_month
-            </span>
-
-            <span class="nav-label">
-              Appointments
-            </span>
-
-          </a>
-
-        }
-
-
-        <!-- =================================================
-             DOCTORS
-             ================================================= -->
-
-        @if (
-          hasModulePermission(
-            'DOCTORS',
-            'DOCTOR_VIEW'
-          )
-        ) {
-
-          <a
-            class="nav-item"
-            routerLink="/doctors"
-            routerLinkActive="active"
-            (click)="navigate()"
-          >
-
-            <span class="nav-icon material-symbols-outlined">
-              medical_services
-            </span>
-
-            <span class="nav-label">
-              Doctors
-            </span>
-
-          </a>
-
-        }
-
-
-        <!-- =================================================
-             DEPARTMENTS
-             ================================================= -->
-
-        @if (
-          hasModulePermission(
-            'DEPARTMENTS',
-            'DEPARTMENT_VIEW'
-          )
-        ) {
-
-          <a
-            class="nav-item"
-            routerLink="/departments"
-            routerLinkActive="active"
-            (click)="navigate()"
-          >
-
-            <span class="nav-icon material-symbols-outlined">
-              business
-            </span>
-
-            <span class="nav-label">
-              Departments
-            </span>
-
-          </a>
-
-        }
+        <span>
+          Loading modules...
+        </span>
 
       </div>
 
     }
 
-
     <!-- ===================================================
-         CLINICAL
+         MODULE LOAD ERROR
          =================================================== -->
 
-    @if (
-      hasModuleAnyPermission(
-        'CONSULTATIONS',
-        ['CONSULTATION_VIEW']
-      )
-      ||
-      hasModuleAnyPermission(
-        'PHARMACY',
-        ['PHARMACY_VIEW']
-      )
-      ||
-      hasModuleAnyPermission(
-        'LABORATORY',
-        [
-          'LABORATORY_VIEW',
-          'LABORATORY_REQUEST_VIEW'
-        ]
-      )
-      ||
-      hasModuleAnyPermission(
-        'ADMISSIONS',
-        ['ADMISSION_VIEW']
-      )
-    ) {
+    @else if (modulesLoadFailed) {
 
-      <div class="nav-section">
+      <div class="module-error">
 
-        <span class="section-title">
-          CLINICAL
+        <span class="material-symbols-outlined">
+          error
         </span>
 
+        <span>
+          Unable to load available modules.
+        </span>
 
-        <!-- =================================================
-             CONSULTATIONS
-             ================================================= -->
+      </div>
 
-        @if (
-          hasModulePermission(
-            'CONSULTATIONS',
-            'CONSULTATION_VIEW'
-          )
-        ) {
+    }
 
-          <a
-            class="nav-item"
-            routerLink="/consultations"
-            routerLinkActive="active"
-            (click)="navigate()"
-          >
+    <!-- ===================================================
+         LOADED MODULE NAVIGATION
+         =================================================== -->
 
-            <span class="nav-icon material-symbols-outlined">
-              stethoscope
-            </span>
+    @else {
 
-            <span class="nav-label">
-              Consultations
-            </span>
+      <!-- =================================================
+           MAIN
+           ================================================= -->
 
-          </a>
+      @if (
+        hasModuleAnyPermission(
+          'DASHBOARD',
+          ['DASHBOARD_VIEW']
+        )
+        ||
+        hasModuleAnyPermission(
+          'PATIENTS',
+          ['PATIENT_VIEW']
+        )
+        ||
+        hasModuleAnyPermission(
+          'APPOINTMENTS',
+          ['APPOINTMENT_VIEW']
+        )
+        ||
+        hasModuleAnyPermission(
+          'DOCTORS',
+          ['DOCTOR_VIEW']
+        )
+        ||
+        hasModuleAnyPermission(
+          'DEPARTMENTS',
+          ['DEPARTMENT_VIEW']
+        )
+      ) {
 
-        }
+        <div class="nav-section">
 
-
-        <!-- =================================================
-             PHARMACY
-             ================================================= -->
-
-        @if (
-          hasModulePermission(
-            'PHARMACY',
-            'PHARMACY_VIEW'
-          )
-        ) {
-
-          <a
-            class="nav-item"
-            routerLink="/pharmacy"
-            routerLinkActive="active"
-            (click)="navigate()"
-          >
-
-            <span class="nav-icon material-symbols-outlined">
-              medication
-            </span>
-
-            <span class="nav-label">
-              Pharmacy
-            </span>
-
-          </a>
-
-        }
+          <span class="section-title">
+            MAIN
+          </span>
 
 
-        <!-- =================================================
-             LABORATORY
-             ================================================= -->
+          <!-- ===============================================
+               DASHBOARD
+               =============================================== -->
 
-        @if (
-          hasModulePermission(
-            'LABORATORY',
-            'LABORATORY_VIEW'
-          )
-        ) {
+          @if (
+            hasModulePermission(
+              'DASHBOARD',
+              'DASHBOARD_VIEW'
+            )
+          ) {
 
-          <a
-            class="nav-item"
-            routerLink="/laboratory"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-            (click)="navigate()"
-          >
+            <a
+              class="nav-item"
+              routerLink="/dashboard"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+              (click)="navigate()"
+            >
 
-            <span class="nav-icon material-symbols-outlined">
-              science
-            </span>
+              <span class="nav-icon material-symbols-outlined">
+                dashboard
+              </span>
 
-            <span class="nav-label">
-              Laboratory
-            </span>
+              <span class="nav-label">
+                Dashboard
+              </span>
 
-          </a>
+            </a>
 
-        }
+          }
 
 
-        <!-- =================================================
-             LAB REQUESTS
-             ================================================= -->
+          <!-- ===============================================
+               PATIENTS
+               =============================================== -->
 
-        @if (
-          hasModulePermission(
-            'LABORATORY',
+          @if (
+            hasModulePermission(
+              'PATIENTS',
+              'PATIENT_VIEW'
+            )
+          ) {
+
+            <a
+              class="nav-item"
+              routerLink="/patients"
+              routerLinkActive="active"
+              (click)="navigate()"
+            >
+
+              <span class="nav-icon material-symbols-outlined">
+                group
+              </span>
+
+              <span class="nav-label">
+                Patients
+              </span>
+
+            </a>
+
+          }
+
+
+          <!-- ===============================================
+               APPOINTMENTS
+               =============================================== -->
+
+          @if (
+            hasModulePermission(
+              'APPOINTMENTS',
+              'APPOINTMENT_VIEW'
+            )
+          ) {
+
+            <a
+              class="nav-item"
+              routerLink="/appointments"
+              routerLinkActive="active"
+              (click)="navigate()"
+            >
+
+              <span class="nav-icon material-symbols-outlined">
+                calendar_month
+              </span>
+
+              <span class="nav-label">
+                Appointments
+              </span>
+
+            </a>
+
+          }
+
+
+          <!-- ===============================================
+               DOCTORS
+               =============================================== -->
+
+          @if (
+            hasModulePermission(
+              'DOCTORS',
+              'DOCTOR_VIEW'
+            )
+          ) {
+
+            <a
+              class="nav-item"
+              routerLink="/doctors"
+              routerLinkActive="active"
+              (click)="navigate()"
+            >
+
+              <span class="nav-icon material-symbols-outlined">
+                medical_services
+              </span>
+
+              <span class="nav-label">
+                Doctors
+              </span>
+
+            </a>
+
+          }
+
+
+          <!-- ===============================================
+               DEPARTMENTS
+               =============================================== -->
+
+          @if (
+            hasModulePermission(
+              'DEPARTMENTS',
+              'DEPARTMENT_VIEW'
+            )
+          ) {
+
+            <a
+              class="nav-item"
+              routerLink="/departments"
+              routerLinkActive="active"
+              (click)="navigate()"
+            >
+
+              <span class="nav-icon material-symbols-outlined">
+                business
+              </span>
+
+              <span class="nav-label">
+                Departments
+              </span>
+
+            </a>
+
+          }
+
+        </div>
+
+      }
+
+
+      <!-- =================================================
+           CLINICAL
+           ================================================= -->
+
+      @if (
+        hasModuleAnyPermission(
+          'CONSULTATIONS',
+          ['CONSULTATION_VIEW']
+        )
+        ||
+        hasModuleAnyPermission(
+          'PHARMACY',
+          ['PHARMACY_VIEW']
+        )
+        ||
+        hasModuleAnyPermission(
+          'LABORATORY',
+          [
+            'LABORATORY_VIEW',
             'LABORATORY_REQUEST_VIEW'
-          )
-        ) {
+          ]
+        )
+        ||
+        hasModuleAnyPermission(
+          'ADMISSIONS',
+          ['ADMISSION_VIEW']
+        )
+      ) {
 
-          <a
-            class="nav-item"
-            routerLink="/laboratory/requests"
-            routerLinkActive="active"
-            (click)="navigate()"
-          >
+        <div class="nav-section">
 
-            <span class="nav-icon material-symbols-outlined">
-              assignment
-            </span>
-
-            <span class="nav-label">
-              Lab Requests
-            </span>
-
-          </a>
-
-        }
+          <span class="section-title">
+            CLINICAL
+          </span>
 
 
-        <!-- =================================================
-             ADMISSIONS
-             ================================================= -->
+          <!-- =============================================
+               CONSULTATIONS
+               ============================================= -->
 
-        @if (
-          hasModulePermission(
-            'ADMISSIONS',
-            'ADMISSION_VIEW'
-          )
-        ) {
+          @if (
+            hasModulePermission(
+              'CONSULTATIONS',
+              'CONSULTATION_VIEW'
+            )
+          ) {
 
-          <a
-            class="nav-item"
-            routerLink="/admissions"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-            (click)="navigate()"
-          >
+            <a
+              class="nav-item"
+              routerLink="/consultations"
+              routerLinkActive="active"
+              (click)="navigate()"
+            >
 
-            <span class="nav-icon material-symbols-outlined">
-              bed
-            </span>
+              <span class="nav-icon material-symbols-outlined">
+                stethoscope
+              </span>
 
-            <span class="nav-label">
-              Admissions
-            </span>
+              <span class="nav-label">
+                Consultations
+              </span>
 
-          </a>
+            </a>
 
-        }
-
-      </div>
-
-    }
+          }
 
 
-    <!-- ===================================================
-         MANAGEMENT
-         =================================================== -->
+          <!-- =============================================
+               PHARMACY
+               ============================================= -->
 
-    @if (
-      hasModuleAnyPermission(
-        'BILLING',
-        ['BILLING_VIEW']
-      )
-      ||
-      hasModuleAnyPermission(
-        'INVENTORY',
-        [
-          'INVENTORY_VIEW',
-          'PHARMACY_STOCK_VIEW'
-        ]
-      )
-      ||
-      hasModuleAnyPermission(
-        'REPORTS',
-        ['REPORT_VIEW']
-      )
-      ||
-      hasModuleAnyPermission(
-        'SETTINGS',
-        ['SETTINGS_VIEW']
-      )
-    ) {
+          @if (
+            hasModulePermission(
+              'PHARMACY',
+              'PHARMACY_VIEW'
+            )
+          ) {
 
-      <div class="nav-section">
+            <a
+              class="nav-item"
+              routerLink="/pharmacy"
+              routerLinkActive="active"
+              (click)="navigate()"
+            >
 
-        <span class="section-title">
-          MANAGEMENT
-        </span>
+              <span class="nav-icon material-symbols-outlined">
+                medication
+              </span>
+
+              <span class="nav-label">
+                Pharmacy
+              </span>
+
+            </a>
+
+          }
 
 
-        <!-- =================================================
-             BILLING
-             ================================================= -->
+          <!-- =============================================
+               LABORATORY
+               ============================================= -->
 
-        @if (
-          hasModulePermission(
-            'BILLING',
-            'BILLING_VIEW'
-          )
-        ) {
+          @if (
+            hasModulePermission(
+              'LABORATORY',
+              'LABORATORY_VIEW'
+            )
+          ) {
 
-          <a
-            class="nav-item"
-            routerLink="/billing"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-            (click)="navigate()"
-          >
+            <a
+              class="nav-item"
+              routerLink="/laboratory"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+              (click)="navigate()"
+            >
 
-            <span class="nav-icon material-symbols-outlined">
-              payments
-            </span>
+              <span class="nav-icon material-symbols-outlined">
+                science
+              </span>
 
-            <span class="nav-label">
-              Billing
-            </span>
+              <span class="nav-label">
+                Laboratory
+              </span>
 
-          </a>
+            </a>
 
-        }
-
-
-        <!-- =================================================
-             INVENTORY
-             ================================================= -->
-
-        @if (
-          hasModulePermission(
-            'INVENTORY',
-            'INVENTORY_VIEW'
-          )
-        ) {
-
-          <a
-            class="nav-item"
-            routerLink="/inventory"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-            (click)="navigate()"
-          >
-
-            <span class="nav-icon material-symbols-outlined">
-              inventory_2
-            </span>
-
-            <span class="nav-label">
-              Inventory
-            </span>
-
-          </a>
-
-        }
+          }
 
 
-        <!-- =================================================
-             STOCK MANAGEMENT
-             ================================================= -->
+          <!-- =============================================
+               LAB REQUESTS
+               ============================================= -->
 
-        @if (
-          hasModuleAnyPermission(
-            'INVENTORY',
-            [
-              'INVENTORY_VIEW',
-              'PHARMACY_STOCK_VIEW'
-            ]
-          )
-        ) {
+          @if (
+            hasModulePermission(
+              'LABORATORY',
+              'LABORATORY_REQUEST_VIEW'
+            )
+          ) {
 
-          <a
-            class="nav-item"
-            routerLink="/inventory/stock"
-            routerLinkActive="active"
-            (click)="navigate()"
-          >
+            <a
+              class="nav-item"
+              routerLink="/laboratory/requests"
+              routerLinkActive="active"
+              (click)="navigate()"
+            >
 
-            <span class="nav-icon material-symbols-outlined">
-              warehouse
-            </span>
+              <span class="nav-icon material-symbols-outlined">
+                assignment
+              </span>
 
-            <span class="nav-label">
-              Stock Management
-            </span>
+              <span class="nav-label">
+                Lab Requests
+              </span>
 
-          </a>
+            </a>
 
-        }
+          }
 
 
-        <!-- =================================================
-             REPORTS
-             ================================================= -->
+          <!-- =============================================
+               ADMISSIONS
+               ============================================= -->
 
-        @if (
-          hasModulePermission(
-            'REPORTS',
-            'REPORT_VIEW'
-          )
-        ) {
+          @if (
+            hasModulePermission(
+              'ADMISSIONS',
+              'ADMISSION_VIEW'
+            )
+          ) {
 
-          <a
-            class="nav-item"
-            routerLink="/reports"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-            (click)="navigate()"
-          >
+            <a
+              class="nav-item"
+              routerLink="/admissions"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+              (click)="navigate()"
+            >
 
-            <span class="nav-icon material-symbols-outlined">
-              bar_chart
-            </span>
+              <span class="nav-icon material-symbols-outlined">
+                bed
+              </span>
 
-            <span class="nav-label">
-              Reports
-            </span>
+              <span class="nav-label">
+                Admissions
+              </span>
 
-          </a>
+            </a>
 
-        }
+          }
+
+        </div>
+
+      }
 
 
-        <!-- =================================================
-             SETTINGS
-             ================================================= -->
+      <!-- =================================================
+           MANAGEMENT
+           ================================================= -->
 
-        @if (
-          hasModulePermission(
-            'SETTINGS',
-            'SETTINGS_VIEW'
-          )
-        ) {
+      @if (
+        hasModuleAnyPermission(
+          'BILLING',
+          ['BILLING_VIEW']
+        )
+        ||
+        hasModuleAnyPermission(
+          'INVENTORY',
+          [
+            'INVENTORY_VIEW',
+            'PHARMACY_STOCK_VIEW'
+          ]
+        )
+        ||
+        hasModuleAnyPermission(
+          'REPORTS',
+          ['REPORT_VIEW']
+        )
+        ||
+        hasModuleAnyPermission(
+          'SETTINGS',
+          ['SETTINGS_VIEW']
+        )
+      ) {
 
-          <a
-            class="nav-item"
-            routerLink="/settings"
-            routerLinkActive="active"
-            (click)="navigate()"
-          >
+        <div class="nav-section">
 
-            <span class="nav-icon material-symbols-outlined">
-              settings
-            </span>
+          <span class="section-title">
+            MANAGEMENT
+          </span>
 
-            <span class="nav-label">
-              Settings
-            </span>
 
-          </a>
+          <!-- =============================================
+               BILLING
+               ============================================= -->
 
-        }
+          @if (
+            hasModulePermission(
+              'BILLING',
+              'BILLING_VIEW'
+            )
+          ) {
 
-      </div>
+            <a
+              class="nav-item"
+              routerLink="/billing"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+              (click)="navigate()"
+            >
+
+              <span class="nav-icon material-symbols-outlined">
+                payments
+              </span>
+
+              <span class="nav-label">
+                Billing
+              </span>
+
+            </a>
+
+          }
+
+
+          <!-- =============================================
+               INVENTORY
+               ============================================= -->
+
+          @if (
+            hasModulePermission(
+              'INVENTORY',
+              'INVENTORY_VIEW'
+            )
+          ) {
+
+            <a
+              class="nav-item"
+              routerLink="/inventory"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+              (click)="navigate()"
+            >
+
+              <span class="nav-icon material-symbols-outlined">
+                inventory_2
+              </span>
+
+              <span class="nav-label">
+                Inventory
+              </span>
+
+            </a>
+
+          }
+
+
+          <!-- =============================================
+               STOCK MANAGEMENT
+               ============================================= -->
+
+          @if (
+            hasModuleAnyPermission(
+              'INVENTORY',
+              [
+                'INVENTORY_VIEW',
+                'PHARMACY_STOCK_VIEW'
+              ]
+            )
+          ) {
+
+            <a
+              class="nav-item"
+              routerLink="/inventory/stock"
+              routerLinkActive="active"
+              (click)="navigate()"
+            >
+
+              <span class="nav-icon material-symbols-outlined">
+                warehouse
+              </span>
+
+              <span class="nav-label">
+                Stock Management
+              </span>
+
+            </a>
+
+          }
+
+
+          <!-- =============================================
+               REPORTS
+               ============================================= -->
+
+          @if (
+            hasModulePermission(
+              'REPORTS',
+              'REPORT_VIEW'
+            )
+          ) {
+
+            <a
+              class="nav-item"
+              routerLink="/reports"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+              (click)="navigate()"
+            >
+
+              <span class="nav-icon material-symbols-outlined">
+                bar_chart
+              </span>
+
+              <span class="nav-label">
+                Reports
+              </span>
+
+            </a>
+
+          }
+
+
+          <!-- =============================================
+               SETTINGS
+               ============================================= -->
+
+          @if (
+            hasModulePermission(
+              'SETTINGS',
+              'SETTINGS_VIEW'
+            )
+          ) {
+
+            <a
+              class="nav-item"
+              routerLink="/settings"
+              routerLinkActive="active"
+              (click)="navigate()"
+            >
+
+              <span class="nav-icon material-symbols-outlined">
+                settings
+              </span>
+
+              <span class="nav-label">
+                Settings
+              </span>
+
+            </a>
+
+          }
+
+        </div>
+
+      }
 
     }
 
@@ -678,7 +724,6 @@
        ===================================================== -->
 
   <div class="sidebar-footer">
-
 
     <!-- ===================================================
          SYSTEM STATUS

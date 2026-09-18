@@ -1,426 +1,1332 @@
+<!-- =====================================================
+     HMS TENANT REPORT
+     File:
+     src/app/features/reports/report/report.html
+     ===================================================== -->
 
-<div class="reports-page">
+<div class="report-page">
 
-  <!-- HEADER -->
-  <div class="page-header">
+  <!-- ===================================================
+       REPORT HERO
+       =================================================== -->
 
-    <div>
-      <span class="page-eyebrow">HOSPITAL MANAGEMENT SYSTEM</span>
+  <header class="report-hero">
 
-      <h1>Reports</h1>
+    <div class="hero-brand">
 
-      <p>
-        Generate, manage and review hospital reports.
-      </p>
-    </div>
+      <div class="tenant-logo-wrapper">
 
-  </div>
+        <img
+          *ngIf="dashboard?.tenant?.logoUrl"
+          class="tenant-logo"
+          [src]="dashboard?.tenant?.logoUrl"
+          [alt]="dashboard?.tenant?.name + ' logo'"
+        />
 
+        <div
+          *ngIf="!dashboard?.tenant?.logoUrl"
+          class="tenant-logo-placeholder"
+        >
+          HMS
+        </div>
 
-  <!-- STATISTICS -->
-  <div class="statistics-grid">
-
-    <div class="stat-card">
-      <div class="stat-icon">📊</div>
-
-      <div>
-        <span>Total Reports</span>
-        <strong>{{ totalReports }}</strong>
-      </div>
-    </div>
-
-
-    <div class="stat-card">
-      <div class="stat-icon">✓</div>
-
-      <div>
-        <span>Generated</span>
-        <strong>{{ generatedReports }}</strong>
-      </div>
-    </div>
-
-
-    <div class="stat-card">
-      <div class="stat-icon">⏳</div>
-
-      <div>
-        <span>Pending</span>
-        <strong>{{ pendingReports }}</strong>
-      </div>
-    </div>
-
-
-    <div class="stat-card">
-      <div class="stat-icon">!</div>
-
-      <div>
-        <span>Failed</span>
-        <strong>{{ failedReports }}</strong>
-      </div>
-    </div>
-
-  </div>
-
-
-  <!-- GENERATE REPORT -->
-  <div class="generate-section">
-
-    <div class="section-header">
-
-      <div>
-        <h2>Generate Report</h2>
-
-        <p>
-          Select a report category to generate a new report.
-        </p>
       </div>
 
-    </div>
+      <div class="tenant-identity">
 
-
-    <div class="report-type-grid">
-
-      <button
-        type="button"
-        class="report-type-card"
-        *ngFor="let type of reportTypes"
-        [class.all-card]="type === 'All'"
-        [disabled]="type === 'All'"
-        (click)="type !== 'All' && generateReport(type)"
-      >
-
-        <span class="type-icon">
-
-          {{
-            type === 'Appointments' ? '📅' :
-            type === 'Patients' ? '👤' :
-            type === 'Doctors' ? '🩺' :
-            type === 'Departments' ? '🏥' :
-            type === 'Consultations' ? '💬' :
-            type === 'Pharmacy' ? '💊' :
-            type === 'Laboratory' ? '🧪' :
-            type === 'Admissions' ? '🛏️' :
-            type === 'Billing' ? '💰' :
-            type === 'Inventory' ? '📦' :
-            type === 'General' ? '📑' :
-            '📊'
-          }}
-
+        <span class="section-kicker">
+          MANAGEMENT REPORT
         </span>
 
-        <span>{{ type }}</span>
+        <h1>
+  {{ dashboard?.tenant?.name || 'Tenant Report' }}
+</h1>
 
-      </button>
+        <p>
+          {{ dashboard?.tenant?.type || 'Healthcare Facility' }}
+
+          <span
+            *ngIf="dashboard?.tenant?.code"
+          >
+            · {{ dashboard?.tenant?.code }}
+          </span>
+        </p>
+
+        <span
+          *ngIf="dashboard?.tenant?.registrationNumber"
+          class="registration-number"
+        >
+          Registration:
+          {{ dashboard?.tenant?.registrationNumber }}
+        </span>
+
+      </div>
 
     </div>
 
-  </div>
+    <div class="hero-period">
+
+      <span class="period-label">
+        Reporting Period
+      </span>
+
+      <strong>
+        {{ reportPeriodLabel() }}
+      </strong>
+
+      <span class="report-number">
+        Report No.
+        {{ reportNumber || '—' }}
+      </span>
+
+      <span class="generated">
+        Generated
+        {{ formatDateTime(dashboard?.metadata?.generatedAt) }}
+      </span>
+
+    </div>
+
+  </header>
 
 
-  <!-- FILTERS -->
-  <div class="filters-card">
+  <!-- ===================================================
+       REPORT ACTIONS
+       =================================================== -->
 
-    <div class="filters-header">
+  <section
+    class="report-actions screen-only export-exclude"
+  >
 
-      <div>
-        <h2>Report History</h2>
+    <div class="report-actions-info">
 
-        <p>
-          Search and filter generated reports.
-        </p>
-      </div>
+      <span class="section-kicker">
+        REPORT DOCUMENT
+      </span>
+
+      <strong>
+        {{ reportNumber || 'Preparing report...' }}
+      </strong>
+
+      <small>
+        {{ dashboard?.tenant?.name || 'Tenant' }}
+        ·
+        {{ reportPeriodLabel() }}
+      </small>
+
+    </div>
+
+    <div class="report-actions-buttons">
 
       <button
         type="button"
-        class="clear-btn"
-        (click)="clearFilters()"
+        class="secondary-button"
+        (click)="printReport()"
+        [disabled]="
+          !dashboard ||
+          loading ||
+          exporting
+        "
       >
-        Clear Filters
+        Print / Save PDF
+      </button>
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="exportPdf()"
+        [disabled]="
+          !dashboard ||
+          loading ||
+          exporting
+        "
+      >
+        {{
+          exporting
+            ? 'Exporting...'
+            : 'Download PDF'
+        }}
+      </button>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="exportExcel()"
+        [disabled]="
+          !dashboard ||
+          loading ||
+          exporting
+        "
+      >
+        Excel
+      </button>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="exportCsv()"
+        [disabled]="
+          !dashboard ||
+          loading ||
+          exporting
+        "
+      >
+        CSV
       </button>
 
     </div>
 
+  </section>
 
-    <div class="filters-grid">
 
-      <div class="filter-group search-group">
+  <!-- ===================================================
+       FILTERS
+       =================================================== -->
 
-        <label>Search</label>
+  <section class="filter-card screen-only export-exclude">
+
+    <div class="filter-heading">
+
+      <div>
+
+        <span class="section-kicker">
+          REPORT FILTER
+        </span>
+
+        <h2>
+          Reporting Period
+        </h2>
+
+      </div>
+
+      <span class="filter-status">
+        Tenant-specific
+      </span>
+
+    </div>
+
+    <div class="filter-controls">
+
+      <div class="field">
+
+        <label for="reportStartDate">
+          Start Date
+        </label>
 
         <input
-          type="text"
-          placeholder="Search reports..."
-          [(ngModel)]="searchTerm"
-          (input)="applyFilters()"
-        />
-
-      </div>
-
-
-      <div class="filter-group">
-
-        <label>Report Type</label>
-
-        <select
-          [(ngModel)]="selectedType"
-          (change)="applyFilters()"
-        >
-
-          <option
-            *ngFor="let type of reportTypes"
-            [value]="type"
-          >
-            {{ type }}
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div class="filter-group">
-
-        <label>Status</label>
-
-        <select
-          [(ngModel)]="selectedStatus"
-          (change)="applyFilters()"
-        >
-
-          <option
-            *ngFor="let status of reportStatuses"
-            [value]="status"
-          >
-            {{ status }}
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div class="filter-group">
-
-        <label>Start Date</label>
-
-        <input
+          id="reportStartDate"
           type="date"
           [(ngModel)]="startDate"
-          (change)="applyFilters()"
         />
 
       </div>
 
+      <div class="field">
 
-      <div class="filter-group">
-
-        <label>End Date</label>
+        <label for="reportEndDate">
+          End Date
+        </label>
 
         <input
+          id="reportEndDate"
           type="date"
           [(ngModel)]="endDate"
-          (change)="applyFilters()"
         />
+
+      </div>
+
+      <div class="filter-actions">
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="applyDateFilter()"
+          [disabled]="loading"
+        >
+          Apply
+        </button>
+
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="resetDateFilter()"
+          [disabled]="loading"
+        >
+          Reset
+        </button>
 
       </div>
 
     </div>
 
-  </div>
+  </section>
 
 
-  <!-- REPORT TABLE -->
-  <div class="table-card">
+  <!-- ===================================================
+       ERROR
+       =================================================== -->
 
-    <div class="table-wrapper">
+  <section
+    *ngIf="errorMessage"
+    class="error-card screen-only"
+  >
 
-      <table>
+    <div class="error-icon">
+      !
+    </div>
 
-        <thead>
+    <div>
 
-          <tr>
+      <strong>
+        Report Error
+      </strong>
 
-            <th>Report</th>
-
-            <th>Type</th>
-
-            <th>Date Range</th>
-
-            <th>Generated By</th>
-
-            <th>Generated At</th>
-
-            <th>Status</th>
-
-            <th>Records</th>
-
-            <th>Actions</th>
-
-          </tr>
-
-        </thead>
-
-
-        <tbody>
-
-          <tr
-            *ngFor="let report of filteredReports"
-          >
-
-            <td>
-
-              <div class="report-name">
-
-                <div class="report-avatar">
-                  📄
-                </div>
-
-                <div>
-
-                  <strong>
-                    {{ report.name }}
-                  </strong>
-
-                  <small>
-                    {{ report.description || 'No description' }}
-                  </small>
-
-                </div>
-
-              </div>
-
-            </td>
-
-
-            <td>
-
-              <span class="type-badge">
-                {{ report.type }}
-              </span>
-
-            </td>
-
-
-            <td>
-
-              <span class="date-range">
-
-                {{ report.startDate || '—' }}
-
-                <span
-                  *ngIf="report.startDate && report.endDate"
-                >
-                  →
-                </span>
-
-                {{ report.endDate || '' }}
-
-              </span>
-
-            </td>
-
-
-            <td>
-              {{ report.generatedBy || 'System' }}
-            </td>
-
-
-            <td>
-              {{ formatDate(report.generatedAt) }}
-            </td>
-
-
-            <td>
-
-              <span
-                class="status-badge"
-                [ngClass]="getStatusClass(report.status)"
-              >
-                {{ report.status }}
-              </span>
-
-            </td>
-
-
-            <td>
-
-              <strong>
-                {{ report.totalRecords ?? 0 }}
-              </strong>
-
-            </td>
-
-
-            <td>
-
-              <div class="action-buttons">
-
-                <button
-                  type="button"
-                  class="action-btn view"
-                  title="View report"
-                  (click)="viewReport(report)"
-                >
-                  View
-                </button>
-
-
-                <button
-                  type="button"
-                  class="action-btn download"
-                  title="Download report"
-                  (click)="downloadReport(report)"
-                >
-                  Download
-                </button>
-
-
-                <button
-                  type="button"
-                  class="action-btn delete"
-                  title="Delete report"
-                  (click)="deleteReport(report.id)"
-                >
-                  Delete
-                </button>
-
-              </div>
-
-            </td>
-
-          </tr>
-
-
-          <!-- EMPTY STATE -->
-          <tr
-            *ngIf="filteredReports.length === 0"
-          >
-
-            <td
-              colspan="8"
-              class="empty-state"
-            >
-
-              <div class="empty-icon">
-                📊
-              </div>
-
-              <h3>No Reports Found</h3>
-
-              <p>
-                No reports match your current filters.
-              </p>
-
-            </td>
-
-          </tr>
-
-        </tbody>
-
-      </table>
+      <p>
+        {{ errorMessage }}
+      </p>
 
     </div>
 
-  </div>
+  </section>
+
+
+  <!-- ===================================================
+       LOADING
+       =================================================== -->
+
+  <section
+    *ngIf="loading"
+    class="loading-state"
+  >
+
+    <div class="loading-spinner"></div>
+
+    <strong>
+      Preparing report...
+    </strong>
+
+    <span>
+      Collecting tenant-specific information.
+    </span>
+
+  </section>
+
+
+  <!-- ===================================================
+       REPORT CONTENT
+       =================================================== -->
+
+  <main
+    *ngIf="dashboard && !loading"
+  >
+
+    <!-- =================================================
+         EXECUTIVE SUMMARY
+         ================================================= -->
+
+    <section class="section">
+
+      <div class="section-heading">
+
+        <div>
+
+          <span class="section-kicker">
+            EXECUTIVE SUMMARY
+          </span>
+
+          <h2>
+            Operational Overview
+          </h2>
+
+        </div>
+
+        <span class="section-period">
+          {{ reportPeriodLabel() }}
+        </span>
+
+      </div>
+
+
+      <div class="kpi-grid">
+
+        <!-- PATIENTS -->
+
+        <article
+          *ngIf="isModuleEnabled('PATIENTS')"
+          class="kpi-card"
+        >
+
+          <span class="kpi-label">
+            Patients
+          </span>
+
+          <strong>
+            {{ formatNumber(dashboard.summary.patients) }}
+          </strong>
+
+          <small>
+            Registered patients
+          </small>
+
+        </article>
+
+
+        <!-- DOCTORS -->
+
+        <article
+          *ngIf="isModuleEnabled('DOCTORS')"
+          class="kpi-card"
+        >
+
+          <span class="kpi-label">
+            Doctors
+          </span>
+
+          <strong>
+            {{ formatNumber(dashboard.summary.doctors) }}
+          </strong>
+
+          <small>
+            Clinical personnel
+          </small>
+
+        </article>
+
+
+        <!-- APPOINTMENTS -->
+
+        <article
+          *ngIf="isModuleEnabled('APPOINTMENTS')"
+          class="kpi-card"
+        >
+
+          <span class="kpi-label">
+            Appointments
+          </span>
+
+          <strong>
+            {{ formatNumber(dashboard.summary.appointments) }}
+          </strong>
+
+          <small>
+            Scheduled appointments
+          </small>
+
+        </article>
+
+
+        <!-- CONSULTATIONS -->
+
+        <article
+          *ngIf="isModuleEnabled('CONSULTATIONS')"
+          class="kpi-card"
+        >
+
+          <span class="kpi-label">
+            Consultations
+          </span>
+
+          <strong>
+            {{ formatNumber(dashboard.summary.consultations) }}
+          </strong>
+
+          <small>
+            Clinical consultations
+          </small>
+
+        </article>
+
+
+        <!-- PHARMACY -->
+
+        <article
+          *ngIf="isModuleEnabled('PHARMACY')"
+          class="kpi-card"
+        >
+
+          <span class="kpi-label">
+            Prescriptions
+          </span>
+
+          <strong>
+            {{
+              formatNumber(
+                dashboard.summary.pharmacyPrescriptions
+              )
+            }}
+          </strong>
+
+          <small>
+            Pharmacy prescriptions
+          </small>
+
+        </article>
+
+
+        <!-- INVENTORY -->
+
+        <article
+          *ngIf="isModuleEnabled('INVENTORY')"
+          class="kpi-card"
+        >
+
+          <span class="kpi-label">
+            Inventory Items
+          </span>
+
+          <strong>
+            {{
+              formatNumber(
+                dashboard.summary.inventoryItems
+              )
+            }}
+          </strong>
+
+          <small>
+            Stock items
+          </small>
+
+        </article>
+
+
+        <!-- LOW STOCK -->
+
+        <article
+          *ngIf="isModuleEnabled('INVENTORY')"
+          class="kpi-card warning"
+        >
+
+          <span class="kpi-label">
+            Low Stock
+          </span>
+
+          <strong>
+            {{
+              formatNumber(
+                dashboard.summary.lowStockItems
+              )
+            }}
+          </strong>
+
+          <small>
+            Items requiring attention
+          </small>
+
+        </article>
+
+
+        <!-- BILLING -->
+
+        <article
+          *ngIf="isModuleEnabled('BILLING')"
+          class="kpi-card"
+        >
+
+          <span class="kpi-label">
+            Billing Records
+          </span>
+
+          <strong>
+            {{
+              formatNumber(
+                dashboard.summary.billingRecords
+              )
+            }}
+          </strong>
+
+          <small>
+            Financial records
+          </small>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         FINANCIAL PERFORMANCE
+         ================================================= -->
+
+    <section
+      *ngIf="isModuleEnabled('BILLING')"
+      class="section"
+    >
+
+      <div class="section-heading">
+
+        <div>
+
+          <span class="section-kicker">
+            FINANCIAL PERFORMANCE
+          </span>
+
+          <h2>
+            Revenue & Collections
+          </h2>
+
+        </div>
+
+        <span class="section-badge">
+          Billing
+        </span>
+
+      </div>
+
+
+      <div class="finance-grid">
+
+        <article class="finance-card primary">
+
+          <span>
+            Total Revenue
+          </span>
+
+          <strong>
+            {{
+              formatMoney(
+                dashboard.financial.totalRevenue
+              )
+            }}
+          </strong>
+
+          <small>
+            Recorded revenue for period
+          </small>
+
+        </article>
+
+
+        <article class="finance-card">
+
+          <span>
+            Billed Amount
+          </span>
+
+          <strong>
+            {{
+              formatMoney(
+                dashboard.financial.billedAmount
+              )
+            }}
+          </strong>
+
+          <small>
+            Total billed
+          </small>
+
+        </article>
+
+
+        <article class="finance-card">
+
+          <span>
+            Amount Paid
+          </span>
+
+          <strong>
+            {{
+              formatMoney(
+                dashboard.financial.amountPaid
+              )
+            }}
+          </strong>
+
+          <small>
+            Collections received
+          </small>
+
+        </article>
+
+
+        <article class="finance-card">
+
+          <span>
+            Outstanding
+          </span>
+
+          <strong>
+            {{
+              formatMoney(
+                dashboard.financial.outstandingBalance
+              )
+            }}
+          </strong>
+
+          <small>
+            Remaining balance
+          </small>
+
+        </article>
+
+      </div>
+
+
+      <div class="analytics-layout">
+
+        <article class="analytics-card">
+
+          <div class="analytics-header">
+
+            <div>
+
+              <span class="analytics-label">
+                Collection Rate
+              </span>
+
+              <strong>
+                {{
+                  formatPercentage(
+                    dashboard.financial.collectionRate
+                  )
+                }}
+              </strong>
+
+            </div>
+
+          </div>
+
+          <div class="progress-track">
+
+            <div
+              class="progress-value"
+              [style.width.%]="
+                dashboard.financial.collectionRate > 100
+                  ? 100
+                  : dashboard.financial.collectionRate
+              "
+            ></div>
+
+          </div>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         PHARMACY PERFORMANCE
+         ================================================= -->
+
+    <section
+      *ngIf="isModuleEnabled('PHARMACY')"
+      class="section"
+    >
+
+      <div class="section-heading">
+
+        <div>
+
+          <span class="section-kicker">
+            PHARMACY PERFORMANCE
+          </span>
+
+          <h2>
+            Pharmacy Operations
+          </h2>
+
+        </div>
+
+        <span class="section-badge">
+          Pharmacy
+        </span>
+
+      </div>
+
+
+      <div class="analytics-layout">
+
+        <article class="analytics-card">
+
+          <div class="analytics-header">
+
+            <div>
+
+              <span class="analytics-label">
+                Total Sales
+              </span>
+
+              <strong>
+                {{
+                  formatMoney(
+                    dashboard.pharmacy.totalSales
+                  )
+                }}
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <div class="mini-metrics">
+
+            <div>
+
+              <span>
+                Prescriptions
+              </span>
+
+              <strong>
+                {{
+                  formatNumber(
+                    dashboard.pharmacy.totalPrescriptions
+                  )
+                }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Items
+              </span>
+
+              <strong>
+                {{
+                  formatNumber(
+                    dashboard.pharmacy.totalDispensedItems
+                  )
+                }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Paid
+              </span>
+
+              <strong>
+                {{
+                  formatMoney(
+                    dashboard.pharmacy.amountPaid
+                  )
+                }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Outstanding
+              </span>
+
+              <strong>
+                {{
+                  formatMoney(
+                    dashboard.pharmacy.outstandingBalance
+                  )
+                }}
+              </strong>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <!-- TOP MEDICINES -->
+
+        <article
+          class="analytics-card medicine-card"
+          *ngIf="
+            dashboard.pharmacy.topMedicines?.length
+          "
+        >
+
+          <div class="analytics-header">
+
+            <div>
+
+              <span class="analytics-label">
+                TOP MEDICINES
+              </span>
+
+              <strong>
+                Sales by Medicine
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <div class="medicine-list">
+
+            <div
+              *ngFor="
+                let medicine
+                of dashboard.pharmacy.topMedicines
+              "
+              class="medicine-row"
+            >
+
+              <div class="medicine-info">
+
+                <strong>
+                  {{ medicine.medicineName }}
+                </strong>
+
+                <span>
+                  {{
+                    formatNumber(
+                      medicine.quantity
+                    )
+                  }}
+                  units
+                </span>
+
+              </div>
+
+              <strong class="medicine-revenue">
+                {{
+                  formatMoney(
+                    medicine.revenue
+                  )
+                }}
+              </strong>
+
+            </div>
+
+          </div>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         INVENTORY PERFORMANCE
+         ================================================= -->
+
+    <section
+      *ngIf="isModuleEnabled('INVENTORY')"
+      class="section"
+    >
+
+      <div class="section-heading">
+
+        <div>
+
+          <span class="section-kicker">
+            INVENTORY MANAGEMENT
+          </span>
+
+          <h2>
+            Stock Position
+          </h2>
+
+        </div>
+
+        <span class="section-badge">
+          Inventory
+        </span>
+
+      </div>
+
+
+      <div class="inventory-grid">
+
+        <article class="inventory-card stock-value">
+
+          <span>
+            Total Stock Value
+          </span>
+
+          <strong>
+            {{
+              formatMoney(
+                dashboard.inventory.totalStockValue
+              )
+            }}
+          </strong>
+
+        </article>
+
+
+        <article class="inventory-card">
+
+          <span>
+            Total Items
+          </span>
+
+          <strong>
+            {{
+              formatNumber(
+                dashboard.inventory.totalItems
+              )
+            }}
+          </strong>
+
+        </article>
+
+
+        <article class="inventory-card warning">
+
+          <span>
+            Low Stock
+          </span>
+
+          <strong>
+            {{
+              formatNumber(
+                dashboard.inventory.lowStockItems
+              )
+            }}
+          </strong>
+
+        </article>
+
+
+        <article class="inventory-card danger">
+
+          <span>
+            Out of Stock
+          </span>
+
+          <strong>
+            {{
+              formatNumber(
+                dashboard.inventory.outOfStockItems
+              )
+            }}
+          </strong>
+
+        </article>
+
+
+        <article class="inventory-card">
+
+          <span>
+            Expiring Soon
+          </span>
+
+          <strong>
+            {{
+              formatNumber(
+                dashboard.inventory.expiringItems
+              )
+            }}
+          </strong>
+
+          <small>
+            Within 30 days
+          </small>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         LABORATORY
+         ================================================= -->
+
+    <section
+      *ngIf="isModuleEnabled('LABORATORY')"
+      class="section"
+    >
+
+      <div class="section-heading">
+
+        <div>
+
+          <span class="section-kicker">
+            LABORATORY
+          </span>
+
+          <h2>
+            Laboratory Activity
+          </h2>
+
+        </div>
+
+        <span class="section-badge">
+          Laboratory
+        </span>
+
+      </div>
+
+
+      <div class="simple-stat-card">
+
+        <div>
+
+          <span>
+            Laboratory Requests
+          </span>
+
+          <strong>
+            {{
+              formatNumber(
+                dashboard.summary.laboratoryRequests
+              )
+            }}
+          </strong>
+
+        </div>
+
+        <span class="stat-description">
+          Requests recorded during the selected reporting period.
+        </span>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         FACILITY PROFILE
+         ================================================= -->
+
+    <section class="section">
+
+      <div class="section-heading">
+
+        <div>
+
+          <span class="section-kicker">
+            FACILITY PROFILE
+          </span>
+
+          <h2>
+            Tenant Information
+          </h2>
+
+        </div>
+
+      </div>
+
+
+      <div class="facility-card">
+
+        <div class="facility-logo-area">
+
+          <img
+            *ngIf="dashboard.tenant.logoUrl"
+            class="facility-logo"
+            [src]="dashboard.tenant.logoUrl"
+            [alt]="dashboard.tenant.name + ' logo'"
+          />
+
+          <div
+            *ngIf="!dashboard.tenant.logoUrl"
+            class="facility-logo-placeholder"
+          >
+            HMS
+          </div>
+
+        </div>
+
+
+        <div class="facility-details">
+
+          <h3>
+            {{ dashboard.tenant.name }}
+          </h3>
+
+          <span>
+            {{ dashboard.tenant.type }}
+          </span>
+
+          <div class="facility-detail-grid">
+
+            <div>
+
+              <label>
+                Tenant Code
+              </label>
+
+              <strong>
+                {{ dashboard.tenant.code || '—' }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <label>
+                Registration
+              </label>
+
+              <strong>
+                {{
+                  dashboard.tenant.registrationNumber
+                  || '—'
+                }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <label>
+                Phone
+              </label>
+
+              <strong>
+                {{ dashboard.tenant.phone || '—' }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <label>
+                Email
+              </label>
+
+              <strong>
+                {{ dashboard.tenant.email || '—' }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <label>
+                Address
+              </label>
+
+              <strong>
+                {{ dashboard.tenant.address || '—' }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <label>
+                Location
+              </label>
+
+              <strong>
+                {{
+                  dashboard.tenant.city
+                  || dashboard.tenant.country
+                  || '—'
+                }}
+              </strong>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         ENABLED MODULES
+         ================================================= -->
+
+    <section class="section">
+
+      <div class="section-heading">
+
+        <div>
+
+          <span class="section-kicker">
+            SYSTEM CONFIGURATION
+          </span>
+
+          <h2>
+            Report Coverage
+          </h2>
+
+        </div>
+
+      </div>
+
+
+      <div class="module-summary">
+
+        <div
+          *ngFor="
+            let module
+            of dashboard.enabledReportModules
+          "
+          class="module-pill"
+        >
+          {{ module }}
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ===================================================
+       FOOTER
+       =================================================== -->
+
+  <footer
+    *ngIf="dashboard"
+    class="report-footer"
+  >
+
+    <div>
+
+      <strong>
+        {{ dashboard.tenant.name }}
+      </strong>
+
+      <span>
+        Tenant-specific HMS report
+      </span>
+
+    </div>
+
+
+    <div>
+
+      <span>
+        Report No.
+        {{ reportNumber }}
+      </span>
+
+      <span>
+        Generated
+        {{ formatDateTime(
+          dashboard.metadata.generatedAt
+        ) }}
+      </span>
+
+    </div>
+
+
+    <div class="footer-note">
+
+      Confidential management information.
+      This report is generated from the current tenant's
+      authorized HMS data.
+
+    </div>
+
+  </footer>
 
 </div>

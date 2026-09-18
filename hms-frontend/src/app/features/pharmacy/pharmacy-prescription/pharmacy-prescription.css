@@ -1,21 +1,24 @@
+/* =====================================================
+   PHARMACY PRESCRIPTION PAGE
+   ===================================================== */
 
-/* ===================================================== */
-/* PHARMACY PRESCRIPTION PAGE */
-/* ===================================================== */
+:host {
+  display: block;
+  width: 100%;
+}
 
 .pharmacy-prescription-page {
   width: 100%;
   min-height: 100%;
   padding: 24px;
   box-sizing: border-box;
-  background: #f5f7fb;
-  color: #1f2937;
+  background: var(--hms-bg);
+  color: var(--hms-text);
 }
 
-
-/* ===================================================== */
-/* PAGE HEADER */
-/* ===================================================== */
+/* =====================================================
+   PAGE HEADER
+   ===================================================== */
 
 .page-header {
   display: flex;
@@ -38,7 +41,7 @@
   gap: 7px;
   border: none;
   background: transparent;
-  color: #0284c7;
+  color: var(--hms-primary);
   padding: 0;
   font-size: 13px;
   font-weight: 600;
@@ -46,7 +49,7 @@
 }
 
 .back-button:hover {
-  color: #0369a1;
+  color: var(--hms-primary-hover);
 }
 
 .back-button .material-symbols-outlined {
@@ -66,8 +69,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 14px;
-  background: #e0f2fe;
-  color: #0284c7;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .title-icon .material-symbols-outlined {
@@ -78,19 +81,18 @@
   margin: 0;
   font-size: 26px;
   font-weight: 700;
-  color: #111827;
+  color: var(--hms-text);
 }
 
 .page-title p {
   margin: 5px 0 0;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
-
-/* ===================================================== */
-/* STATUS BADGE */
-/* ===================================================== */
+/* =====================================================
+   STATUS BADGE
+   ===================================================== */
 
 .status-badge {
   display: inline-flex;
@@ -105,44 +107,43 @@
 }
 
 .status-waiting {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--hms-warning-light);
+  color: var(--hms-warning);
 }
 
 .status-preparing {
-  background: #ede9fe;
-  color: #6d28d9;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .status-payment {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--hms-danger-light);
+  color: var(--hms-danger);
 }
 
 .status-paid {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--hms-success-light);
+  color: var(--hms-success);
 }
 
 .status-ready {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--hms-info-light);
+  color: var(--hms-info);
 }
 
 .status-dispensed {
-  background: #e0e7ff;
-  color: #4338ca;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .status-cancelled {
-  background: #f3f4f6;
-  color: #4b5563;
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text-secondary);
 }
 
-
-/* ===================================================== */
-/* BUTTONS */
-/* ===================================================== */
+/* =====================================================
+   BUTTONS
+   ===================================================== */
 
 .primary-button,
 .billing-button,
@@ -154,58 +155,63 @@
   gap: 8px;
   min-height: 42px;
   padding: 9px 15px;
-  border-radius: 8px;
+  border-radius: var(--hms-radius);
   border: 1px solid transparent;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition),
+    transform var(--hms-transition);
 }
 
 .primary-button {
-  background: #0284c7;
-  border-color: #0284c7;
+  background: var(--hms-primary);
+  border-color: var(--hms-primary);
   color: #ffffff;
 }
 
 .primary-button:hover {
-  background: #0369a1;
+  background: var(--hms-primary-hover);
+  border-color: var(--hms-primary-hover);
   transform: translateY(-1px);
 }
 
 .billing-button {
-  background: #7c3aed;
-  border-color: #7c3aed;
+  background: var(--hms-primary);
+  border-color: var(--hms-primary);
   color: #ffffff;
 }
 
 .billing-button:hover {
-  background: #6d28d9;
+  background: var(--hms-primary-hover);
+  border-color: var(--hms-primary-hover);
   transform: translateY(-1px);
 }
 
 .payment-button {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: var(--hms-info);
+  border-color: var(--hms-info);
   color: #ffffff;
 }
 
 .payment-button:hover {
   background: #1d4ed8;
+  border-color: #1d4ed8;
   transform: translateY(-1px);
 }
 
 .success-button {
-  background: #16a34a;
-  border-color: #16a34a;
+  background: var(--hms-success);
+  border-color: var(--hms-success);
   color: #ffffff;
 }
 
 .success-button:hover {
   background: #15803d;
+  border-color: #15803d;
   transform: translateY(-1px);
 }
 
@@ -216,10 +222,9 @@
   font-size: 19px;
 }
 
-
-/* ===================================================== */
-/* SUMMARY CARD */
-/* ===================================================== */
+/* =====================================================
+   SUMMARY CARD
+   ===================================================== */
 
 .summary-card {
   display: grid;
@@ -227,11 +232,10 @@
   gap: 28px;
   padding: 22px;
   margin-bottom: 20px;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  background: #ffffff;
-  box-shadow:
-    0 3px 12px rgba(15, 23, 42, 0.04);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
+  background: var(--hms-surface);
+  box-shadow: var(--hms-shadow);
 }
 
 .summary-main {
@@ -248,8 +252,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #e0f2fe;
-  color: #0284c7;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .patient-avatar .material-symbols-outlined {
@@ -260,7 +264,7 @@
   display: block;
   margin-bottom: 4px;
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--hms-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   font-weight: 700;
@@ -269,13 +273,13 @@
 .summary-main h2 {
   margin: 0;
   font-size: 20px;
-  color: #111827;
+  color: var(--hms-text);
 }
 
 .summary-main p {
   margin: 4px 0 0;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 .summary-details {
@@ -293,30 +297,28 @@
 
 .summary-item span {
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 }
 
 .summary-item strong {
   overflow: hidden;
   font-size: 13px;
-  color: #1f2937;
+  color: var(--hms-text);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-
-/* ===================================================== */
-/* PROCESS CARD */
-/* ===================================================== */
+/* =====================================================
+   PROCESS CARD
+   ===================================================== */
 
 .process-card {
   padding: 22px;
   margin-bottom: 20px;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  background: #ffffff;
-  box-shadow:
-    0 3px 12px rgba(15, 23, 42, 0.04);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
+  background: var(--hms-surface);
+  box-shadow: var(--hms-shadow);
 }
 
 .section-header {
@@ -331,19 +333,18 @@
   margin: 0;
   font-size: 18px;
   font-weight: 700;
-  color: #111827;
+  color: var(--hms-text);
 }
 
 .section-header p {
   margin: 5px 0 0;
   font-size: 13px;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
-
-/* ===================================================== */
-/* WORKFLOW */
-/* ===================================================== */
+/* =====================================================
+   WORKFLOW
+   ===================================================== */
 
 .workflow {
   display: grid;
@@ -357,22 +358,21 @@
   align-items: center;
   gap: 11px;
   padding: 13px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--hms-border);
   border-radius: 11px;
-  background: #f8fafc;
+  background: var(--hms-surface-secondary);
   box-sizing: border-box;
 }
 
 .workflow-step.completed {
-  border-color: #bae6fd;
-  background: #f0f9ff;
+  border-color: var(--hms-info-light);
+  background: var(--hms-info-light);
 }
 
 .workflow-step.current {
-  border-color: #0284c7;
-  background: #e0f2fe;
-  box-shadow:
-    0 0 0 2px rgba(2, 132, 199, 0.07);
+  border-color: var(--hms-primary);
+  background: var(--hms-primary-light);
+  box-shadow: 0 0 0 2px var(--hms-primary-light);
 }
 
 .step-icon {
@@ -383,17 +383,17 @@
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  background: #e5e7eb;
-  color: #6b7280;
+  background: var(--hms-border);
+  color: var(--hms-text-secondary);
 }
 
 .workflow-step.completed .step-icon {
-  background: #dbeafe;
-  color: #0284c7;
+  background: var(--hms-info-light);
+  color: var(--hms-info);
 }
 
 .workflow-step.current .step-icon {
-  background: #0284c7;
+  background: var(--hms-primary);
   color: #ffffff;
 }
 
@@ -410,19 +410,18 @@
 
 .workflow-step strong {
   font-size: 12px;
-  color: #1f2937;
+  color: var(--hms-text);
 }
 
 .workflow-step span:not(.material-symbols-outlined) {
   font-size: 10px;
   line-height: 1.45;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
-
-/* ===================================================== */
-/* CONTENT GRID */
-/* ===================================================== */
+/* =====================================================
+   CONTENT GRID
+   ===================================================== */
 
 .content-grid {
   display: grid;
@@ -431,44 +430,40 @@
   margin-bottom: 20px;
 }
 
-
-/* ===================================================== */
-/* DETAILS CARD */
-/* ===================================================== */
+/* =====================================================
+   DETAILS CARD
+   ===================================================== */
 
 .details-card {
   padding: 22px;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  background: #ffffff;
-  box-shadow:
-    0 3px 12px rgba(15, 23, 42, 0.04);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
+  background: var(--hms-surface);
+  box-shadow: var(--hms-shadow);
 }
 
 .medicines-card {
   grid-row: span 2;
 }
 
-
-/* ===================================================== */
-/* ITEM COUNT */
-/* ===================================================== */
+/* =====================================================
+   ITEM COUNT
+   ===================================================== */
 
 .item-count {
   display: inline-flex;
   align-items: center;
   padding: 6px 9px;
   border-radius: 7px;
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text-secondary);
   font-size: 11px;
   font-weight: 700;
 }
 
-
-/* ===================================================== */
-/* MEDICINE LIST */
-/* ===================================================== */
+/* =====================================================
+   MEDICINE LIST
+   ===================================================== */
 
 .medicine-list {
   display: flex;
@@ -478,9 +473,9 @@
 
 .medicine-card {
   padding: 15px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--hms-border);
   border-radius: 12px;
-  background: #fafcff;
+  background: var(--hms-surface-secondary);
 }
 
 .medicine-main {
@@ -498,8 +493,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  background: #e0f2fe;
-  color: #0284c7;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .medicine-icon .material-symbols-outlined {
@@ -509,13 +504,13 @@
 .medicine-main h3 {
   margin: 0;
   font-size: 14px;
-  color: #111827;
+  color: var(--hms-text);
 }
 
 .medicine-main p {
   margin: 4px 0 0;
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 }
 
 .medicine-details {
@@ -529,24 +524,23 @@
   flex-direction: column;
   gap: 4px;
   padding: 10px;
-  border-radius: 8px;
-  background: #ffffff;
+  border-radius: var(--hms-radius);
+  background: var(--hms-surface);
 }
 
 .medicine-details span {
   font-size: 10px;
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 }
 
 .medicine-details strong {
   font-size: 12px;
-  color: #1f2937;
+  color: var(--hms-text);
 }
 
-
-/* ===================================================== */
-/* MEDICINE INSTRUCTIONS */
-/* ===================================================== */
+/* =====================================================
+   MEDICINE INSTRUCTIONS
+   ===================================================== */
 
 .medicine-instructions {
   display: flex;
@@ -554,32 +548,31 @@
   gap: 9px;
   margin-top: 12px;
   padding: 11px;
-  border-radius: 8px;
-  background: #f0f9ff;
+  border-radius: var(--hms-radius);
+  background: var(--hms-primary-light);
 }
 
 .medicine-instructions > .material-symbols-outlined {
   flex-shrink: 0;
   font-size: 19px;
-  color: #0284c7;
+  color: var(--hms-primary);
 }
 
 .medicine-instructions strong {
   font-size: 11px;
-  color: #374151;
+  color: var(--hms-text);
 }
 
 .medicine-instructions p {
   margin: 4px 0 0;
   font-size: 11px;
   line-height: 1.6;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
-
-/* ===================================================== */
-/* BILLING SUMMARY */
-/* ===================================================== */
+/* =====================================================
+   BILLING SUMMARY
+   ===================================================== */
 
 .billing-summary {
   display: flex;
@@ -593,7 +586,7 @@
   justify-content: space-between;
   gap: 15px;
   padding: 12px 0;
-  border-bottom: 1px solid #eef2f7;
+  border-bottom: 1px solid var(--hms-border);
 }
 
 .billing-row:first-child {
@@ -606,31 +599,30 @@
 
 .billing-row span {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 .billing-row strong {
   font-size: 13px;
-  color: #1f2937;
+  color: var(--hms-text);
 }
 
 .billing-row strong.paid {
-  color: #16a34a;
+  color: var(--hms-success);
 }
 
 .billing-row strong.balance {
-  color: #dc2626;
+  color: var(--hms-danger);
 }
 
-
-/* ===================================================== */
-/* PAYMENT PROGRESS */
-/* ===================================================== */
+/* =====================================================
+   PAYMENT PROGRESS
+   ===================================================== */
 
 .payment-progress {
   margin-top: 18px;
   padding-top: 16px;
-  border-top: 1px solid #eef2f7;
+  border-top: 1px solid var(--hms-border);
 }
 
 .progress-header {
@@ -642,12 +634,12 @@
 
 .progress-header span {
   font-size: 11px;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 .progress-header strong {
   font-size: 12px;
-  color: #0284c7;
+  color: var(--hms-primary);
 }
 
 .progress-track {
@@ -655,20 +647,19 @@
   height: 8px;
   overflow: hidden;
   border-radius: 999px;
-  background: #e5e7eb;
+  background: var(--hms-border);
 }
 
 .progress-bar {
   height: 100%;
   border-radius: inherit;
-  background: #0284c7;
+  background: var(--hms-primary);
   transition: width 0.3s ease;
 }
 
-
-/* ===================================================== */
-/* BILLING REFERENCE */
-/* ===================================================== */
+/* =====================================================
+   BILLING REFERENCE
+   ===================================================== */
 
 .billing-reference {
   display: flex;
@@ -676,25 +667,24 @@
   gap: 5px;
   margin-top: 16px;
   padding: 11px;
-  border-radius: 8px;
-  background: #f8fafc;
+  border-radius: var(--hms-radius);
+  background: var(--hms-surface-secondary);
 }
 
 .billing-reference span {
   font-size: 10px;
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 }
 
 .billing-reference strong {
   font-size: 11px;
-  color: #374151;
+  color: var(--hms-text);
   word-break: break-word;
 }
 
-
-/* ===================================================== */
-/* INFORMATION GRID */
-/* ===================================================== */
+/* =====================================================
+   INFORMATION GRID
+   ===================================================== */
 
 .information-grid {
   display: grid;
@@ -708,26 +698,25 @@
   gap: 5px;
   padding: 12px;
   border-radius: 9px;
-  background: #f8fafc;
+  background: var(--hms-surface-secondary);
 }
 
 .information-item span {
   font-size: 10px;
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 }
 
 .information-item strong {
   overflow: hidden;
   font-size: 12px;
-  color: #374151;
+  color: var(--hms-text);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-
-/* ===================================================== */
-/* NOTES */
-/* ===================================================== */
+/* =====================================================
+   NOTES
+   ===================================================== */
 
 .notes {
   display: flex;
@@ -735,12 +724,12 @@
   gap: 10px;
   padding: 14px;
   border-radius: 10px;
-  background: #f8fafc;
+  background: var(--hms-surface-secondary);
 }
 
 .notes > .material-symbols-outlined {
   flex-shrink: 0;
-  color: #0284c7;
+  color: var(--hms-primary);
   font-size: 21px;
 }
 
@@ -748,13 +737,12 @@
   margin: 0;
   font-size: 12px;
   line-height: 1.7;
-  color: #4b5563;
+  color: var(--hms-text-secondary);
 }
 
-
-/* ===================================================== */
-/* ACTION CARD */
-/* ===================================================== */
+/* =====================================================
+   ACTION CARD
+   ===================================================== */
 
 .action-card {
   display: flex;
@@ -762,23 +750,22 @@
   justify-content: space-between;
   gap: 20px;
   padding: 20px 22px;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  background: #ffffff;
-  box-shadow:
-    0 3px 12px rgba(15, 23, 42, 0.04);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
+  background: var(--hms-surface);
+  box-shadow: var(--hms-shadow);
 }
 
 .action-card h2 {
   margin: 0;
   font-size: 17px;
-  color: #111827;
+  color: var(--hms-text);
 }
 
 .action-card p {
   margin: 5px 0 0;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 .action-buttons {
@@ -788,25 +775,24 @@
   gap: 10px;
 }
 
-
-/* ===================================================== */
-/* COMPLETED MESSAGE */
-/* ===================================================== */
+/* =====================================================
+   COMPLETED MESSAGE
+   ===================================================== */
 
 .completed-message {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 11px 14px;
-  border: 1px solid #bbf7d0;
+  border: 1px solid var(--hms-success-light);
   border-radius: 9px;
-  background: #f0fdf4;
-  color: #166534;
+  background: var(--hms-success-light);
+  color: var(--hms-success);
 }
 
 .completed-message > .material-symbols-outlined {
   font-size: 24px;
-  color: #16a34a;
+  color: var(--hms-success);
 }
 
 .completed-message > div {
@@ -823,25 +809,24 @@
   font-size: 10px;
 }
 
-
-/* ===================================================== */
-/* CANCELLED MESSAGE */
-/* ===================================================== */
+/* =====================================================
+   CANCELLED MESSAGE
+   ===================================================== */
 
 .cancelled-message {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 11px 14px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--hms-border);
   border-radius: 9px;
-  background: #f9fafb;
-  color: #4b5563;
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text-secondary);
 }
 
 .cancelled-message > .material-symbols-outlined {
   font-size: 24px;
-  color: #6b7280;
+  color: var(--hms-danger);
 }
 
 .cancelled-message > div {
@@ -858,10 +843,9 @@
   font-size: 10px;
 }
 
-
-/* ===================================================== */
-/* EMPTY STATE */
-/* ===================================================== */
+/* =====================================================
+   EMPTY STATE
+   ===================================================== */
 
 .empty-state {
   min-height: 350px;
@@ -881,8 +865,8 @@
   justify-content: center;
   margin-bottom: 16px;
   border-radius: 50%;
-  background: #e0f2fe;
-  color: #0284c7;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .empty-icon .material-symbols-outlined {
@@ -892,7 +876,7 @@
 .empty-state h2 {
   margin: 0 0 8px;
   font-size: 19px;
-  color: #374151;
+  color: var(--hms-text);
 }
 
 .empty-state p {
@@ -900,16 +884,14 @@
   margin: 0 0 18px;
   font-size: 13px;
   line-height: 1.6;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
-
-/* ===================================================== */
-/* RESPONSIVE - LARGE TABLET */
-/* ===================================================== */
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
 
 @media (max-width: 1100px) {
-
   .summary-card {
     grid-template-columns: 1fr;
   }
@@ -921,16 +903,9 @@
   .workflow {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-
 }
 
-
-/* ===================================================== */
-/* RESPONSIVE - TABLET */
-/* ===================================================== */
-
 @media (max-width: 850px) {
-
   .pharmacy-prescription-page {
     padding: 16px;
   }
@@ -960,16 +935,9 @@
     width: 100%;
     justify-content: flex-start;
   }
-
 }
 
-
-/* ===================================================== */
-/* RESPONSIVE - MOBILE */
-/* ===================================================== */
-
 @media (max-width: 560px) {
-
   .pharmacy-prescription-page {
     padding: 12px;
   }
@@ -1013,6 +981,4 @@
     width: 100%;
     box-sizing: border-box;
   }
-
 }
-

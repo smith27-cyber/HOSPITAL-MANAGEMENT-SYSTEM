@@ -1,6 +1,12 @@
 /* =====================================================
    DEPARTMENT PROFILE PAGE
+   HMS GLOBAL THEME
    ===================================================== */
+
+:host {
+  display: block;
+  width: 100%;
+}
 
 .department-profile-page {
   width: 100%;
@@ -9,7 +15,6 @@
   padding: 24px;
   box-sizing: border-box;
 }
-
 
 /* =====================================================
    PAGE HEADER
@@ -25,17 +30,16 @@
 
 .page-header h1 {
   margin: 0 0 6px;
-  color: #172033;
+  color: var(--hms-text);
   font-size: 28px;
   font-weight: 700;
 }
 
 .page-header p {
   margin: 0;
-  color: #64748b;
+  color: var(--hms-text-secondary);
   font-size: 14px;
 }
-
 
 /* =====================================================
    HEADER ACTIONS
@@ -46,7 +50,6 @@
   align-items: center;
   gap: 10px;
 }
-
 
 /* =====================================================
    BUTTONS
@@ -65,51 +68,89 @@
 
   padding: 0 16px;
 
-  border-radius: 8px;
+  border-radius: var(--hms-radius);
 
   font-size: 14px;
   font-weight: 600;
 
   cursor: pointer;
 
-  transition: all 0.2s ease;
+  transition:
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition),
+    transform var(--hms-transition);
 }
 
-.primary-button {
-  border: none;
+/* =====================================================
+   PRIMARY BUTTON
+   ===================================================== */
 
-  background: #0284c7;
+.primary-button {
+  border: 1px solid var(--hms-primary);
+
+  background: var(--hms-primary);
   color: #ffffff;
 }
 
 .primary-button:hover {
-  background: #0369a1;
+  background: var(--hms-primary-hover);
+  border-color: var(--hms-primary-hover);
+  transform: translateY(-1px);
 }
 
-.secondary-button {
-  border: 1px solid #d1d5db;
+.primary-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
 
-  background: #ffffff;
-  color: #475569;
+/* =====================================================
+   SECONDARY BUTTON
+   ===================================================== */
+
+.secondary-button {
+  border: 1px solid var(--hms-border);
+
+  background: var(--hms-surface);
+  color: var(--hms-text-secondary);
 }
 
 .secondary-button:hover {
-  background: #f8fafc;
-  border-color: #94a3b8;
+  background: var(--hms-surface-secondary);
+  border-color: var(--hms-text-muted);
+  color: var(--hms-primary);
 }
 
+.secondary-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   DANGER BUTTON
+   ===================================================== */
+
 .danger-button {
-  border: 1px solid #fecaca;
+  border: 1px solid var(--hms-danger-light);
 
-  background: #fff;
-
-  color: #dc2626;
+  background: var(--hms-surface);
+  color: var(--hms-danger);
 }
 
 .danger-button:hover {
-  background: #fef2f2;
-  border-color: #fca5a5;
+  background: var(--hms-danger-light);
+  border-color: var(--hms-danger);
 }
+
+.danger-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   BUTTON ICONS
+   ===================================================== */
 
 .primary-button .material-symbols-outlined,
 .secondary-button .material-symbols-outlined,
@@ -117,23 +158,29 @@
   font-size: 19px;
 }
 
+.primary-button:focus-visible,
+.secondary-button:focus-visible,
+.danger-button:focus-visible {
+  outline: 2px solid var(--hms-primary);
+  outline-offset: 2px;
+}
 
 /* =====================================================
    PROFILE CARD
    ===================================================== */
 
 .profile-card {
-  background: #ffffff;
+  background: var(--hms-surface);
 
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
 
-  box-shadow:
-    0 2px 10px rgba(15, 23, 42, 0.04);
+  box-shadow: var(--hms-shadow);
 
   overflow: hidden;
-}
 
+  color: var(--hms-text);
+}
 
 /* =====================================================
    PROFILE HERO
@@ -148,16 +195,10 @@
 
   padding: 28px;
 
-  background:
-    linear-gradient(
-      135deg,
-      #f0f9ff,
-      #ffffff
-    );
+  background: var(--hms-primary-light);
 
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--hms-border);
 }
-
 
 /* =====================================================
    DEPARTMENT ICON
@@ -175,18 +216,16 @@
 
   border-radius: 16px;
 
-  background: #0284c7;
+  background: var(--hms-primary);
 
   color: #ffffff;
 
-  box-shadow:
-    0 6px 16px rgba(2, 132, 199, 0.20);
+  box-shadow: var(--hms-shadow-md);
 }
 
 .department-avatar .material-symbols-outlined {
   font-size: 38px;
 }
-
 
 /* =====================================================
    PROFILE HERO INFORMATION
@@ -200,7 +239,7 @@
 .profile-hero-info h2 {
   margin: 0 0 6px;
 
-  color: #172033;
+  color: var(--hms-text);
 
   font-size: 23px;
   font-weight: 700;
@@ -209,10 +248,14 @@
 .profile-hero-info p {
   margin: 0 0 10px;
 
-  color: #64748b;
+  color: var(--hms-text-secondary);
 
   font-size: 14px;
 }
+
+/* =====================================================
+   DEPARTMENT CODE
+   ===================================================== */
 
 .department-code {
   display: inline-flex;
@@ -221,18 +264,18 @@
 
   padding: 5px 10px;
 
-  border-radius: 6px;
+  border-radius: var(--hms-radius-sm);
 
-  background: #e0f2fe;
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
 
-  color: #0369a1;
+  color: var(--hms-primary);
 
   font-family: monospace;
 
   font-size: 12px;
   font-weight: 700;
 }
-
 
 /* =====================================================
    STATUS
@@ -252,15 +295,14 @@
 }
 
 .status.active {
-  background: #dcfce7;
-  color: #15803d;
+  background: var(--hms-success-light);
+  color: var(--hms-success);
 }
 
 .status.inactive {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--hms-danger-light);
+  color: var(--hms-danger);
 }
-
 
 /* =====================================================
    PROFILE CONTENT
@@ -268,8 +310,9 @@
 
 .profile-content {
   padding: 28px;
-}
 
+  background: var(--hms-surface);
+}
 
 /* =====================================================
    INFORMATION SECTION
@@ -294,19 +337,18 @@
 }
 
 .section-title .material-symbols-outlined {
-  color: #0284c7;
+  color: var(--hms-primary);
   font-size: 21px;
 }
 
 .section-title h3 {
   margin: 0;
 
-  color: #172033;
+  color: var(--hms-text);
 
   font-size: 17px;
   font-weight: 700;
 }
-
 
 /* =====================================================
    INFORMATION GRID
@@ -321,7 +363,6 @@
   gap: 16px;
 }
 
-
 /* =====================================================
    INFORMATION ITEM
    ===================================================== */
@@ -331,23 +372,31 @@
 
   padding: 16px;
 
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--hms-border);
 
-  border-radius: 10px;
+  border-radius: var(--hms-radius);
 
-  background: #f8fafc;
+  background: var(--hms-surface-secondary);
+
+  transition:
+    background-color var(--hms-transition),
+    border-color var(--hms-transition);
 }
 
 .info-item.full-width {
   grid-column: 1 / -1;
 }
 
+/* =====================================================
+   INFORMATION LABEL
+   ===================================================== */
+
 .info-label {
   display: block;
 
   margin-bottom: 6px;
 
-  color: #64748b;
+  color: var(--hms-text-secondary);
 
   font-size: 12px;
   font-weight: 600;
@@ -357,10 +406,14 @@
   letter-spacing: 0.03em;
 }
 
+/* =====================================================
+   INFORMATION VALUE
+   ===================================================== */
+
 .info-value {
   display: block;
 
-  color: #172033;
+  color: var(--hms-text);
 
   font-size: 14px;
   font-weight: 600;
@@ -369,11 +422,10 @@
 }
 
 .info-value.muted {
-  color: #94a3b8;
+  color: var(--hms-text-muted);
 
   font-weight: 400;
 }
-
 
 /* =====================================================
    DESCRIPTION
@@ -382,19 +434,18 @@
 .description-box {
   padding: 18px;
 
-  border-radius: 10px;
+  border-radius: var(--hms-radius);
 
-  background: #f8fafc;
+  background: var(--hms-surface-secondary);
 
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--hms-border);
 
-  color: #475569;
+  color: var(--hms-text-secondary);
 
   font-size: 14px;
 
   line-height: 1.7;
 }
-
 
 /* =====================================================
    PROFILE FOOTER
@@ -410,24 +461,23 @@
 
   padding: 20px 28px;
 
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--hms-border);
 
-  background: #fafafa;
+  background: var(--hms-surface-secondary);
 }
 
 .created-info {
-  color: #64748b;
+  color: var(--hms-text-secondary);
 
   font-size: 12px;
 }
 
 .created-info strong {
-  color: #475569;
+  color: var(--hms-text);
 }
 
-
 /* =====================================================
-   NOT FOUND
+   EMPTY / NOT FOUND
    ===================================================== */
 
 .empty-profile {
@@ -443,12 +493,15 @@
   text-align: center;
 
   padding: 30px;
+
+  background: var(--hms-surface);
+  color: var(--hms-text);
 }
 
 .empty-profile .material-symbols-outlined {
   margin-bottom: 12px;
 
-  color: #94a3b8;
+  color: var(--hms-text-muted);
 
   font-size: 54px;
 }
@@ -456,7 +509,7 @@
 .empty-profile h2 {
   margin: 0 0 8px;
 
-  color: #334155;
+  color: var(--hms-text);
 
   font-size: 20px;
 }
@@ -464,18 +517,16 @@
 .empty-profile p {
   margin: 0 0 20px;
 
-  color: #64748b;
+  color: var(--hms-text-secondary);
 
   font-size: 14px;
 }
-
 
 /* =====================================================
    TABLET
    ===================================================== */
 
 @media (max-width: 800px) {
-
   .department-profile-page {
     padding: 18px;
   }
@@ -495,16 +546,13 @@
   .info-item.full-width {
     grid-column: auto;
   }
-
 }
-
 
 /* =====================================================
    MOBILE
    ===================================================== */
 
 @media (max-width: 600px) {
-
   .department-profile-page {
     padding: 14px;
   }
@@ -562,22 +610,19 @@
   .created-info {
     text-align: center;
   }
-
 }
-
 
 /* =====================================================
    SMALL MOBILE
    ===================================================== */
 
 @media (max-width: 400px) {
-
   .department-profile-page {
     padding: 10px;
   }
 
   .profile-card {
-    border-radius: 10px;
+    border-radius: var(--hms-radius);
   }
 
   .department-avatar {
@@ -596,5 +641,4 @@
   .info-item {
     padding: 13px;
   }
-
 }

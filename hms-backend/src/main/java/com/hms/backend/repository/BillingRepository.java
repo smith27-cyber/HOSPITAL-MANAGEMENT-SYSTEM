@@ -4,7 +4,11 @@ import com.hms.backend.entity.Billing;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import com.hms.backend.dto.ReportBillingTotals;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +28,28 @@ public interface BillingRepository
             Long id,
             Long tenantId
     );
+// =====================================================
+// REPORT AGGREGATION
+// =====================================================
 
+@Query("""
+        SELECT new com.hms.backend.dto.ReportBillingTotals(
+            COUNT(b),
+            COALESCE(SUM(b.amount), 0),
+            COALESCE(SUM(b.amountPaid), 0),
+            COALESCE(SUM(b.balance), 0)
+        )
+        FROM Billing b
+        WHERE b.tenant.id = :tenantId
+          AND b.billingDate >= :startDateTime
+          AND b.billingDate < :endDateTime
+          AND b.status <> com.hms.backend.entity.Billing.BillingStatus.CANCELLED
+        """)
+ReportBillingTotals getReportTotals(
+        @Param("tenantId") Long tenantId,
+        @Param("startDateTime") LocalDateTime startDateTime,
+        @Param("endDateTime") LocalDateTime endDateTime
+);
     // =====================================================
     // PATIENT
     // =====================================================

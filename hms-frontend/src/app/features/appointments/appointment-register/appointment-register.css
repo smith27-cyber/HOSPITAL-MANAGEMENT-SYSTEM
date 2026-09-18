@@ -1,42 +1,70 @@
-.appointment-register-page {
-  max-width: 1100px;
-  margin: 0 auto;
+/* =========================================================
+   APPOINTMENT REGISTER
+   HMS GLOBAL THEME
+   ========================================================= */
+
+:host {
+  display: block;
+  width: 100%;
 }
 
 
-/* =========================
-   Header
-========================= */
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.appointment-register-page {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 30px;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
 
 .page-header {
   margin-bottom: 20px;
 }
 
 .back-button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-
   gap: 6px;
 
   margin-bottom: 12px;
-
   padding: 0;
 
-  border: none;
-
+  border: 0;
   background: transparent;
 
-  color: #0f766e;
+  color: var(--hms-primary);
 
+  font-family: inherit;
   font-size: 12px;
-
   font-weight: 600;
 
   cursor: pointer;
+
+  transition:
+    color var(--hms-transition),
+    transform var(--hms-transition);
 }
 
 .back-button:hover {
-  color: #115e59;
+  color: var(--hms-primary-hover);
+}
+
+.back-button:active {
+  transform: translateX(-2px);
+}
+
+.back-button:focus-visible {
+  outline: 2px solid var(--hms-primary);
+  outline-offset: 3px;
+  border-radius: var(--hms-radius-sm);
 }
 
 .back-button .material-symbols-outlined {
@@ -46,85 +74,99 @@
 .page-header h1 {
   margin: 0;
 
-  color: #111827;
+  color: var(--hms-text);
 
   font-size: 24px;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
 .page-header p {
   margin: 5px 0 0;
 
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 
   font-size: 12px;
+  line-height: 1.5;
 }
 
 
-/* =========================
-   Form Card
-========================= */
+/* =========================================================
+   FORM CARD
+   ========================================================= */
 
 .form-card {
   margin-bottom: 20px;
-
   padding: 22px;
 
-  background: white;
+  background: var(--hms-surface);
+  color: var(--hms-text);
 
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
 
-  border-radius: 12px;
+  box-shadow: var(--hms-shadow);
+
+  transition:
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition);
 }
 
 
-/* =========================
-   Card Header
-========================= */
+/* =========================================================
+   CARD HEADER
+   ========================================================= */
 
 .card-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
 
-  margin-bottom: 20px;
+  gap: 15px;
 
+  margin-bottom: 20px;
   padding-bottom: 15px;
 
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--hms-border);
 }
 
 .card-header h2 {
   margin: 0;
 
-  color: #111827;
+  color: var(--hms-text);
 
   font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
 }
 
 .card-header p {
   margin: 4px 0 0;
 
-  color: #9ca3af;
+  color: var(--hms-text-secondary);
 
   font-size: 11px;
+  line-height: 1.5;
 }
 
 .card-header > .material-symbols-outlined {
-  color: #0f766e;
+  flex-shrink: 0;
+
+  color: var(--hms-primary);
 
   font-size: 21px;
 }
 
 
-/* =========================
-   Form Grid
-========================= */
+/* =========================================================
+   FORM GRID
+   ========================================================= */
 
 .form-grid {
   display: grid;
 
-  grid-template-columns:
-    repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 
   gap: 18px;
 }
@@ -138,75 +180,79 @@
 }
 
 
-/* =========================
-   Labels
-========================= */
+/* =========================================================
+   LABELS
+   ========================================================= */
 
 .form-group label {
   display: block;
 
   margin-bottom: 6px;
 
-  color: #374151;
+  color: var(--hms-text);
 
   font-size: 11px;
-
   font-weight: 600;
 }
 
 .form-group label span {
-  color: #dc2626;
+  color: var(--hms-danger);
 }
 
 
-/* =========================
-   Inputs
-========================= */
+/* =========================================================
+   INPUTS
+   ========================================================= */
 
 .form-group input,
 .form-group select,
 .form-group textarea {
   width: 100%;
-
   box-sizing: border-box;
 
   padding: 10px 12px;
 
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius);
 
-  border-radius: 8px;
-
-  background: white;
-
-  color: #374151;
+  background: var(--hms-input-bg);
+  color: var(--hms-input-text);
 
   font-family: inherit;
-
   font-size: 12px;
 
   outline: none;
+
+  transition:
+    background-color var(--hms-transition),
+    color var(--hms-transition),
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--hms-text-muted);
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  border-color: #0f766e;
+  border-color: var(--hms-primary);
 
   box-shadow:
-    0 0 0 2px
-    rgba(15, 118, 110, 0.08);
+    0 0 0 3px var(--hms-primary-light);
 }
 
 .form-group textarea {
-  resize: vertical;
-
   min-height: 80px;
+  resize: vertical;
 }
 
 
-/* =========================
-   Selected Patient
-========================= */
+/* =========================================================
+   SELECTED PATIENT
+   ========================================================= */
 
 .selected-patient {
   grid-column: 1 / -1;
@@ -218,15 +264,17 @@
 
   padding: 12px;
 
-  border: 1px solid #ccfbf1;
+  border: 1px solid var(--hms-primary-light);
+  border-radius: var(--hms-radius);
 
-  border-radius: 8px;
-
-  background: #f0fdfa;
+  background: var(--hms-primary-light);
+  color: var(--hms-text);
 }
 
 .selected-patient > .material-symbols-outlined {
-  color: #0f766e;
+  flex-shrink: 0;
+
+  color: var(--hms-primary);
 
   font-size: 24px;
 }
@@ -234,9 +282,10 @@
 .selected-patient strong {
   display: block;
 
-  color: #374151;
+  color: var(--hms-text);
 
   font-size: 12px;
+  font-weight: 700;
 }
 
 .selected-patient span {
@@ -244,21 +293,20 @@
 
   margin-top: 2px;
 
-  color: #9ca3af;
+  color: var(--hms-text-secondary);
 
   font-size: 10px;
 }
 
 
-/* =========================
-   Appointment Types
-========================= */
+/* =========================================================
+   APPOINTMENT TYPES
+   ========================================================= */
 
 .type-options {
   display: grid;
 
-  grid-template-columns:
-    repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 
   gap: 10px;
 }
@@ -268,21 +316,30 @@
   align-items: center;
   justify-content: center;
 
+  min-height: 44px;
+
   padding: 12px;
 
   margin: 0 !important;
 
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius);
 
-  border-radius: 8px;
-
-  background: white;
-
-  color: #374151 !important;
+  background: var(--hms-surface);
+  color: var(--hms-text) !important;
 
   cursor: pointer;
 
   text-align: center;
+
+  transition:
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition);
+}
+
+.type-option:hover {
+  border-color: var(--hms-primary);
 }
 
 .type-option input {
@@ -290,23 +347,22 @@
 }
 
 .type-option.selected {
-  border-color: #0f766e;
+  border-color: var(--hms-primary);
 
-  background: #f0fdfa;
+  background: var(--hms-primary-light);
 
-  color: #0f766e !important;
+  color: var(--hms-primary) !important;
 }
 
 .type-option span {
   font-size: 11px;
-
   font-weight: 600;
 }
 
 
-/* =========================
-   Form Actions
-========================= */
+/* =========================================================
+   FORM ACTIONS
+   ========================================================= */
 
 .form-actions {
   display: flex;
@@ -317,57 +373,89 @@
   padding-bottom: 30px;
 }
 
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
 .primary-button,
 .secondary-button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 
   gap: 7px;
 
-  padding: 11px 16px;
+  min-height: 40px;
 
-  border-radius: 8px;
+  padding: 10px 16px;
 
+  border-radius: var(--hms-radius);
+
+  font-family: inherit;
   font-size: 12px;
-
   font-weight: 600;
 
   cursor: pointer;
+
+  transition:
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition),
+    box-shadow var(--hms-transition),
+    transform var(--hms-transition);
+}
+
+.primary-button:active,
+.secondary-button:active {
+  transform: translateY(1px);
+}
+
+.primary-button:focus-visible,
+.secondary-button:focus-visible {
+  outline: 2px solid var(--hms-primary);
+  outline-offset: 2px;
 }
 
 .primary-button {
-  border: none;
+  border: 1px solid var(--hms-primary);
 
-  background: #0f766e;
-
-  color: white;
+  background: var(--hms-primary);
+  color: #ffffff;
 }
 
 .primary-button:hover {
-  background: #115e59;
+  border-color: var(--hms-primary-hover);
+
+  background: var(--hms-primary-hover);
+
+  box-shadow: var(--hms-shadow-md);
 }
 
 .secondary-button {
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--hms-border);
 
-  background: white;
-
-  color: #374151;
+  background: var(--hms-surface);
+  color: var(--hms-text);
 }
 
 .secondary-button:hover {
-  background: #f9fafb;
+  border-color: var(--hms-primary);
+
+  background: var(--hms-surface-secondary);
+
+  color: var(--hms-primary);
 }
 
-.primary-button .material-symbols-outlined {
+.primary-button .material-symbols-outlined,
+.secondary-button .material-symbols-outlined {
   font-size: 18px;
 }
 
 
-/* =========================
-   Responsive
-========================= */
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
 
 @media (max-width: 700px) {
 
@@ -380,8 +468,7 @@
   }
 
   .type-options {
-    grid-template-columns:
-      repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
 }

@@ -1,0 +1,646 @@
+<!-- =====================================================
+     RECEIPTS PAGE
+     File:
+     src/app/features/billing/receipts/receipts.html
+     ===================================================== -->
+
+<div class="receipts-page">
+
+  <!-- ===================================================
+       PAGE HEADER
+       =================================================== -->
+
+  <section class="page-header">
+
+    <div>
+      <span class="eyebrow">BILLING</span>
+
+      <h1>Payment Receipts</h1>
+
+      <p>
+        View, search and print payment receipts for your facility.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="refresh-button"
+      (click)="loadReceipts()"
+      [disabled]="loading">
+
+      <span class="button-icon">↻</span>
+
+      Refresh
+
+    </button>
+
+  </section>
+
+
+  <!-- ===================================================
+       SUMMARY
+       =================================================== -->
+
+  <section class="summary-grid">
+
+    <article class="summary-card">
+
+      <span class="summary-label">
+        RECEIPTS
+      </span>
+
+      <strong class="summary-value">
+        {{ receiptCount }}
+      </strong>
+
+    </article>
+
+
+    <article class="summary-card">
+
+      <span class="summary-label">
+        TOTAL PAYMENTS
+      </span>
+
+      <strong class="summary-value">
+        {{ formatCurrency(totalPayments) }}
+      </strong>
+
+    </article>
+
+
+    <article class="summary-card">
+
+      <span class="summary-label">
+        PAYMENT METHODS
+      </span>
+
+      <strong class="summary-value">
+        {{ paymentMethods.length }}
+      </strong>
+
+    </article>
+
+  </section>
+
+
+  <!-- ===================================================
+       FILTERS
+       =================================================== -->
+
+  <section class="filter-panel">
+
+    <div class="filter-group search-group">
+
+      <label for="receipt-search">
+        Search
+      </label>
+
+      <input
+        id="receipt-search"
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()"
+        placeholder="Receipt, invoice, patient..." />
+
+    </div>
+
+
+    <div class="filter-group">
+
+      <label for="payment-method">
+        Payment Method
+      </label>
+
+      <select
+        id="payment-method"
+        [(ngModel)]="paymentMethodFilter"
+        (ngModelChange)="applyFilters()">
+
+        <option value="ALL">
+          All Methods
+        </option>
+
+        <option
+          *ngFor="let method of paymentMethods"
+          [value]="method">
+
+          {{ method }}
+
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="filter-group">
+
+      <label for="start-date">
+        From
+      </label>
+
+      <input
+        id="start-date"
+        type="date"
+        [(ngModel)]="startDate"
+        (ngModelChange)="applyFilters()" />
+
+    </div>
+
+
+    <div class="filter-group">
+
+      <label for="end-date">
+        To
+      </label>
+
+      <input
+        id="end-date"
+        type="date"
+        [(ngModel)]="endDate"
+        (ngModelChange)="applyFilters()" />
+
+    </div>
+
+
+    <button
+      type="button"
+      class="clear-button"
+      (click)="clearFilters()">
+
+      Clear
+
+    </button>
+
+  </section>
+
+
+  <!-- ===================================================
+       ERROR
+       =================================================== -->
+
+  <div
+    *ngIf="errorMessage"
+    class="error-message">
+
+    <strong>
+      Unable to load receipts
+    </strong>
+
+    <span>
+      {{ errorMessage }}
+    </span>
+
+  </div>
+
+
+  <!-- ===================================================
+       LOADING
+       =================================================== -->
+
+  <div
+    *ngIf="loading"
+    class="state-card">
+
+    <div class="loading-spinner"></div>
+
+    <p>
+      Loading receipts...
+    </p>
+
+  </div>
+
+
+  <!-- ===================================================
+       EMPTY
+       =================================================== -->
+
+  <div
+    *ngIf="
+      !loading &&
+      !errorMessage &&
+      filteredReceipts.length === 0
+    "
+    class="state-card">
+
+    <div class="empty-icon">
+      ✓
+    </div>
+
+    <h3>
+      No receipts found
+    </h3>
+
+    <p>
+      Payment receipts will appear here after payments are recorded.
+    </p>
+
+  </div>
+
+
+  <!-- ===================================================
+       RECEIPT REGISTER
+       =================================================== -->
+
+  <section
+    *ngIf="
+      !loading &&
+      filteredReceipts.length > 0
+    "
+    class="table-card">
+
+    <div class="table-header">
+
+      <div>
+        <h2>
+          Receipt Register
+        </h2>
+
+        <p>
+          {{ filteredReceipts.length }} receipt(s)
+        </p>
+      </div>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Receipt</th>
+            <th>Date</th>
+            <th>Patient</th>
+            <th>Invoice</th>
+            <th>Amount</th>
+            <th>Method</th>
+            <th>Received By</th>
+            <th>Actions</th>
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          <tr
+            *ngFor="let receipt of filteredReceipts">
+
+            <td>
+              <div class="receipt-number">
+                {{ receipt.receiptNumber }}
+              </div>
+            </td>
+
+
+            <td>
+              {{ formatDate(receipt.paymentDate) }}
+            </td>
+
+
+            <td>
+
+              <div class="patient-name">
+                {{ receipt.patientName }}
+              </div>
+
+              <div class="patient-id">
+                {{ receipt.patientId }}
+              </div>
+
+            </td>
+
+
+            <td>
+              {{ receipt.invoiceNumber }}
+            </td>
+
+
+            <td>
+
+              <strong class="payment-amount">
+                {{ formatCurrency(receipt.amount) }}
+              </strong>
+
+            </td>
+
+
+            <td>
+
+              <span class="method-badge">
+                {{ receipt.paymentMethod }}
+              </span>
+
+            </td>
+
+
+            <td>
+              {{ receipt.receivedBy || 'System' }}
+            </td>
+
+
+            <td>
+
+              <div class="actions">
+
+                <button
+                  type="button"
+                  class="view-button"
+                  (click)="viewReceipt(receipt)">
+
+                  View
+
+                </button>
+
+                <button
+                  type="button"
+                  class="print-button"
+                  (click)="printReceipt(receipt)">
+
+                  Print
+
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+
+  <!-- ===================================================
+       RECEIPT DETAILS / PRINT AREA
+       =================================================== -->
+
+  <div
+    *ngIf="selectedReceipt"
+    class="receipt-overlay">
+
+    <div
+      class="receipt-dialog"
+      (click)="$event.stopPropagation()">
+
+
+      <!-- ===============================================
+           SCREEN RECEIPT HEADER
+           =============================================== -->
+
+      <div class="receipt-dialog-header">
+
+        <div>
+
+          <span class="receipt-eyebrow">
+            PAYMENT RECEIPT
+          </span>
+
+          <h2>
+            {{ selectedReceipt.receiptNumber }}
+          </h2>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="close-button"
+          (click)="closeReceipt()">
+
+          ×
+
+        </button>
+
+      </div>
+
+
+      <!-- ===============================================
+           PRINTABLE RECEIPT
+           =============================================== -->
+
+      <article class="print-receipt">
+
+        <header class="print-header">
+
+          <div class="facility-name">
+            {{ selectedReceipt.tenantName }}
+          </div>
+
+          <div class="facility-code">
+            {{ selectedReceipt.tenantCode }}
+          </div>
+
+          <div class="receipt-title">
+            PAYMENT RECEIPT
+          </div>
+
+          <div class="print-receipt-number">
+            {{ selectedReceipt.receiptNumber }}
+          </div>
+
+        </header>
+
+
+        <!-- PATIENT / INVOICE -->
+
+        <section class="print-section">
+
+          <div class="print-row">
+            <span>Invoice</span>
+            <strong>
+              {{ selectedReceipt.invoiceNumber }}
+            </strong>
+          </div>
+
+
+          <div class="print-row">
+            <span>Patient</span>
+            <strong>
+              {{ selectedReceipt.patientName }}
+            </strong>
+          </div>
+
+
+          <div class="print-row">
+            <span>Patient ID</span>
+            <strong>
+              {{ selectedReceipt.patientId }}
+            </strong>
+          </div>
+
+
+          <div
+            *ngIf="selectedReceipt.patientNumber"
+            class="print-row">
+
+            <span>
+              Patient Number
+            </span>
+
+            <strong>
+              {{ selectedReceipt.patientNumber }}
+            </strong>
+
+          </div>
+
+
+          <div class="print-row">
+            <span>Payment Date</span>
+            <strong>
+              {{ formatDate(selectedReceipt.paymentDate) }}
+            </strong>
+          </div>
+
+
+          <div class="print-row">
+            <span>Payment Method</span>
+            <strong>
+              {{ selectedReceipt.paymentMethod }}
+            </strong>
+          </div>
+
+
+          <div class="print-row">
+            <span>Received By</span>
+            <strong>
+              {{ selectedReceipt.receivedBy || 'System' }}
+            </strong>
+          </div>
+
+        </section>
+
+
+        <!-- PAYMENT SUMMARY -->
+
+        <section class="payment-summary">
+
+          <div class="summary-row">
+            <span>
+              Invoice Amount
+            </span>
+
+            <strong>
+              {{ formatCurrency(
+                selectedReceipt.invoiceAmount
+              ) }}
+            </strong>
+          </div>
+
+
+          <div class="summary-row payment-highlight">
+            <span>
+              This Payment
+            </span>
+
+            <strong>
+              {{ formatCurrency(
+                selectedReceipt.amount
+              ) }}
+            </strong>
+          </div>
+
+
+          <div class="summary-row">
+            <span>
+              Amount Paid After Payment
+            </span>
+
+            <strong>
+              {{ formatCurrency(
+                selectedReceipt.amountPaidAfterPayment
+              ) }}
+            </strong>
+          </div>
+
+
+          <div class="summary-row">
+            <span>
+              Outstanding Balance
+            </span>
+
+            <strong>
+              {{ formatCurrency(
+                selectedReceipt.balanceAfterPayment
+              ) }}
+            </strong>
+          </div>
+
+        </section>
+
+
+        <!-- NOTES -->
+
+        <section
+          *ngIf="selectedReceipt.notes"
+          class="print-notes">
+
+          <span>
+            Notes
+          </span>
+
+          <p>
+            {{ selectedReceipt.notes }}
+          </p>
+
+        </section>
+
+
+        <!-- FOOTER -->
+
+        <footer class="print-footer">
+
+          <strong>
+            Thank you for your payment.
+          </strong>
+
+          <span>
+            {{ selectedReceipt.tenantName }}
+          </span>
+
+        </footer>
+
+      </article>
+
+
+      <!-- ===============================================
+           ACTIONS
+           =============================================== -->
+
+      <div class="dialog-actions">
+
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="closeReceipt()">
+
+          Close
+
+        </button>
+
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="printReceipt(selectedReceipt)">
+
+          Print Receipt
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

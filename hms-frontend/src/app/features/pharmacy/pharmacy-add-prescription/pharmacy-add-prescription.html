@@ -1,0 +1,706 @@
+<div class="page-container">
+
+  <!-- =====================================================
+       HEADER
+       ===================================================== -->
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Add Pharmacy Prescription
+      </h1>
+
+      <p>
+        Register a customer and add medicines to the pharmacy queue.
+      </p>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="cancel()"
+    >
+
+      <span class="material-symbols-outlined">
+        arrow_back
+      </span>
+
+      Back to Queue
+
+    </button>
+
+  </div>
+
+
+  <!-- =====================================================
+       ERROR
+       ===================================================== -->
+
+  <div
+    class="error-message"
+    *ngIf="errorMessage"
+  >
+
+    {{ errorMessage }}
+
+  </div>
+
+
+  <div class="form-layout">
+
+
+    <!-- ===================================================
+         LEFT SIDE
+         =================================================== -->
+
+    <section class="form-card">
+
+      <!-- CUSTOMER -->
+
+      <div class="card-title">
+
+        <span class="material-symbols-outlined">
+          person
+        </span>
+
+
+        <div>
+
+          <h2>
+            Customer Details
+          </h2>
+
+          <p>
+            No patient registration is required for a direct pharmacy sale.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="customerName">
+
+          Customer Name
+
+          <span class="required">
+            *
+          </span>
+
+        </label>
+
+
+        <input
+          id="customerName"
+          name="customerName"
+          type="text"
+          [(ngModel)]="customerName"
+          placeholder="Enter customer name"
+          autocomplete="off"
+        />
+
+      </div>
+
+
+      <div class="section-divider"></div>
+
+
+      <!-- =================================================
+           MEDICINE
+           ================================================= -->
+
+      <div class="card-title">
+
+        <span class="material-symbols-outlined">
+          medication
+        </span>
+
+
+        <div>
+
+          <h2>
+            Add Medicine
+          </h2>
+
+          <p>
+            Type the medicine name and select it from the results.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- SEARCH -->
+
+      <div class="form-group medicine-search-group">
+
+        <label for="medicineSearch">
+
+          Search Medicine
+
+          <span class="required">
+            *
+          </span>
+
+        </label>
+
+
+        <div class="search-wrapper">
+
+          <span class="material-symbols-outlined search-icon">
+            search
+          </span>
+
+
+          <input
+            id="medicineSearch"
+            name="medicineSearch"
+            type="text"
+            [(ngModel)]="searchTerm"
+            (input)="onMedicineSearch()"
+            (focus)="onMedicineFocus()"
+            placeholder="Type medicine name e.g. para, amox..."
+            autocomplete="off"
+          />
+
+        </div>
+
+
+        <!-- =================================================
+             SEARCH RESULTS
+             ================================================= -->
+
+        <div
+          class="medicine-results"
+          *ngIf="
+            showMedicineResults &&
+            filteredMedicines.length > 0
+          "
+        >
+
+          @for (
+            medicine of filteredMedicines;
+            track medicine.id
+          ) {
+
+            <button
+              type="button"
+              class="medicine-result"
+
+              (mousedown)="
+                $event.preventDefault();
+                selectMedicine(medicine)
+              "
+
+              (click)="
+                $event.preventDefault()
+              "
+            >
+
+              <div class="medicine-result-main">
+
+                <strong>
+                  {{ medicine.name }}
+                </strong>
+
+
+                <span
+                  *ngIf="medicine.form"
+                >
+                  {{ medicine.form }}
+                </span>
+
+
+                <span
+                  *ngIf="medicine.strength"
+                >
+                  {{ medicine.strength }}
+                </span>
+
+              </div>
+
+
+              <div class="medicine-result-meta">
+
+                <span>
+                  Stock:
+                  {{ medicine.quantity }}
+                </span>
+
+
+                <span>
+                  UGX
+                  {{ medicine.unitPrice | number }}
+                </span>
+
+              </div>
+
+            </button>
+
+          }
+
+        </div>
+
+
+        <!-- =================================================
+             NO RESULTS
+             ================================================= -->
+
+        <div
+          class="no-results"
+          *ngIf="
+            showMedicineResults &&
+            searchTerm.trim() &&
+            filteredMedicines.length === 0
+          "
+        >
+
+          No matching medicines found.
+
+        </div>
+
+      </div>
+
+
+      <!-- =================================================
+           SELECTED MEDICINE
+           ================================================= -->
+
+      <div
+        class="selected-medicine"
+        *ngIf="selectedMedicine"
+      >
+
+        <div>
+
+          <strong>
+            {{ selectedMedicine.name }}
+          </strong>
+
+
+          <div class="selected-meta">
+
+            <span>
+              Stock:
+              {{ selectedMedicine.quantity }}
+            </span>
+
+
+            <span>
+              Price:
+              UGX
+              {{ selectedMedicine.unitPrice | number }}
+            </span>
+
+
+            <span
+              *ngIf="
+                selectedMedicine.batchNumber
+              "
+            >
+              Batch:
+              {{ selectedMedicine.batchNumber }}
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- =================================================
+           QUANTITY / PRICE
+           ================================================= -->
+
+      <div
+        class="form-row"
+        *ngIf="selectedMedicine"
+      >
+
+        <div class="form-group">
+
+          <label for="quantity">
+
+            Quantity
+
+            <span class="required">
+              *
+            </span>
+
+          </label>
+
+
+          <input
+            id="quantity"
+            name="medicineQuantity"
+            type="number"
+            min="1"
+            [max]="selectedMedicine.quantity"
+            [(ngModel)]="medicineQuantity"
+          />
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Unit Price
+          </label>
+
+
+          <div class="readonly-price">
+
+            UGX
+            {{ selectedMedicine.unitPrice | number }}
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- =================================================
+           OPTIONAL INSTRUCTIONS
+           ================================================= -->
+
+      <div
+        class="optional-section"
+        *ngIf="selectedMedicine"
+      >
+
+        <div class="optional-title">
+          Optional Medicine Instructions
+        </div>
+
+
+        <div class="form-row">
+
+          <div class="form-group">
+
+            <label for="dosage">
+              Dosage
+            </label>
+
+
+            <input
+              id="dosage"
+              name="dosage"
+              type="text"
+              [(ngModel)]="dosage"
+              placeholder="e.g. 1 tablet"
+            />
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="frequency">
+              Frequency
+            </label>
+
+
+            <input
+              id="frequency"
+              name="frequency"
+              type="text"
+              [(ngModel)]="frequency"
+              placeholder="e.g. 3 times daily"
+            />
+
+          </div>
+
+        </div>
+
+
+        <div class="form-row">
+
+          <div class="form-group">
+
+            <label for="duration">
+              Duration
+            </label>
+
+
+            <input
+              id="duration"
+              name="duration"
+              type="text"
+              [(ngModel)]="duration"
+              placeholder="e.g. 5 days"
+            />
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="instructions">
+              Instructions
+            </label>
+
+
+            <input
+              id="instructions"
+              name="instructions"
+              type="text"
+              [(ngModel)]="instructions"
+              placeholder="e.g. After meals"
+            />
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- =================================================
+           ADD MEDICINE
+           ================================================= -->
+
+      <button
+        type="button"
+        class="primary-button add-button"
+
+        [disabled]="
+          !selectedMedicine ||
+          medicineQuantity <= 0 ||
+          medicineQuantity > (selectedMedicine?.quantity || 0)
+        "
+
+        (click)="addMedicine()"
+      >
+
+        <span class="material-symbols-outlined">
+          add
+        </span>
+
+        Add Medicine
+
+      </button>
+
+    </section>
+
+
+    <!-- ===================================================
+         RIGHT SIDE
+         =================================================== -->
+
+    <section class="form-card prescription-card">
+
+      <div class="card-title">
+
+        <span class="material-symbols-outlined">
+          receipt_long
+        </span>
+
+
+        <div>
+
+          <h2>
+            Prescription
+          </h2>
+
+          <p>
+            Medicines added for this customer.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- =================================================
+           EMPTY
+           ================================================= -->
+
+      <div
+        class="empty-state"
+        *ngIf="
+          prescriptionItems.length === 0
+        "
+      >
+
+        <span class="material-symbols-outlined">
+          medication
+        </span>
+
+
+        <h3>
+          No medicines added
+        </h3>
+
+
+        <p>
+          Search for a medicine and click
+          <strong>
+            Add Medicine
+          </strong>.
+        </p>
+
+      </div>
+
+
+      <!-- =================================================
+           ITEMS
+           ================================================= -->
+
+      <div
+        class="prescription-items"
+        *ngIf="
+          prescriptionItems.length > 0
+        "
+      >
+
+        <div
+          class="prescription-item"
+          *ngFor="
+            let item of prescriptionItems
+          "
+        >
+
+          <div class="item-main">
+
+            <div class="item-name">
+              {{ item.medicineName }}
+            </div>
+
+
+            <div class="item-details">
+
+              <span>
+                {{ item.quantity }}
+                {{ item.unit }}
+              </span>
+
+
+              <span>
+                UGX
+                {{ item.unitPrice | number }}
+                each
+              </span>
+
+
+              <span
+                *ngIf="item.dosage"
+              >
+                {{ item.dosage }}
+              </span>
+
+
+              <span
+                *ngIf="item.frequency"
+              >
+                {{ item.frequency }}
+              </span>
+
+
+              <span
+                *ngIf="item.duration"
+              >
+                {{ item.duration }}
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="item-right">
+
+            <strong>
+              UGX
+              {{ item.totalPrice | number }}
+            </strong>
+
+
+            <button
+              type="button"
+              class="remove-button"
+              (click)="removeMedicine(item.medicineId)"
+              title="Remove medicine"
+            >
+
+              <span class="material-symbols-outlined">
+                delete
+              </span>
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- =================================================
+           TOTAL
+           ================================================= -->
+
+      <div
+        class="prescription-total"
+        *ngIf="
+          prescriptionItems.length > 0
+        "
+      >
+
+        <span>
+          Total
+        </span>
+
+
+        <strong>
+          UGX
+          {{ prescriptionTotal | number }}
+        </strong>
+
+      </div>
+
+
+      <!-- =================================================
+           SAVE
+           ================================================= -->
+
+      <button
+        type="button"
+        class="save-button"
+
+        [disabled]="
+          isSaving ||
+          !customerName.trim() ||
+          prescriptionItems.length === 0
+        "
+
+        (click)="savePrescription()"
+      >
+
+        <span class="material-symbols-outlined">
+          save
+        </span>
+
+
+        {{
+          isSaving
+            ? 'Saving...'
+            : 'Save Prescription'
+        }}
+
+      </button>
+
+    </section>
+
+  </div>
+
+</div>

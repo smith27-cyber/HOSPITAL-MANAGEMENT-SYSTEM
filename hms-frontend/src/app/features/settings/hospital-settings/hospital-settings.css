@@ -1,113 +1,260 @@
+/* =====================================================
+   TENANT / ORGANIZATION SETTINGS
+
+   File:
+   src/app/features/settings/hospital-settings/hospital-settings.css
+   ===================================================== */
+
+/* =====================================================
+   HOST
+   ===================================================== */
+
+:host {
+  display: block;
+}
+
 
 /* =====================================================
    PAGE
-===================================================== */
+   ===================================================== */
 
 .hospital-settings-page {
-  max-width: 1100px;
+  width: 100%;
+  max-width: 1200px;
+  min-height: 100%;
   margin: 0 auto;
   padding: 28px;
+  box-sizing: border-box;
+  background: var(--hms-bg);
+  color: var(--hms-text);
 }
 
 
 /* =====================================================
-   HEADER
-===================================================== */
+   PAGE HEADER
+   ===================================================== */
 
 .page-header {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
-.header-left {
+.page-heading {
   display: flex;
   align-items: center;
   gap: 14px;
 }
 
-.page-header h1 {
-  margin: 0 0 5px;
-  color: #172033;
-  font-size: 27px;
-  font-weight: 700;
-}
-
-.page-header p {
-  margin: 0;
-  color: #6b7280;
-  font-size: 14px;
-}
-
-
-/* =====================================================
-   BACK BUTTON
-===================================================== */
-
 .back-button {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border: 1px solid #dbe3e8;
-  border-radius: 10px;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius);
 
-  background: #ffffff;
-  color: #4b5563;
+  background: var(--hms-surface);
+  color: var(--hms-text-muted);
 
   cursor: pointer;
 
-  transition: 0.2s ease;
+  transition:
+    background var(--hms-transition),
+    color var(--hms-transition),
+    border-color var(--hms-transition);
 }
 
 .back-button:hover {
-  background: #f3f9fb;
-  color: #1685a8;
-  border-color: #b9d7e8;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
+  border-color: var(--hms-primary);
+}
+
+.back-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--hms-primary-light);
+}
+
+.back-button .material-symbols-outlined {
+  font-size: 21px;
 }
 
 
 /* =====================================================
-   CARD
-===================================================== */
+   PAGE ICON
+   ===================================================== */
 
-.settings-card {
-  overflow: hidden;
+.page-icon {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
 
-  background: #ffffff;
-
-  border: 1px solid #e5e7eb;
-
-  border-radius: 16px;
-
-  box-shadow:
-    0 4px 18px
-    rgba(15, 23, 42, 0.05);
-}
-
-
-/* =====================================================
-   CARD HEADER
-===================================================== */
-
-.card-header {
   display: flex;
   align-items: center;
+  justify-content: center;
 
-  gap: 15px;
+  border-radius: var(--hms-radius-lg);
 
-  padding: 22px 25px;
-
-  border-bottom: 1px solid #edf0f2;
-
-  background: #fbfdfe;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
-.header-icon {
-  width: 48px;
-  height: 48px;
+.page-icon .material-symbols-outlined {
+  font-size: 27px;
+}
 
+
+/* =====================================================
+   PAGE TEXT
+   ===================================================== */
+
+.page-eyebrow {
+  display: block;
+  margin-bottom: 3px;
+
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+
+  color: var(--hms-primary);
+}
+
+.page-heading h1 {
+  margin: 0 0 5px;
+
+  font-size: 27px;
+  font-weight: 700;
+
+  color: var(--hms-text);
+}
+
+.page-heading p {
+  margin: 0;
+
+  font-size: 14px;
+  line-height: 1.5;
+
+  color: var(--hms-text-muted);
+}
+
+
+/* =====================================================
+   STATE CARD
+   ===================================================== */
+
+.state-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  padding: 25px;
+
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
+
+  background: var(--hms-surface);
+  box-shadow: var(--hms-shadow);
+}
+
+.state-card h3 {
+  margin: 0 0 4px;
+
+  font-size: 15px;
+  font-weight: 650;
+
+  color: var(--hms-text);
+}
+
+.state-card p {
+  margin: 0;
+
+  font-size: 13px;
+
+  color: var(--hms-text-muted);
+}
+
+.loading-icon {
+  color: var(--hms-primary);
+  animation: spin 1s linear infinite;
+}
+
+
+/* =====================================================
+   ALERTS
+   ===================================================== */
+
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 18px;
+  padding: 13px 15px;
+
+  border-radius: var(--hms-radius);
+
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.alert.success {
+  border: 1px solid var(--hms-success);
+  background: var(--hms-success-light);
+  color: var(--hms-success);
+}
+
+.alert.error {
+  border: 1px solid var(--hms-danger);
+  background: var(--hms-danger-light);
+  color: var(--hms-danger);
+}
+
+.alert .material-symbols-outlined {
+  font-size: 20px;
+}
+
+
+/* =====================================================
+   SETTINGS LAYOUT
+   ===================================================== */
+
+.settings-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+
+/* =====================================================
+   SETTINGS SECTION
+   ===================================================== */
+
+.settings-section {
+  padding: 24px;
+
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
+
+  background: var(--hms-surface);
+  box-shadow: var(--hms-shadow);
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+
+  padding-bottom: 20px;
+
+  border-bottom: 1px solid var(--hms-border);
+}
+
+.section-icon {
+  width: 42px;
+  height: 42px;
   flex-shrink: 0;
 
   display: flex;
@@ -116,424 +263,375 @@
 
   border-radius: 11px;
 
-  background: #eaf6fb;
-
-  color: #1685a8;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
-.header-icon .material-symbols-outlined {
-  font-size: 25px;
+.section-icon .material-symbols-outlined {
+  font-size: 22px;
 }
 
-.card-header h2 {
+.section-header h2 {
   margin: 0 0 4px;
 
-  color: #172033;
+  font-size: 16px;
+  font-weight: 650;
 
-  font-size: 18px;
+  color: var(--hms-text);
 }
 
-.card-header p {
+.section-header p {
+  max-width: 750px;
   margin: 0;
 
-  color: #6b7280;
+  font-size: 12.5px;
+  line-height: 1.55;
 
-  font-size: 13px;
+  color: var(--hms-text-muted);
 }
 
 
 /* =====================================================
-   FORM BODY
-===================================================== */
+   FORM GRID
+   ===================================================== */
 
-.form-body {
+.form-grid {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
+  gap: 19px;
 
-  gap: 22px;
-
-  padding: 28px 25px;
+  padding-top: 22px;
 }
 
-
-/* =====================================================
-   FORM GROUP
-===================================================== */
-
-.form-group {
-  display: flex;
-  flex-direction: column;
+.form-field {
+  min-width: 0;
 }
 
-.form-group.full-width {
+.form-field.full {
   grid-column: 1 / -1;
 }
 
-.form-group label {
-  margin-bottom: 8px;
+.form-field label {
+  display: block;
 
-  color: #374151;
+  margin-bottom: 7px;
 
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 650;
 
-  font-weight: 600;
+  color: var(--hms-text);
 }
 
-.form-group label span {
-  color: #dc2626;
-  margin-left: 2px;
+.form-field label span {
+  margin-left: 3px;
+  color: var(--hms-danger);
 }
 
 
 /* =====================================================
    INPUTS
-===================================================== */
+   ===================================================== */
 
-.form-group input,
-.form-group textarea {
+.form-field input,
+.form-field textarea {
   width: 100%;
-
   box-sizing: border-box;
 
-  padding: 12px 14px;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius);
 
-  border: 1px solid #d7dee3;
+  padding: 11px 12px;
 
-  border-radius: 9px;
-
-  background: #ffffff;
-
-  color: #172033;
+  background: var(--hms-input-bg);
+  color: var(--hms-input-text);
 
   font-family: inherit;
-
-  font-size: 14px;
+  font-size: 13px;
 
   outline: none;
 
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition),
+    background var(--hms-transition);
 }
 
-.form-group input {
-  height: 44px;
-}
-
-.form-group textarea {
+.form-field textarea {
   resize: vertical;
-  min-height: 85px;
+  min-height: 88px;
 }
 
-.form-group input:focus,
-.form-group textarea:focus {
-  border-color: #1685a8;
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+  color: var(--hms-text-muted);
+}
+
+.form-field input:hover,
+.form-field textarea:hover {
+  border-color: var(--hms-primary);
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+  border-color: var(--hms-primary);
 
   box-shadow:
-    0 0 0 3px
-    rgba(22, 133, 168, 0.10);
+    0 0 0 3px var(--hms-primary-light);
 }
 
-.form-group input::placeholder,
-.form-group textarea::placeholder {
-  color: #a1a9b2;
-}
+.form-field small {
+  display: block;
 
-.form-group small {
   margin-top: 6px;
 
-  color: #8a929b;
+  font-size: 11px;
+  line-height: 1.5;
+
+  color: var(--hms-text-muted);
+}
+
+
+/* =====================================================
+   BRANDING
+   ===================================================== */
+
+.branding-layout {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+
+  gap: 24px;
+
+  align-items: center;
+
+  padding-top: 22px;
+}
+
+.logo-preview {
+  width: 150px;
+  height: 120px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  box-sizing: border-box;
+
+  border: 1px dashed var(--hms-border);
+  border-radius: var(--hms-radius-lg);
+
+  background: var(--hms-primary-light);
+  color: var(--hms-text-muted);
 
   font-size: 11px;
 }
 
+.logo-preview img {
+  width: 100%;
+  height: 100%;
 
-/* =====================================================
-   ACTIONS
-===================================================== */
+  object-fit: contain;
 
-.form-actions {
-  display: flex;
-
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 12px;
-
-  padding: 20px 25px;
-
-  border-top: 1px solid #edf0f2;
-
-  background: #fbfdfe;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
-.action-right {
-  display: flex;
+.logo-preview .material-symbols-outlined {
+  font-size: 32px;
+  color: var(--hms-primary);
+}
 
-  align-items: center;
-
-  gap: 10px;
+.branding-field {
+  align-self: center;
 }
 
 
 /* =====================================================
-   BUTTONS
-===================================================== */
+   TENANT NOTICE
+   ===================================================== */
 
-.primary-button,
-.secondary-button,
-.danger-button {
-  min-height: 42px;
+.tenant-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
 
-  display: inline-flex;
+  padding: 18px 20px;
 
+  border: 1px solid var(--hms-primary);
+  border-radius: 13px;
+
+  background: var(--hms-primary-light);
+}
+
+.tenant-notice-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+
+  display: flex;
   align-items: center;
   justify-content: center;
 
-  gap: 8px;
+  border-radius: 50%;
 
-  padding: 0 17px;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
+}
 
-  border-radius: 9px;
+.tenant-notice-icon .material-symbols-outlined {
+  font-size: 21px;
+}
+
+.notice-label {
+  display: block;
+
+  margin-bottom: 3px;
+
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+
+  color: var(--hms-primary);
+}
+
+.tenant-notice h3 {
+  margin: 0 0 4px;
+
+  font-size: 14px;
+  font-weight: 650;
+
+  color: var(--hms-text);
+}
+
+.tenant-notice p {
+  max-width: 850px;
+  margin: 0;
+
+  font-size: 12px;
+  line-height: 1.55;
+
+  color: var(--hms-text-secondary);
+}
+
+
+/* =====================================================
+   ACTION BAR
+   ===================================================== */
+
+.action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  padding-top: 4px;
+}
+
+.button {
+  min-height: 40px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 0 15px;
+
+  border-radius: var(--hms-radius);
 
   font-family: inherit;
-
-  font-size: 13px;
-
-  font-weight: 600;
+  font-size: 12.5px;
+  font-weight: 650;
 
   cursor: pointer;
 
-  transition: 0.2s ease;
+  transition:
+    background var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition),
+    transform 0.15s ease;
 }
 
-.primary-button {
-  border: 1px solid #1685a8;
+.button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
 
-  background: #1685a8;
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
 
+.button .material-symbols-outlined {
+  font-size: 18px;
+}
+
+
+/* =====================================================
+   SECONDARY BUTTON
+   ===================================================== */
+
+.button.secondary {
+  border: 1px solid var(--hms-border);
+
+  background: var(--hms-surface);
+  color: var(--hms-text-secondary);
+}
+
+.button.secondary:hover:not(:disabled) {
+  border-color: var(--hms-primary);
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text);
+}
+
+
+/* =====================================================
+   PRIMARY BUTTON
+   ===================================================== */
+
+.button.primary {
+  border: 1px solid var(--hms-primary);
+
+  background: var(--hms-primary);
   color: #ffffff;
 }
 
-.primary-button:hover:not(:disabled) {
-  background: #126f8d;
-}
-
-.primary-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.secondary-button {
-  border: 1px solid #d7dee3;
-
-  background: #ffffff;
-
-  color: #4b5563;
-}
-
-.secondary-button:hover {
-  background: #f5f7f8;
-}
-
-.danger-button {
-  border: 1px solid #f0caca;
-
-  background: #fff7f7;
-
-  color: #c0392b;
-}
-
-.danger-button:hover {
-  background: #fff0f0;
+.button.primary:hover:not(:disabled) {
+  border-color: var(--hms-primary-hover);
+  background: var(--hms-primary-hover);
 }
 
 
 /* =====================================================
-   RESPONSIVE
-===================================================== */
-
-@media (max-width: 700px) {
-
-  .hospital-settings-page {
-    padding: 18px;
-  }
-
-  .form-body {
-    grid-template-columns: 1fr;
-
-    padding: 22px 18px;
-  }
-
-  .form-group.full-width {
-    grid-column: auto;
-  }
-
-  .card-header {
-    padding: 18px;
-  }
-
-  .form-actions {
-    flex-direction: column;
-
-    align-items: stretch;
-
-    padding: 18px;
-  }
-
-  .action-right {
-    width: 100%;
-  }
-
-  .action-right button {
-    flex: 1;
-  }
-
-  .danger-button {
-    width: 100%;
-  }
-
-}
-
-
-@media (max-width: 450px) {
-
-  .header-left {
-    align-items: flex-start;
-  }
-
-  .page-header h1 {
-    font-size: 22px;
-  }
-
-  .page-header p {
-    line-height: 1.5;
-  }
-
-}
-
-/* =====================================================
-   LOADING STATE
+   DANGER OUTLINE
    ===================================================== */
 
-.loading-card {
-  min-height: 220px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.button.danger-outline {
+  border: 1px solid var(--hms-danger);
+
+  background: var(--hms-surface);
+  color: var(--hms-danger);
 }
 
-.loading-content {
-  text-align: center;
-  color: #64748b;
-}
-
-.loading-icon {
-  font-size: 38px;
-  display: block;
-  margin-bottom: 12px;
-}
-
-.loading-content p {
-  margin: 0;
-  font-size: 14px;
+.button.danger-outline:hover:not(:disabled) {
+  border-color: var(--hms-danger);
+  background: var(--hms-danger-light);
 }
 
 
 /* =====================================================
-   REQUIRED FIELD
-   ===================================================== */
-
-.required {
-  color: #dc2626;
-  margin-left: 3px;
-}
-
-
-/* =====================================================
-   FORM HELP TEXT
-   ===================================================== */
-
-.form-group small {
-  display: block;
-  margin-top: 7px;
-  color: #64748b;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-
-/* =====================================================
-   LOGO PREVIEW
-   ===================================================== */
-
-.logo-preview {
-  margin-top: 16px;
-  padding: 16px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  background: #f8fafc;
-}
-
-.logo-preview-image {
-  width: 80px;
-  height: 80px;
-  border-radius: 10px;
-  border: 1px solid #dbe3ea;
-  background: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.logo-preview-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.logo-preview strong {
-  display: block;
-  margin-bottom: 5px;
-  font-size: 14px;
-  color: #1e293b;
-}
-
-.logo-preview p {
-  margin: 0;
-  color: #64748b;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-
-/* =====================================================
-   DISABLED BUTTONS
-   ===================================================== */
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-
-/* =====================================================
-   SPINNER
+   ANIMATIONS
    ===================================================== */
 
 .spinning {
-  animation: hospital-settings-spin 1s linear infinite;
+  animation: spin 1s linear infinite;
 }
 
-@keyframes hospital-settings-spin {
-
+@keyframes spin {
   from {
     transform: rotate(0deg);
   }
@@ -541,18 +639,78 @@ button:disabled {
   to {
     transform: rotate(360deg);
   }
-
 }
 
 
 /* =====================================================
-   MOBILE LOGO PREVIEW
+   RESPONSIVE
    ===================================================== */
 
-@media (max-width: 600px) {
+@media (max-width: 800px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-field.full {
+    grid-column: auto;
+  }
+
+  .branding-layout {
+    grid-template-columns: 1fr;
+  }
 
   .logo-preview {
+    width: 130px;
+    height: 110px;
+  }
+}
+
+@media (max-width: 600px) {
+  .hospital-settings-page {
+    padding: 18px;
+  }
+
+  .page-heading {
     align-items: flex-start;
   }
 
+  .page-heading h1 {
+    font-size: 23px;
+  }
+
+  .page-heading p {
+    font-size: 12px;
+  }
+
+  .page-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+  }
+
+  .settings-section {
+    padding: 18px;
+  }
+
+  .section-header {
+    gap: 10px;
+  }
+
+  .section-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .action-bar {
+    flex-wrap: wrap;
+    justify-content: stretch;
+  }
+
+  .action-bar .button {
+    flex: 1;
+  }
+
+  .tenant-notice {
+    padding: 15px;
+  }
 }

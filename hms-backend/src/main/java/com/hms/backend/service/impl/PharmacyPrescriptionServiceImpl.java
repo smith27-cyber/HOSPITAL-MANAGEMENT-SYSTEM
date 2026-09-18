@@ -1,27 +1,23 @@
 package com.hms.backend.service.impl;
 
+import com.hms.backend.audit.service.AuditLogService;
 import com.hms.backend.dto.BillingItemRequest;
-
 import com.hms.backend.entity.Billing;
 import com.hms.backend.entity.BillingItem;
 import com.hms.backend.entity.Consultation;
 import com.hms.backend.entity.Doctor;
 import com.hms.backend.entity.Inventory;
-import com.hms.backend.entity.Patient;
 import com.hms.backend.entity.PharmacyPrescription;
 import com.hms.backend.entity.PharmacyPrescriptionItem;
-import com.hms.backend.tenant.entity.Tenant;
-
 import com.hms.backend.repository.ConsultationRepository;
 import com.hms.backend.repository.DoctorRepository;
 import com.hms.backend.repository.InventoryRepository;
 import com.hms.backend.repository.PatientRepository;
 import com.hms.backend.repository.PharmacyPrescriptionRepository;
-
 import com.hms.backend.service.BillingService;
 import com.hms.backend.service.PharmacyPrescriptionService;
-
 import com.hms.backend.tenant.context.TenantContext;
+import com.hms.backend.tenant.entity.Tenant;
 import com.hms.backend.tenant.repository.TenantRepository;
 
 import org.springframework.http.HttpStatus;
@@ -32,6 +28,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -56,6 +53,8 @@ public class PharmacyPrescriptionServiceImpl
 
     private final BillingService billingService;
 
+    private final AuditLogService auditLogService;
+
     // =====================================================
     // CONSTRUCTOR
     // =====================================================
@@ -67,8 +66,9 @@ public class PharmacyPrescriptionServiceImpl
             DoctorRepository doctorRepository,
             InventoryRepository inventoryRepository,
             TenantRepository tenantRepository,
-            BillingService billingService
-    ) {
+            BillingService billingService,
+            AuditLogService auditLogService) {
+
         this.repository = repository;
         this.consultationRepository = consultationRepository;
         this.patientRepository = patientRepository;
@@ -76,6 +76,7 @@ public class PharmacyPrescriptionServiceImpl
         this.inventoryRepository = inventoryRepository;
         this.tenantRepository = tenantRepository;
         this.billingService = billingService;
+        this.auditLogService = auditLogService;
     }
 
     // =====================================================
@@ -83,6 +84,7 @@ public class PharmacyPrescriptionServiceImpl
     // =====================================================
 
     private Long getCurrentTenantId() {
+
         return TenantContext.requireTenantId();
     }
 
@@ -90,13 +92,12 @@ public class PharmacyPrescriptionServiceImpl
 
         Long tenantId = getCurrentTenantId();
 
-        return tenantRepository.findById(tenantId)
+        return tenantRepository
+                .findById(tenantId)
                 .orElseThrow(() ->
                         new ResponseStatusException(
                                 HttpStatus.INTERNAL_SERVER_ERROR,
-                                "Current tenant not found: " + tenantId
-                        )
-                );
+                                "Current tenant not found: " + tenantId));
     }
 
     // =====================================================
@@ -121,9 +122,9 @@ public class PharmacyPrescriptionServiceImpl
     public PharmacyPrescription getPrescriptionById(Long id) {
 
         if (id == null) {
+
             throw new IllegalArgumentException(
-                    "Prescription ID is required."
-            );
+                    "Prescription ID is required.");
         }
 
         Long tenantId = getCurrentTenantId();
@@ -132,9 +133,7 @@ public class PharmacyPrescriptionServiceImpl
                 .findByIdAndTenant_Id(id, tenantId)
                 .orElseThrow(() ->
                         new IllegalArgumentException(
-                                "Pharmacy prescription not found: " + id
-                        )
-                );
+                                "Pharmacy prescription not found: " + id));
     }
 
     // =====================================================
@@ -144,21 +143,19 @@ public class PharmacyPrescriptionServiceImpl
     @Override
     @Transactional(readOnly = true)
     public List<PharmacyPrescription> getPrescriptionsByPatient(
-            String patientId
-    ) {
+            String patientId) {
 
         if (patientId == null || patientId.isBlank()) {
+
             throw new IllegalArgumentException(
-                    "Patient ID is required."
-            );
+                    "Patient ID is required.");
         }
 
         Long tenantId = getCurrentTenantId();
 
         return repository.findByTenant_IdAndPatientId(
                 tenantId,
-                patientId.trim()
-        );
+                patientId.trim());
     }
 
     // =====================================================
@@ -168,21 +165,20 @@ public class PharmacyPrescriptionServiceImpl
     @Override
     @Transactional(readOnly = true)
     public List<PharmacyPrescription> getPrescriptionsByConsultation(
-            String consultationId
-    ) {
+            String consultationId) {
 
-        if (consultationId == null || consultationId.isBlank()) {
+        if (consultationId == null ||
+                consultationId.isBlank()) {
+
             throw new IllegalArgumentException(
-                    "Consultation ID is required."
-            );
+                    "Consultation ID is required.");
         }
 
         Long tenantId = getCurrentTenantId();
 
         return repository.findByTenant_IdAndConsultationId(
                 tenantId,
-                consultationId.trim()
-        );
+                consultationId.trim());
     }
 
     // =====================================================
@@ -192,10 +188,11 @@ public class PharmacyPrescriptionServiceImpl
     @Override
     @Transactional(readOnly = true)
     public PharmacyPrescription getPrescriptionByConsultation(
-            String consultationId
-    ) {
+            String consultationId) {
 
-        if (consultationId == null || consultationId.isBlank()) {
+        if (consultationId == null ||
+                consultationId.isBlank()) {
+
             return null;
         }
 
@@ -204,8 +201,7 @@ public class PharmacyPrescriptionServiceImpl
         return repository
                 .findFirstByTenant_IdAndConsultationIdOrderByIdDesc(
                         tenantId,
-                        consultationId.trim()
-                )
+                        consultationId.trim())
                 .orElse(null);
     }
 
@@ -216,21 +212,19 @@ public class PharmacyPrescriptionServiceImpl
     @Override
     @Transactional(readOnly = true)
     public List<PharmacyPrescription> getPrescriptionsByStatus(
-            String status
-    ) {
+            String status) {
 
         if (status == null || status.isBlank()) {
+
             throw new IllegalArgumentException(
-                    "Prescription status is required."
-            );
+                    "Prescription status is required.");
         }
 
         Long tenantId = getCurrentTenantId();
 
         return repository.findByTenant_IdAndStatus(
                 tenantId,
-                status.trim()
-        );
+                status.trim());
     }
 
     // =====================================================
@@ -239,88 +233,133 @@ public class PharmacyPrescriptionServiceImpl
 
     @Override
     public PharmacyPrescription createPrescription(
-            PharmacyPrescription prescription
-    ) {
+            PharmacyPrescription prescription) {
 
-        validatePrescriptionForCreate(prescription);
+        if (prescription == null) {
 
-        Long tenantId = getCurrentTenantId();
+            throw new IllegalArgumentException(
+                    "Prescription cannot be null.");
+        }
 
-        Tenant currentTenant = getCurrentTenant();
+        String requestedPatientId =
+                clean(prescription.getPatientId());
+
+        String patientName =
+                clean(prescription.getPatientName());
+
+        String consultationId =
+                clean(prescription.getConsultationId());
 
         // =================================================
-        // FORCE TENANT FROM SERVER
+        // RESOLVE PATIENT
         // =================================================
 
-        prescription.setTenant(currentTenant);
+        final String resolvedPatientId;
+
+        if (requestedPatientId == null) {
+
+            if (consultationId != null) {
+
+                throw new IllegalArgumentException(
+                        "A consultation prescription requires a registered patient.");
+            }
+
+            resolvedPatientId =
+                    generateWalkInPatientId();
+
+            prescription.setPatientId(
+                    resolvedPatientId);
+
+        } else {
+
+            resolvedPatientId =
+                    requestedPatientId;
+        }
+
+        // =================================================
+        // BASIC VALIDATION
+        // =================================================
+
+        validatePrescriptionForCreate(
+                prescription);
+
+        Long tenantId =
+                getCurrentTenantId();
+
+        Tenant currentTenant =
+                getCurrentTenant();
+
+        // =================================================
+        // FORCE TENANT
+        // =================================================
+
+        prescription.setTenant(
+                currentTenant);
 
         // =================================================
         // PATIENT
         // =================================================
 
-        String patientId = clean(
-                prescription.getPatientId()
-        );
+        if (isWalkInPatientId(
+                resolvedPatientId)) {
 
-        Patient patient =
-                patientRepository
-                        .findByIdAndTenant_Id(
-                                patientId,
-                                tenantId
-                        )
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
-                                        "Patient not found in the current tenant: "
-                                                + patientId
-                                )
-                        );
+            prescription.setPatientId(
+                    resolvedPatientId);
 
-        prescription.setPatientId(
-                patientId
-        );
+            prescription.setPatientName(
+                    patientName);
 
-        // Keep the value from the request for compatibility
-        // with the current frontend model.
-        prescription.setPatientName(
-                clean(prescription.getPatientName())
-        );
+            prescription.setPatientNumber(
+                    clean(
+                            prescription.getPatientNumber()));
 
-        prescription.setPatientNumber(
-                clean(prescription.getPatientNumber())
-        );
+        } else {
+
+            patientRepository
+                    .findByIdAndTenant_Id(
+                            resolvedPatientId,
+                            tenantId)
+                    .orElseThrow(() ->
+                            new IllegalArgumentException(
+                                    "Patient not found in the current tenant: "
+                                            + resolvedPatientId));
+
+            prescription.setPatientId(
+                    resolvedPatientId);
+
+            prescription.setPatientName(
+                    patientName);
+
+            prescription.setPatientNumber(
+                    clean(
+                            prescription.getPatientNumber()));
+        }
 
         // =================================================
         // DOCTOR
         // =================================================
 
         String doctorId =
-                clean(
-                        prescription.getDoctorId()
-                );
+                clean(prescription.getDoctorId());
 
         if (doctorId != null) {
 
             doctorRepository
                     .findByIdAndTenant_Id(
                             doctorId,
-                            tenantId
-                    )
+                            tenantId)
                     .orElseThrow(() ->
                             new IllegalArgumentException(
                                     "Doctor not found in the current tenant: "
-                                            + doctorId
-                            )
-                    );
+                                            + doctorId));
 
             prescription.setDoctorId(
-                    doctorId
-            );
+                    doctorId);
 
             prescription.setDoctorName(
                     clean(
-                            prescription.getDoctorName()
-                    )
-            );
+                            prescription.getDoctorName()));
+
         } else {
 
             prescription.setDoctorId(null);
@@ -331,141 +370,112 @@ public class PharmacyPrescriptionServiceImpl
         // CONSULTATION
         // =================================================
 
-        String consultationId =
-                clean(
-                        prescription.getConsultationId()
-                );
-
         prescription.setConsultationId(
-                consultationId
-        );
+                consultationId);
 
         if (consultationId != null) {
+
+            if (isWalkInPatientId(
+                    resolvedPatientId)) {
+
+                throw new IllegalArgumentException(
+                        "A walk-in customer cannot be linked to a consultation.");
+            }
 
             Consultation consultation =
                     consultationRepository
                             .findByIdAndTenant_Id(
                                     consultationId,
-                                    tenantId
-                            )
+                                    tenantId)
                             .orElseThrow(() ->
                                     new IllegalArgumentException(
                                             "Consultation not found: "
-                                                    + consultationId
-                                    )
-                            );
+                                                    + consultationId));
 
-            if (
-                    consultation.getStatus() ==
-                            Consultation.ConsultationStatus.COMPLETED
-            ) {
+            if (consultation.getStatus()
+                    == Consultation.ConsultationStatus.COMPLETED) {
 
                 throw new IllegalStateException(
-                        "A prescription cannot be added to a completed consultation."
-                );
+                        "A prescription cannot be added to a completed consultation.");
             }
 
-            if (
-                    consultation.getStatus() ==
-                            Consultation.ConsultationStatus.CANCELLED
-            ) {
+            if (consultation.getStatus()
+                    == Consultation.ConsultationStatus.CANCELLED) {
 
                 throw new IllegalStateException(
-                        "A prescription cannot be added to a cancelled consultation."
-                );
+                        "A prescription cannot be added to a cancelled consultation.");
             }
 
-            // Make sure the consultation actually belongs
-            // to the supplied patient.
-            if (
-                    consultation.getPatientId() != null &&
+            if (consultation.getPatientId() != null &&
                     !consultation.getPatientId()
-                            .equals(patientId)
-            ) {
+                            .equals(resolvedPatientId)) {
 
                 throw new IllegalArgumentException(
-                        "The consultation does not belong to the selected patient."
-                );
+                        "The consultation does not belong to the selected patient.");
             }
 
-            // Make sure the doctor matches the consultation.
-            if (
-                    doctorId != null &&
+            if (doctorId != null &&
                     consultation.getDoctorId() != null &&
                     !consultation.getDoctorId()
-                            .equals(doctorId)
-            ) {
+                            .equals(doctorId)) {
 
                 throw new IllegalArgumentException(
-                        "The selected doctor does not match the consultation."
-                );
+                        "The selected doctor does not match the consultation.");
             }
 
             PharmacyPrescription existing =
                     repository
                             .findFirstByTenant_IdAndConsultationIdOrderByIdDesc(
                                     tenantId,
-                                    consultationId
-                            )
+                                    consultationId)
                             .orElse(null);
 
-            if (
-                    existing != null &&
+            if (existing != null &&
                     !"Cancelled".equalsIgnoreCase(
-                            existing.getStatus()
-                    )
-            ) {
+                            existing.getStatus())) {
 
                 throw new IllegalStateException(
                         "An active pharmacy prescription already exists for consultation: "
-                                + consultationId
-                );
+                                + consultationId);
             }
         }
 
         // =================================================
-        // VALIDATE INVENTORY ITEMS
+        // VALIDATE INVENTORY
         // =================================================
 
         validateInventoryItems(
                 prescription,
-                tenantId
-        );
+                tenantId);
 
         // =================================================
         // PRESCRIPTION NUMBER
         // =================================================
 
-        if (
-                prescription.getPrescriptionNumber() == null ||
-                prescription.getPrescriptionNumber().isBlank()
-        ) {
+        if (prescription.getPrescriptionNumber() == null ||
+                prescription.getPrescriptionNumber().isBlank()) {
 
             prescription.setPrescriptionNumber(
-                    generatePrescriptionNumber()
-            );
+                    generatePrescriptionNumber());
+
         } else {
 
             String suppliedNumber =
                     prescription.getPrescriptionNumber()
                             .trim();
 
-            if (
-                    repository.existsByTenant_IdAndPrescriptionNumber(
+            if (repository
+                    .existsByTenant_IdAndPrescriptionNumber(
                             tenantId,
-                            suppliedNumber
-                    )
-            ) {
+                            suppliedNumber)) {
 
                 throw new IllegalArgumentException(
                         "Prescription number already exists in this tenant: "
-                                + suppliedNumber
-                );
+                                + suppliedNumber);
             }
 
             prescription.setPrescriptionNumber(
-                    suppliedNumber
-            );
+                    suppliedNumber);
         }
 
         // =================================================
@@ -476,37 +486,32 @@ public class PharmacyPrescriptionServiceImpl
                 LocalDateTime.now();
 
         prescription.setStatus(
-                "Waiting"
-        );
+                "Waiting");
 
         prescription.setPrescriptionDate(
-                now
-        );
+                now);
 
-        if (
-                prescription.getCreatedAt() == null
-        ) {
+        if (prescription.getCreatedAt() == null) {
 
             prescription.setCreatedAt(
-                    now
-            );
+                    now);
         }
 
         prescription.setUpdatedAt(
-                now
-        );
+                now);
 
         // =================================================
-        // RESET BILLING VALUES
+        // RESET BILLING
         // =================================================
 
-        prescription.setBillingId(null);
+        prescription.setBillingId(
+                null);
 
-        prescription.setBillingStatus(null);
+        prescription.setBillingStatus(
+                null);
 
         prescription.setAmountPaid(
-                BigDecimal.ZERO
-        );
+                BigDecimal.ZERO);
 
         // =================================================
         // CALCULATE TOTAL
@@ -514,27 +519,20 @@ public class PharmacyPrescriptionServiceImpl
 
         BigDecimal subtotal =
                 calculateSubtotal(
-                        prescription
-                );
+                        prescription);
 
-        if (
-                subtotal.compareTo(
-                        BigDecimal.ZERO
-                ) <= 0
-        ) {
+        if (subtotal.compareTo(
+                BigDecimal.ZERO) <= 0) {
 
             throw new IllegalArgumentException(
-                    "Prescription total must be greater than zero."
-            );
+                    "Prescription total must be greater than zero.");
         }
 
         prescription.setSubtotal(
-                subtotal
-        );
+                subtotal);
 
         prescription.setBalance(
-                subtotal
-        );
+                subtotal);
 
         // =================================================
         // SAVE
@@ -542,16 +540,32 @@ public class PharmacyPrescriptionServiceImpl
 
         PharmacyPrescription saved =
                 repository.save(
-                        prescription
-                );
+                        prescription);
 
         // =================================================
         // SYNC CONSULTATION
         // =================================================
 
         synchronizeConsultationPrescriptionFlag(
-                saved.getConsultationId()
-        );
+                saved.getConsultationId());
+
+        // =================================================
+        // AUDIT
+        // =================================================
+
+        auditLogService.log(
+                "CREATE",
+                "PHARMACY_PRESCRIPTION",
+                String.valueOf(
+                        saved.getId()),
+                "Created pharmacy prescription "
+                        + saved.getPrescriptionNumber()
+                        + " for "
+                        + (isWalkInPatientId(
+                        saved.getPatientId())
+                        ? "walk-in customer "
+                        : "patient ")
+                        + saved.getPatientId());
 
         return saved;
     }
@@ -563,55 +577,45 @@ public class PharmacyPrescriptionServiceImpl
     @Override
     public PharmacyPrescription updatePrescription(
             Long id,
-            PharmacyPrescription prescription
-    ) {
+            PharmacyPrescription prescription) {
 
         if (id == null) {
+
             throw new IllegalArgumentException(
-                    "Prescription ID is required."
-            );
+                    "Prescription ID is required.");
         }
 
         if (prescription == null) {
+
             throw new IllegalArgumentException(
-                    "Prescription cannot be null."
-            );
+                    "Prescription cannot be null.");
         }
 
-        Long tenantId = getCurrentTenantId();
+        Long tenantId =
+                getCurrentTenantId();
 
         PharmacyPrescription existing =
                 repository
                         .findByIdAndTenant_Id(
                                 id,
-                                tenantId
-                        )
+                                tenantId)
                         .orElseThrow(() ->
                                 new IllegalArgumentException(
                                         "Pharmacy prescription not found: "
-                                                + id
-                                )
-                        );
+                                                + id));
 
-        if (
-                !"Waiting".equalsIgnoreCase(
-                        existing.getStatus()
-                )
-        ) {
+        if (!"Waiting".equalsIgnoreCase(
+                existing.getStatus())) {
 
             throw new IllegalStateException(
-                    "Only Waiting prescriptions can be modified."
-            );
+                    "Only Waiting prescriptions can be modified.");
         }
 
-        if (
-                prescription.getItems() == null ||
-                prescription.getItems().isEmpty()
-        ) {
+        if (prescription.getItems() == null ||
+                prescription.getItems().isEmpty()) {
 
             throw new IllegalArgumentException(
-                    "At least one prescription item is required."
-            );
+                    "At least one prescription item is required.");
         }
 
         // =================================================
@@ -619,50 +623,44 @@ public class PharmacyPrescriptionServiceImpl
         // =================================================
 
         String patientId =
-                clean(
-                        prescription.getPatientId()
-                );
+                clean(prescription.getPatientId());
 
         if (patientId == null) {
+
             throw new IllegalArgumentException(
-                    "Patient ID is required."
-            );
+                    "Patient ID is required.");
         }
 
-        patientRepository
-                .findByIdAndTenant_Id(
-                        patientId,
-                        tenantId
-                )
-                .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "Patient not found in the current tenant: "
-                                        + patientId
-                        )
-                );
+        if (!isWalkInPatientId(
+                patientId)) {
+
+            patientRepository
+                    .findByIdAndTenant_Id(
+                            patientId,
+                            tenantId)
+                    .orElseThrow(() ->
+                            new IllegalArgumentException(
+                                    "Patient not found in the current tenant: "
+                                            + patientId));
+        }
 
         // =================================================
         // DOCTOR
         // =================================================
 
         String doctorId =
-                clean(
-                        prescription.getDoctorId()
-                );
+                clean(prescription.getDoctorId());
 
         if (doctorId != null) {
 
             doctorRepository
                     .findByIdAndTenant_Id(
                             doctorId,
-                            tenantId
-                    )
+                            tenantId)
                     .orElseThrow(() ->
                             new IllegalArgumentException(
                                     "Doctor not found in the current tenant: "
-                                            + doctorId
-                            )
-                    );
+                                            + doctorId));
         }
 
         // =================================================
@@ -670,66 +668,56 @@ public class PharmacyPrescriptionServiceImpl
         // =================================================
 
         String consultationId =
-                clean(
-                        prescription.getConsultationId()
-                );
+                clean(prescription.getConsultationId());
 
         if (consultationId != null) {
+
+            if (isWalkInPatientId(
+                    patientId)) {
+
+                throw new IllegalArgumentException(
+                        "A walk-in customer cannot be linked to a consultation.");
+            }
 
             Consultation consultation =
                     consultationRepository
                             .findByIdAndTenant_Id(
                                     consultationId,
-                                    tenantId
-                            )
+                                    tenantId)
                             .orElseThrow(() ->
                                     new IllegalArgumentException(
                                             "Consultation not found: "
-                                                    + consultationId
-                                    )
-                            );
+                                                    + consultationId));
 
-            if (
-                    consultation.getStatus() ==
-                            Consultation.ConsultationStatus.COMPLETED
-            ) {
+            if (consultation.getStatus()
+                    == Consultation.ConsultationStatus.COMPLETED) {
 
                 throw new IllegalStateException(
-                        "A prescription cannot be modified for a completed consultation."
-                );
+                        "A prescription cannot be modified for a completed consultation.");
             }
 
-            if (
-                    consultation.getStatus() ==
-                            Consultation.ConsultationStatus.CANCELLED
-            ) {
+            if (consultation.getStatus()
+                    == Consultation.ConsultationStatus.CANCELLED) {
 
                 throw new IllegalStateException(
-                        "A prescription cannot be modified for a cancelled consultation."
-                );
+                        "A prescription cannot be modified for a cancelled consultation.");
             }
 
-            if (
-                    consultation.getPatientId() != null &&
+            if (consultation.getPatientId() != null &&
                     !consultation.getPatientId()
-                            .equals(patientId)
-            ) {
+                            .equals(patientId)) {
 
                 throw new IllegalArgumentException(
-                        "The consultation does not belong to the selected patient."
-                );
+                        "The consultation does not belong to the selected patient.");
             }
 
-            if (
-                    doctorId != null &&
+            if (doctorId != null &&
                     consultation.getDoctorId() != null &&
                     !consultation.getDoctorId()
-                            .equals(doctorId)
-            ) {
+                            .equals(doctorId)) {
 
                 throw new IllegalArgumentException(
-                        "The selected doctor does not match the consultation."
-                );
+                        "The selected doctor does not match the consultation.");
             }
         }
 
@@ -739,52 +727,39 @@ public class PharmacyPrescriptionServiceImpl
 
         validateInventoryItems(
                 prescription,
-                tenantId
-        );
+                tenantId);
 
         // =================================================
         // COPY DATA
         // =================================================
 
         existing.setPatientId(
-                patientId
-        );
+                patientId);
 
         existing.setPatientName(
                 clean(
-                        prescription.getPatientName()
-                )
-        );
+                        prescription.getPatientName()));
 
         existing.setPatientNumber(
                 clean(
-                        prescription.getPatientNumber()
-                )
-        );
+                        prescription.getPatientNumber()));
 
         existing.setConsultationId(
-                consultationId
-        );
+                consultationId);
 
         existing.setDoctorId(
-                doctorId
-        );
+                doctorId);
 
         existing.setDoctorName(
                 clean(
-                        prescription.getDoctorName()
-                )
-        );
+                        prescription.getDoctorName()));
 
         existing.setItems(
-                prescription.getItems()
-        );
+                prescription.getItems());
 
         existing.setNotes(
                 clean(
-                        prescription.getNotes()
-                )
-        );
+                        prescription.getNotes()));
 
         // =================================================
         // CALCULATE TOTAL
@@ -792,23 +767,17 @@ public class PharmacyPrescriptionServiceImpl
 
         BigDecimal subtotal =
                 calculateSubtotal(
-                        existing
-                );
+                        existing);
 
-        if (
-                subtotal.compareTo(
-                        BigDecimal.ZERO
-                ) <= 0
-        ) {
+        if (subtotal.compareTo(
+                BigDecimal.ZERO) <= 0) {
 
             throw new IllegalArgumentException(
-                    "Prescription total must be greater than zero."
-            );
+                    "Prescription total must be greater than zero.");
         }
 
         existing.setSubtotal(
-                subtotal
-        );
+                subtotal);
 
         BigDecimal amountPaid =
                 existing.getAmountPaid() == null
@@ -818,31 +787,36 @@ public class PharmacyPrescriptionServiceImpl
         existing.setAmountPaid(
                 amountPaid
                         .min(subtotal)
-                        .max(BigDecimal.ZERO)
-        );
+                        .max(BigDecimal.ZERO));
 
         existing.setBalance(
                 subtotal
                         .subtract(
-                                existing.getAmountPaid()
-                        )
+                                existing.getAmountPaid())
                         .max(
-                                BigDecimal.ZERO
-                        )
-        );
+                                BigDecimal.ZERO));
 
         existing.setUpdatedAt(
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         PharmacyPrescription saved =
                 repository.save(
-                        existing
-                );
+                        existing);
 
         synchronizeConsultationPrescriptionFlag(
-                saved.getConsultationId()
-        );
+                saved.getConsultationId());
+
+        // =================================================
+        // AUDIT
+        // =================================================
+
+        auditLogService.log(
+                "UPDATE",
+                "PHARMACY_PRESCRIPTION",
+                String.valueOf(
+                        saved.getId()),
+                "Updated pharmacy prescription "
+                        + saved.getPrescriptionNumber());
 
         return saved;
     }
@@ -853,41 +827,43 @@ public class PharmacyPrescriptionServiceImpl
 
     @Override
     public PharmacyPrescription startPreparing(
-            Long id
-    ) {
+            Long id) {
 
         PharmacyPrescription prescription =
                 getPrescriptionById(id);
 
-        if (
-                !"Waiting".equalsIgnoreCase(
-                        prescription.getStatus()
-                )
-        ) {
+        if (!"Waiting".equalsIgnoreCase(
+                prescription.getStatus())) {
 
             throw new IllegalStateException(
-                    "Only Waiting prescriptions can be prepared."
-            );
+                    "Only Waiting prescriptions can be prepared.");
         }
 
         LocalDateTime now =
                 LocalDateTime.now();
 
         prescription.setStatus(
-                "Preparing"
-        );
+                "Preparing");
 
         prescription.setPreparedAt(
-                now
-        );
+                now);
 
         prescription.setUpdatedAt(
-                now
-        );
+                now);
 
-        return repository.save(
-                prescription
-        );
+        PharmacyPrescription saved =
+                repository.save(
+                        prescription);
+
+        auditLogService.log(
+                "PREPARE",
+                "PHARMACY_PRESCRIPTION",
+                String.valueOf(
+                        saved.getId()),
+                "Started preparing pharmacy prescription "
+                        + saved.getPrescriptionNumber());
+
+        return saved;
     }
 
     // =====================================================
@@ -896,60 +872,40 @@ public class PharmacyPrescriptionServiceImpl
 
     @Override
     public PharmacyPrescription sendToBilling(
-            Long id
-    ) {
+            Long id) {
 
         PharmacyPrescription prescription =
                 getPrescriptionById(id);
 
-        if (
-                "Cancelled".equalsIgnoreCase(
-                        prescription.getStatus()
-                )
-        ) {
+        if ("Cancelled".equalsIgnoreCase(
+                prescription.getStatus())) {
 
             throw new IllegalStateException(
-                    "Cancelled prescriptions cannot be sent to billing."
-            );
+                    "Cancelled prescriptions cannot be sent to billing.");
         }
 
-        if (
-                !"Preparing".equalsIgnoreCase(
-                        prescription.getStatus()
-                )
-        ) {
+        if (!"Preparing".equalsIgnoreCase(
+                prescription.getStatus()) &&
+                !"Awaiting Payment".equalsIgnoreCase(
+                        prescription.getStatus())) {
 
-            if (
-                    !"Awaiting Payment".equalsIgnoreCase(
-                            prescription.getStatus()
-                    )
-            ) {
-
-                throw new IllegalStateException(
-                        "Only Preparing prescriptions can be sent to billing."
-                );
-            }
+            throw new IllegalStateException(
+                    "Only Preparing prescriptions can be sent to billing.");
         }
 
         BigDecimal subtotal =
                 calculateSubtotal(
-                        prescription
-                );
+                        prescription);
 
-        if (
-                subtotal.compareTo(
-                        BigDecimal.ZERO
-                ) <= 0
-        ) {
+        if (subtotal.compareTo(
+                BigDecimal.ZERO) <= 0) {
 
             throw new IllegalStateException(
-                    "Prescription total must be greater than zero before billing."
-            );
+                    "Prescription total must be greater than zero before billing.");
         }
 
         prescription.setSubtotal(
-                subtotal
-        );
+                subtotal);
 
         // =================================================
         // BILLING ITEM
@@ -959,28 +915,21 @@ public class PharmacyPrescriptionServiceImpl
                 new BillingItemRequest();
 
         billingItem.setBillingType(
-                "Pharmacy"
-        );
+                "Pharmacy");
 
         billingItem.setDescription(
                 buildPharmacyDescription(
-                        prescription
-                )
-        );
+                        prescription));
 
         billingItem.setQuantity(
-                1
-        );
+                1);
 
         billingItem.setUnitPrice(
-                subtotal
-        );
+                subtotal);
 
         billingItem.setReferenceId(
                 String.valueOf(
-                        prescription.getId()
-                )
-        );
+                        prescription.getId()));
 
         // =================================================
         // FIND BILL
@@ -988,18 +937,16 @@ public class PharmacyPrescriptionServiceImpl
 
         Billing bill =
                 findBillingForPrescription(
-                        prescription
-                );
+                        prescription);
 
         // =================================================
-        // CHECK PHARMACY CHARGE
+        // CHECK CHARGE
         // =================================================
 
         boolean pharmacyChargeExists =
                 hasPharmacyCharge(
                         bill,
-                        prescription
-                );
+                        prescription);
 
         // =================================================
         // ADD CHARGE
@@ -1017,17 +964,13 @@ public class PharmacyPrescriptionServiceImpl
                                     prescription.getDoctorId(),
                                     prescription.getDoctorName(),
                                     null,
-                                    null
-                            );
+                                    null);
 
-            if (
-                    bill == null ||
-                    bill.getId() == null
-            ) {
+            if (bill == null ||
+                    bill.getId() == null) {
 
                 throw new IllegalStateException(
-                        "Unable to create pharmacy billing charge."
-                );
+                        "Unable to create pharmacy billing charge.");
             }
         }
 
@@ -1037,48 +980,50 @@ public class PharmacyPrescriptionServiceImpl
 
         prescription.setBillingId(
                 String.valueOf(
-                        bill.getId()
-                )
-        );
+                        bill.getId()));
 
         prescription.setBillingStatus(
                 bill.getStatus() == null
                         ? "Pending"
                         : billingStatusToFrontend(
-                                bill.getStatus()
-                        )
-        );
+                                bill.getStatus()));
 
         // =================================================
         // PAYMENT
         // =================================================
 
         prescription.setAmountPaid(
-                BigDecimal.ZERO
-        );
+                BigDecimal.ZERO);
 
         prescription.setBalance(
                 getPharmacyOutstandingBalance(
                         bill,
-                        prescription
-                )
-        );
+                        prescription));
 
         // =================================================
         // STATUS
         // =================================================
 
         prescription.setStatus(
-                "Awaiting Payment"
-        );
+                "Awaiting Payment");
 
         prescription.setUpdatedAt(
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
-        return repository.save(
-                prescription
-        );
+        PharmacyPrescription saved =
+                repository.save(
+                        prescription);
+
+        auditLogService.log(
+                "SEND_TO_BILLING",
+                "PHARMACY_PRESCRIPTION",
+                String.valueOf(
+                        saved.getId()),
+                "Sent pharmacy prescription "
+                        + saved.getPrescriptionNumber()
+                        + " to billing");
+
+        return saved;
     }
 
     // =====================================================
@@ -1087,125 +1032,107 @@ public class PharmacyPrescriptionServiceImpl
 
     @Override
     public PharmacyPrescription checkPayment(
-            Long id
-    ) {
+            Long id) {
 
         PharmacyPrescription prescription =
                 getPrescriptionById(id);
 
-        if (
-                !"Awaiting Payment".equalsIgnoreCase(
-                        prescription.getStatus()
-                )
-        ) {
+        if (!"Awaiting Payment".equalsIgnoreCase(
+                prescription.getStatus())) {
 
             throw new IllegalStateException(
-                    "Only prescriptions Awaiting Payment can be checked for payment."
-            );
+                    "Only prescriptions Awaiting Payment can be checked for payment.");
         }
 
         Billing bill =
                 findBillingForPrescription(
-                        prescription
-                );
+                        prescription);
 
         if (bill == null) {
 
             throw new IllegalStateException(
                     "No active billing invoice could be found for patient: "
-                            + prescription.getPatientId()
-            );
+                            + prescription.getPatientId());
         }
 
-        if (
-                !hasPharmacyCharge(
-                        bill,
-                        prescription
-                )
-        ) {
+        if (!hasPharmacyCharge(
+                bill,
+                prescription)) {
 
             throw new IllegalStateException(
                     "The billing invoice does not contain the pharmacy charge for prescription: "
-                            + prescription.getId()
-            );
+                            + prescription.getId());
         }
 
         prescription.setBillingId(
                 String.valueOf(
-                        bill.getId()
-                )
-        );
+                        bill.getId()));
 
         prescription.setBillingStatus(
                 bill.getStatus() == null
                         ? null
                         : billingStatusToFrontend(
-                                bill.getStatus()
-                        )
-        );
+                                bill.getStatus()));
 
         BigDecimal subtotal =
                 prescription.getSubtotal() == null
                         ? calculateSubtotal(
-                                prescription
-                        )
+                                prescription)
                         : prescription.getSubtotal();
 
         prescription.setSubtotal(
-                subtotal
-        );
+                subtotal);
 
-        if (
-                bill.getStatus() ==
-                        Billing.BillingStatus.PAID
-        ) {
+        if (bill.getStatus() ==
+                Billing.BillingStatus.PAID) {
 
             prescription.setAmountPaid(
-                    subtotal
-            );
+                    subtotal);
 
             prescription.setBalance(
-                    BigDecimal.ZERO
-            );
+                    BigDecimal.ZERO);
 
             prescription.setStatus(
-                    "Ready for Pickup"
-            );
+                    "Ready for Pickup");
 
-            if (
-                    prescription.getPaymentDate() == null
-            ) {
+            if (prescription.getPaymentDate() == null) {
 
                 prescription.setPaymentDate(
-                        LocalDateTime.now()
-                );
+                        LocalDateTime.now());
             }
 
         } else {
 
             prescription.setAmountPaid(
-                    BigDecimal.ZERO
-            );
+                    BigDecimal.ZERO);
 
             prescription.setBalance(
                     getPharmacyOutstandingBalance(
                             bill,
-                            prescription
-                    )
-            );
+                            prescription));
 
             prescription.setStatus(
-                    "Awaiting Payment"
-            );
+                    "Awaiting Payment");
         }
 
         prescription.setUpdatedAt(
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
-        return repository.save(
-                prescription
-        );
+        PharmacyPrescription saved =
+                repository.save(
+                        prescription);
+
+        auditLogService.log(
+                "CHECK_PAYMENT",
+                "PHARMACY_PRESCRIPTION",
+                String.valueOf(
+                        saved.getId()),
+                "Checked payment for pharmacy prescription "
+                        + saved.getPrescriptionNumber()
+                        + ". Status: "
+                        + saved.getStatus());
+
+        return saved;
     }
 
     // =====================================================
@@ -1213,8 +1140,7 @@ public class PharmacyPrescriptionServiceImpl
     // =====================================================
 
     private Billing findBillingForPrescription(
-            PharmacyPrescription prescription
-    ) {
+            PharmacyPrescription prescription) {
 
         if (prescription == null) {
             return null;
@@ -1222,8 +1148,7 @@ public class PharmacyPrescriptionServiceImpl
 
         String billingIdValue =
                 clean(
-                        prescription.getBillingId()
-                );
+                        prescription.getBillingId());
 
         // -------------------------------------------------
         // FIRST: STORED BILLING ID
@@ -1233,26 +1158,21 @@ public class PharmacyPrescriptionServiceImpl
 
             Long billingId =
                     parseBillingId(
-                            billingIdValue
-                    );
+                            billingIdValue);
 
             if (billingId != null) {
 
                 Billing bill =
                         billingService
                                 .getBillById(
-                                        billingId
-                                )
+                                        billingId)
                                 .orElse(null);
 
-                if (
-                        bill != null &&
+                if (bill != null &&
                         prescription.getPatientId() != null &&
                         prescription.getPatientId()
                                 .equals(
-                                        bill.getPatientId()
-                                )
-                ) {
+                                        bill.getPatientId())) {
 
                     return bill;
                 }
@@ -1265,8 +1185,7 @@ public class PharmacyPrescriptionServiceImpl
 
         return billingService
                 .getActiveBillByPatient(
-                        prescription.getPatientId()
-                )
+                        prescription.getPatientId())
                 .orElse(null);
     }
 
@@ -1276,40 +1195,29 @@ public class PharmacyPrescriptionServiceImpl
 
     private boolean hasPharmacyCharge(
             Billing bill,
-            PharmacyPrescription prescription
-    ) {
+            PharmacyPrescription prescription) {
 
-        if (
-                bill == null ||
+        if (bill == null ||
                 bill.getItems() == null ||
                 prescription == null ||
-                prescription.getId() == null
-        ) {
+                prescription.getId() == null) {
 
             return false;
         }
 
         String prescriptionReference =
                 String.valueOf(
-                        prescription.getId()
-                );
+                        prescription.getId());
 
         return bill.getItems()
                 .stream()
-                .anyMatch(
-                        item ->
-
-                                item != null &&
-
-                                item.getBillingType() ==
-                                        BillingItem.BillingType.PHARMACY &&
-
-                                prescriptionReference.equals(
-                                        String.valueOf(
-                                                item.getReferenceId()
-                                        )
-                                )
-                );
+                .anyMatch(item ->
+                        item != null &&
+                        item.getBillingType()
+                                == BillingItem.BillingType.PHARMACY &&
+                        prescriptionReference.equals(
+                                String.valueOf(
+                                        item.getReferenceId())));
     }
 
     // =====================================================
@@ -1317,8 +1225,7 @@ public class PharmacyPrescriptionServiceImpl
     // =====================================================
 
     private Long parseBillingId(
-            String value
-    ) {
+            String value) {
 
         String cleaned =
                 clean(value);
@@ -1330,8 +1237,7 @@ public class PharmacyPrescriptionServiceImpl
         try {
 
             return Long.parseLong(
-                    cleaned
-            );
+                    cleaned);
 
         } catch (NumberFormatException exception) {
 
@@ -1345,10 +1251,10 @@ public class PharmacyPrescriptionServiceImpl
 
     private BigDecimal getPharmacyOutstandingBalance(
             Billing bill,
-            PharmacyPrescription prescription
-    ) {
+            PharmacyPrescription prescription) {
 
         if (prescription == null) {
+
             return BigDecimal.ZERO;
         }
 
@@ -1360,14 +1266,11 @@ public class PharmacyPrescriptionServiceImpl
         if (bill == null) {
 
             return pharmacyAmount.max(
-                    BigDecimal.ZERO
-            );
+                    BigDecimal.ZERO);
         }
 
-        if (
-                bill.getStatus() ==
-                        Billing.BillingStatus.PAID
-        ) {
+        if (bill.getStatus() ==
+                Billing.BillingStatus.PAID) {
 
             return BigDecimal.ZERO;
         }
@@ -1375,46 +1278,30 @@ public class PharmacyPrescriptionServiceImpl
         if (bill.getItems() == null) {
 
             return pharmacyAmount.max(
-                    BigDecimal.ZERO
-            );
+                    BigDecimal.ZERO);
         }
 
         return bill.getItems()
                 .stream()
-                .filter(
-                        item ->
-
-                                item != null &&
-
-                                item.getBillingType() ==
-                                        BillingItem.BillingType.PHARMACY
-                )
-                .filter(
-                        item ->
-
-                                String.valueOf(
-                                        item.getReferenceId()
-                                )
+                .filter(item ->
+                        item != null &&
+                        item.getBillingType()
+                                == BillingItem.BillingType.PHARMACY)
+                .filter(item ->
+                        String.valueOf(
+                                item.getReferenceId())
                                 .equals(
                                         String.valueOf(
-                                                prescription.getId()
-                                        )
-                                )
-                )
-                .map(
-                        item ->
-
-                                item.getAmount() == null
-                                        ? pharmacyAmount
-                                        : item.getAmount()
-                )
+                                                prescription.getId())))
+                .map(item ->
+                        item.getAmount() == null
+                                ? pharmacyAmount
+                                : item.getAmount())
                 .findFirst()
                 .orElse(
-                        pharmacyAmount
-                )
+                        pharmacyAmount)
                 .max(
-                        BigDecimal.ZERO
-                );
+                        BigDecimal.ZERO);
     }
 
     // =====================================================
@@ -1424,45 +1311,247 @@ public class PharmacyPrescriptionServiceImpl
     @Override
     public PharmacyPrescription dispense(
             Long id,
-            String dispensedBy
-    ) {
+            String dispensedBy) {
 
         PharmacyPrescription prescription =
                 getPrescriptionById(id);
 
-        if (
-                !"Ready for Pickup".equalsIgnoreCase(
-                        prescription.getStatus()
-                )
-        ) {
+        // =================================================
+        // VALIDATE STATUS
+        // =================================================
+
+        if (!"Ready for Pickup".equalsIgnoreCase(
+                prescription.getStatus())) {
 
             throw new IllegalStateException(
-                    "Only prescriptions Ready for Pickup can be dispensed."
-            );
+                    "Only prescriptions Ready for Pickup can be dispensed.");
         }
 
+        // =================================================
+        // VALIDATE ITEMS
+        // =================================================
+
+        if (prescription.getItems() == null ||
+                prescription.getItems().isEmpty()) {
+
+            throw new IllegalStateException(
+                    "Cannot dispense a prescription with no medicines.");
+        }
+
+        Long tenantId =
+                getCurrentTenantId();
+
+        // =================================================
+        // DEDUCT INVENTORY
+        // =================================================
+
+        for (PharmacyPrescriptionItem item :
+                prescription.getItems()) {
+
+            if (item == null) {
+                continue;
+            }
+
+            String medicineId =
+                    clean(
+                            item.getMedicineId());
+
+            if (medicineId == null) {
+
+                throw new IllegalStateException(
+                        "Medicine ID is missing for prescription item.");
+            }
+
+            Integer requestedQuantity =
+                    item.getQuantity();
+
+            if (requestedQuantity == null ||
+                    requestedQuantity <= 0) {
+
+                throw new IllegalStateException(
+                        "Invalid quantity for medicine: "
+                                + medicineId);
+            }
+
+            // ---------------------------------------------
+            // FIND INVENTORY
+            // ---------------------------------------------
+
+            Inventory inventory =
+                    inventoryRepository
+                            .findByIdAndTenant_Id(
+                                    medicineId,
+                                    tenantId)
+                            .orElseThrow(() ->
+                                    new IllegalStateException(
+                                            "Medicine not found in the current tenant inventory: "
+                                                    + medicineId));
+
+            // ---------------------------------------------
+            // CHECK CURRENT STOCK
+            // ---------------------------------------------
+
+            int currentQuantity =
+                    inventory.getQuantity() == null
+                            ? 0
+                            : inventory.getQuantity();
+
+            if (currentQuantity <
+                    requestedQuantity) {
+
+                throw new IllegalStateException(
+                        "Insufficient stock for medicine: "
+                                + inventory.getItemName()
+                                + ". Available: "
+                                + currentQuantity
+                                + ", required: "
+                                + requestedQuantity);
+            }
+
+            // ---------------------------------------------
+            // DEDUCT
+            // ---------------------------------------------
+
+            int remainingQuantity =
+                    currentQuantity -
+                            requestedQuantity;
+
+            inventory.setQuantity(
+                    remainingQuantity);
+
+            // ---------------------------------------------
+            // UPDATE STATUS
+            // ---------------------------------------------
+
+            updateInventoryStatus(
+                    inventory);
+
+            inventoryRepository.save(
+                    inventory);
+
+            // ---------------------------------------------
+            // AUDIT
+            // ---------------------------------------------
+
+            auditLogService.log(
+                    "STOCK_DEDUCTION",
+                    "INVENTORY",
+                    inventory.getId(),
+                    "Deducted "
+                            + requestedQuantity
+                            + " unit(s) of "
+                            + inventory.getItemName()
+                            + " from inventory for pharmacy prescription "
+                            + prescription.getPrescriptionNumber()
+                            + ". Previous stock: "
+                            + currentQuantity
+                            + ", remaining stock: "
+                            + remainingQuantity);
+        }
+
+        // =================================================
+        // MARK PRESCRIPTION AS DISPENSED
+        // =================================================
+
         prescription.setStatus(
-                "Dispensed"
-        );
+                "Dispensed");
 
         prescription.setDispensedAt(
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         prescription.setDispensedBy(
                 dispensedBy != null &&
                         !dispensedBy.isBlank()
-                        ? dispensedBy.trim()
-                        : "Pharmacist"
-        );
+                                ? dispensedBy.trim()
+                                : "Pharmacist");
 
         prescription.setUpdatedAt(
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
-        return repository.save(
-                prescription
-        );
+        PharmacyPrescription saved =
+                repository.save(
+                        prescription);
+
+        // =================================================
+        // AUDIT PHARMACY DISPENSING
+        // =================================================
+
+        auditLogService.log(
+                "DISPENSE",
+                "PHARMACY_PRESCRIPTION",
+                String.valueOf(
+                        saved.getId()),
+                "Dispensed pharmacy prescription "
+                        + saved.getPrescriptionNumber()
+                        + " to patient "
+                        + saved.getPatientId()
+                        + ". Dispensed by: "
+                        + saved.getDispensedBy());
+
+        return saved;
+    }
+
+    // =====================================================
+    // UPDATE INVENTORY STATUS
+    // =====================================================
+
+    private void updateInventoryStatus(
+            Inventory inventory) {
+
+        if (inventory == null) {
+            return;
+        }
+
+        // ---------------------------------------------
+        // Never overwrite manually discontinued items
+        // ---------------------------------------------
+
+        if ("Discontinued".equalsIgnoreCase(
+                inventory.getStatus())) {
+
+            return;
+        }
+
+        Integer quantity =
+                inventory.getQuantity() == null
+                        ? 0
+                        : inventory.getQuantity();
+
+        Integer minimumStock =
+                inventory.getMinimumStock() == null
+                        ? 0
+                        : inventory.getMinimumStock();
+
+        // ---------------------------------------------
+        // OUT OF STOCK
+        // ---------------------------------------------
+
+        if (quantity <= 0) {
+
+            inventory.setStatus(
+                    "Out of Stock");
+
+            return;
+        }
+
+        // ---------------------------------------------
+        // LOW STOCK
+        // ---------------------------------------------
+
+        if (quantity <= minimumStock) {
+
+            inventory.setStatus(
+                    "Low Stock");
+
+            return;
+        }
+
+        // ---------------------------------------------
+        // NORMAL STOCK
+        // ---------------------------------------------
+
+        inventory.setStatus(
+                "In Stock");
     }
 
     // =====================================================
@@ -1471,28 +1560,20 @@ public class PharmacyPrescriptionServiceImpl
 
     @Override
     public PharmacyPrescription cancelPrescription(
-            Long id
-    ) {
+            Long id) {
 
         PharmacyPrescription prescription =
                 getPrescriptionById(id);
 
-        if (
-                "Dispensed".equalsIgnoreCase(
-                        prescription.getStatus()
-                )
-        ) {
+        if ("Dispensed".equalsIgnoreCase(
+                prescription.getStatus())) {
 
             throw new IllegalStateException(
-                    "A dispensed prescription cannot be cancelled."
-            );
+                    "A dispensed prescription cannot be cancelled.");
         }
 
-        if (
-                "Cancelled".equalsIgnoreCase(
-                        prescription.getStatus()
-                )
-        ) {
+        if ("Cancelled".equalsIgnoreCase(
+                prescription.getStatus())) {
 
             return prescription;
         }
@@ -1501,21 +1582,25 @@ public class PharmacyPrescriptionServiceImpl
                 prescription.getConsultationId();
 
         prescription.setStatus(
-                "Cancelled"
-        );
+                "Cancelled");
 
         prescription.setUpdatedAt(
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         PharmacyPrescription saved =
                 repository.save(
-                        prescription
-                );
+                        prescription);
 
         synchronizeConsultationPrescriptionFlag(
-                consultationId
-        );
+                consultationId);
+
+        auditLogService.log(
+                "CANCEL",
+                "PHARMACY_PRESCRIPTION",
+                String.valueOf(
+                        saved.getId()),
+                "Cancelled pharmacy prescription "
+                        + saved.getPrescriptionNumber());
 
         return saved;
     }
@@ -1526,33 +1611,36 @@ public class PharmacyPrescriptionServiceImpl
 
     @Override
     public void deletePrescription(
-            Long id
-    ) {
+            Long id) {
 
         PharmacyPrescription prescription =
                 getPrescriptionById(id);
 
-        if (
-                "Dispensed".equalsIgnoreCase(
-                        prescription.getStatus()
-                )
-        ) {
+        if ("Dispensed".equalsIgnoreCase(
+                prescription.getStatus())) {
 
             throw new IllegalStateException(
-                    "A dispensed prescription cannot be deleted."
-            );
+                    "A dispensed prescription cannot be deleted.");
         }
 
         String consultationId =
                 prescription.getConsultationId();
 
+        String prescriptionNumber =
+                prescription.getPrescriptionNumber();
+
         repository.delete(
-                prescription
-        );
+                prescription);
 
         synchronizeConsultationPrescriptionFlag(
-                consultationId
-        );
+                consultationId);
+
+        auditLogService.log(
+                "DELETE",
+                "PHARMACY_PRESCRIPTION",
+                String.valueOf(id),
+                "Deleted pharmacy prescription "
+                        + prescriptionNumber);
     }
 
     // =====================================================
@@ -1560,13 +1648,10 @@ public class PharmacyPrescriptionServiceImpl
     // =====================================================
 
     private void synchronizeConsultationPrescriptionFlag(
-            String consultationId
-    ) {
+            String consultationId) {
 
-        if (
-                consultationId == null ||
-                consultationId.isBlank()
-        ) {
+        if (consultationId == null ||
+                consultationId.isBlank()) {
 
             return;
         }
@@ -1581,8 +1666,7 @@ public class PharmacyPrescriptionServiceImpl
                 consultationRepository
                         .findByIdAndTenant_Id(
                                 cleanConsultationId,
-                                tenantId
-                        )
+                                tenantId)
                         .orElse(null);
 
         if (consultation == null) {
@@ -1593,26 +1677,22 @@ public class PharmacyPrescriptionServiceImpl
                 repository
                         .findByTenant_IdAndConsultationId(
                                 tenantId,
-                                cleanConsultationId
-                        );
+                                cleanConsultationId);
 
         boolean hasActivePrescription =
                 prescriptions.stream()
                         .anyMatch(
-                                prescription ->
+                                item ->
+                                        item != null &&
                                         !"Cancelled"
                                                 .equalsIgnoreCase(
-                                                        prescription.getStatus()
-                                                )
-                        );
+                                                        item.getStatus()));
 
         consultation.setHasPrescription(
-                hasActivePrescription
-        );
+                hasActivePrescription);
 
         consultationRepository.save(
-                consultation
-        );
+                consultation);
     }
 
     // =====================================================
@@ -1620,44 +1700,26 @@ public class PharmacyPrescriptionServiceImpl
     // =====================================================
 
     private void validatePrescriptionForCreate(
-            PharmacyPrescription prescription
-    ) {
+            PharmacyPrescription prescription) {
 
         if (prescription == null) {
 
             throw new IllegalArgumentException(
-                    "Prescription cannot be null."
-            );
+                    "Prescription cannot be null.");
         }
 
-        if (
-                prescription.getPatientId() == null ||
-                prescription.getPatientId().isBlank()
-        ) {
+        if (prescription.getPatientName() == null ||
+                prescription.getPatientName().isBlank()) {
 
             throw new IllegalArgumentException(
-                    "Patient ID is required."
-            );
+                    "Patient name is required.");
         }
 
-        if (
-                prescription.getPatientName() == null ||
-                prescription.getPatientName().isBlank()
-        ) {
+        if (prescription.getItems() == null ||
+                prescription.getItems().isEmpty()) {
 
             throw new IllegalArgumentException(
-                    "Patient name is required."
-            );
-        }
-
-        if (
-                prescription.getItems() == null ||
-                prescription.getItems().isEmpty()
-        ) {
-
-            throw new IllegalArgumentException(
-                    "At least one prescription item is required."
-            );
+                    "At least one prescription item is required.");
         }
     }
 
@@ -1667,39 +1729,29 @@ public class PharmacyPrescriptionServiceImpl
 
     private void validateInventoryItems(
             PharmacyPrescription prescription,
-            Long tenantId
-    ) {
+            Long tenantId) {
 
-        if (
-                prescription == null ||
-                prescription.getItems() == null
-        ) {
+        if (prescription == null ||
+                prescription.getItems() == null) {
 
             throw new IllegalArgumentException(
-                    "Prescription items are required."
-            );
+                    "Prescription items are required.");
         }
 
-        for (
-                PharmacyPrescriptionItem item :
-                prescription.getItems()
-        ) {
+        for (PharmacyPrescriptionItem item :
+                prescription.getItems()) {
 
             if (item == null) {
 
                 throw new IllegalArgumentException(
-                        "Prescription item cannot be null."
-                );
+                        "Prescription item cannot be null.");
             }
 
-            if (
-                    item.getMedicineId() == null ||
-                    item.getMedicineId().isBlank()
-            ) {
+            if (item.getMedicineId() == null ||
+                    item.getMedicineId().isBlank()) {
 
                 throw new IllegalArgumentException(
-                        "Medicine ID is required for every prescription item."
-                );
+                        "Medicine ID is required for every prescription item.");
             }
 
             String medicineId =
@@ -1709,41 +1761,33 @@ public class PharmacyPrescriptionServiceImpl
                     inventoryRepository
                             .findByIdAndTenant_Id(
                                     medicineId,
-                                    tenantId
-                            )
+                                    tenantId)
                             .orElseThrow(() ->
                                     new IllegalArgumentException(
                                             "Medicine not found in the current tenant inventory: "
-                                                    + medicineId
-                                    )
-                            );
+                                                    + medicineId));
 
-            if (
-                    item.getQuantity() == null ||
-                    item.getQuantity() <= 0
-            ) {
+            if (item.getQuantity() == null ||
+                    item.getQuantity() <= 0) {
 
                 throw new IllegalArgumentException(
-                        "Prescription quantity must be greater than zero."
-                );
+                        "Prescription quantity must be greater than zero.");
             }
 
-            if (
-                    inventory.getQuantity() != null &&
-                    item.getQuantity() >
-                            inventory.getQuantity()
-            ) {
+            int availableQuantity =
+                    inventory.getQuantity() == null
+                            ? 0
+                            : inventory.getQuantity();
+
+            if (item.getQuantity() >
+                    availableQuantity) {
 
                 throw new IllegalArgumentException(
                         "Insufficient stock for medicine: "
                                 + medicineId
                                 + ". Available: "
-                                + inventory.getQuantity()
-                );
+                                + availableQuantity);
             }
-
-            // The inventory lookup above is intentional.
-            // We do not trust a medicine ID belonging to another tenant.
         }
     }
 
@@ -1752,13 +1796,10 @@ public class PharmacyPrescriptionServiceImpl
     // =====================================================
 
     private BigDecimal calculateSubtotal(
-            PharmacyPrescription prescription
-    ) {
+            PharmacyPrescription prescription) {
 
-        if (
-                prescription == null ||
-                prescription.getItems() == null
-        ) {
+        if (prescription == null ||
+                prescription.getItems() == null) {
 
             return BigDecimal.ZERO;
         }
@@ -1766,26 +1807,20 @@ public class PharmacyPrescriptionServiceImpl
         BigDecimal subtotal =
                 BigDecimal.ZERO;
 
-        for (
-                PharmacyPrescriptionItem item :
-                prescription.getItems()
-        ) {
+        for (PharmacyPrescriptionItem item :
+                prescription.getItems()) {
 
             if (item == null) {
 
                 throw new IllegalArgumentException(
-                        "Prescription item cannot be null."
-                );
+                        "Prescription item cannot be null.");
             }
 
-            if (
-                    item.getQuantity() == null ||
-                    item.getQuantity() <= 0
-            ) {
+            if (item.getQuantity() == null ||
+                    item.getQuantity() <= 0) {
 
                 throw new IllegalArgumentException(
-                        "Prescription quantity must be greater than zero."
-                );
+                        "Prescription quantity must be greater than zero.");
             }
 
             BigDecimal unitPrice =
@@ -1793,36 +1828,27 @@ public class PharmacyPrescriptionServiceImpl
                             ? BigDecimal.ZERO
                             : item.getUnitPrice();
 
-            if (
-                    unitPrice.compareTo(
-                            BigDecimal.ZERO
-                    ) < 0
-            ) {
+            if (unitPrice.compareTo(
+                    BigDecimal.ZERO) < 0) {
 
                 throw new IllegalArgumentException(
-                        "Prescription item price cannot be negative."
-                );
+                        "Prescription item price cannot be negative.");
             }
 
             BigDecimal totalPrice =
                     unitPrice.multiply(
                             BigDecimal.valueOf(
-                                    item.getQuantity()
-                            )
-                    );
+                                    item.getQuantity()));
 
             item.setUnitPrice(
-                    unitPrice
-            );
+                    unitPrice);
 
             item.setTotalPrice(
-                    totalPrice
-            );
+                    totalPrice);
 
             subtotal =
                     subtotal.add(
-                            totalPrice
-                    );
+                            totalPrice);
         }
 
         return subtotal;
@@ -1833,49 +1859,42 @@ public class PharmacyPrescriptionServiceImpl
     // =====================================================
 
     private String buildPharmacyDescription(
-            PharmacyPrescription prescription
-    ) {
+            PharmacyPrescription prescription) {
 
-        if (
-                prescription == null ||
+        if (prescription == null ||
                 prescription.getItems() == null ||
-                prescription.getItems().isEmpty()
-        ) {
+                prescription.getItems().isEmpty()) {
 
             return "Pharmacy prescription";
         }
 
         StringBuilder description =
                 new StringBuilder(
-                        "Pharmacy: "
-                );
+                        "Pharmacy: ");
 
         boolean firstItem = true;
 
-        for (
-                PharmacyPrescriptionItem item :
-                prescription.getItems()
-        ) {
+        for (PharmacyPrescriptionItem item :
+                prescription.getItems()) {
 
             if (item == null) {
                 continue;
             }
 
             if (!firstItem) {
-                description.append(", ");
+
+                description.append(
+                        ", ");
             }
 
             description.append(
-                    item.getMedicineName()
-            );
+                    item.getMedicineName());
 
             description.append(
-                    " x"
-            );
+                    " x");
 
             description.append(
-                    item.getQuantity()
-            );
+                    item.getQuantity());
 
             firstItem = false;
         }
@@ -1888,8 +1907,7 @@ public class PharmacyPrescriptionServiceImpl
     // =====================================================
 
     private String billingStatusToFrontend(
-            Billing.BillingStatus status
-    ) {
+            Billing.BillingStatus status) {
 
         if (status == null) {
             return null;
@@ -1919,8 +1937,7 @@ public class PharmacyPrescriptionServiceImpl
     // =====================================================
 
     private String clean(
-            String value
-    ) {
+            String value) {
 
         if (value == null) {
             return null;
@@ -1932,6 +1949,36 @@ public class PharmacyPrescriptionServiceImpl
         return cleaned.isEmpty()
                 ? null
                 : cleaned;
+    }
+
+    // =====================================================
+    // GENERATE WALK-IN PATIENT ID
+    // =====================================================
+
+    private String generateWalkInPatientId() {
+
+        return "WALKIN-" +
+                UUID.randomUUID()
+                        .toString()
+                        .replace(
+                                "-",
+                                "")
+                        .substring(
+                                0,
+                                8)
+                        .toUpperCase();
+    }
+
+    // =====================================================
+    // CHECK WALK-IN PATIENT ID
+    // =====================================================
+
+    private boolean isWalkInPatientId(
+            String patientId) {
+
+        return patientId != null &&
+                patientId.startsWith(
+                        "WALKIN-");
     }
 
     // =====================================================
@@ -1948,30 +1995,26 @@ public class PharmacyPrescriptionServiceImpl
         do {
 
             int random =
-                    (int)
-                            (
-                                    Math.random() *
-                                    100000
-                            );
+                    (int) (
+                            Math.random()
+                                    * 100000);
 
             number =
                     "RX-" +
-                    LocalDateTime
-                            .now()
-                            .getYear() +
-                    "-" +
-                    String.format(
-                            "%05d",
-                            random
-                    );
+                            LocalDateTime
+                                    .now()
+                                    .getYear()
+                            +
+                            "-" +
+                            String.format(
+                                    "%05d",
+                                    random);
 
         } while (
                 repository
                         .existsByTenant_IdAndPrescriptionNumber(
                                 tenantId,
-                                number
-                        )
-        );
+                                number));
 
         return number;
     }

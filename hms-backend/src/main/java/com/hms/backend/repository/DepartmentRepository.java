@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +25,16 @@ public interface DepartmentRepository
     Optional<Department> findByIdAndTenant_Id(
             String id,
             Long tenantId
+    );
+
+    // =====================================================
+    // REPORT AGGREGATION
+    // =====================================================
+
+    long countByTenant_IdAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(
+            Long tenantId,
+            LocalDateTime startDateTime,
+            LocalDateTime endDateTime
     );
 
     // =====================================================

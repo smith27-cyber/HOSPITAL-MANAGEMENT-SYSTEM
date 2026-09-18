@@ -14,6 +14,7 @@ import {
   Output,
   inject
 } from '@angular/core';
+
 import {
   Router,
   RouterLink,
@@ -32,13 +33,10 @@ import {
 import {
   SettingsService
 } from '../../core/services/settings.service';
+
 import {
   TenantModuleService
 } from '../../core/services/tenant/tenant-module.service';
-
-// =====================================================
-// SIDEBAR
-// =====================================================
 
 @Component({
   selector: 'app-sidebar',
@@ -55,23 +53,21 @@ import {
   styleUrl: './sidebar.css'
 })
 export class Sidebar implements OnInit, OnDestroy {
+
   // =====================================================
-  // DESKTOP COLLAPSE STATE
+  // INPUTS / OUTPUTS
   // =====================================================
 
-   @Input() collapsed = false;
+  @Input() collapsed = false;
   @Input() mobileOpen = false;
 
-  @Output() closeSidebar = new EventEmitter<void>();
-
-  close(): void {
-    this.closeSidebar.emit();
-  }
+  @Output() closeSidebar =
+    new EventEmitter<void>();
 
 
-  // ===================================================
+  // =====================================================
   // DEPENDENCIES
-  // ===================================================
+  // =====================================================
 
   private readonly router =
     inject(Router);
@@ -81,23 +77,25 @@ export class Sidebar implements OnInit, OnDestroy {
 
   private readonly settingsService =
     inject(SettingsService);
-private readonly tenantModuleService =
-  inject(TenantModuleService);
+
+  private readonly tenantModuleService =
+    inject(TenantModuleService);
+
   private readonly changeDetectorRef =
     inject(ChangeDetectorRef);
 
 
-  // ===================================================
-  // COMPONENT CLEANUP
-  // ===================================================
+  // =====================================================
+  // CLEANUP
+  // =====================================================
 
   private readonly destroy$ =
     new Subject<void>();
 
 
-  // ===================================================
+  // =====================================================
   // HOSPITAL IDENTITY
-  // ===================================================
+  // =====================================================
 
   hospitalName =
     'Hospital Management System';
@@ -109,55 +107,92 @@ private readonly tenantModuleService =
     '';
 
 
-  // ===================================================
+  // =====================================================
+  // MODULE STATE
+  // =====================================================
+
+  /**
+   * Prevents the navigation from rendering before
+   * tenant modules have been loaded.
+   */
+  modulesLoaded = false;
+
+  /**
+   * Used when the tenant module request fails.
+   *
+   * We fail closed:
+   * no tenant-specific module is shown until the
+   * entitlement information is available.
+   */
+  modulesLoadFailed = false;
+
+
+  // =====================================================
   // LIFECYCLE
-  // ===================================================
+  // =====================================================
 
- ngOnInit(): void {
+  ngOnInit(): void {
 
-  this.loadHospitalIdentity();
+    this.loadHospitalIdentity();
 
-  this.loadTenantModules();
+    this.loadTenantModules();
 
-}
+  }
 
-// ===================================================
-// LOAD TENANT MODULES
-// ===================================================
 
-private loadTenantModules(): void {
+  // =====================================================
+  // LOAD TENANT MODULES
+  // =====================================================
 
-  this.tenantModuleService
-    .loadModules()
-    .pipe(
-      takeUntil(this.destroy$)
-    )
-    .subscribe({
+  private loadTenantModules(): void {
 
-      next: () => {
+    this.modulesLoaded = false;
+    this.modulesLoadFailed = false;
 
-        this.changeDetectorRef.detectChanges();
+    this.tenantModuleService
+      .loadModules()
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
 
-      },
+        next: () => {
 
-      error: error => {
+          this.modulesLoaded = true;
+          this.modulesLoadFailed = false;
 
-        console.error(
-          'Failed to load tenant modules:',
-          error
-        );
+          this.changeDetectorRef.detectChanges();
 
-        this.changeDetectorRef.detectChanges();
+        },
 
-      }
+        error: error => {
 
-    });
+          console.error(
+            'Failed to load tenant modules:',
+            error
+          );
 
-}
-  // ===================================================
+          /**
+           * Fail closed.
+           *
+           * We do NOT display tenant-specific modules
+           * if entitlement information could not be loaded.
+           */
+          this.modulesLoaded = false;
+          this.modulesLoadFailed = true;
+
+          this.changeDetectorRef.detectChanges();
+
+        }
+
+      });
+
+  }
+
+
+  // =====================================================
   // LOAD HOSPITAL IDENTITY
-  // ===================================================
-
+  // =====================================================
 
   private loadHospitalIdentity(): void {
 
@@ -181,11 +216,6 @@ private loadTenantModules(): void {
             settings.logoUrl?.trim()
             || '';
 
-
-          // ==========================================
-          // FORCE UI UPDATE
-          // ==========================================
-
           this.changeDetectorRef.detectChanges();
 
         },
@@ -206,30 +236,27 @@ private loadTenantModules(): void {
   }
 
 
-  // ===================================================
+  // =====================================================
   // HOSPITAL LOGO ERROR
-  // ===================================================
+  // =====================================================
 
-  onLogoError(
-    event: Event
-  ): void {
+  onLogoError(event: Event): void {
 
     const image =
       event.target as HTMLImageElement;
 
     if (image) {
 
-      image.style.display =
-        'none';
+      image.style.display = 'none';
 
     }
 
   }
 
 
-  // ===================================================
+  // =====================================================
   // PERMISSION CHECK
-  // ===================================================
+  // =====================================================
 
   hasPermission(
     permission: string
@@ -242,10 +269,10 @@ private loadTenantModules(): void {
   }
 
 
-  /**
-   * Checks whether the user has at least one of the
-   * supplied permissions.
-   */
+  // =====================================================
+  // ANY PERMISSION CHECK
+  // =====================================================
+
   hasAnyPermission(
     permissions: string[]
   ): boolean {
@@ -255,61 +282,77 @@ private loadTenantModules(): void {
     );
 
   }
-// ===================================================
-// MODULE CHECK
-// ===================================================
-
-hasModule(
-  moduleCode: string
-): boolean {
-
-  return this.tenantModuleService.hasModule(
-    moduleCode
-  );
-
-}
 
 
-// ===================================================
-// MODULE + PERMISSION CHECK
-// ===================================================
+  // =====================================================
+  // MODULE CHECK
+  // =====================================================
 
-hasModulePermission(
-  moduleCode: string,
-  permission: string
-): boolean {
+  hasModule(
+    moduleCode: string
+  ): boolean {
 
-  return (
-    this.hasModule(moduleCode) &&
-    this.hasPermission(permission)
-  );
+    /**
+     * Never expose a tenant module until the
+     * entitlement data has successfully loaded.
+     */
+    if (!this.modulesLoaded) {
 
-}
+      return false;
+
+    }
+
+    if (this.modulesLoadFailed) {
+
+      return false;
+
+    }
+
+    return this.tenantModuleService.hasModule(
+      moduleCode
+    );
+
+  }
 
 
-// ===================================================
-// MODULE + ANY PERMISSION CHECK
-// ===================================================
+  // =====================================================
+  // MODULE + PERMISSION
+  // =====================================================
 
-hasModuleAnyPermission(
-  moduleCode: string,
-  permissions: string[]
-): boolean {
+  hasModulePermission(
+    moduleCode: string,
+    permission: string
+  ): boolean {
 
-  return (
-    this.hasModule(moduleCode) &&
-    this.hasAnyPermission(permissions)
-  );
+    return (
+      this.hasModule(moduleCode) &&
+      this.hasPermission(permission)
+    );
 
-}
+  }
 
-  // ===================================================
+
+  // =====================================================
+  // MODULE + ANY PERMISSION
+  // =====================================================
+
+  hasModuleAnyPermission(
+    moduleCode: string,
+    permissions: string[]
+  ): boolean {
+
+    return (
+      this.hasModule(moduleCode) &&
+      this.hasAnyPermission(permissions)
+    );
+
+  }
+
+
+  // =====================================================
   // NAVIGATION
-  // ===================================================
+  // =====================================================
 
-  /**
-   * Close the mobile sidebar after navigation.
-   */
   navigate(): void {
 
     this.closeSidebar.emit();
@@ -317,30 +360,15 @@ hasModuleAnyPermission(
   }
 
 
-  // ===================================================
+  // =====================================================
   // LOGOUT
-  // ===================================================
+  // =====================================================
 
-  
   logout(): void {
-
-    // ================================================
-    // CLOSE SIDEBAR
-    // ================================================
 
     this.closeSidebar.emit();
 
-
-    // ================================================
-    // CLEAR AUTHENTICATION
-    // ================================================
-
     this.authService.logout();
-
-
-    // ================================================
-    // REDIRECT TO LOGIN
-    // ================================================
 
     this.router.navigate(
       ['/login'],
@@ -352,9 +380,9 @@ hasModuleAnyPermission(
   }
 
 
-  // ===================================================
+  // =====================================================
   // DESTROY
-  // ===================================================
+  // =====================================================
 
   ngOnDestroy(): void {
 

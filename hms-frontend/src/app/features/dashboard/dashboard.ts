@@ -19,7 +19,10 @@ import {
 } from '@angular/router';
 
 import {
-  forkJoin
+  catchError,
+  forkJoin,
+  of,
+  Subscription
 } from 'rxjs';
 
 import {
@@ -45,6 +48,18 @@ import {
 } from '../../shared/models/appointment.model';
 
 import {
+  Bill
+} from '../../shared/models/billing.model';
+
+import {
+  PharmacyPrescription
+} from '../../shared/models/pharmacy.model';
+
+import {
+  InventoryItem
+} from '../../shared/models/inventory.model';
+
+import {
   PatientService
 } from '../../core/services/patient.service';
 
@@ -60,10 +75,45 @@ import {
   AppointmentService
 } from '../../core/services/appointment.service';
 
+import {
+  BillingService
+} from '../../core/services/billing.service';
 
-// Register all Chart.js components
+import {
+  PharmacyService
+} from '../../core/services/pharmacy.service';
+
+import {
+  InventoryService
+} from '../../core/services/inventory.service';
+
+import {
+  SettingsService
+} from '../../core/services/settings.service';
+
+import {
+  HospitalSettings
+} from '../../shared/models/settings.model';
+// =====================================================
+// CHART.JS
+// =====================================================
+
 Chart.register(...registerables);
 
+
+// =====================================================
+// MODULE LOAD RESULT
+// =====================================================
+
+interface ModuleResult<T> {
+  data: T;
+  available: boolean;
+}
+
+
+// =====================================================
+// DASHBOARD COMPONENT
+// =====================================================
 
 @Component({
   selector: 'app-dashboard',
@@ -77,7 +127,10 @@ Chart.register(...registerables);
   styleUrl: './dashboard.css'
 })
 export class Dashboard
-  implements OnInit, AfterViewInit, OnDestroy {
+  implements
+    OnInit,
+    AfterViewInit,
+    OnDestroy {
 
 
   // =====================================================
@@ -85,118 +138,265 @@ export class Dashboard
   // =====================================================
 
   @ViewChild('appointmentsChart')
-  appointmentsChartRef?: ElementRef<HTMLCanvasElement>;
+  appointmentsChartRef?:
+    ElementRef<HTMLCanvasElement>;
 
   @ViewChild('hospitalChart')
-  hospitalChartRef?: ElementRef<HTMLCanvasElement>;
+  hospitalChartRef?:
+    ElementRef<HTMLCanvasElement>;
 
   @ViewChild('statusChart')
-  statusChartRef?: ElementRef<HTMLCanvasElement>;
+  statusChartRef?:
+    ElementRef<HTMLCanvasElement>;
 
 
   // =====================================================
   // CHART INSTANCES
   // =====================================================
 
-  private appointmentsChart?: Chart;
+  private appointmentsChart?:
+    Chart;
 
-  private hospitalChart?: Chart;
+  private hospitalChart?:
+    Chart;
 
-  private statusChart?: Chart;
+  private statusChart?:
+    Chart;
 
 
   // =====================================================
   // VIEW STATE
   // =====================================================
 
-  private viewReady = false;
+  private viewReady =
+    false;
 
+  // =====================================================
+  // TENANT IDENTITY
+  // =====================================================
 
+  hospitalName =
+    'Hospital Management System';
+
+  hospitalCity = '';
+
+  hospitalLogo = '';
+
+  private hospitalSettingsSubscription?:
+    Subscription;
   // =====================================================
   // LOADING
   // =====================================================
 
-  isLoading = false;
+  isLoading =
+    false;
 
 
   // =====================================================
   // DATA
   // =====================================================
 
-  patients: Patient[] = [];
+  patients:
+    Patient[] = [];
 
-  doctors: Doctor[] = [];
+  doctors:
+    Doctor[] = [];
 
-  departments: Department[] = [];
+  departments:
+    Department[] = [];
 
-  appointments: Appointment[] = [];
+  appointments:
+    Appointment[] = [];
+
+  bills:
+    Bill[] = [];
+
+  pharmacyPrescriptions:
+    PharmacyPrescription[] = [];
+
+  inventoryItems:
+    InventoryItem[] = [];
 
 
   // =====================================================
-  // DASHBOARD STATISTICS
+  // MODULE AVAILABILITY
+  //
+  // IMPORTANT:
+  // This is based on whether the tenant's API can be
+  // accessed successfully.
+  //
+  // A 403 from ModuleAccessFilter means the module
+  // is not available to this tenant.
   // =====================================================
 
-  totalPatients = 0;
+  moduleAvailability = {
 
-  activeDoctors = 0;
+    patients: false,
 
-  totalDepartments = 0;
+    doctors: false,
 
-  totalAppointments = 0;
+    departments: false,
 
-  todaysAppointments = 0;
+    appointments: false,
+
+    billing: false,
+
+    pharmacy: false,
+
+    inventory: false
+
+  };
+
+
+  // =====================================================
+  // CORE STATISTICS
+  // =====================================================
+
+  totalPatients =
+    0;
+
+  activeDoctors =
+    0;
+
+  totalDepartments =
+    0;
+
+  totalAppointments =
+    0;
+
+  todaysAppointments =
+    0;
+
+
+  // =====================================================
+  // FINANCIAL STATISTICS
+  // =====================================================
+
+  totalRevenue =
+    0;
+
+  totalAmountPaid =
+    0;
+
+  totalOutstandingBalance =
+    0;
+
+  pendingBills =
+    0;
+
+  partiallyPaidBills =
+    0;
+
+  paidBills =
+    0;
+
+
+  // =====================================================
+  // PHARMACY STATISTICS
+  // =====================================================
+
+  totalPharmacyPrescriptions =
+    0;
+
+  waitingPrescriptions =
+    0;
+
+  preparingPrescriptions =
+    0;
+
+  awaitingPaymentPrescriptions =
+    0;
+
+  readyForPickupPrescriptions =
+    0;
+
+  dispensedPrescriptions =
+    0;
+
+
+  // =====================================================
+  // INVENTORY STATISTICS
+  // =====================================================
+
+  totalInventoryItems =
+    0;
+
+  lowStockItems =
+    0;
+
+  outOfStockItems =
+    0;
+
+  expiredItems =
+    0;
 
 
   // =====================================================
   // APPOINTMENT STATISTICS
   // =====================================================
 
-  scheduledAppointments = 0;
+  scheduledAppointments =
+    0;
 
-  confirmedAppointments = 0;
+  confirmedAppointments =
+    0;
 
-  checkedInAppointments = 0;
+  checkedInAppointments =
+    0;
 
-  inConsultationAppointments = 0;
+  inConsultationAppointments =
+    0;
 
-  completedAppointments = 0;
+  completedAppointments =
+    0;
 
-  cancelledAppointments = 0;
+  cancelledAppointments =
+    0;
 
-  noShowAppointments = 0;
+  noShowAppointments =
+    0;
 
 
   // =====================================================
-  // TODAY'S APPOINTMENT STATUS
+  // TODAY'S STATUS
   // =====================================================
 
-  todayScheduled = 0;
+  todayScheduled =
+    0;
 
-  todayConfirmed = 0;
+  todayConfirmed =
+    0;
 
-  todayCheckedIn = 0;
+  todayCheckedIn =
+    0;
 
-  todayInConsultation = 0;
+  todayInConsultation =
+    0;
 
-  todayCompleted = 0;
+  todayCompleted =
+    0;
 
-  todayCancelled = 0;
+  todayCancelled =
+    0;
 
-  todayNoShow = 0;
+  todayNoShow =
+    0;
 
 
   // =====================================================
   // TODAY'S APPOINTMENTS
   // =====================================================
 
-  todayAppointments: Appointment[] = [];
+  todayAppointments:
+    Appointment[] = [];
 
 
   // =====================================================
   // CURRENT DATE
   // =====================================================
 
-  currentDate = new Date();
+  currentDate =
+    new Date();
 
 
   // =====================================================
@@ -217,11 +417,25 @@ export class Dashboard
     private appointmentService:
       AppointmentService,
 
-    private router:
-      Router,
+    private billingService:
+      BillingService,
 
-    private cdr:
-      ChangeDetectorRef
+    private pharmacyService:
+      PharmacyService,
+
+    private inventoryService:
+      InventoryService,
+
+   private router:
+  Router,
+
+private cdr:
+  ChangeDetectorRef,
+
+private settingsService:
+  SettingsService
+
+
 
   ) {}
 
@@ -230,11 +444,13 @@ export class Dashboard
   // INITIALIZE
   // =====================================================
 
-  ngOnInit(): void {
+ ngOnInit(): void {
 
-    this.loadDashboardData();
+  this.loadHospitalIdentity();
 
-  }
+  this.loadDashboardData();
+
+}
 
 
   // =====================================================
@@ -243,7 +459,8 @@ export class Dashboard
 
   ngAfterViewInit(): void {
 
-    this.viewReady = true;
+    this.viewReady =
+      true;
 
     this.renderCharts();
 
@@ -254,39 +471,171 @@ export class Dashboard
   // DESTROY
   // =====================================================
 
-  ngOnDestroy(): void {
+ ngOnDestroy(): void {
 
-    this.destroyCharts();
+  this.destroyCharts();
+
+  this.hospitalSettingsSubscription
+    ?.unsubscribe();
+
+}
+  // =====================================================
+  // LOAD CURRENT TENANT IDENTITY
+  // =====================================================
+
+  private loadHospitalIdentity(): void {
+
+    this.hospitalSettingsSubscription =
+      this.settingsService
+        .hospitalSettings$
+        .subscribe({
+
+          next: (
+            settings: HospitalSettings
+          ) => {
+
+            this.hospitalName =
+              settings.hospitalName?.trim()
+              || 'Hospital Management System';
+
+            this.hospitalCity =
+              settings.city?.trim()
+              || '';
+
+            this.hospitalLogo =
+              settings.logoUrl?.trim()
+              || '';
+
+            this.cdr.detectChanges();
+
+          }
+
+        });
 
   }
-
-
   // =====================================================
   // LOAD DASHBOARD DATA
   // =====================================================
 
   private loadDashboardData(): void {
 
-    this.isLoading = true;
+    this.isLoading =
+      true;
 
+
+    // ---------------------------------------------------
+    // Reset module availability
+    // ---------------------------------------------------
+
+    this.moduleAvailability = {
+
+      patients: false,
+
+      doctors: false,
+
+      departments: false,
+
+      appointments: false,
+
+      billing: false,
+
+      pharmacy: false,
+
+      inventory: false
+
+    };
+
+
+    /*
+     * IMPORTANT
+     *
+     * Every module request handles its own error.
+     *
+     * Therefore:
+     *
+     * Patients OFF
+     *      ↓
+     * 403
+     *      ↓
+     * patients = []
+     *
+     * But Billing / Pharmacy / Inventory can still load.
+     *
+     * This prevents one disabled module from destroying
+     * the entire dashboard.
+     */
 
     forkJoin({
 
       patients:
         this.patientService
-          .getPatients(),
+          .getPatients()
+          .pipe(
+            catchError(
+              () =>
+                of(null)
+            )
+          ),
 
       doctors:
         this.doctorService
-          .getDoctors(),
+          .getDoctors()
+          .pipe(
+            catchError(
+              () =>
+                of(null)
+            )
+          ),
 
       departments:
         this.departmentService
-          .getDepartments(),
+          .getDepartments()
+          .pipe(
+            catchError(
+              () =>
+                of(null)
+            )
+          ),
 
       appointments:
         this.appointmentService
           .getAppointments()
+          .pipe(
+            catchError(
+              () =>
+                of(null)
+            )
+          ),
+
+      billing:
+        this.billingService
+          .getBills()
+          .pipe(
+            catchError(
+              () =>
+                of(null)
+            )
+          ),
+
+      pharmacy:
+        this.pharmacyService
+          .getPrescriptions()
+          .pipe(
+            catchError(
+              () =>
+                of(null)
+            )
+          ),
+
+      inventory:
+        this.inventoryService
+          .getItems()
+          .pipe(
+            catchError(
+              () =>
+                of(null)
+            )
+          )
 
     }).subscribe({
 
@@ -294,167 +643,284 @@ export class Dashboard
       // SUCCESS
       // =================================================
 
-      next: (data) => {
+      next: (
+        data
+      ) => {
 
-        // -----------------------------------------------
+
+        // ===============================================
         // PATIENTS
-        // -----------------------------------------------
+        // ===============================================
 
-        this.patients =
-          Array.isArray(data.patients)
-            ? data.patients
-            : [];
+        if (
+          Array.isArray(
+            data.patients
+          )
+        ) {
 
-        this.totalPatients =
-          this.patients.length;
+          this.moduleAvailability
+            .patients =
+              true;
+
+          this.patients =
+            data.patients;
+
+          this.totalPatients =
+            this.patients.length;
+
+        } else {
+
+          this.patients =
+            [];
+
+          this.totalPatients =
+            0;
+
+        }
 
 
-        // -----------------------------------------------
+        // ===============================================
         // DOCTORS
-        // -----------------------------------------------
+        // ===============================================
 
-        this.doctors =
-          Array.isArray(data.doctors)
-            ? data.doctors
-            : [];
+        if (
+          Array.isArray(
+            data.doctors
+          )
+        ) {
 
-        this.activeDoctors =
-          this.doctors.filter(
-            (doctor: Doctor) =>
-              doctor.status === 'Active'
-          ).length;
+          this.moduleAvailability
+            .doctors =
+              true;
 
+          this.doctors =
+            data.doctors;
 
-        // -----------------------------------------------
-        // DEPARTMENTS
-        // -----------------------------------------------
-
-        this.departments =
-          Array.isArray(data.departments)
-            ? data.departments
-            : [];
-
-        this.totalDepartments =
-          this.departments.length;
-
-
-        // -----------------------------------------------
-        // APPOINTMENTS
-        // -----------------------------------------------
-
-        this.appointments =
-          Array.isArray(data.appointments)
-            ? data.appointments
-            : [];
-
-        this.totalAppointments =
-          this.appointments.length;
-
-
-        // -----------------------------------------------
-        // APPOINTMENT STATISTICS
-        // -----------------------------------------------
-
-        this.calculateAppointmentStatistics();
-
-
-        // -----------------------------------------------
-        // TODAY'S APPOINTMENTS
-        // -----------------------------------------------
-
-        this.todayAppointments =
-          this.appointments
-            .filter(
-              (appointment: Appointment) =>
-                this.isToday(
-                  appointment.appointmentDate
-                )
-            )
-            .sort(
+          this.activeDoctors =
+            this.doctors.filter(
               (
-                a: Appointment,
-                b: Appointment
+                doctor: Doctor
               ) =>
-                (a.appointmentTime || '')
-                  .localeCompare(
-                    b.appointmentTime || ''
+                doctor.status ===
+                'Active'
+            ).length;
+
+        } else {
+
+          this.doctors =
+            [];
+
+          this.activeDoctors =
+            0;
+
+        }
+
+
+        // ===============================================
+        // DEPARTMENTS
+        // ===============================================
+
+        if (
+          Array.isArray(
+            data.departments
+          )
+        ) {
+
+          this.moduleAvailability
+            .departments =
+              true;
+
+          this.departments =
+            data.departments;
+
+          this.totalDepartments =
+            this.departments.length;
+
+        } else {
+
+          this.departments =
+            [];
+
+          this.totalDepartments =
+            0;
+
+        }
+
+
+        // ===============================================
+        // APPOINTMENTS
+        // ===============================================
+
+        if (
+          Array.isArray(
+            data.appointments
+          )
+        ) {
+
+          this.moduleAvailability
+            .appointments =
+              true;
+
+          this.appointments =
+            data.appointments;
+
+          this.totalAppointments =
+            this.appointments.length;
+
+          this.calculateAppointmentStatistics();
+
+          this.todayAppointments =
+            this.appointments
+              .filter(
+                (
+                  appointment:
+                    Appointment
+                ) =>
+                  this.isToday(
+                    appointment.appointmentDate
                   )
-            );
+              )
+              .sort(
+                (
+                  a:
+                    Appointment,
+
+                  b:
+                    Appointment
+                ) =>
+                  (
+                    a.appointmentTime ||
+                    ''
+                  ).localeCompare(
+                    b.appointmentTime ||
+                    ''
+                  )
+              );
+
+          this.todaysAppointments =
+            this.todayAppointments.length;
+
+          this.calculateTodayStatistics();
+
+        } else {
+
+          this.appointments =
+            [];
+
+          this.resetAppointmentStatistics();
+
+        }
 
 
-        this.todaysAppointments =
-          this.todayAppointments.length;
+        // ===============================================
+        // BILLING
+        // ===============================================
+
+        if (
+          Array.isArray(
+            data.billing
+          )
+        ) {
+
+          this.moduleAvailability
+            .billing =
+              true;
+
+          this.bills =
+            data.billing;
+
+          this.calculateBillingStatistics();
+
+        } else {
+
+          this.bills =
+            [];
+
+          this.resetBillingStatistics();
+
+        }
 
 
-        // -----------------------------------------------
-        // TODAY'S STATUS STATISTICS
-        // -----------------------------------------------
+        // ===============================================
+        // PHARMACY
+        // ===============================================
 
-        this.calculateTodayStatistics();
+        if (
+          Array.isArray(
+            data.pharmacy
+          )
+        ) {
+
+          this.moduleAvailability
+            .pharmacy =
+              true;
+
+          this.pharmacyPrescriptions =
+            data.pharmacy;
+
+          this.calculatePharmacyStatistics();
+
+        } else {
+
+          this.pharmacyPrescriptions =
+            [];
+
+          this.resetPharmacyStatistics();
+
+        }
 
 
-        // -----------------------------------------------
-        // LOADING COMPLETE
-        // -----------------------------------------------
+        // ===============================================
+        // INVENTORY
+        // ===============================================
 
-        this.isLoading = false;
+        if (
+          Array.isArray(
+            data.inventory
+          )
+        ) {
+
+          this.moduleAvailability
+            .inventory =
+              true;
+
+          this.inventoryItems =
+            data.inventory;
+
+          this.calculateInventoryStatistics();
+
+        } else {
+
+          this.inventoryItems =
+            [];
+
+          this.resetInventoryStatistics();
+
+        }
 
 
-        // -----------------------------------------------
-        // UPDATE VIEW
-        // -----------------------------------------------
+        // ===============================================
+        // FINISH LOADING
+        // ===============================================
+
+        this.isLoading =
+          false;
+
 
         this.cdr.detectChanges();
 
 
-        // -----------------------------------------------
+        // ===============================================
         // RENDER CHARTS
-        // -----------------------------------------------
+        // ===============================================
 
-        setTimeout(() => {
+        setTimeout(
+          () => {
 
-          this.renderCharts();
+            this.renderCharts();
 
-        }, 0);
-
-
-        // -----------------------------------------------
-        // DEBUG
-        // -----------------------------------------------
-
-        console.log(
-          'Dashboard data loaded:',
-          {
-            totalPatients:
-              this.totalPatients,
-
-            activeDoctors:
-              this.activeDoctors,
-
-            totalDepartments:
-              this.totalDepartments,
-
-            totalAppointments:
-              this.totalAppointments,
-
-            todaysAppointments:
-              this.todaysAppointments,
-
-            scheduledAppointments:
-              this.scheduledAppointments,
-
-            confirmedAppointments:
-              this.confirmedAppointments,
-
-            completedAppointments:
-              this.completedAppointments,
-
-            cancelledAppointments:
-              this.cancelledAppointments,
-
-            todayAppointments:
-              this.todayAppointments
-          }
+          },
+          0
         );
 
       },
@@ -462,21 +928,24 @@ export class Dashboard
 
       // =================================================
       // ERROR
+      //
+      // forkJoin itself should rarely fail because every
+      // request has catchError().
       // =================================================
 
-      error: (error: unknown) => {
+      error: (
+        error: unknown
+      ) => {
 
         console.error(
-          'Failed to load dashboard data:',
+          'Dashboard loading error:',
           error
         );
 
-
         this.resetDashboard();
 
-
-        this.isLoading = false;
-
+        this.isLoading =
+          false;
 
         this.cdr.detectChanges();
 
@@ -488,7 +957,192 @@ export class Dashboard
 
 
   // =====================================================
-  // CALCULATE APPOINTMENT STATISTICS
+  // BILLING STATISTICS
+  // =====================================================
+
+  private calculateBillingStatistics(): void {
+
+    this.totalRevenue =
+      this.bills.reduce(
+        (
+          total: number,
+          bill: Bill
+        ) =>
+          total +
+          this.toNumber(
+            bill.amount
+          ),
+        0
+      );
+
+
+    this.totalAmountPaid =
+      this.bills.reduce(
+        (
+          total: number,
+          bill: Bill
+        ) =>
+          total +
+          this.toNumber(
+            bill.amountPaid
+          ),
+        0
+      );
+
+
+    this.totalOutstandingBalance =
+      this.bills.reduce(
+        (
+          total: number,
+          bill: Bill
+        ) =>
+          total +
+          this.toNumber(
+            bill.balance
+          ),
+        0
+      );
+
+
+    this.pendingBills =
+      this.bills.filter(
+        (
+          bill: Bill
+        ) =>
+          bill.status ===
+          'Pending'
+      ).length;
+
+
+    this.partiallyPaidBills =
+      this.bills.filter(
+        (
+          bill: Bill
+        ) =>
+          bill.status ===
+          'Partially Paid'
+      ).length;
+
+
+    this.paidBills =
+      this.bills.filter(
+        (
+          bill: Bill
+        ) =>
+          bill.status ===
+          'Paid'
+      ).length;
+
+  }
+
+
+  // =====================================================
+  // PHARMACY STATISTICS
+  // =====================================================
+
+  private calculatePharmacyStatistics(): void {
+
+    this.totalPharmacyPrescriptions =
+      this.pharmacyPrescriptions.length;
+
+
+    this.waitingPrescriptions =
+      this.countPharmacyStatus(
+        'Waiting'
+      );
+
+
+    this.preparingPrescriptions =
+      this.countPharmacyStatus(
+        'Preparing'
+      );
+
+
+    this.awaitingPaymentPrescriptions =
+      this.countPharmacyStatus(
+        'Awaiting Payment'
+      );
+
+
+    this.readyForPickupPrescriptions =
+      this.countPharmacyStatus(
+        'Ready for Pickup'
+      );
+
+
+    this.dispensedPrescriptions =
+      this.countPharmacyStatus(
+        'Dispensed'
+      );
+
+  }
+
+
+  private countPharmacyStatus(
+    status:
+      PharmacyPrescription['status']
+  ): number {
+
+    return this.pharmacyPrescriptions
+      .filter(
+        (
+          prescription:
+            PharmacyPrescription
+        ) =>
+          prescription.status ===
+          status
+      ).length;
+
+  }
+
+
+  // =====================================================
+  // INVENTORY STATISTICS
+  // =====================================================
+
+  private calculateInventoryStatistics(): void {
+
+    this.totalInventoryItems =
+      this.inventoryItems.length;
+
+
+    this.lowStockItems =
+      this.inventoryItems.filter(
+        (
+          item:
+            InventoryItem
+        ) =>
+          item.status ===
+          'Low Stock'
+      ).length;
+
+
+    this.outOfStockItems =
+      this.inventoryItems.filter(
+        (
+          item:
+            InventoryItem
+        ) =>
+          item.status ===
+          'Out of Stock'
+      ).length;
+
+
+    this.expiredItems =
+      this.inventoryItems.filter(
+        (
+          item:
+            InventoryItem
+        ) =>
+          item.status ===
+          'Expired'
+      ).length;
+
+  }
+
+
+  // =====================================================
+  // APPOINTMENT STATISTICS
   // =====================================================
 
   private calculateAppointmentStatistics(): void {
@@ -498,36 +1152,30 @@ export class Dashboard
         'Scheduled'
       );
 
-
     this.confirmedAppointments =
       this.countAppointmentsByStatus(
         'Confirmed'
       );
-
 
     this.checkedInAppointments =
       this.countAppointmentsByStatus(
         'Checked-In'
       );
 
-
     this.inConsultationAppointments =
       this.countAppointmentsByStatus(
         'In Consultation'
       );
-
 
     this.completedAppointments =
       this.countAppointmentsByStatus(
         'Completed'
       );
 
-
     this.cancelledAppointments =
       this.countAppointmentsByStatus(
         'Cancelled'
       );
-
 
     this.noShowAppointments =
       this.countAppointmentsByStatus(
@@ -538,7 +1186,7 @@ export class Dashboard
 
 
   // =====================================================
-  // CALCULATE TODAY'S STATISTICS
+  // TODAY STATISTICS
   // =====================================================
 
   private calculateTodayStatistics(): void {
@@ -548,36 +1196,30 @@ export class Dashboard
         'Scheduled'
       );
 
-
     this.todayConfirmed =
       this.countTodayByStatus(
         'Confirmed'
       );
-
 
     this.todayCheckedIn =
       this.countTodayByStatus(
         'Checked-In'
       );
 
-
     this.todayInConsultation =
       this.countTodayByStatus(
         'In Consultation'
       );
-
 
     this.todayCompleted =
       this.countTodayByStatus(
         'Completed'
       );
 
-
     this.todayCancelled =
       this.countTodayByStatus(
         'Cancelled'
       );
-
 
     this.todayNoShow =
       this.countTodayByStatus(
@@ -588,7 +1230,7 @@ export class Dashboard
 
 
   // =====================================================
-  // COUNT APPOINTMENTS BY STATUS
+  // COUNT APPOINTMENTS
   // =====================================================
 
   private countAppointmentsByStatus(
@@ -596,46 +1238,176 @@ export class Dashboard
   ): number {
 
     return this.appointments.filter(
-      (appointment: Appointment) =>
-        appointment.status === status
+      (
+        appointment:
+          Appointment
+      ) =>
+        appointment.status ===
+        status
     ).length;
 
   }
 
-
-  // =====================================================
-  // COUNT TODAY'S APPOINTMENTS BY STATUS
-  // =====================================================
 
   private countTodayByStatus(
     status: string
   ): number {
 
     return this.todayAppointments.filter(
-      (appointment: Appointment) =>
-        appointment.status === status
+      (
+        appointment:
+          Appointment
+      ) =>
+        appointment.status ===
+        status
     ).length;
 
   }
 
 
   // =====================================================
-  // RENDER ALL CHARTS
+  // RESET APPOINTMENT STATISTICS
+  // =====================================================
+
+  private resetAppointmentStatistics(): void {
+
+    this.totalAppointments =
+      0;
+
+    this.todaysAppointments =
+      0;
+
+    this.todayAppointments =
+      [];
+
+    this.scheduledAppointments =
+      0;
+
+    this.confirmedAppointments =
+      0;
+
+    this.checkedInAppointments =
+      0;
+
+    this.inConsultationAppointments =
+      0;
+
+    this.completedAppointments =
+      0;
+
+    this.cancelledAppointments =
+      0;
+
+    this.noShowAppointments =
+      0;
+
+    this.todayScheduled =
+      0;
+
+    this.todayConfirmed =
+      0;
+
+    this.todayCheckedIn =
+      0;
+
+    this.todayInConsultation =
+      0;
+
+    this.todayCompleted =
+      0;
+
+    this.todayCancelled =
+      0;
+
+    this.todayNoShow =
+      0;
+
+  }
+
+
+  // =====================================================
+  // RESET BILLING
+  // =====================================================
+
+  private resetBillingStatistics(): void {
+
+    this.totalRevenue =
+      0;
+
+    this.totalAmountPaid =
+      0;
+
+    this.totalOutstandingBalance =
+      0;
+
+    this.pendingBills =
+      0;
+
+    this.partiallyPaidBills =
+      0;
+
+    this.paidBills =
+      0;
+
+  }
+
+
+  // =====================================================
+  // RESET PHARMACY
+  // =====================================================
+
+  private resetPharmacyStatistics(): void {
+
+    this.totalPharmacyPrescriptions =
+      0;
+
+    this.waitingPrescriptions =
+      0;
+
+    this.preparingPrescriptions =
+      0;
+
+    this.awaitingPaymentPrescriptions =
+      0;
+
+    this.readyForPickupPrescriptions =
+      0;
+
+    this.dispensedPrescriptions =
+      0;
+
+  }
+
+
+  // =====================================================
+  // RESET INVENTORY
+  // =====================================================
+
+  private resetInventoryStatistics(): void {
+
+    this.totalInventoryItems =
+      0;
+
+    this.lowStockItems =
+      0;
+
+    this.outOfStockItems =
+      0;
+
+    this.expiredItems =
+      0;
+
+  }
+
+
+  // =====================================================
+  // RENDER CHARTS
   // =====================================================
 
   private renderCharts(): void {
 
-    if (!this.viewReady) {
-
-      return;
-
-    }
-
-
     if (
-      !this.appointmentsChartRef ||
-      !this.hospitalChartRef ||
-      !this.statusChartRef
+      !this.viewReady
     ) {
 
       return;
@@ -661,6 +1433,16 @@ export class Dashboard
 
   private createAppointmentsChart(): void {
 
+    if (
+      !this.moduleAvailability
+        .appointments
+    ) {
+
+      return;
+
+    }
+
+
     const canvas =
       this.appointmentsChartRef
         ?.nativeElement;
@@ -676,24 +1458,35 @@ export class Dashboard
     const config:
       ChartConfiguration<'bar'> = {
 
-      type: 'bar',
+      type:
+        'bar',
 
       data: {
 
         labels: [
+
           'Scheduled',
+
           'Confirmed',
+
           'Checked-In',
+
           'In Consultation',
+
           'Completed',
+
           'Cancelled',
+
           'No Show'
+
         ],
 
         datasets: [
 
           {
-            label: 'Appointments',
+
+            label:
+              'Appointments',
 
             data: [
 
@@ -716,20 +1509,29 @@ export class Dashboard
             backgroundColor: [
 
               '#f59e0b',
+
               '#10b981',
+
               '#0ea5e9',
+
               '#8b5cf6',
+
               '#2563eb',
+
               '#ef4444',
+
               '#64748b'
 
             ],
 
-            borderRadius: 7,
+            borderRadius:
+              7,
 
-            borderSkipped: false,
+            borderSkipped:
+              false,
 
-            barThickness: 28
+            barThickness:
+              28
 
           }
 
@@ -739,25 +1541,31 @@ export class Dashboard
 
       options: {
 
-        responsive: true,
+        responsive:
+          true,
 
-        maintainAspectRatio: false,
+        maintainAspectRatio:
+          false,
 
         plugins: {
 
           legend: {
 
-            display: false
+            display:
+              false
 
           },
 
           tooltip: {
 
-            backgroundColor: '#111827',
+            backgroundColor:
+              '#111827',
 
-            padding: 12,
+            padding:
+              12,
 
-            cornerRadius: 8
+            cornerRadius:
+              8
 
           }
 
@@ -769,17 +1577,20 @@ export class Dashboard
 
             grid: {
 
-              display: false
+              display:
+                false
 
             },
 
             ticks: {
 
-              color: '#6b7280',
+              color:
+                '#6b7280',
 
               font: {
 
-                size: 10
+                size:
+                  10
 
               }
 
@@ -789,17 +1600,21 @@ export class Dashboard
 
           y: {
 
-            beginAtZero: true,
+            beginAtZero:
+              true,
 
             ticks: {
 
-              precision: 0,
+              precision:
+                0,
 
-              color: '#6b7280',
+              color:
+                '#6b7280',
 
               font: {
 
-                size: 10
+                size:
+                  10
 
               }
 
@@ -807,7 +1622,8 @@ export class Dashboard
 
             grid: {
 
-              color: '#f1f5f9'
+              color:
+                '#f1f5f9'
 
             }
 
@@ -830,7 +1646,7 @@ export class Dashboard
 
 
   // =====================================================
-  // HOSPITAL OVERVIEW CHART
+  // SYSTEM OVERVIEW CHART
   // =====================================================
 
   private createHospitalChart(): void {
@@ -847,48 +1663,147 @@ export class Dashboard
     }
 
 
+    const labels:
+      string[] = [];
+
+    const data:
+      number[] = [];
+
+    const colors:
+      string[] = [];
+
+
+    if (
+      this.moduleAvailability
+        .patients
+    ) {
+
+      labels.push(
+        'Patients'
+      );
+
+      data.push(
+        this.totalPatients
+      );
+
+      colors.push(
+        '#0ea5e9'
+      );
+
+    }
+
+
+    if (
+      this.moduleAvailability
+        .appointments
+    ) {
+
+      labels.push(
+        'Appointments'
+      );
+
+      data.push(
+        this.totalAppointments
+      );
+
+      colors.push(
+        '#10b981'
+      );
+
+    }
+
+
+    if (
+      this.moduleAvailability
+        .billing
+    ) {
+
+      labels.push(
+        'Billing'
+      );
+
+      data.push(
+        this.bills.length
+      );
+
+      colors.push(
+        '#8b5cf6'
+      );
+
+    }
+
+
+    if (
+      this.moduleAvailability
+        .pharmacy
+    ) {
+
+      labels.push(
+        'Pharmacy'
+      );
+
+      data.push(
+        this.totalPharmacyPrescriptions
+      );
+
+      colors.push(
+        '#f59e0b'
+      );
+
+    }
+
+
+    if (
+      this.moduleAvailability
+        .inventory
+    ) {
+
+      labels.push(
+        'Inventory'
+      );
+
+      data.push(
+        this.totalInventoryItems
+      );
+
+      colors.push(
+        '#14b8a6'
+      );
+
+    }
+
+
+    if (!data.length) {
+
+      return;
+
+    }
+
+
     const config:
       ChartConfiguration<'doughnut'> = {
 
-      type: 'doughnut',
+      type:
+        'doughnut',
 
       data: {
 
-        labels: [
-          'Patients',
-          'Doctors',
-          'Departments',
-          'Appointments'
-        ],
+        labels,
 
         datasets: [
 
           {
 
-            data: [
+            data,
 
-              this.totalPatients,
+            backgroundColor:
+              colors,
 
-              this.activeDoctors,
+            borderWidth:
+              0,
 
-              this.totalDepartments,
-
-              this.totalAppointments
-
-            ],
-
-            backgroundColor: [
-
-              '#0ea5e9',
-              '#8b5cf6',
-              '#f59e0b',
-              '#10b981'
-
-            ],
-
-            borderWidth: 0,
-
-            hoverOffset: 8
+            hoverOffset:
+              8
 
           }
 
@@ -898,31 +1813,40 @@ export class Dashboard
 
       options: {
 
-        responsive: true,
+        responsive:
+          true,
 
-        maintainAspectRatio: false,
+        maintainAspectRatio:
+          false,
 
-        cutout: '68%',
+        cutout:
+          '68%',
 
         plugins: {
 
           legend: {
 
-            position: 'bottom',
+            position:
+              'bottom',
 
             labels: {
 
-              usePointStyle: true,
+              usePointStyle:
+                true,
 
-              pointStyle: 'circle',
+              pointStyle:
+                'circle',
 
-              padding: 18,
+              padding:
+                18,
 
-              color: '#4b5563',
+              color:
+                '#4b5563',
 
               font: {
 
-                size: 11
+                size:
+                  11
 
               }
 
@@ -932,11 +1856,14 @@ export class Dashboard
 
           tooltip: {
 
-            backgroundColor: '#111827',
+            backgroundColor:
+              '#111827',
 
-            padding: 12,
+            padding:
+              12,
 
-            cornerRadius: 8
+            cornerRadius:
+              8
 
           }
 
@@ -962,6 +1889,16 @@ export class Dashboard
 
   private createStatusChart(): void {
 
+    if (
+      !this.moduleAvailability
+        .appointments
+    ) {
+
+      return;
+
+    }
+
+
     const canvas =
       this.statusChartRef
         ?.nativeElement;
@@ -974,10 +1911,21 @@ export class Dashboard
     }
 
 
+    if (
+      this.todaysAppointments ===
+      0
+    ) {
+
+      return;
+
+    }
+
+
     const config:
       ChartConfiguration<'doughnut'> = {
 
-      type: 'doughnut',
+      type:
+        'doughnut',
 
       data: {
 
@@ -1024,18 +1972,26 @@ export class Dashboard
             backgroundColor: [
 
               '#f59e0b',
+
               '#10b981',
+
               '#0ea5e9',
+
               '#8b5cf6',
+
               '#2563eb',
+
               '#ef4444',
+
               '#64748b'
 
             ],
 
-            borderWidth: 0,
+            borderWidth:
+              0,
 
-            hoverOffset: 8
+            hoverOffset:
+              8
 
           }
 
@@ -1045,31 +2001,40 @@ export class Dashboard
 
       options: {
 
-        responsive: true,
+        responsive:
+          true,
 
-        maintainAspectRatio: false,
+        maintainAspectRatio:
+          false,
 
-        cutout: '65%',
+        cutout:
+          '65%',
 
         plugins: {
 
           legend: {
 
-            position: 'bottom',
+            position:
+              'bottom',
 
             labels: {
 
-              usePointStyle: true,
+              usePointStyle:
+                true,
 
-              pointStyle: 'circle',
+              pointStyle:
+                'circle',
 
-              padding: 13,
+              padding:
+                13,
 
-              color: '#4b5563',
+              color:
+                '#4b5563',
 
               font: {
 
-                size: 10
+                size:
+                  10
 
               }
 
@@ -1079,11 +2044,14 @@ export class Dashboard
 
           tooltip: {
 
-            backgroundColor: '#111827',
+            backgroundColor:
+              '#111827',
 
-            padding: 12,
+            padding:
+              12,
 
-            cornerRadius: 8
+            cornerRadius:
+              8
 
           }
 
@@ -1109,104 +2077,100 @@ export class Dashboard
 
   private destroyCharts(): void {
 
-    if (this.appointmentsChart) {
+    this.appointmentsChart
+      ?.destroy();
 
-      this.appointmentsChart.destroy();
+    this.hospitalChart
+      ?.destroy();
 
-      this.appointmentsChart =
-        undefined;
+    this.statusChart
+      ?.destroy();
 
-    }
+    this.appointmentsChart =
+      undefined;
 
+    this.hospitalChart =
+      undefined;
 
-    if (this.hospitalChart) {
-
-      this.hospitalChart.destroy();
-
-      this.hospitalChart =
-        undefined;
-
-    }
-
-
-    if (this.statusChart) {
-
-      this.statusChart.destroy();
-
-      this.statusChart =
-        undefined;
-
-    }
+    this.statusChart =
+      undefined;
 
   }
 
 
   // =====================================================
-  // RESET DASHBOARD
+  // RESET ENTIRE DASHBOARD
   // =====================================================
 
   private resetDashboard(): void {
 
-    this.patients = [];
+    this.patients =
+      [];
 
-    this.doctors = [];
+    this.doctors =
+      [];
 
-    this.departments = [];
+    this.departments =
+      [];
 
-    this.appointments = [];
+    this.appointments =
+      [];
 
-    this.todayAppointments = [];
+    this.bills =
+      [];
+
+    this.pharmacyPrescriptions =
+      [];
+
+    this.inventoryItems =
+      [];
+
+    this.moduleAvailability = {
+
+      patients: false,
+
+      doctors: false,
+
+      departments: false,
+
+      appointments: false,
+
+      billing: false,
+
+      pharmacy: false,
+
+      inventory: false
+
+    };
 
 
-    this.totalPatients = 0;
+    this.totalPatients =
+      0;
 
-    this.activeDoctors = 0;
+    this.activeDoctors =
+      0;
 
-    this.totalDepartments = 0;
+    this.totalDepartments =
+      0;
 
-    this.totalAppointments = 0;
+    this.resetAppointmentStatistics();
 
-    this.todaysAppointments = 0;
+    this.resetBillingStatistics();
 
+    this.resetPharmacyStatistics();
 
-    this.scheduledAppointments = 0;
-
-    this.confirmedAppointments = 0;
-
-    this.checkedInAppointments = 0;
-
-    this.inConsultationAppointments = 0;
-
-    this.completedAppointments = 0;
-
-    this.cancelledAppointments = 0;
-
-    this.noShowAppointments = 0;
-
-
-    this.todayScheduled = 0;
-
-    this.todayConfirmed = 0;
-
-    this.todayCheckedIn = 0;
-
-    this.todayInConsultation = 0;
-
-    this.todayCompleted = 0;
-
-    this.todayCancelled = 0;
-
-    this.todayNoShow = 0;
+    this.resetInventoryStatistics();
 
   }
 
 
   // =====================================================
-  // CHECK WHETHER DATE IS TODAY
+  // TODAY CHECK
   // =====================================================
 
   private isToday(
-    dateValue: string
+    dateValue:
+      string
   ): boolean {
 
     if (!dateValue) {
@@ -1223,7 +2187,6 @@ export class Dashboard
     const year =
       today.getFullYear();
 
-
     const month =
       String(
         today.getMonth() + 1
@@ -1231,7 +2194,6 @@ export class Dashboard
         2,
         '0'
       );
-
 
     const day =
       String(
@@ -1262,7 +2224,7 @@ export class Dashboard
 
 
   // =====================================================
-  // FORMAT CURRENT DATE
+  // CURRENT DATE
   // =====================================================
 
   get formattedDate(): string {
@@ -1271,13 +2233,17 @@ export class Dashboard
       .toLocaleDateString(
         'en-US',
         {
-          weekday: 'long',
+          weekday:
+            'long',
 
-          month: 'long',
+          month:
+            'long',
 
-          day: 'numeric',
+          day:
+            'numeric',
 
-          year: 'numeric'
+          year:
+            'numeric'
         }
       );
 
@@ -1285,11 +2251,60 @@ export class Dashboard
 
 
   // =====================================================
-  // FORMAT APPOINTMENT TIME
+  // FORMAT CURRENCY
+  // =====================================================
+
+  formatCurrency(
+    value:
+      number
+  ): string {
+
+    return new Intl.NumberFormat(
+      'en-UG',
+      {
+        minimumFractionDigits:
+          0,
+
+        maximumFractionDigits:
+          0
+      }
+    ).format(
+      this.toNumber(
+        value
+      )
+    );
+
+  }
+
+
+  // =====================================================
+  // SAFE NUMBER
+  // =====================================================
+
+  private toNumber(
+    value:
+      unknown
+  ): number {
+
+    const number =
+      Number(value);
+
+    return Number.isFinite(
+      number
+    )
+      ? number
+      : 0;
+
+  }
+
+
+  // =====================================================
+  // APPOINTMENT TIME
   // =====================================================
 
   formatAppointmentTime(
-    time: string | undefined
+    time:
+      string | undefined
   ): string {
 
     if (!time) {
@@ -1303,7 +2318,9 @@ export class Dashboard
       time.split(':');
 
 
-    if (parts.length < 2) {
+    if (
+      parts.length < 2
+    ) {
 
       return time;
 
@@ -1311,34 +2328,36 @@ export class Dashboard
 
 
     const hour =
-      Number(parts[0]);
-
+      Number(
+        parts[0]
+      );
 
     const minute =
       parts[1];
-
 
     const period =
       hour >= 12
         ? 'PM'
         : 'AM';
 
-
     const displayHour =
       hour % 12 || 12;
 
 
-    return `${displayHour}:${minute} ${period}`;
+    return (
+      `${displayHour}:${minute} ${period}`
+    );
 
   }
 
 
   // =====================================================
-  // GET PATIENT NAME
+  // PATIENT NAME
   // =====================================================
 
   getPatientName(
-    appointment: Appointment
+    appointment:
+      Appointment
   ): string {
 
     if (
@@ -1352,7 +2371,10 @@ export class Dashboard
 
     const patient =
       this.patients.find(
-        (p: Patient) =>
+        (
+          p:
+            Patient
+        ) =>
           p.id ===
           appointment.patientId
       );
@@ -1374,11 +2396,12 @@ export class Dashboard
 
 
   // =====================================================
-  // GET DOCTOR NAME
+  // DOCTOR NAME
   // =====================================================
 
   getDoctorName(
-    appointment: Appointment
+    appointment:
+      Appointment
   ): string {
 
     if (
@@ -1392,7 +2415,10 @@ export class Dashboard
 
     const doctor =
       this.doctors.find(
-        (d: Doctor) =>
+        (
+          d:
+            Doctor
+        ) =>
           d.id ===
           appointment.doctorId
       );
@@ -1414,11 +2440,12 @@ export class Dashboard
 
 
   // =====================================================
-  // GET PATIENT ID
+  // PATIENT ID
   // =====================================================
 
   getPatientId(
-    appointment: Appointment
+    appointment:
+      Appointment
   ): string {
 
     return (
@@ -1430,11 +2457,12 @@ export class Dashboard
 
 
   // =====================================================
-  // GET PATIENT INITIALS
+  // PATIENT INITIALS
   // =====================================================
 
   getPatientInitials(
-    appointment: Appointment
+    appointment:
+      Appointment
   ): string {
 
     const name =
@@ -1445,7 +2473,8 @@ export class Dashboard
 
     if (
       !name ||
-      name === 'Unknown Patient'
+      name ===
+        'Unknown Patient'
     ) {
 
       return '??';
@@ -1455,20 +2484,19 @@ export class Dashboard
 
     const parts =
       name
-        .replace(
-          'Dr. ',
-          ''
-        )
         .trim()
-        .split(' ')
+        .split(
+          ' '
+        )
         .filter(
-          (part: string) =>
+          part =>
             Boolean(part)
         );
 
 
     if (
-      parts.length === 1
+      parts.length ===
+      1
     ) {
 
       return parts[0]
@@ -1490,120 +2518,46 @@ export class Dashboard
 
 
   // =====================================================
-  // GET DEPARTMENT
+  // DEPARTMENT
   // =====================================================
 
   getDepartment(
-    appointment: Appointment
+    appointment:
+      Appointment
   ): string {
 
-    if (
-      appointment.department
-    ) {
-
-      return appointment.department;
-
-    }
-
-
-    return 'General';
+    return (
+      appointment.department ||
+      'General'
+    );
 
   }
 
 
   // =====================================================
-  // GET APPOINTMENT TYPE
+  // APPOINTMENT TYPE
   // =====================================================
 
   getAppointmentType(
-    appointment: Appointment
+    appointment:
+      Appointment
   ): string {
 
-    if (
-      appointment.type
-    ) {
-
-      return appointment.type;
-
-    }
-
-
-    return 'Consultation';
+    return (
+      appointment.type ||
+      'Consultation'
+    );
 
   }
 
 
   // =====================================================
-  // VIEW ALL APPOINTMENTS
-  // =====================================================
-
-  viewAppointments(): void {
-
-    this.router.navigate([
-      '/appointments'
-    ]);
-
-  }
-
-
-  // =====================================================
-  // REGISTER PATIENT
-  // =====================================================
-
-  registerPatient(): void {
-
-    this.router.navigate([
-      '/patients/register'
-    ]);
-
-  }
-
-
-  // =====================================================
-  // NEW APPOINTMENT
-  // =====================================================
-
-  newAppointment(): void {
-
-    this.router.navigate([
-      '/appointments/register'
-    ]);
-
-  }
-
-
-  // =====================================================
-  // PRESCRIPTION
-  // =====================================================
-
-  createPrescription(): void {
-
-    this.router.navigate([
-      '/pharmacy'
-    ]);
-
-  }
-
-
-  // =====================================================
-  // INVOICE
-  // =====================================================
-
-  createInvoice(): void {
-
-    this.router.navigate([
-      '/billing'
-    ]);
-
-  }
-
-
-  // =====================================================
-  // GET STATUS CLASS
+  // STATUS CLASS
   // =====================================================
 
   getStatusClass(
-    status: Appointment['status']
+    status:
+      Appointment['status']
   ): string {
 
     switch (status) {
@@ -1633,6 +2587,55 @@ export class Dashboard
         return '';
 
     }
+
+  }
+
+
+  // =====================================================
+  // NAVIGATION
+  // =====================================================
+
+  viewAppointments(): void {
+
+    this.router.navigate([
+      '/appointments'
+    ]);
+
+  }
+
+
+  registerPatient(): void {
+
+    this.router.navigate([
+      '/patients/register'
+    ]);
+
+  }
+
+
+  newAppointment(): void {
+
+    this.router.navigate([
+      '/appointments/register'
+    ]);
+
+  }
+
+
+  createPrescription(): void {
+
+    this.router.navigate([
+      '/pharmacy'
+    ]);
+
+  }
+
+
+  createInvoice(): void {
+
+    this.router.navigate([
+      '/billing'
+    ]);
 
   }
 

@@ -2,13 +2,19 @@
    CONSULTATIONS PAGE
    ========================================================= */
 
-.consultations-page {
-  padding: 28px;
-  max-width: 1600px;
-  margin: 0 auto;
-  color: #1e293b;
+:host {
+  display: block;
+  width: 100%;
 }
 
+.consultations-page {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 28px;
+  box-sizing: border-box;
+  color: var(--hms-text);
+}
 
 /* =========================================================
    PAGE HEADER
@@ -26,15 +32,14 @@
   margin: 0 0 6px;
   font-size: 30px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--hms-text);
 }
 
 .page-header p {
   margin: 0;
-  color: #64748b;
+  color: var(--hms-text-secondary);
   font-size: 14px;
 }
-
 
 /* =========================================================
    BUTTONS
@@ -47,7 +52,12 @@
   border: none;
   cursor: pointer;
   font-family: inherit;
-  transition: all 0.2s ease;
+  transition:
+    background-color var(--hms-transition),
+    color var(--hms-transition),
+    border-color var(--hms-transition),
+    transform var(--hms-transition),
+    box-shadow var(--hms-transition);
 }
 
 .primary-button {
@@ -56,23 +66,29 @@
   justify-content: center;
   gap: 8px;
   padding: 11px 18px;
-  border-radius: 8px;
-  background: #0ea5a8;
-  color: white;
+  border: 1px solid var(--hms-primary);
+  border-radius: var(--hms-radius);
+  background: var(--hms-primary);
+  color: #ffffff;
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
 }
 
 .primary-button:hover {
-  background: #0f8f92;
+  background: var(--hms-primary-hover);
+  border-color: var(--hms-primary-hover);
   transform: translateY(-1px);
+}
+
+.primary-button:focus-visible {
+  outline: 2px solid var(--hms-primary);
+  outline-offset: 2px;
 }
 
 .primary-button .material-symbols-outlined {
   font-size: 20px;
 }
-
 
 /* =========================================================
    STATISTICS
@@ -80,7 +96,7 @@
 
 .consultation-stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
   margin-bottom: 24px;
 }
@@ -89,11 +105,12 @@
   display: flex;
   align-items: center;
   gap: 15px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
   padding: 18px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
+  box-shadow: var(--hms-shadow);
+  color: var(--hms-text);
 }
 
 .mini-stat-icon {
@@ -103,9 +120,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
-  background: #e0f7f7;
-  color: #0f9b9e;
+  border-radius: var(--hms-radius);
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .mini-stat-icon .material-symbols-outlined {
@@ -115,50 +132,48 @@
 .mini-stat span {
   display: block;
   margin-bottom: 4px;
-  color: #64748b;
+  color: var(--hms-text-secondary);
   font-size: 13px;
 }
 
 .mini-stat strong {
   display: block;
-  color: #0f172a;
+  color: var(--hms-text);
   font-size: 24px;
   font-weight: 700;
 }
-
 
 /* =========================================================
    STAT ICON VARIATIONS
    ========================================================= */
 
 .open-icon {
-  background: #fff7ed;
-  color: #ea580c;
+  background: var(--hms-warning-light);
+  color: var(--hms-warning);
 }
 
 .completed-icon {
-  background: #ecfdf5;
-  color: #059669;
+  background: var(--hms-success-light);
+  color: var(--hms-success);
 }
 
 .cancelled-icon {
-  background: #fef2f2;
-  color: #dc2626;
+  background: var(--hms-danger-light);
+  color: var(--hms-danger);
 }
-
 
 /* =========================================================
    CONSULTATIONS CARD
    ========================================================= */
 
 .consultations-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
   overflow: hidden;
-  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+  box-shadow: var(--hms-shadow-md);
+  color: var(--hms-text);
 }
-
 
 /* =========================================================
    TABLE TOOLBAR
@@ -170,10 +185,9 @@
   justify-content: space-between;
   gap: 18px;
   padding: 18px 20px;
-  border-bottom: 1px solid #e2e8f0;
-  background: #ffffff;
+  border-bottom: 1px solid var(--hms-border);
+  background: var(--hms-surface);
 }
-
 
 /* =========================================================
    SEARCH
@@ -190,7 +204,7 @@
 .search-box .material-symbols-outlined {
   position: absolute;
   left: 13px;
-  color: #94a3b8;
+  color: var(--hms-text-muted);
   font-size: 21px;
   pointer-events: none;
 }
@@ -199,24 +213,27 @@
   width: 100%;
   height: 42px;
   padding: 0 14px 0 42px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius);
   outline: none;
-  background: #ffffff;
-  color: #1e293b;
+  background: var(--hms-input-bg);
+  color: var(--hms-input-text);
   font-size: 14px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition),
+    background-color var(--hms-transition),
+    color var(--hms-transition);
 }
 
 .search-box input::placeholder {
-  color: #94a3b8;
+  color: var(--hms-text-muted);
 }
 
 .search-box input:focus {
-  border-color: #0ea5a8;
-  box-shadow: 0 0 0 3px rgba(14, 165, 168, 0.1);
+  border-color: var(--hms-primary);
+  box-shadow: 0 0 0 3px var(--hms-primary-light);
 }
-
 
 /* =========================================================
    FILTERS
@@ -232,19 +249,19 @@
   height: 42px;
   min-width: 135px;
   padding: 0 34px 0 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius);
   outline: none;
-  background: #ffffff;
-  color: #334155;
+  background: var(--hms-input-bg);
+  color: var(--hms-input-text);
   font-size: 14px;
   cursor: pointer;
 }
 
 .filters select:focus {
-  border-color: #0ea5a8;
+  border-color: var(--hms-primary);
+  box-shadow: 0 0 0 3px var(--hms-primary-light);
 }
-
 
 /* =========================================================
    CLEAR BUTTON
@@ -256,21 +273,23 @@
   gap: 6px;
   height: 42px;
   padding: 0 13px;
-  border-radius: 8px;
-  background: #f1f5f9;
-  color: #475569;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius);
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text-secondary);
   font-size: 13px;
   font-weight: 600;
 }
 
 .clear-button:hover {
-  background: #e2e8f0;
+  background: var(--hms-primary-light);
+  border-color: var(--hms-primary);
+  color: var(--hms-primary);
 }
 
 .clear-button .material-symbols-outlined {
   font-size: 19px;
 }
-
 
 /* =========================================================
    REFRESH BUTTON
@@ -282,19 +301,21 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  background: #f1f5f9;
-  color: #475569;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius);
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text-secondary);
 }
 
 .refresh-button:hover {
-  background: #e2e8f0;
+  background: var(--hms-primary-light);
+  border-color: var(--hms-primary);
+  color: var(--hms-primary);
 }
 
 .refresh-button .material-symbols-outlined {
   font-size: 20px;
 }
-
 
 /* =========================================================
    TABLE
@@ -309,16 +330,18 @@ table {
   width: 100%;
   min-width: 1100px;
   border-collapse: collapse;
+  background: var(--hms-surface);
+  color: var(--hms-text);
 }
 
 thead {
-  background: #f8fafc;
+  background: var(--hms-surface-secondary);
 }
 
 th {
   padding: 14px 16px;
-  border-bottom: 1px solid #e2e8f0;
-  color: #475569;
+  border-bottom: 1px solid var(--hms-border);
+  color: var(--hms-text-secondary);
   font-size: 12px;
   font-weight: 700;
   text-align: left;
@@ -329,24 +352,23 @@ th {
 
 td {
   padding: 15px 16px;
-  border-bottom: 1px solid #f1f5f9;
-  color: #475569;
+  border-bottom: 1px solid var(--hms-border);
+  color: var(--hms-text-secondary);
   font-size: 14px;
   vertical-align: middle;
 }
 
 tbody tr {
-  transition: background 0.15s ease;
+  transition: background-color var(--hms-transition);
 }
 
 tbody tr:hover {
-  background: #f8fafc;
+  background: var(--hms-surface-secondary);
 }
 
 tbody tr:last-child td {
   border-bottom: none;
 }
-
 
 /* =========================================================
    CONSULTATION ID
@@ -354,7 +376,7 @@ tbody tr:last-child td {
 
 .consultation-id {
   display: block;
-  color: #0f766e;
+  color: var(--hms-primary);
   font-weight: 700;
   font-size: 13px;
 }
@@ -362,10 +384,9 @@ tbody tr:last-child td {
 .appointment-id {
   display: block;
   margin-top: 5px;
-  color: #94a3b8;
+  color: var(--hms-text-muted);
   font-size: 11px;
 }
-
 
 /* =========================================================
    PERSON CELL
@@ -379,16 +400,15 @@ tbody tr:last-child td {
 }
 
 .person-cell strong {
-  color: #1e293b;
+  color: var(--hms-text);
   font-size: 14px;
   font-weight: 600;
 }
 
 .record-id {
-  color: #94a3b8;
+  color: var(--hms-text-muted);
   font-size: 11px;
 }
-
 
 /* =========================================================
    DATE CELL
@@ -402,15 +422,14 @@ tbody tr:last-child td {
 }
 
 .date-cell strong {
-  color: #334155;
+  color: var(--hms-text);
   font-size: 13px;
 }
 
 .date-cell span {
-  color: #94a3b8;
+  color: var(--hms-text-muted);
   font-size: 12px;
 }
-
 
 /* =========================================================
    TRUNCATED TEXT
@@ -422,14 +441,13 @@ tbody tr:last-child td {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #475569;
+  color: var(--hms-text-secondary);
 }
 
 .muted-text {
-  color: #94a3b8;
+  color: var(--hms-text-muted);
   font-style: italic;
 }
-
 
 /* =========================================================
    STATUS
@@ -447,20 +465,19 @@ tbody tr:last-child td {
 }
 
 .status.open {
-  background: #fff7ed;
-  color: #c2410c;
+  background: var(--hms-warning-light);
+  color: var(--hms-warning);
 }
 
 .status.completed {
-  background: #ecfdf5;
-  color: #047857;
+  background: var(--hms-success-light);
+  color: var(--hms-success);
 }
 
 .status.cancelled {
-  background: #fef2f2;
-  color: #b91c1c;
+  background: var(--hms-danger-light);
+  color: var(--hms-danger);
 }
-
 
 /* =========================================================
    ACTION BUTTONS
@@ -478,55 +495,56 @@ tbody tr:last-child td {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #e2e8f0;
-  border-radius: 7px;
-  background: #ffffff;
-  color: #64748b;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-sm);
+  background: var(--hms-surface);
+  color: var(--hms-text-secondary);
 }
 
 .action-button:hover:not(:disabled) {
-  background: #f1f5f9;
-  color: #0f766e;
-  border-color: #cbd5e1;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
+  border-color: var(--hms-primary);
 }
 
 .action-button .material-symbols-outlined {
   font-size: 18px;
 }
 
+.action-button:focus-visible {
+  outline: 2px solid var(--hms-primary);
+  outline-offset: 2px;
+}
 
 /* =========================================================
    COMPLETE ACTION
    ========================================================= */
 
 .complete-action:hover:not(:disabled) {
-  color: #059669;
-  background: #ecfdf5;
-  border-color: #a7f3d0;
+  color: var(--hms-success);
+  background: var(--hms-success-light);
+  border-color: var(--hms-success);
 }
-
 
 /* =========================================================
    CANCEL ACTION
    ========================================================= */
 
 .danger-action:hover:not(:disabled) {
-  color: #dc2626;
-  background: #fef2f2;
-  border-color: #fecaca;
+  color: var(--hms-danger);
+  background: var(--hms-danger-light);
+  border-color: var(--hms-danger);
 }
-
 
 /* =========================================================
    DELETE ACTION
    ========================================================= */
 
 .delete-action:hover:not(:disabled) {
-  color: #dc2626;
-  background: #fef2f2;
-  border-color: #fecaca;
+  color: var(--hms-danger);
+  background: var(--hms-danger-light);
+  border-color: var(--hms-danger);
 }
-
 
 /* =========================================================
    DISABLED ACTION
@@ -537,7 +555,6 @@ tbody tr:last-child td {
   cursor: not-allowed;
 }
 
-
 /* =========================================================
    EMPTY CELL
    ========================================================= */
@@ -545,7 +562,6 @@ tbody tr:last-child td {
 .empty-cell {
   padding: 0 !important;
 }
-
 
 /* =========================================================
    EMPTY STATE
@@ -564,36 +580,34 @@ tbody tr:last-child td {
 .empty-state > .material-symbols-outlined {
   margin-bottom: 14px;
   font-size: 48px;
-  color: #94a3b8;
+  color: var(--hms-text-muted);
 }
 
 .empty-state h3 {
   margin: 0 0 7px;
-  color: #334155;
+  color: var(--hms-text);
   font-size: 18px;
 }
 
 .empty-state p {
   max-width: 420px;
   margin: 0 0 20px;
-  color: #94a3b8;
+  color: var(--hms-text-secondary);
   font-size: 14px;
   line-height: 1.6;
 }
-
 
 /* =========================================================
    RESPONSIVE - TABLET
    ========================================================= */
 
 @media (max-width: 1100px) {
-
   .consultations-page {
     padding: 22px;
   }
 
   .consultation-stats {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .table-toolbar {
@@ -608,16 +622,13 @@ tbody tr:last-child td {
   .filters {
     justify-content: flex-end;
   }
-
 }
-
 
 /* =========================================================
    RESPONSIVE - MOBILE
    ========================================================= */
 
 @media (max-width: 700px) {
-
   .consultations-page {
     padding: 16px;
   }
@@ -666,16 +677,13 @@ tbody tr:last-child td {
   .refresh-button {
     flex-shrink: 0;
   }
-
 }
-
 
 /* =========================================================
    SMALL MOBILE
    ========================================================= */
 
 @media (max-width: 480px) {
-
   .consultations-page {
     padding: 12px;
   }
@@ -719,5 +727,4 @@ tbody tr:last-child td {
   .refresh-button {
     width: 42px;
   }
-
 }

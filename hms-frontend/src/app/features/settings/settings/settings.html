@@ -1,18 +1,33 @@
 <div class="settings-page">
 
   <!-- ================================================= -->
-  <!-- HEADER -->
+  <!-- PAGE HEADER -->
   <!-- ================================================= -->
 
   <div class="page-header">
 
-    <div>
+    <div class="page-heading">
 
-      <h1>Settings</h1>
+      <div class="page-icon">
 
-      <p>
-        Manage your hospital system configuration and preferences.
-      </p>
+        <span class="material-symbols-outlined">
+          settings
+        </span>
+
+      </div>
+
+
+      <div>
+
+        <h1>
+          Settings
+        </h1>
+
+        <p>
+          Manage your organization's configuration, users and preferences.
+        </p>
+
+      </div>
 
     </div>
 
@@ -27,7 +42,7 @@
 
 
     <!-- ================================================= -->
-    <!-- HOSPITAL -->
+    <!-- TENANT INFORMATION -->
     <!-- ================================================= -->
 
     <button
@@ -36,26 +51,32 @@
       (click)="openHospitalSettings()"
     >
 
-      <div class="settings-icon hospital">
+      <div class="settings-icon tenant">
 
         <span class="material-symbols-outlined">
-          local_hospital
+          domain
         </span>
 
       </div>
 
+
       <div class="settings-content">
 
+        <span class="settings-label">
+          ORGANIZATION
+        </span>
+
         <h2>
-          Hospital Information
+          Tenant Information
         </h2>
 
         <p>
-          Manage hospital name, contact details,
-          address and registration information.
+          Manage your organization's name, contact details,
+          address, registration information and branding.
         </p>
 
       </div>
+
 
       <span class="material-symbols-outlined arrow">
         chevron_right
@@ -82,18 +103,24 @@
 
       </div>
 
+
       <div class="settings-content">
+
+        <span class="settings-label">
+          ACCOUNT
+        </span>
 
         <h2>
           Profile Settings
         </h2>
 
         <p>
-          Update your name, email, phone number
+          Update your personal name, email, phone number
           and account information.
         </p>
 
       </div>
+
 
       <span class="material-symbols-outlined arrow">
         chevron_right
@@ -104,42 +131,52 @@
 
     <!-- ================================================= -->
     <!-- USER MANAGEMENT -->
-    <!-- ADMIN ONLY -->
     <!-- ================================================= -->
 
-    <button
-      *ngIf="canManageUsers()"
-      type="button"
-      class="settings-card"
-      (click)="openUserManagement()"
-    >
+    @if (
+      canManageUsers()
+    ) {
 
-      <div class="settings-icon users">
+      <button
+        type="button"
+        class="settings-card"
+        (click)="openUserManagement()"
+      >
 
-        <span class="material-symbols-outlined">
-          manage_accounts
+        <div class="settings-icon users">
+
+          <span class="material-symbols-outlined">
+            manage_accounts
+          </span>
+
+        </div>
+
+
+        <div class="settings-content">
+
+          <span class="settings-label">
+            ADMINISTRATION
+          </span>
+
+          <h2>
+            User Management
+          </h2>
+
+          <p>
+            Create, update, activate, deactivate and
+            manage users belonging to this tenant.
+          </p>
+
+        </div>
+
+
+        <span class="material-symbols-outlined arrow">
+          chevron_right
         </span>
 
-      </div>
+      </button>
 
-      <div class="settings-content">
-
-        <h2>
-          User Management
-        </h2>
-
-        <p>
-          Create, update, activate, deactivate and
-          manage hospital system user accounts.
-        </p>
-
-      </div>
-
-      <span class="material-symbols-outlined arrow">
-        chevron_right
-      </span>
-
-    </button>
+    }
 
 
     <!-- ================================================= -->
@@ -160,18 +197,24 @@
 
       </div>
 
+
       <div class="settings-content">
+
+        <span class="settings-label">
+          CONFIGURATION
+        </span>
 
         <h2>
           System Preferences
         </h2>
 
         <p>
-          Configure currency, date format,
-          time format, language and timezone.
+          Configure currency, date format, time format,
+          language and timezone for this tenant.
         </p>
 
       </div>
+
 
       <span class="material-symbols-outlined arrow">
         chevron_right
@@ -198,18 +241,24 @@
 
       </div>
 
+
       <div class="settings-content">
+
+        <span class="settings-label">
+          COMMUNICATION
+        </span>
 
         <h2>
           Notifications
         </h2>
 
         <p>
-          Manage system, email and SMS
+          Manage system, email, SMS and operational
           notification preferences.
         </p>
 
       </div>
+
 
       <span class="material-symbols-outlined arrow">
         chevron_right
@@ -236,18 +285,24 @@
 
       </div>
 
+
       <div class="settings-content">
+
+        <span class="settings-label">
+          SECURITY
+        </span>
 
         <h2>
           Security
         </h2>
 
         <p>
-          Manage passwords, authentication
-          and account security preferences.
+          Manage passwords, authentication and
+          account security preferences.
         </p>
 
       </div>
+
 
       <span class="material-symbols-outlined arrow">
         chevron_right
@@ -257,7 +312,7 @@
 
 
     <!-- ================================================= -->
-    <!-- DATA -->
+    <!-- DATA MANAGEMENT -->
     <!-- ================================================= -->
 
     <button
@@ -274,18 +329,24 @@
 
       </div>
 
+
       <div class="settings-content">
+
+        <span class="settings-label">
+          DATA
+        </span>
 
         <h2>
           Data Management
         </h2>
 
         <p>
-          Manage system data, backups,
-          storage and data maintenance.
+          Manage tenant data, backups, storage and
+          data maintenance operations.
         </p>
 
       </div>
+
 
       <span class="material-symbols-outlined arrow">
         chevron_right
@@ -293,12 +354,11 @@
 
     </button>
 
-
   </div>
 
 
   <!-- ================================================= -->
-  <!-- SYSTEM INFORMATION -->
+  <!-- TENANT INFORMATION NOTICE -->
   <!-- ================================================= -->
 
   <section class="system-info">
@@ -306,20 +366,26 @@
     <div class="info-icon">
 
       <span class="material-symbols-outlined">
-        info
+        shield
       </span>
 
     </div>
 
+
     <div>
 
+      <span class="info-label">
+        TENANT-SCOPED SETTINGS
+      </span>
+
       <h3>
-        Hospital Management System
+        Organization Configuration
       </h3>
 
       <p>
-        Configure your HMS according to the
-        needs of your hospital.
+        Settings displayed here apply to the organization
+        you are currently signed in to. Platform-wide
+        configuration is managed separately by the platform administrator.
       </p>
 
     </div>

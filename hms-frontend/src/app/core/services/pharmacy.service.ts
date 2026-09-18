@@ -334,7 +334,7 @@ export class PharmacyService {
 
   createPrescription(
     data: {
-      patientId:
+      patientId?:
         string;
 
       patientName:

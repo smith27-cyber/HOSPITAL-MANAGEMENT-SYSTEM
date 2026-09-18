@@ -1,22 +1,25 @@
+/* =====================================================
+   LABORATORY REQUEST DETAILS PAGE
+   ===================================================== */
 
-
-/* ===================================================== */
-/* PAGE */
-/* ===================================================== */
+:host {
+  display: block;
+  width: 100%;
+}
 
 .laboratory-request-details-page {
   width: 100%;
   min-height: 100%;
   padding: 24px;
   box-sizing: border-box;
-  background: #f5f7fb;
-  color: #1f2937;
+  background: var(--hms-bg);
+  color: var(--hms-text);
 }
 
 
-/* ===================================================== */
-/* PAGE HEADER */
-/* ===================================================== */
+/* =====================================================
+   PAGE HEADER
+   ===================================================== */
 
 .page-header {
   display: flex;
@@ -30,19 +33,19 @@
   margin: 0;
   font-size: 26px;
   font-weight: 700;
-  color: #111827;
+  color: var(--hms-text);
 }
 
 .page-header p {
   margin: 6px 0 0;
   font-size: 13px;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 
-/* ===================================================== */
-/* BUTTONS */
-/* ===================================================== */
+/* =====================================================
+   BUTTONS
+   ===================================================== */
 
 .primary-button,
 .secondary-button,
@@ -56,80 +59,82 @@
   gap: 8px;
   min-height: 40px;
   padding: 9px 14px;
-  border-radius: 8px;
+  border-radius: var(--hms-radius);
+  font-family: inherit;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease,
-    opacity 0.2s ease;
+    background var(--hms-transition),
+    border-color var(--hms-transition),
+    transform var(--hms-transition),
+    opacity var(--hms-transition);
 }
 
 .primary-button {
-  border: 1px solid #0284c7;
-  background: #0284c7;
+  border: 1px solid var(--hms-primary);
+  background: var(--hms-primary);
   color: #ffffff;
 }
 
 .primary-button:hover {
-  background: #0369a1;
+  background: var(--hms-primary-hover);
   transform: translateY(-1px);
 }
 
 .secondary-button {
-  border: 1px solid #d1d5db;
-  background: #ffffff;
-  color: #374151;
+  border: 1px solid var(--hms-border);
+  background: var(--hms-surface);
+  color: var(--hms-text-secondary);
 }
 
 .secondary-button:hover {
-  background: #f9fafb;
+  background: var(--hms-surface-secondary);
+  border-color: var(--hms-primary);
   transform: translateY(-1px);
 }
 
 .progress-button {
-  border: 1px solid #2563eb;
-  background: #2563eb;
+  border: 1px solid var(--hms-info);
+  background: var(--hms-info);
   color: #ffffff;
 }
 
 .progress-button:hover {
-  background: #1d4ed8;
+  filter: brightness(0.92);
   transform: translateY(-1px);
 }
 
 .complete-button {
-  border: 1px solid #16a34a;
-  background: #16a34a;
+  border: 1px solid var(--hms-success);
+  background: var(--hms-success);
   color: #ffffff;
 }
 
 .complete-button:hover {
-  background: #15803d;
+  filter: brightness(0.92);
   transform: translateY(-1px);
 }
 
 .cancel-button {
-  border: 1px solid #f59e0b;
-  background: #f59e0b;
+  border: 1px solid var(--hms-warning);
+  background: var(--hms-warning);
   color: #ffffff;
 }
 
 .cancel-button:hover {
-  background: #d97706;
+  filter: brightness(0.92);
   transform: translateY(-1px);
 }
 
 .danger-button {
-  border: 1px solid #dc2626;
-  background: #dc2626;
+  border: 1px solid var(--hms-danger);
+  background: var(--hms-danger);
   color: #ffffff;
 }
 
 .danger-button:hover {
-  background: #b91c1c;
+  filter: brightness(0.9);
   transform: translateY(-1px);
 }
 
@@ -154,29 +159,28 @@
 }
 
 
-/* ===================================================== */
-/* CARDS */
-/* ===================================================== */
+/* =====================================================
+   CARDS
+   ===================================================== */
 
 .summary-card,
 .details-card {
   margin-bottom: 20px;
   padding: 22px;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  background: #ffffff;
-  box-shadow:
-    0 3px 12px rgba(15, 23, 42, 0.04);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
+  background: var(--hms-surface);
+  box-shadow: var(--hms-shadow-md);
 }
 
 
-/* ===================================================== */
-/* SUMMARY */
-/* ===================================================== */
+/* =====================================================
+   SUMMARY
+   ===================================================== */
 
 .summary-card {
-  border-color: #bae6fd;
-  background: #f8fdff;
+  border-color: var(--hms-info-light);
+  background: var(--hms-surface);
 }
 
 .summary {
@@ -193,8 +197,8 @@
   justify-content: center;
   flex-shrink: 0;
   border-radius: 14px;
-  background: #e0f2fe;
-  color: #0284c7;
+  background: var(--hms-info-light);
+  color: var(--hms-info);
 }
 
 .summary-icon .material-symbols-outlined {
@@ -209,24 +213,24 @@
 .summary-info h2 {
   margin: 0;
   font-size: 20px;
-  color: #111827;
+  color: var(--hms-text);
 }
 
 .summary-info p {
   margin: 5px 0;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 .summary-info span {
   font-size: 10px;
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 }
 
 
-/* ===================================================== */
-/* STATUS */
-/* ===================================================== */
+/* =====================================================
+   STATUS
+   ===================================================== */
 
 .status {
   display: inline-flex;
@@ -241,32 +245,32 @@
 
 .status.pending,
 .laboratory-status.pending {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--hms-warning-light);
+  color: var(--hms-warning);
 }
 
 .status.in-progress,
 .laboratory-status.in-progress {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--hms-info-light);
+  color: var(--hms-info);
 }
 
 .status.completed,
 .laboratory-status.completed {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--hms-success-light);
+  color: var(--hms-success);
 }
 
 .status.cancelled,
 .laboratory-status.cancelled {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--hms-danger-light);
+  color: var(--hms-danger);
 }
 
 
-/* ===================================================== */
-/* CARD HEADER */
-/* ===================================================== */
+/* =====================================================
+   CARD HEADER
+   ===================================================== */
 
 .card-header {
   display: flex;
@@ -279,20 +283,20 @@
 .card-header h3 {
   margin: 0;
   font-size: 17px;
-  color: #111827;
+  color: var(--hms-text);
 }
 
 .card-header p,
 .card-header > span {
   margin: 4px 0 0;
   font-size: 11px;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 
-/* ===================================================== */
-/* DETAILS GRID */
-/* ===================================================== */
+/* =====================================================
+   DETAILS GRID
+   ===================================================== */
 
 .details-grid {
   display: grid;
@@ -305,34 +309,34 @@
   flex-direction: column;
   gap: 5px;
   padding: 12px;
-  border-radius: 9px;
-  background: #f8fafc;
+  border-radius: var(--hms-radius);
+  background: var(--hms-surface-secondary);
 }
 
 .detail-item span {
   font-size: 10px;
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 }
 
 .detail-item strong {
   font-size: 12px;
-  color: #374151;
+  color: var(--hms-text-secondary);
   overflow-wrap: anywhere;
 }
 
 .not-available {
-  color: #9ca3af !important;
+  color: var(--hms-text-muted) !important;
   font-size: 11px;
 }
 
 
-/* ===================================================== */
-/* CONSULTATION LINK */
-/* ===================================================== */
+/* =====================================================
+   CONSULTATION LINK
+   ===================================================== */
 
 .consultation-link-card {
-  border-color: #c7d2fe;
-  background: #f8faff;
+  border-color: var(--hms-info-light);
+  background: var(--hms-surface);
 }
 
 .consultation-link {
@@ -349,8 +353,8 @@
   justify-content: center;
   flex-shrink: 0;
   border-radius: 10px;
-  background: #e0e7ff;
-  color: #4338ca;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .consultation-link-icon .material-symbols-outlined {
@@ -364,31 +368,31 @@
 .consultation-link > div:nth-child(2) > span {
   display: block;
   font-size: 10px;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 .consultation-link > div:nth-child(2) > strong {
   display: block;
   margin-top: 2px;
   font-size: 13px;
-  color: #312e81;
+  color: var(--hms-primary);
 }
 
 .consultation-link > div:nth-child(2) > p {
   margin: 4px 0 0;
   font-size: 11px;
   line-height: 1.5;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 
-/* ===================================================== */
-/* PROCESSING CARD */
-/* ===================================================== */
+/* =====================================================
+   PROCESSING CARD
+   ===================================================== */
 
 .processing-card {
-  border-color: #bfdbfe;
-  background: #f8fbff;
+  border-color: var(--hms-info-light);
+  background: var(--hms-surface);
 }
 
 .processing-notice {
@@ -397,27 +401,27 @@
   gap: 10px;
   margin-bottom: 16px;
   padding: 13px;
-  border-radius: 10px;
-  background: #eff6ff;
+  border-radius: var(--hms-radius);
+  background: var(--hms-info-light);
 }
 
 .processing-notice > .material-symbols-outlined {
   flex-shrink: 0;
-  color: #2563eb;
+  color: var(--hms-info);
   font-size: 22px;
 }
 
 .processing-notice strong {
   display: block;
   font-size: 12px;
-  color: #1e3a8a;
+  color: var(--hms-info);
 }
 
 .processing-notice p {
   margin: 4px 0 0;
   font-size: 11px;
   line-height: 1.6;
-  color: #475569;
+  color: var(--hms-text-secondary);
 }
 
 .processing-actions {
@@ -426,9 +430,9 @@
 }
 
 
-/* ===================================================== */
-/* RESULT FORM */
-/* ===================================================== */
+/* =====================================================
+   RESULT FORM
+   ===================================================== */
 
 .result-form {
   display: flex;
@@ -445,40 +449,39 @@
 .form-group label {
   font-size: 11px;
   font-weight: 700;
-  color: #374151;
+  color: var(--hms-text-secondary);
 }
 
 .form-group label span {
-  color: #dc2626;
+  color: var(--hms-danger);
 }
 
 .form-group textarea {
   width: 100%;
   box-sizing: border-box;
   padding: 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 9px;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius);
   outline: none;
   resize: vertical;
-  background: #ffffff;
-  color: #1f2937;
+  background: var(--hms-input-bg);
+  color: var(--hms-input-text);
   font-family: inherit;
   font-size: 13px;
   line-height: 1.6;
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition);
 }
 
 .form-group textarea:focus {
-  border-color: #2563eb;
-  box-shadow:
-    0 0 0 3px rgba(37, 99, 235, 0.08);
+  border-color: var(--hms-primary);
+  box-shadow: 0 0 0 3px var(--hms-primary-light);
 }
 
 .form-group small {
   font-size: 10px;
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 }
 
 .result-actions {
@@ -489,13 +492,13 @@
 }
 
 
-/* ===================================================== */
-/* COMPLETED RESULT */
-/* ===================================================== */
+/* =====================================================
+   COMPLETED RESULT
+   ===================================================== */
 
 .completed-result-card {
-  border-color: #bbf7d0;
-  background: #fbfffc;
+  border-color: var(--hms-success-light);
+  background: var(--hms-surface);
 }
 
 .completed-label {
@@ -504,8 +507,8 @@
   gap: 5px;
   padding: 6px 10px;
   border-radius: 999px;
-  background: #dcfce7;
-  color: #166534 !important;
+  background: var(--hms-success-light);
+  color: var(--hms-success) !important;
   font-size: 10px !important;
   font-weight: 700;
   white-space: nowrap;
@@ -520,8 +523,8 @@
   align-items: flex-start;
   gap: 12px;
   padding: 15px;
-  border-radius: 10px;
-  background: #f0fdf4;
+  border-radius: var(--hms-radius);
+  background: var(--hms-success-light);
 }
 
 .result-display-icon {
@@ -532,8 +535,8 @@
   justify-content: center;
   flex-shrink: 0;
   border-radius: 10px;
-  background: #dcfce7;
-  color: #16a34a;
+  background: var(--hms-success-light);
+  color: var(--hms-success);
 }
 
 .result-display-icon .material-symbols-outlined {
@@ -549,27 +552,27 @@
   margin-bottom: 5px;
   font-size: 10px;
   font-weight: 700;
-  color: #166534;
+  color: var(--hms-success);
 }
 
 .result-display-content p {
   margin: 0;
   font-size: 13px;
   line-height: 1.7;
-  color: #374151;
+  color: var(--hms-text-secondary);
   white-space: pre-wrap;
 }
 
 
-/* ===================================================== */
-/* NOTES */
-/* ===================================================== */
+/* =====================================================
+   NOTES
+   ===================================================== */
 
 .notes-display {
   margin-top: 14px;
   padding: 13px;
-  border-radius: 9px;
-  background: #f8fafc;
+  border-radius: var(--hms-radius);
+  background: var(--hms-surface-secondary);
 }
 
 .notes-display > span {
@@ -577,35 +580,35 @@
   margin-bottom: 5px;
   font-size: 10px;
   font-weight: 700;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 .notes-display p {
   margin: 0;
   font-size: 11px;
   line-height: 1.6;
-  color: #4b5563;
+  color: var(--hms-text-secondary);
   white-space: pre-wrap;
 }
 
 .content-section {
   padding: 14px;
   border-radius: 10px;
-  background: #f8fafc;
+  background: var(--hms-surface-secondary);
 }
 
 .content-section p {
   margin: 0;
   font-size: 12px;
   line-height: 1.7;
-  color: #4b5563;
+  color: var(--hms-text-secondary);
   white-space: pre-wrap;
 }
 
 
-/* ===================================================== */
-/* REVIEW NOTICE */
-/* ===================================================== */
+/* =====================================================
+   REVIEW NOTICE
+   ===================================================== */
 
 .completed-review-notice {
   display: flex;
@@ -613,37 +616,37 @@
   gap: 10px;
   margin-top: 14px;
   padding: 13px;
-  border-radius: 10px;
-  background: #eff6ff;
+  border-radius: var(--hms-radius);
+  background: var(--hms-info-light);
 }
 
 .completed-review-notice > .material-symbols-outlined {
   flex-shrink: 0;
-  color: #2563eb;
+  color: var(--hms-info);
   font-size: 21px;
 }
 
 .completed-review-notice strong {
   display: block;
   font-size: 12px;
-  color: #1e3a8a;
+  color: var(--hms-info);
 }
 
 .completed-review-notice p {
   margin: 4px 0 0;
   font-size: 11px;
   line-height: 1.6;
-  color: #475569;
+  color: var(--hms-text-secondary);
 }
 
 
-/* ===================================================== */
-/* BILLING */
-/* ===================================================== */
+/* =====================================================
+   BILLING
+   ===================================================== */
 
 .billing-card {
-  border-color: #c7d2fe;
-  background: #fafaff;
+  border-color: var(--hms-primary-light);
+  background: var(--hms-surface);
 }
 
 .billing-notice {
@@ -651,37 +654,37 @@
   align-items: flex-start;
   gap: 10px;
   padding: 14px;
-  border-radius: 10px;
-  background: #eef2ff;
+  border-radius: var(--hms-radius);
+  background: var(--hms-primary-light);
 }
 
 .billing-notice > .material-symbols-outlined {
   flex-shrink: 0;
-  color: #4f46e5;
+  color: var(--hms-primary);
   font-size: 22px;
 }
 
 .billing-notice strong {
   display: block;
   font-size: 12px;
-  color: #3730a3;
+  color: var(--hms-primary);
 }
 
 .billing-notice p {
   margin: 4px 0 0;
   font-size: 11px;
   line-height: 1.6;
-  color: #4b5563;
+  color: var(--hms-text-secondary);
 }
 
 
-/* ===================================================== */
-/* CANCELLED */
-/* ===================================================== */
+/* =====================================================
+   CANCELLED
+   ===================================================== */
 
 .cancelled-card {
-  border-color: #fecaca;
-  background: #fffafa;
+  border-color: var(--hms-danger-light);
+  background: var(--hms-surface);
 }
 
 .status-message {
@@ -689,7 +692,7 @@
   align-items: center;
   gap: 10px;
   padding: 13px;
-  border-radius: 10px;
+  border-radius: var(--hms-radius);
 }
 
 .status-message .material-symbols-outlined {
@@ -697,21 +700,21 @@
 }
 
 .completed-message {
-  background: #f0fdf4;
-  color: #166534;
+  background: var(--hms-success-light);
+  color: var(--hms-success);
 }
 
 .completed-message .material-symbols-outlined {
-  color: #16a34a;
+  color: var(--hms-success);
 }
 
 .cancelled-message {
-  background: #fef2f2;
-  color: #991b1b;
+  background: var(--hms-danger-light);
+  color: var(--hms-danger);
 }
 
 .cancelled-message .material-symbols-outlined {
-  color: #dc2626;
+  color: var(--hms-danger);
 }
 
 .status-message strong {
@@ -722,13 +725,13 @@
 .status-message p {
   margin: 3px 0 0;
   font-size: 11px;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 
-/* ===================================================== */
-/* STATUS ACTIONS */
-/* ===================================================== */
+/* =====================================================
+   STATUS ACTIONS
+   ===================================================== */
 
 .status-actions {
   display: flex;
@@ -738,9 +741,9 @@
 }
 
 
-/* ===================================================== */
-/* PAGE ACTIONS */
-/* ===================================================== */
+/* =====================================================
+   PAGE ACTIONS
+   ===================================================== */
 
 .page-actions {
   display: flex;
@@ -757,9 +760,9 @@
 }
 
 
-/* ===================================================== */
-/* EMPTY STATE */
-/* ===================================================== */
+/* =====================================================
+   EMPTY STATE
+   ===================================================== */
 
 .empty-state {
   min-height: 420px;
@@ -779,15 +782,15 @@
   justify-content: center;
   margin-bottom: 16px;
   border-radius: 50%;
-  background: #e0f2fe;
-  color: #0284c7;
+  background: var(--hms-info-light);
+  color: var(--hms-info);
   font-size: 35px;
 }
 
 .empty-state h2 {
   margin: 0 0 8px;
   font-size: 19px;
-  color: #374151;
+  color: var(--hms-text-secondary);
 }
 
 .empty-state p {
@@ -795,13 +798,13 @@
   margin: 0 0 18px;
   font-size: 13px;
   line-height: 1.6;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 
-/* ===================================================== */
-/* LEGACY LABORATORY STATUS */
-/* ===================================================== */
+/* =====================================================
+   LEGACY LABORATORY STATUS
+   ===================================================== */
 
 .laboratory-status {
   display: inline-flex;
@@ -815,12 +818,11 @@
 }
 
 
-/* ===================================================== */
-/* RESPONSIVE - TABLET */
-/* ===================================================== */
+/* =====================================================
+   RESPONSIVE - TABLET
+   ===================================================== */
 
 @media (max-width: 800px) {
-
   .laboratory-request-details-page {
     padding: 18px;
   }
@@ -860,16 +862,14 @@
     width: 100%;
     flex-wrap: wrap;
   }
-
 }
 
 
-/* ===================================================== */
-/* RESPONSIVE - MOBILE */
-/* ===================================================== */
+/* =====================================================
+   RESPONSIVE - MOBILE
+   ===================================================== */
 
 @media (max-width: 520px) {
-
   .laboratory-request-details-page {
     padding: 12px;
   }
@@ -885,7 +885,7 @@
   .summary-card,
   .details-card {
     padding: 16px;
-    border-radius: 12px;
+    border-radius: var(--hms-radius);
   }
 
   .summary {
@@ -946,6 +946,4 @@
   .page-action-group button {
     width: 100%;
   }
-
 }
-

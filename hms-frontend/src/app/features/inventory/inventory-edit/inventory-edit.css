@@ -6,9 +6,8 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: 28px;
-  color: #1e293b;
+  color: var(--hms-text);
 }
-
 
 /* =====================================================
    PAGE HEADER
@@ -24,17 +23,16 @@
 
 .page-header h1 {
   margin: 0 0 6px;
-  color: #0f172a;
+  color: var(--hms-text);
   font-size: 28px;
   font-weight: 700;
 }
 
 .page-header p {
   margin: 0;
-  color: #64748b;
+  color: var(--hms-text-secondary);
   font-size: 14px;
 }
-
 
 /* =====================================================
    FORM CARD
@@ -42,12 +40,11 @@
 
 .form-card {
   overflow: hidden;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
   border-radius: 14px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+  box-shadow: var(--hms-shadow-md);
 }
-
 
 /* =====================================================
    CARD HEADER
@@ -59,26 +56,25 @@
   justify-content: space-between;
   gap: 20px;
   padding: 22px 26px;
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
+  background: var(--hms-surface-secondary);
+  border-bottom: 1px solid var(--hms-border);
 }
 
 .card-header h2 {
   margin: 0 0 5px;
-  color: #0f172a;
+  color: var(--hms-text);
   font-size: 19px;
   font-weight: 700;
 }
 
 .card-header span {
-  color: #64748b;
+  color: var(--hms-text-secondary);
   font-size: 13px;
 }
 
 .card-header strong {
-  color: #334155;
+  color: var(--hms-text);
 }
-
 
 /* =====================================================
    ITEM CODE
@@ -87,8 +83,8 @@
 .item-code {
   min-width: 130px;
   padding: 10px 14px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
   border-radius: 8px;
   text-align: right;
 }
@@ -96,17 +92,16 @@
 .item-code span {
   display: block;
   margin-bottom: 3px;
-  color: #94a3b8;
+  color: var(--hms-text-muted);
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .item-code strong {
-  color: #0284c7;
+  color: var(--hms-primary);
   font-size: 14px;
 }
-
 
 /* =====================================================
    FORM BODY
@@ -118,7 +113,6 @@
   gap: 22px 24px;
   padding: 28px;
 }
-
 
 /* =====================================================
    FORM GROUP
@@ -134,22 +128,20 @@
   grid-column: 1 / -1;
 }
 
-
 /* =====================================================
    LABEL
    ===================================================== */
 
 .form-group label {
-  color: #334155;
+  color: var(--hms-text);
   font-size: 14px;
   font-weight: 600;
 }
 
 .form-group label span {
   margin-left: 3px;
-  color: #dc2626;
+  color: var(--hms-danger);
 }
-
 
 /* =====================================================
    INPUTS
@@ -161,15 +153,16 @@
   width: 100%;
   box-sizing: border-box;
   outline: none;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--hms-border);
   border-radius: 8px;
-  background: #ffffff;
-  color: #1e293b;
+  background: var(--hms-input-bg);
+  color: var(--hms-input-text);
   font-family: inherit;
   font-size: 14px;
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition),
+    background var(--hms-transition);
 }
 
 .form-group input,
@@ -185,16 +178,14 @@
   resize: vertical;
 }
 
-
 /* =====================================================
    PLACEHOLDER
    ===================================================== */
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: #94a3b8;
+  color: var(--hms-text-muted);
 }
-
 
 /* =====================================================
    FOCUS
@@ -203,10 +194,9 @@
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  border-color: #0ea5e9;
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.12);
+  border-color: var(--hms-primary);
+  box-shadow: 0 0 0 3px var(--hms-primary-light);
 }
-
 
 /* =====================================================
    SECTION DIVIDER
@@ -216,22 +206,21 @@
   grid-column: 1 / -1;
   margin-top: 8px;
   padding: 18px 0 4px;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--hms-border);
 }
 
 .section-divider h3 {
   margin: 0 0 5px;
-  color: #0f172a;
+  color: var(--hms-text);
   font-size: 16px;
   font-weight: 700;
 }
 
 .section-divider p {
   margin: 0;
-  color: #64748b;
+  color: var(--hms-text-secondary);
   font-size: 13px;
 }
-
 
 /* =====================================================
    FORM ACTIONS
@@ -243,10 +232,9 @@
   justify-content: flex-end;
   gap: 12px;
   padding: 20px 28px;
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
+  background: var(--hms-surface-secondary);
+  border-top: 1px solid var(--hms-border);
 }
-
 
 /* =====================================================
    BUTTONS
@@ -266,53 +254,50 @@
   font-weight: 600;
   cursor: pointer;
   transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.15s ease;
+    background var(--hms-transition),
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition),
+    transform var(--hms-transition);
 }
-
 
 /* =====================================================
    PRIMARY
    ===================================================== */
 
 .primary-button {
-  border: 1px solid #0284c7;
-  background: #0284c7;
+  border: 1px solid var(--hms-primary);
+  background: var(--hms-primary);
   color: #ffffff;
 }
 
 .primary-button:hover {
-  border-color: #0369a1;
-  background: #0369a1;
-  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2);
+  border-color: var(--hms-primary-hover);
+  background: var(--hms-primary-hover);
+  box-shadow: var(--hms-shadow-md);
 }
 
 .primary-button:active {
   transform: translateY(1px);
 }
 
-
 /* =====================================================
    SECONDARY
    ===================================================== */
 
 .secondary-button {
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  color: #334155;
+  border: 1px solid var(--hms-border);
+  background: var(--hms-surface);
+  color: var(--hms-text);
 }
 
 .secondary-button:hover {
-  border-color: #94a3b8;
-  background: #f1f5f9;
+  border-color: var(--hms-primary);
+  background: var(--hms-surface-secondary);
 }
 
 .secondary-button:active {
   transform: translateY(1px);
 }
-
 
 /* =====================================================
    EMPTY STATE
@@ -320,32 +305,31 @@
 
 .empty-state {
   padding: 70px 30px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
   border-radius: 14px;
   text-align: center;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+  box-shadow: var(--hms-shadow-md);
 }
 
 .empty-state .material-symbols-outlined {
   display: block;
   margin-bottom: 16px;
-  color: #94a3b8;
+  color: var(--hms-text-muted);
   font-size: 52px;
 }
 
 .empty-state h2 {
   margin: 0 0 8px;
-  color: #0f172a;
+  color: var(--hms-text);
   font-size: 20px;
 }
 
 .empty-state p {
   margin: 0 0 22px;
-  color: #64748b;
+  color: var(--hms-text-secondary);
   font-size: 14px;
 }
-
 
 /* =====================================================
    MATERIAL ICONS
@@ -355,7 +339,6 @@
   font-size: 19px;
   line-height: 1;
 }
-
 
 /* =====================================================
    NUMBER INPUT
@@ -371,13 +354,11 @@
   opacity: 1;
 }
 
-
 /* =====================================================
    TABLET
    ===================================================== */
 
 @media (max-width: 900px) {
-
   .inventory-edit-page {
     padding: 22px;
   }
@@ -393,16 +374,13 @@
   .section-divider {
     grid-column: auto;
   }
-
 }
-
 
 /* =====================================================
    MOBILE
    ===================================================== */
 
 @media (max-width: 600px) {
-
   .inventory-edit-page {
     padding: 16px;
   }
@@ -445,16 +423,13 @@
   .secondary-button {
     width: 100%;
   }
-
 }
-
 
 /* =====================================================
    SMALL MOBILE
    ===================================================== */
 
 @media (max-width: 400px) {
-
   .inventory-edit-page {
     padding: 12px;
   }
@@ -466,5 +441,4 @@
   .form-actions {
     padding: 16px;
   }
-
 }

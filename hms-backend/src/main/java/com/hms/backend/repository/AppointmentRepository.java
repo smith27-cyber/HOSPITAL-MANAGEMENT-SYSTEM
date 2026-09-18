@@ -23,7 +23,15 @@ public interface AppointmentRepository
             String id,
             Long tenantId
     );
+// =====================================================
+// REPORT AGGREGATION
+// =====================================================
 
+long countByTenant_IdAndAppointmentDateBetween(
+        Long tenantId,
+        LocalDate startDate,
+        LocalDate endDate
+);
     // =====================================================
     // DATE
     // =====================================================

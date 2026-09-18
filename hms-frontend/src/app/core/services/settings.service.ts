@@ -1,8 +1,36 @@
-// =====================================================
-// SETTINGS SERVICE
-// File:
-// src/app/core/services/settings.service.ts
-// =====================================================
+/**
+ * =====================================================
+ * SETTINGS SERVICE
+ * File:
+ * src/app/core/services/settings.service.ts
+ * =====================================================
+ *
+ * MULTITENANT RULE
+ *
+ * This service NEVER sends tenantId from the frontend.
+ *
+ * The backend determines the current tenant from:
+ *
+ * JWT
+ *  ↓
+ * TenantContext
+ *  ↓
+ * Current tenant
+ *
+ * Tenant-scoped endpoints:
+ *
+ * Hospital:
+ * GET  /api/settings/hospital
+ * PUT  /api/settings/hospital
+ * POST /api/settings/hospital/reset
+ *
+ * System:
+ * GET  /api/settings/system
+ * PUT  /api/settings/system
+ * POST /api/settings/system/reset
+ *
+ * =====================================================
+ */
 
 import {
   Injectable
@@ -13,8 +41,8 @@ import {
 } from '@angular/common/http';
 
 import {
-  Observable,
   BehaviorSubject,
+  Observable,
   throwError
 } from 'rxjs';
 
@@ -37,6 +65,7 @@ import {
 })
 export class SettingsService {
 
+
   // =====================================================
   // API
   // =====================================================
@@ -49,27 +78,38 @@ export class SettingsService {
   // DEFAULT SYSTEM SETTINGS
   // =====================================================
 
-  private readonly defaultSystemSettings: SystemSettings = {
+  private readonly defaultSystemSettings:
+    SystemSettings = {
 
-    theme: 'Light',
+    theme:
+      'System',
 
-    dateFormat: 'DD/MM/YYYY',
+    dateFormat:
+      'DD/MM/YYYY',
 
-    timeFormat: '24-hour',
+    timeFormat:
+      '24-hour',
 
-    currency: 'UGX',
+    currency:
+      'UGX',
 
-    currencySymbol: 'UGX',
+    currencySymbol:
+      'UGX',
 
-    language: 'English',
+    language:
+      'English',
 
-    timezone: 'Africa/Kampala',
+    timezone:
+      'Africa/Kampala',
 
-    enableNotifications: true,
+    enableNotifications:
+      true,
 
-    enableEmailNotifications: true,
+    enableEmailNotifications:
+      true,
 
-    enableSmsNotifications: false
+    enableSmsNotifications:
+      false
 
   };
 
@@ -81,56 +121,72 @@ export class SettingsService {
   private readonly defaultProfileSettings:
     UserProfileSettings = {
 
-      firstName: '',
+    firstName:
+      '',
 
-      lastName: '',
+    lastName:
+      '',
 
-      email: '',
+    email:
+      '',
 
-      phone: '',
+    phone:
+      '',
 
-      role: 'Administrator',
+    role:
+      'Administrator',
 
-      department: '',
+    department:
+      '',
 
-      username: ''
+    username:
+      ''
 
-    };
+  };
 
 
   // =====================================================
-  // DEFAULT HOSPITAL SETTINGS
+  // DEFAULT TENANT SETTINGS
   // =====================================================
 
   private readonly defaultHospitalSettings:
     HospitalSettings = {
 
-      hospitalName: '',
+    hospitalName:
+      '',
 
-      registrationNumber: '',
+    registrationNumber:
+      '',
 
-      phone: '',
+    phone:
+      '',
 
-      email: '',
+    email:
+      '',
 
-      address: '',
+    address:
+      '',
 
-      city: '',
+    city:
+      '',
 
-      country: 'Uganda',
+    country:
+      'Uganda',
 
-      website: '',
+    website:
+      '',
 
-      logoUrl: ''
+    logoUrl:
+      ''
 
-    };
+  };
 
 
   // =====================================================
-  // CURRENT HOSPITAL SETTINGS
+  // CURRENT TENANT SETTINGS
   // =====================================================
 
-  private hospitalSettingsSubject =
+  private readonly hospitalSettingsSubject =
     new BehaviorSubject<HospitalSettings>(
       {
         ...this.defaultHospitalSettings
@@ -139,10 +195,8 @@ export class SettingsService {
 
 
   /**
-   * Public observable.
-   *
-   * Any component can subscribe to this and immediately
-   * receive the current hospital information.
+   * Current authenticated tenant's
+   * organization settings.
    */
   readonly hospitalSettings$ =
     this.hospitalSettingsSubject.asObservable();
@@ -152,7 +206,8 @@ export class SettingsService {
   // CURRENT SYSTEM SETTINGS
   // =====================================================
 
-  private systemSettings: SystemSettings = {
+  private systemSettings:
+    SystemSettings = {
 
     ...this.defaultSystemSettings
 
@@ -160,10 +215,11 @@ export class SettingsService {
 
 
   // =====================================================
-  // CURRENT PROFILE SETTINGS
+  // CURRENT USER PROFILE SETTINGS
   // =====================================================
 
-  private profileSettings: UserProfileSettings = {
+  private profileSettings:
+    UserProfileSettings = {
 
     ...this.defaultProfileSettings
 
@@ -175,7 +231,8 @@ export class SettingsService {
   // =====================================================
 
   constructor(
-    private readonly http: HttpClient
+    private readonly http:
+      HttpClient
   ) {}
 
 
@@ -192,46 +249,58 @@ export class SettingsService {
       )
       .pipe(
 
-        map(settings =>
-          this.normalizeHospitalSettings(settings)
+        map(
+          settings =>
+            this.normalizeHospitalSettings(
+              settings
+            )
         ),
 
-        tap(settings => {
+        tap(
+          settings => {
 
-          this.hospitalSettingsSubject.next(
-            settings
-          );
+            this.hospitalSettingsSubject.next(
+              settings
+            );
 
-        }),
+            console.log(
+              'Tenant settings loaded:',
+              settings
+            );
 
-        catchError(error => {
+          }
+        ),
 
-          console.error(
-            'Failed to load hospital settings:',
-            error
-          );
+        catchError(
+          error => {
 
-          return throwError(
-            () => error
-          );
+            console.error(
+              'Failed to load tenant settings:',
+              error
+            );
 
-        })
+            return throwError(
+              () => error
+            );
+
+          }
+        )
 
       );
 
   }
 
 
-  // =====================================================
-  // UPDATE HOSPITAL SETTINGS
-  // =====================================================
-
   updateHospitalSettings(
-    settings: HospitalSettings
-  ): Observable<HospitalSettings> {
+    settings:
+      HospitalSettings
+  ):
+    Observable<HospitalSettings> {
 
     const payload =
-      this.cleanHospitalSettings(settings);
+      this.cleanHospitalSettings(
+        settings
+      );
 
 
     return this.http
@@ -241,51 +310,47 @@ export class SettingsService {
       )
       .pipe(
 
-        map(updatedSettings =>
-          this.normalizeHospitalSettings(
-            updatedSettings
-          )
+        map(
+          updatedSettings =>
+            this.normalizeHospitalSettings(
+              updatedSettings
+            )
         ),
 
-        tap(updatedSettings => {
+        tap(
+          updatedSettings => {
 
-          // ------------------------------------------------
-          // IMPORTANT
-          // Update the application-wide hospital state.
-          // ------------------------------------------------
+            this.hospitalSettingsSubject.next(
+              updatedSettings
+            );
 
-          this.hospitalSettingsSubject.next(
-            updatedSettings
-          );
+            console.log(
+              'Tenant settings updated:',
+              updatedSettings
+            );
 
-          console.log(
-            'Hospital settings updated:',
-            updatedSettings
-          );
+          }
+        ),
 
-        }),
+        catchError(
+          error => {
 
-        catchError(error => {
+            console.error(
+              'Failed to update tenant settings:',
+              error
+            );
 
-          console.error(
-            'Failed to update hospital settings:',
-            error
-          );
+            return throwError(
+              () => error
+            );
 
-          return throwError(
-            () => error
-          );
-
-        })
+          }
+        )
 
       );
 
   }
 
-
-  // =====================================================
-  // RESET HOSPITAL SETTINGS
-  // =====================================================
 
   resetHospitalSettings():
     Observable<HospitalSettings> {
@@ -297,44 +362,47 @@ export class SettingsService {
       )
       .pipe(
 
-        map(settings =>
-          this.normalizeHospitalSettings(settings)
+        map(
+          settings =>
+            this.normalizeHospitalSettings(
+              settings
+            )
         ),
 
-        tap(settings => {
+        tap(
+          settings => {
 
-          this.hospitalSettingsSubject.next(
-            settings
-          );
+            this.hospitalSettingsSubject.next(
+              settings
+            );
 
-          console.log(
-            'Hospital settings reset:',
-            settings
-          );
+            console.log(
+              'Tenant settings reset:',
+              settings
+            );
 
-        }),
+          }
+        ),
 
-        catchError(error => {
+        catchError(
+          error => {
 
-          console.error(
-            'Failed to reset hospital settings:',
-            error
-          );
+            console.error(
+              'Failed to reset tenant settings:',
+              error
+            );
 
-          return throwError(
-            () => error
-          );
+            return throwError(
+              () => error
+            );
 
-        })
+          }
+        )
 
       );
 
   }
 
-
-  // =====================================================
-  // GET CURRENT HOSPITAL VALUE
-  // =====================================================
 
   getCurrentHospitalSettings():
     HospitalSettings {
@@ -347,9 +415,199 @@ export class SettingsService {
 
 
   // =====================================================
-  // SYSTEM SETTINGS
+  // SYSTEM PREFERENCES
   // =====================================================
 
+  /**
+   * Load system preferences for the
+   * currently authenticated tenant.
+   *
+   * No tenantId is sent.
+   */
+  getSystemPreferences():
+    Observable<SystemSettings> {
+
+    return this.http
+      .get<SystemSettings>(
+        `${this.API_URL}/system`
+      )
+      .pipe(
+
+        map(
+          settings =>
+            this.normalizeSystemSettings(
+              settings
+            )
+        ),
+
+        tap(
+          settings => {
+
+            this.systemSettings = {
+              ...settings
+            };
+
+            console.log(
+              'System preferences loaded:',
+              settings
+            );
+
+          }
+        ),
+
+        catchError(
+          error => {
+
+            console.error(
+              'Failed to load system preferences:',
+              error
+            );
+
+            return throwError(
+              () => error
+            );
+
+          }
+        )
+
+      );
+
+  }
+
+
+  /**
+   * Save system preferences for the
+   * currently authenticated tenant.
+   *
+   * No tenantId is sent.
+   */
+  updateSystemPreferences(
+    settings:
+      SystemSettings
+  ):
+    Observable<SystemSettings> {
+
+    const payload =
+      this.cleanSystemSettings(
+        settings
+      );
+
+
+    return this.http
+      .put<SystemSettings>(
+        `${this.API_URL}/system`,
+        payload
+      )
+      .pipe(
+
+        map(
+          updatedSettings =>
+            this.normalizeSystemSettings(
+              updatedSettings
+            )
+        ),
+
+        tap(
+          updatedSettings => {
+
+            this.systemSettings = {
+              ...updatedSettings
+            };
+
+            console.log(
+              'System preferences updated:',
+              updatedSettings
+            );
+
+          }
+        ),
+
+        catchError(
+          error => {
+
+            console.error(
+              'Failed to update system preferences:',
+              error
+            );
+
+            return throwError(
+              () => error
+            );
+
+          }
+        )
+
+      );
+
+  }
+
+
+  /**
+   * Reset system preferences for the
+   * currently authenticated tenant.
+   */
+  resetSystemPreferences():
+    Observable<SystemSettings> {
+
+    return this.http
+      .post<SystemSettings>(
+        `${this.API_URL}/system/reset`,
+        {}
+      )
+      .pipe(
+
+        map(
+          settings =>
+            this.normalizeSystemSettings(
+              settings
+            )
+        ),
+
+        tap(
+          settings => {
+
+            this.systemSettings = {
+              ...settings
+            };
+
+            console.log(
+              'System preferences reset:',
+              settings
+            );
+
+          }
+        ),
+
+        catchError(
+          error => {
+
+            console.error(
+              'Failed to reset system preferences:',
+              error
+            );
+
+            return throwError(
+              () => error
+            );
+
+          }
+        )
+
+      );
+
+  }
+
+
+  // =====================================================
+  // LEGACY / LOCAL SYSTEM SETTINGS ACCESS
+  // =====================================================
+
+  /**
+   * Returns the most recently loaded system settings.
+   *
+   * This remains synchronous for compatibility with
+   * existing components.
+   */
   getSystemSettings():
     SystemSettings {
 
@@ -360,17 +618,26 @@ export class SettingsService {
   }
 
 
+  /**
+   * Local compatibility method.
+   *
+   * New code should use updateSystemPreferences()
+   * so changes are persisted in the backend.
+   */
   updateSystemSettings(
-    settings: SystemSettings
-  ): SystemSettings {
+    settings:
+      SystemSettings
+  ):
+    SystemSettings {
 
     this.systemSettings = {
 
       ...this.defaultSystemSettings,
 
-      ...settings
+      ...(settings || {})
 
     };
+
 
     return {
       ...this.systemSettings
@@ -379,6 +646,12 @@ export class SettingsService {
   }
 
 
+  /**
+   * Local compatibility method.
+   *
+   * New code should use resetSystemPreferences()
+   * so the reset is persisted in the backend.
+   */
   resetSystemSettings():
     SystemSettings {
 
@@ -387,6 +660,7 @@ export class SettingsService {
       ...this.defaultSystemSettings
 
     };
+
 
     return {
       ...this.systemSettings
@@ -410,16 +684,19 @@ export class SettingsService {
 
 
   updateProfileSettings(
-    settings: UserProfileSettings
-  ): UserProfileSettings {
+    settings:
+      UserProfileSettings
+  ):
+    UserProfileSettings {
 
     this.profileSettings = {
 
       ...this.defaultProfileSettings,
 
-      ...settings
+      ...(settings || {})
 
     };
+
 
     return {
       ...this.profileSettings
@@ -437,6 +714,7 @@ export class SettingsService {
 
     };
 
+
     return {
       ...this.profileSettings
     };
@@ -445,7 +723,7 @@ export class SettingsService {
 
 
   // =====================================================
-  // ALL SETTINGS
+  // GET ALL SETTINGS
   // =====================================================
 
   getSettings():
@@ -454,19 +732,21 @@ export class SettingsService {
     return this.getHospitalSettings()
       .pipe(
 
-        map(hospital => ({
+        map(
+          hospital => ({
 
-          hospital,
+            hospital,
 
-          system: {
-            ...this.systemSettings
-          },
+            system: {
+              ...this.systemSettings
+            },
 
-          profile: {
-            ...this.profileSettings
-          }
+            profile: {
+              ...this.profileSettings
+            }
 
-        }))
+          })
+        )
 
       );
 
@@ -478,14 +758,16 @@ export class SettingsService {
   // =====================================================
 
   saveSettings(
-    settings: HMSSettings
-  ): Observable<HospitalSettings> {
+    settings:
+      HMSSettings
+  ):
+    Observable<HospitalSettings> {
 
     this.systemSettings = {
 
       ...this.defaultSystemSettings,
 
-      ...settings.system
+      ...(settings?.system || {})
 
     };
 
@@ -494,13 +776,16 @@ export class SettingsService {
 
       ...this.defaultProfileSettings,
 
-      ...settings.profile
+      ...(settings?.profile || {})
 
     };
 
 
     return this.updateHospitalSettings(
-      settings.hospital
+      settings?.hospital ||
+      {
+        ...this.defaultHospitalSettings
+      }
     );
 
   }
@@ -533,41 +818,175 @@ export class SettingsService {
 
 
   // =====================================================
-  // NORMALIZE HOSPITAL SETTINGS
+  // NORMALIZE SYSTEM SETTINGS
+  // =====================================================
+
+  private normalizeSystemSettings(
+    settings:
+      SystemSettings
+  ):
+    SystemSettings {
+
+    return {
+
+      theme:
+        settings?.theme ||
+        'System',
+
+      dateFormat:
+        settings?.dateFormat ||
+        'DD/MM/YYYY',
+
+      timeFormat:
+        settings?.timeFormat ||
+        '24-hour',
+
+      currency:
+        settings?.currency ||
+        'UGX',
+
+      currencySymbol:
+        settings?.currencySymbol ||
+        'UGX',
+
+      language:
+        settings?.language ||
+        'English',
+
+      timezone:
+        settings?.timezone ||
+        'Africa/Kampala',
+
+      enableNotifications:
+        settings?.enableNotifications ??
+        true,
+
+      enableEmailNotifications:
+        settings?.enableEmailNotifications ??
+        true,
+
+      enableSmsNotifications:
+        settings?.enableSmsNotifications ??
+        false
+
+    };
+
+  }
+
+
+  // =====================================================
+  // CLEAN SYSTEM SETTINGS
+  // =====================================================
+
+  private cleanSystemSettings(
+    settings:
+      SystemSettings
+  ):
+    SystemSettings {
+
+    return {
+
+      theme:
+        settings?.theme ||
+        'System',
+
+      dateFormat:
+        settings?.dateFormat ||
+        'DD/MM/YYYY',
+
+      timeFormat:
+        settings?.timeFormat ||
+        '24-hour',
+
+      currency:
+        settings?.currency ||
+        'UGX',
+
+      currencySymbol:
+        settings?.currencySymbol ||
+        'UGX',
+
+      language:
+        settings?.language ||
+        'English',
+
+      timezone:
+        settings?.timezone ||
+        'Africa/Kampala',
+
+      enableNotifications:
+        settings?.enableNotifications ??
+        true,
+
+      enableEmailNotifications:
+        settings?.enableEmailNotifications ??
+        true,
+
+      enableSmsNotifications:
+        settings?.enableSmsNotifications ??
+        false
+
+    };
+
+  }
+
+
+  // =====================================================
+  // NORMALIZE TENANT SETTINGS
   // =====================================================
 
   private normalizeHospitalSettings(
-    settings: HospitalSettings
-  ): HospitalSettings {
+    settings:
+      HospitalSettings
+  ):
+    HospitalSettings {
 
     return {
 
       hospitalName:
-        settings?.hospitalName?.trim() ?? '',
+        settings?.hospitalName
+          ?.trim() ||
+        '',
 
       registrationNumber:
-        settings?.registrationNumber?.trim() ?? '',
+        settings?.registrationNumber
+          ?.trim() ||
+        '',
 
       phone:
-        settings?.phone?.trim() ?? '',
+        settings?.phone
+          ?.trim() ||
+        '',
 
       email:
-        settings?.email?.trim() ?? '',
+        settings?.email
+          ?.trim() ||
+        '',
 
       address:
-        settings?.address?.trim() ?? '',
+        settings?.address
+          ?.trim() ||
+        '',
 
       city:
-        settings?.city?.trim() ?? '',
+        settings?.city
+          ?.trim() ||
+        '',
 
       country:
-        settings?.country?.trim() || 'Uganda',
+        settings?.country
+          ?.trim() ||
+        'Uganda',
 
       website:
-        settings?.website?.trim() ?? '',
+        settings?.website
+          ?.trim() ||
+        '',
 
       logoUrl:
-        settings?.logoUrl?.trim() ?? ''
+        settings?.logoUrl
+          ?.trim() ||
+        ''
 
     };
 
@@ -575,57 +994,69 @@ export class SettingsService {
 
 
   // =====================================================
-  // CLEAN HOSPITAL SETTINGS
+  // CLEAN TENANT SETTINGS
   // =====================================================
 
   private cleanHospitalSettings(
-    settings: HospitalSettings
-  ): HospitalSettings {
+    settings:
+      HospitalSettings
+  ):
+    HospitalSettings {
 
     return {
 
       hospitalName:
-        settings.hospitalName?.trim() ?? '',
+        settings?.hospitalName
+          ?.trim() ||
+        '',
 
       registrationNumber:
         this.cleanValue(
-          settings.registrationNumber
-        ) ?? '',
+          settings?.registrationNumber
+        ) ||
+        '',
 
       phone:
         this.cleanValue(
-          settings.phone
-        ) ?? '',
+          settings?.phone
+        ) ||
+        '',
 
       email:
         this.cleanValue(
-          settings.email
-        ) ?? '',
+          settings?.email
+        ) ||
+        '',
 
       address:
         this.cleanValue(
-          settings.address
-        ) ?? '',
+          settings?.address
+        ) ||
+        '',
 
       city:
         this.cleanValue(
-          settings.city
-        ) ?? '',
+          settings?.city
+        ) ||
+        '',
 
       country:
         this.cleanValue(
-          settings.country
-        ) || 'Uganda',
+          settings?.country
+        ) ||
+        'Uganda',
 
       website:
         this.cleanValue(
-          settings.website
-        ) ?? '',
+          settings?.website
+        ) ||
+        '',
 
       logoUrl:
         this.cleanValue(
-          settings.logoUrl
-        ) ?? ''
+          settings?.logoUrl
+        ) ||
+        ''
 
     };
 
@@ -633,16 +1064,22 @@ export class SettingsService {
 
 
   // =====================================================
-  // CLEAN VALUE
+  // CLEAN STRING VALUE
   // =====================================================
 
   private cleanValue(
-    value?: string | null
-  ): string | undefined {
+    value?:
+      string |
+      null
+  ):
+    string |
+    undefined {
 
     if (
-      value === null ||
-      value === undefined
+      value ===
+        null ||
+      value ===
+        undefined
     ) {
 
       return undefined;
@@ -654,7 +1091,8 @@ export class SettingsService {
       value.trim();
 
 
-    return cleaned.length > 0
+    return cleaned.length >
+      0
       ? cleaned
       : undefined;
 

@@ -1,3 +1,7 @@
+/* =====================================================
+   HMS HEADER
+   Global theme-compatible header
+   ===================================================== */
 
 .header {
   height: 76px;
@@ -9,15 +13,21 @@
   align-items: center;
   justify-content: space-between;
 
-  background: #ffffff;
+  background: var(--hms-header);
+  color: var(--hms-text);
 
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--hms-border);
 
   position: sticky;
   top: 0;
-  z-index: 900;
+  z-index: var(--hms-z-header);
 
   box-sizing: border-box;
+
+  transition:
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition);
 }
 
 
@@ -51,33 +61,37 @@
   height: 42px;
 
   display: flex;
-
   align-items: center;
   justify-content: center;
 
   padding: 0;
 
   border: none;
-  border-radius: 10px;
+  border-radius: var(--hms-radius);
 
   background: transparent;
-  color: #374151;
+  color: var(--hms-text-secondary);
 
   cursor: pointer;
 
   transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
+    background-color var(--hms-transition),
+    color var(--hms-transition),
+    transform var(--hms-transition);
 }
 
 .menu-button:hover {
-  background: #f0fdfa;
-  color: #0f766e;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .menu-button:active {
   transform: scale(0.94);
+}
+
+.menu-button:focus-visible {
+  outline: 2px solid var(--hms-primary);
+  outline-offset: 2px;
 }
 
 .menu-button .material-symbols-outlined {
@@ -86,7 +100,7 @@
 
 
 /* =====================================================
-   PAGE TITLE / HOSPITAL IDENTITY
+   PAGE TITLE / TENANT IDENTITY
    ===================================================== */
 
 .page-title {
@@ -96,7 +110,7 @@
 .page-title h1 {
   margin: 0;
 
-  color: #111827;
+  color: var(--hms-text);
 
   font-size: 20px;
   font-weight: 700;
@@ -115,7 +129,7 @@
 
   margin-top: 3px;
 
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 
   font-size: 12px;
   font-weight: 400;
@@ -147,26 +161,31 @@
   padding: 0;
 
   border: none;
-  border-radius: 10px;
+  border-radius: var(--hms-radius);
 
   background: transparent;
-  color: #4b5563;
+  color: var(--hms-text-secondary);
 
   cursor: pointer;
 
   transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
+    background-color var(--hms-transition),
+    color var(--hms-transition),
+    transform var(--hms-transition);
 }
 
 .icon-button:hover {
-  background: #f3f4f6;
-  color: #0f766e;
+  background: var(--hms-surface-secondary);
+  color: var(--hms-primary);
 }
 
 .icon-button:active {
   transform: scale(0.94);
+}
+
+.icon-button:focus-visible {
+  outline: 2px solid var(--hms-primary);
+  outline-offset: 2px;
 }
 
 .icon-button .material-symbols-outlined {
@@ -189,9 +208,9 @@
 
   border-radius: 50%;
 
-  background: #ef4444;
+  background: var(--hms-danger);
 
-  border: 2px solid #ffffff;
+  border: 2px solid var(--hms-header);
 
   box-sizing: content-box;
 }
@@ -212,7 +231,7 @@
   padding: 6px 8px;
 
   border: none;
-  border-radius: 12px;
+  border-radius: var(--hms-radius-lg);
 
   background: transparent;
 
@@ -225,15 +244,15 @@
   cursor: pointer;
 
   transition:
-    background-color 0.2s ease;
+    background-color var(--hms-transition);
 }
 
 .user-profile:hover {
-  background: #f3f4f6;
+  background: var(--hms-surface-secondary);
 }
 
 .user-profile:focus-visible {
-  outline: 2px solid #14b8a6;
+  outline: 2px solid var(--hms-primary);
   outline-offset: 2px;
 }
 
@@ -258,7 +277,7 @@
 
   border-radius: 50%;
 
-  background: #0f766e;
+  background: var(--hms-primary);
   color: #ffffff;
 
   font-size: 13px;
@@ -287,7 +306,7 @@
 
   max-width: 180px;
 
-  color: #111827;
+  color: var(--hms-text);
 
   font-size: 13px;
   font-weight: 700;
@@ -306,7 +325,7 @@
 
   margin-top: 2px;
 
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 
   font-size: 11px;
   font-weight: 500;
@@ -326,17 +345,17 @@
 .user-profile > .material-symbols-outlined {
   flex-shrink: 0;
 
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 
   font-size: 20px;
 
   transition:
-    color 0.2s ease,
-    transform 0.2s ease;
+    color var(--hms-transition),
+    transform var(--hms-transition);
 }
 
 .user-profile:hover > .material-symbols-outlined {
-  color: #0f766e;
+  color: var(--hms-primary);
 }
 
 
@@ -475,4 +494,3 @@
   }
 
 }
-

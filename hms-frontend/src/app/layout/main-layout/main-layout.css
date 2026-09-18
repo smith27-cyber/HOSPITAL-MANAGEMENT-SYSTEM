@@ -2,16 +2,25 @@
    HMS MAIN LAYOUT
    ===================================================== */
 
+
+/* =====================================================
+   MAIN APPLICATION WRAPPER
+   ===================================================== */
+
 .hms-layout {
   display: flex;
 
+  width: 100%;
   min-height: 100vh;
 
-  width: 100%;
-
-  background: #f5f7fa;
+  background: var(--hms-bg);
+  color: var(--hms-text);
 
   box-sizing: border-box;
+
+  transition:
+    background-color var(--hms-transition),
+    color var(--hms-transition);
 }
 
 
@@ -23,15 +32,17 @@
   flex: 1;
 
   min-width: 0;
-
   min-height: 100vh;
 
   display: flex;
-
   flex-direction: column;
 
+  background: var(--hms-bg);
+  color: var(--hms-text);
+
   transition:
-    margin-left 0.25s ease;
+    background-color var(--hms-transition),
+    color var(--hms-transition);
 }
 
 
@@ -49,6 +60,13 @@
   overflow-x: hidden;
 
   box-sizing: border-box;
+
+  background: var(--hms-bg);
+  color: var(--hms-text);
+
+  transition:
+    background-color var(--hms-transition),
+    color var(--hms-transition);
 }
 
 
@@ -58,6 +76,16 @@
 
 .sidebar-overlay {
   display: none;
+
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(15, 23, 42, 0.45);
+
+  z-index: 1000;
+
+  backdrop-filter: blur(1px);
 }
 
 
@@ -82,6 +110,8 @@
 
   .hms-layout {
     display: block;
+
+    min-height: 100vh;
   }
 
 
@@ -103,14 +133,6 @@
 
   .sidebar-overlay {
     display: block;
-
-    position: fixed;
-
-    inset: 0;
-
-    background: rgba(15, 23, 42, 0.45);
-
-    z-index: 1000;
   }
 
 }

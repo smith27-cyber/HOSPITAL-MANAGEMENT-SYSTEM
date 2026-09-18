@@ -1,7 +1,11 @@
-
-/* =====================================================
+/* =========================================================
    DOCTORS PAGE
-===================================================== */
+========================================================= */
+
+:host {
+  display: block;
+  width: 100%;
+}
 
 .doctors-page {
   max-width: 1600px;
@@ -9,9 +13,9 @@
 }
 
 
-/* =====================================================
+/* =========================================================
    PAGE HEADER
-===================================================== */
+========================================================= */
 
 .page-header {
   display: flex;
@@ -24,24 +28,25 @@
 .page-header h1 {
   margin: 0;
 
-  color: #111827;
+  color: var(--hms-text);
   font-size: 26px;
+  font-weight: 700;
 }
 
 .page-header p {
   margin: 5px 0 0;
 
-  color: #6b7280;
+  color: var(--hms-text-secondary);
   font-size: 14px;
 }
 
 
-/* =====================================================
+/* =========================================================
    PRIMARY BUTTON
-===================================================== */
+========================================================= */
 
 .primary-button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 
@@ -49,20 +54,31 @@
 
   padding: 11px 16px;
 
-  border: none;
-  border-radius: 8px;
+  border: 1px solid var(--hms-primary);
+  border-radius: var(--hms-radius);
 
-  background: #0f766e;
+  background: var(--hms-primary);
   color: #ffffff;
 
   font-size: 13px;
   font-weight: 600;
 
   cursor: pointer;
+
+  transition:
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition);
 }
 
 .primary-button:hover {
-  background: #115e59;
+  background: var(--hms-primary-hover);
+  border-color: var(--hms-primary-hover);
+}
+
+.primary-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .primary-button .material-symbols-outlined {
@@ -70,15 +86,14 @@
 }
 
 
-/* =====================================================
+/* =========================================================
    STATISTICS
-===================================================== */
+========================================================= */
 
 .doctor-stats {
   display: grid;
 
-  grid-template-columns:
-    repeat(4, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 
   gap: 18px;
 
@@ -93,11 +108,22 @@
 
   padding: 16px;
 
-  background: #ffffff;
+  background: var(--hms-surface);
 
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--hms-border);
 
-  border-radius: 10px;
+  border-radius: var(--hms-radius-lg);
+
+  box-shadow: var(--hms-shadow);
+
+  transition:
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition);
+}
+
+.mini-stat:hover {
+  box-shadow: var(--hms-shadow-md);
 }
 
 .mini-stat-icon {
@@ -110,25 +136,25 @@
 
   flex-shrink: 0;
 
-  border-radius: 9px;
+  border-radius: var(--hms-radius);
 
-  background: #e0f2fe;
-  color: #0284c7;
+  background: var(--hms-info-light);
+  color: var(--hms-info);
 }
 
 .mini-stat-icon.active-icon {
-  background: #dcfce7;
-  color: #16a34a;
+  background: var(--hms-success-light);
+  color: var(--hms-success);
 }
 
 .mini-stat-icon.inactive-icon {
-  background: #fee2e2;
-  color: #dc2626;
+  background: var(--hms-danger-light);
+  color: var(--hms-danger);
 }
 
 .mini-stat-icon.specialist-icon {
-  background: #f3e8ff;
-  color: #9333ea;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .mini-stat-icon .material-symbols-outlined {
@@ -138,7 +164,7 @@
 .mini-stat span {
   display: block;
 
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 
   font-size: 11px;
 }
@@ -148,30 +174,32 @@
 
   margin-top: 3px;
 
-  color: #111827;
+  color: var(--hms-text);
 
   font-size: 18px;
 }
 
 
-/* =====================================================
+/* =========================================================
    DOCTORS CARD
-===================================================== */
+========================================================= */
 
 .doctors-card {
-  background: #ffffff;
+  background: var(--hms-surface);
 
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--hms-border);
 
-  border-radius: 12px;
+  border-radius: var(--hms-radius-lg);
 
   overflow: hidden;
+
+  box-shadow: var(--hms-shadow);
 }
 
 
-/* =====================================================
+/* =========================================================
    TOOLBAR
-===================================================== */
+========================================================= */
 
 .table-toolbar {
   display: flex;
@@ -182,13 +210,15 @@
 
   padding: 16px;
 
-  border-bottom: 1px solid #e5e7eb;
+  background: var(--hms-surface);
+
+  border-bottom: 1px solid var(--hms-border);
 }
 
 
-/* =====================================================
+/* =========================================================
    SEARCH
-===================================================== */
+========================================================= */
 
 .search-box {
   width: 350px;
@@ -200,23 +230,26 @@
 
   padding: 9px 12px;
 
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--hms-border);
 
-  border-radius: 8px;
+  border-radius: var(--hms-radius);
 
-  background: #ffffff;
+  background: var(--hms-input-bg);
+
+  transition:
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition);
 }
 
 .search-box:focus-within {
-  border-color: #0f766e;
+  border-color: var(--hms-primary);
 
-  box-shadow:
-    0 0 0 3px
-    rgba(15, 118, 110, 0.08);
+  box-shadow: 0 0 0 3px var(--hms-primary-light);
 }
 
 .search-box .material-symbols-outlined {
-  color: #9ca3af;
+  color: var(--hms-text-muted);
+
   font-size: 20px;
 }
 
@@ -228,19 +261,19 @@
 
   background: transparent;
 
-  color: #374151;
+  color: var(--hms-input-text);
 
   font-size: 12px;
 }
 
 .search-box input::placeholder {
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 }
 
 
-/* =====================================================
+/* =========================================================
    FILTERS
-===================================================== */
+========================================================= */
 
 .filters {
   display: flex;
@@ -252,55 +285,68 @@
 .filters select {
   padding: 9px 12px;
 
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--hms-border);
 
-  border-radius: 8px;
+  border-radius: var(--hms-radius);
 
-  background: #ffffff;
+  background: var(--hms-input-bg);
 
-  color: #4b5563;
+  color: var(--hms-input-text);
 
   font-size: 12px;
 
   outline: none;
 
   cursor: pointer;
+
+  transition:
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition);
 }
 
 .filters select:focus {
-  border-color: #0f766e;
+  border-color: var(--hms-primary);
+
+  box-shadow: 0 0 0 3px var(--hms-primary-light);
 }
 
 
-/* =====================================================
+/* =========================================================
    CLEAR BUTTON
-===================================================== */
+========================================================= */
 
 .clear-button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
 
   gap: 5px;
 
   padding: 9px 11px;
 
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--hms-border);
 
-  border-radius: 8px;
+  border-radius: var(--hms-radius);
 
-  background: #ffffff;
+  background: var(--hms-surface);
 
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 
   font-size: 12px;
 
   cursor: pointer;
+
+  transition:
+    background-color var(--hms-transition),
+    color var(--hms-transition),
+    border-color var(--hms-transition);
 }
 
 .clear-button:hover {
-  background: #f9fafb;
+  background: var(--hms-surface-secondary);
 
-  color: #374151;
+  color: var(--hms-text);
+
+  border-color: var(--hms-text-muted);
 }
 
 .clear-button .material-symbols-outlined {
@@ -308,9 +354,9 @@
 }
 
 
-/* =====================================================
+/* =========================================================
    TABLE
-===================================================== */
+========================================================= */
 
 .table-wrapper {
   width: 100%;
@@ -325,11 +371,15 @@ table {
 
   border-collapse: collapse;
 
+  background: var(--hms-surface);
+
+  color: var(--hms-text);
+
   font-size: 12px;
 }
 
 thead {
-  background: #f9fafb;
+  background: var(--hms-surface-secondary);
 }
 
 th {
@@ -337,7 +387,7 @@ th {
 
   text-align: left;
 
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 
   font-size: 11px;
   font-weight: 600;
@@ -348,21 +398,25 @@ th {
 td {
   padding: 13px 16px;
 
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid var(--hms-border);
 
-  color: #4b5563;
+  color: var(--hms-text-secondary);
 
   white-space: nowrap;
 }
 
+tbody tr {
+  transition: background-color var(--hms-transition);
+}
+
 tbody tr:hover {
-  background: #fafafa;
+  background: var(--hms-surface-secondary);
 }
 
 
-/* =====================================================
+/* =========================================================
    DOCTOR CELL
-===================================================== */
+========================================================= */
 
 .doctor-cell {
   display: flex;
@@ -385,8 +439,8 @@ tbody tr:hover {
 
   border-radius: 50%;
 
-  background: #ccfbf1;
-  color: #0f766e;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 
   font-size: 11px;
   font-weight: 700;
@@ -395,7 +449,7 @@ tbody tr:hover {
 .doctor-cell strong {
   display: block;
 
-  color: #111827;
+  color: var(--hms-text);
 
   font-size: 12px;
 }
@@ -411,26 +465,26 @@ tbody tr:hover {
 
   text-overflow: ellipsis;
 
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 
   font-size: 10px;
 }
 
 
-/* =====================================================
+/* =========================================================
    DOCTOR ID
-===================================================== */
+========================================================= */
 
 .doctor-id {
-  color: #0f766e;
+  color: var(--hms-primary);
 
   font-weight: 600;
 }
 
 
-/* =====================================================
+/* =========================================================
    STATUS
-===================================================== */
+========================================================= */
 
 .status {
   display: inline-block;
@@ -445,21 +499,21 @@ tbody tr:hover {
 }
 
 .status.active {
-  background: #dcfce7;
+  background: var(--hms-success-light);
 
-  color: #15803d;
+  color: var(--hms-success);
 }
 
 .status.inactive {
-  background: #f3f4f6;
+  background: var(--hms-surface-secondary);
 
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 
-/* =====================================================
+/* =========================================================
    ACTIONS
-===================================================== */
+========================================================= */
 
 .action-buttons {
   display: flex;
@@ -478,19 +532,23 @@ tbody tr:hover {
 
   border: none;
 
-  border-radius: 6px;
+  border-radius: var(--hms-radius-sm);
 
   background: transparent;
 
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 
   cursor: pointer;
+
+  transition:
+    background-color var(--hms-transition),
+    color var(--hms-transition);
 }
 
 .action-button:hover {
-  background: #f3f4f6;
+  background: var(--hms-surface-secondary);
 
-  color: #374151;
+  color: var(--hms-text);
 }
 
 .action-button .material-symbols-outlined {
@@ -503,22 +561,17 @@ tbody tr:hover {
   cursor: not-allowed;
 }
 
-.danger-action:hover {
-  background: #fff1f2;
-
-  color: #dc2626;
-}
-
+.danger-action:hover,
 .delete-action:hover {
-  background: #fee2e2;
+  background: var(--hms-danger-light);
 
-  color: #dc2626;
+  color: var(--hms-danger);
 }
 
 
-/* =====================================================
+/* =========================================================
    EMPTY STATE
-===================================================== */
+========================================================= */
 
 .empty-cell {
   padding: 0 !important;
@@ -529,7 +582,7 @@ tbody tr:hover {
 
   text-align: center;
 
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 }
 
 .empty-state .material-symbols-outlined {
@@ -539,7 +592,7 @@ tbody tr:hover {
 .empty-state h3 {
   margin: 10px 0 5px;
 
-  color: #374151;
+  color: var(--hms-text);
 
   font-size: 16px;
 }
@@ -547,19 +600,32 @@ tbody tr:hover {
 .empty-state p {
   margin: 0;
 
+  color: var(--hms-text-secondary);
+
   font-size: 12px;
 }
 
 
-/* =====================================================
+/* =========================================================
+   FOCUS
+========================================================= */
+
+.primary-button:focus-visible,
+.clear-button:focus-visible,
+.action-button:focus-visible {
+  outline: 2px solid var(--hms-primary);
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
    RESPONSIVE
-===================================================== */
+========================================================= */
 
 @media (max-width: 1150px) {
 
   .doctor-stats {
-    grid-template-columns:
-      repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .table-toolbar {
@@ -575,7 +641,6 @@ tbody tr:hover {
   .filters {
     flex-wrap: wrap;
   }
-
 }
 
 
@@ -601,6 +666,4 @@ tbody tr:hover {
   .clear-button {
     flex: 1;
   }
-
 }
-

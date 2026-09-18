@@ -6,6 +6,7 @@ import com.hms.backend.entity.Admission.WardType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +23,15 @@ public interface AdmissionRepository extends JpaRepository<Admission, String> {
 
     Optional<Admission> findFirstByTenant_IdAndPatientIdAndStatusOrderByAdmissionDateDesc(
             Long tenantId, String patientId, AdmissionStatus status);
+// =====================================================
+// REPORT AGGREGATION
+// =====================================================
 
+long countByTenant_IdAndAdmissionDateGreaterThanEqualAndAdmissionDateLessThan(
+        Long tenantId,
+        LocalDateTime startDateTime,
+        LocalDateTime endDateTime
+);
     List<Admission> findByTenant_IdAndDoctorIdOrderByAdmissionDateDesc(Long tenantId, String doctorId);
 
     List<Admission> findByTenant_IdAndDepartmentIdOrderByAdmissionDateDesc(Long tenantId, String departmentId);

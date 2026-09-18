@@ -1,5 +1,5 @@
 // =====================================================
-// HEADER COMPONENT
+// HMS HEADER
 // File:
 // src/app/layout/header/header.ts
 // =====================================================
@@ -7,62 +7,67 @@
 import {
   ChangeDetectorRef,
   Component,
-  EventEmitter,
+  OnDestroy,
   OnInit,
-  Output
+  output
 } from '@angular/core';
 
-import {
-  Router
-} from '@angular/router';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+
+import { AuthService } from '../../core/services/auth.service';
+import { SettingsService } from '../../core/services/settings.service';
 
 import {
-  AuthService
-} from '../../core/services/auth.service';
-
-
-// =====================================================
-// HEADER
-// =====================================================
+  HospitalSettings
+} from '../../shared/models/settings.model';
 
 @Component({
   selector: 'app-header',
-
   standalone: true,
-
-  imports: [],
-
   templateUrl: './header.html',
-
   styleUrl: './header.css'
 })
-export class Header implements OnInit {
+export class Header implements OnInit, OnDestroy {
+
+  // =====================================================
+  // EVENTS
+  // =====================================================
+
+  menuToggle = output<void>();
 
 
   // =====================================================
-  // MENU
+  // USER INFORMATION
   // =====================================================
 
-  @Output()
-  menuToggle =
-    new EventEmitter<void>();
+  fullName = 'User';
+
+  username = '';
+
+  role = '';
+
+  avatarInitials = 'U';
 
 
   // =====================================================
-  // LOGGED-IN USER
+  // TENANT INFORMATION
   // =====================================================
 
-  fullName =
-    'User';
+  hospitalName =
+    'Hospital Management System';
 
-  username =
-    '';
+  hospitalCity = '';
 
-  role =
-    'User';
+  hospitalLogo = '';
 
-  avatarInitials =
-    'U';
+
+  // =====================================================
+  // SUBSCRIPTIONS
+  // =====================================================
+
+  private hospitalSettingsSubscription?:
+    Subscription;
 
 
   // =====================================================
@@ -70,30 +75,28 @@ export class Header implements OnInit {
   // =====================================================
 
   constructor(
-    private readonly authService:
-      AuthService,
-
-    private readonly router:
-      Router,
-
-    private readonly changeDetectorRef:
-      ChangeDetectorRef
+    private authService: AuthService,
+    private settingsService: SettingsService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
 
   // =====================================================
-  // INIT
+  // INITIALIZATION
   // =====================================================
 
   ngOnInit(): void {
 
     this.loadUser();
 
+    this.loadHospitalIdentity();
+
   }
 
 
   // =====================================================
-  // LOAD LOGGED-IN USER
+  // LOAD CURRENT USER
   // =====================================================
 
   private loadUser(): void {
@@ -101,26 +104,18 @@ export class Header implements OnInit {
     const user =
       this.authService.getUser();
 
-
-    // ---------------------------------------------------
-    // No authenticated user
-    // ---------------------------------------------------
-
     if (!user) {
-
       return;
-
     }
-
 
     // ---------------------------------------------------
     // Full name
     // ---------------------------------------------------
 
     this.fullName =
-      user.fullName?.trim() ||
-      user.username?.trim() ||
-      'User';
+      user.fullName?.trim()
+      || user.username?.trim()
+      || 'User';
 
 
     // ---------------------------------------------------
@@ -128,8 +123,8 @@ export class Header implements OnInit {
     // ---------------------------------------------------
 
     this.username =
-      user.username?.trim() ||
-      '';
+      user.username?.trim()
+      || '';
 
 
     // ---------------------------------------------------
@@ -139,6 +134,8 @@ export class Header implements OnInit {
     this.role =
       this.formatRole(
         user.role
+        || user.roles?.[0]
+        || ''
       );
 
 
@@ -151,70 +148,44 @@ export class Header implements OnInit {
         this.fullName
       );
 
-
-    // ---------------------------------------------------
-    // Force immediate UI rendering
-    // ---------------------------------------------------
-
-    this.changeDetectorRef.detectChanges();
-
   }
 
 
   // =====================================================
-  // PROFILE SETTINGS
+  // LOAD CURRENT TENANT IDENTITY
   // =====================================================
 
-  /**
-   * Opens the currently authenticated user's
-   * Profile Settings page.
-   */
-  openProfileSettings(): void {
+  private loadHospitalIdentity(): void {
 
-    this.router.navigate([
-      '/settings/profile'
-    ]);
+    this.hospitalSettingsSubscription =
+      this.settingsService
+        .hospitalSettings$
+        .subscribe({
 
-  }
+          next: (
+            settings: HospitalSettings
+          ) => {
 
-
-  // =====================================================
-  // CREATE INITIALS
-  // =====================================================
-
-  private createInitials(
-    name: string
-  ): string {
-
-    const parts =
-      name
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean);
+            this.hospitalName =
+              settings.hospitalName?.trim()
+              || 'Hospital Management System';
 
 
-    // ---------------------------------------------------
-    // Two or more names
-    // ---------------------------------------------------
-
-    if (parts.length >= 2) {
-
-      return (
-        parts[0].charAt(0) +
-        parts[parts.length - 1].charAt(0)
-      ).toUpperCase();
-
-    }
+            this.hospitalCity =
+              settings.city?.trim()
+              || '';
 
 
-    // ---------------------------------------------------
-    // Single name
-    // ---------------------------------------------------
+            this.hospitalLogo =
+              settings.logoUrl?.trim()
+              || '';
 
-    return (
-      name.charAt(0) ||
-      'U'
-    ).toUpperCase();
+
+            this.cdr.detectChanges();
+
+          }
+
+        });
 
   }
 
@@ -228,32 +199,89 @@ export class Header implements OnInit {
   ): string {
 
     if (!role) {
-
-      return 'User';
-
+      return '';
     }
 
-
     return role
-      .trim()
+      .replace(/_/g, ' ')
       .toLowerCase()
-      .split('_')
-      .map(word =>
-        word.charAt(0).toUpperCase() +
-        word.slice(1)
-      )
-      .join(' ');
+      .replace(
+        /\b\w/g,
+        letter => letter.toUpperCase()
+      );
 
   }
 
 
   // =====================================================
-  // MENU
+  // CREATE AVATAR INITIALS
+  // =====================================================
+
+  private createInitials(
+    name: string
+  ): string {
+
+    const parts =
+      name
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+
+    if (parts.length === 0) {
+      return 'U';
+    }
+
+
+    if (parts.length === 1) {
+
+      return parts[0]
+        .substring(0, 2)
+        .toUpperCase();
+
+    }
+
+
+    return (
+      parts[0][0]
+      + parts[parts.length - 1][0]
+    ).toUpperCase();
+
+  }
+
+
+  // =====================================================
+  // OPEN PROFILE SETTINGS
+  // =====================================================
+
+  openProfileSettings(): void {
+
+    this.router.navigate([
+      '/settings/profile'
+    ]);
+
+  }
+
+
+  // =====================================================
+  // TOGGLE MENU
   // =====================================================
 
   toggleMenu(): void {
 
     this.menuToggle.emit();
+
+  }
+
+
+  // =====================================================
+  // CLEANUP
+  // =====================================================
+
+  ngOnDestroy(): void {
+
+    this.hospitalSettingsSubscription
+      ?.unsubscribe();
 
   }
 

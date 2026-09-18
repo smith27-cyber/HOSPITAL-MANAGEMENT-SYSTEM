@@ -1,20 +1,24 @@
-/* ===================================================== */
-/* PHARMACY QUEUE PAGE */
-/* ===================================================== */
+/* =====================================================
+   PHARMACY QUEUE PAGE
+   ===================================================== */
+
+:host {
+  display: block;
+  width: 100%;
+}
 
 .pharmacy-queue-page {
   width: 100%;
   min-height: 100%;
   padding: 24px;
   box-sizing: border-box;
-  background: #f5f7fb;
-  color: #1f2937;
+  background: var(--hms-bg);
+  color: var(--hms-text);
 }
 
-
-/* ===================================================== */
-/* PAGE HEADER */
-/* ===================================================== */
+/* =====================================================
+   PAGE HEADER
+   ===================================================== */
 
 .page-header {
   display: flex;
@@ -37,8 +41,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 14px;
-  background: #e0f2fe;
-  color: #0284c7;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .title-icon .material-symbols-outlined {
@@ -49,19 +53,18 @@
   margin: 0;
   font-size: 26px;
   font-weight: 700;
-  color: #111827;
+  color: var(--hms-text);
 }
 
 .page-title p {
   margin: 5px 0 0;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
-
-/* ===================================================== */
-/* HEADER ACTIONS */
-/* ===================================================== */
+/* =====================================================
+   HEADER ACTIONS
+   ===================================================== */
 
 .header-actions {
   display: flex;
@@ -77,35 +80,37 @@
   gap: 8px;
   min-height: 40px;
   padding: 9px 14px;
-  border-radius: 8px;
+  border-radius: var(--hms-radius);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition),
+    transform var(--hms-transition);
 }
 
 .primary-button {
-  border: 1px solid #0284c7;
-  background: #0284c7;
+  border: 1px solid var(--hms-primary);
+  background: var(--hms-primary);
   color: #ffffff;
 }
 
 .primary-button:hover {
-  background: #0369a1;
+  background: var(--hms-primary-hover);
+  border-color: var(--hms-primary-hover);
   transform: translateY(-1px);
 }
 
 .secondary-button {
-  border: 1px solid #d1d5db;
-  background: #ffffff;
-  color: #374151;
+  border: 1px solid var(--hms-border);
+  background: var(--hms-surface);
+  color: var(--hms-text-secondary);
 }
 
 .secondary-button:hover {
-  background: #f9fafb;
+  background: var(--hms-surface-secondary);
   transform: translateY(-1px);
 }
 
@@ -114,10 +119,9 @@
   font-size: 18px;
 }
 
-
-/* ===================================================== */
-/* STATISTICS */
-/* ===================================================== */
+/* =====================================================
+   STATISTICS
+   ===================================================== */
 
 .stats-grid {
   display: grid;
@@ -133,29 +137,26 @@
   gap: 12px;
   padding: 16px;
   box-sizing: border-box;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  background: #ffffff;
-  box-shadow:
-    0 2px 8px rgba(15, 23, 42, 0.04);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
+  background: var(--hms-surface);
+  box-shadow: var(--hms-shadow);
   cursor: pointer;
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition),
+    transform var(--hms-transition);
 }
 
 .stat-card:hover {
-  border-color: #bae6fd;
-  box-shadow:
-    0 5px 16px rgba(15, 23, 42, 0.07);
+  border-color: var(--hms-primary-light);
+  box-shadow: var(--hms-shadow-md);
   transform: translateY(-1px);
 }
 
 .stat-card.active {
-  border-color: #0284c7;
-  box-shadow:
-    0 0 0 2px rgba(2, 132, 199, 0.08);
+  border-color: var(--hms-primary);
+  box-shadow: 0 0 0 2px var(--hms-primary-light);
 }
 
 .stat-icon {
@@ -173,33 +174,33 @@
 }
 
 .stat-icon.total {
-  background: #e0f2fe;
-  color: #0284c7;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .stat-icon.waiting {
-  background: #fef3c7;
-  color: #d97706;
+  background: var(--hms-warning-light);
+  color: var(--hms-warning);
 }
 
 .stat-icon.preparing {
-  background: #ede9fe;
-  color: #7c3aed;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .stat-icon.payment {
-  background: #fee2e2;
-  color: #dc2626;
+  background: var(--hms-danger-light);
+  color: var(--hms-danger);
 }
 
 .stat-icon.ready {
-  background: #dcfce7;
-  color: #16a34a;
+  background: var(--hms-success-light);
+  color: var(--hms-success);
 }
 
 .stat-icon.dispensed {
-  background: #dbeafe;
-  color: #2563eb;
+  background: var(--hms-info-light);
+  color: var(--hms-info);
 }
 
 .stat-content {
@@ -211,24 +212,23 @@
 
 .stat-content span {
   font-size: 11px;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 .stat-content strong {
   font-size: 22px;
   font-weight: 700;
-  color: #111827;
+  color: var(--hms-text);
 }
 
 .stat-content small {
   font-size: 10px;
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 }
 
-
-/* ===================================================== */
-/* FILTER CARD */
-/* ===================================================== */
+/* =====================================================
+   FILTER CARD
+   ===================================================== */
 
 .filter-card {
   display: flex;
@@ -236,12 +236,15 @@
   gap: 14px;
   padding: 16px;
   margin-bottom: 20px;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  background: #ffffff;
-  box-shadow:
-    0 2px 8px rgba(15, 23, 42, 0.04);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
+  background: var(--hms-surface);
+  box-shadow: var(--hms-shadow);
 }
+
+/* =====================================================
+   SEARCH
+   ===================================================== */
 
 .search-box {
   flex: 1;
@@ -252,20 +255,19 @@
   gap: 9px;
   padding: 0 12px;
   box-sizing: border-box;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: #ffffff;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius);
+  background: var(--hms-input-bg);
 }
 
 .search-box:focus-within {
-  border-color: #0284c7;
-  box-shadow:
-    0 0 0 3px rgba(2, 132, 199, 0.08);
+  border-color: var(--hms-primary);
+  box-shadow: 0 0 0 3px var(--hms-primary-light);
 }
 
 .search-box .material-symbols-outlined {
   font-size: 20px;
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 }
 
 .search-box input {
@@ -276,12 +278,16 @@
   outline: none;
   background: transparent;
   font-size: 13px;
-  color: #1f2937;
+  color: var(--hms-input-text);
 }
 
 .search-box input::placeholder {
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 }
+
+/* =====================================================
+   FILTER CONTROL
+   ===================================================== */
 
 .filter-control {
   width: 210px;
@@ -293,25 +299,24 @@
 .filter-control label {
   font-size: 11px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 .filter-control select {
   width: 100%;
   height: 42px;
   padding: 0 11px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius);
   outline: none;
-  background: #ffffff;
+  background: var(--hms-input-bg);
   font-size: 13px;
-  color: #374151;
+  color: var(--hms-input-text);
 }
 
 .filter-control select:focus {
-  border-color: #0284c7;
-  box-shadow:
-    0 0 0 3px rgba(2, 132, 199, 0.08);
+  border-color: var(--hms-primary);
+  box-shadow: 0 0 0 3px var(--hms-primary-light);
 }
 
 .clear-button {
@@ -321,35 +326,33 @@
   justify-content: center;
   gap: 7px;
   padding: 0 13px;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  background: #fff;
-  color: #dc2626;
+  border: 1px solid var(--hms-danger-light);
+  border-radius: var(--hms-radius);
+  background: var(--hms-surface);
+  color: var(--hms-danger);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
 }
 
 .clear-button:hover {
-  background: #fef2f2;
+  background: var(--hms-danger-light);
 }
 
 .clear-button .material-symbols-outlined {
   font-size: 18px;
 }
 
-
-/* ===================================================== */
-/* QUEUE CARD */
-/* ===================================================== */
+/* =====================================================
+   QUEUE CARD
+   ===================================================== */
 
 .queue-card {
   margin-bottom: 24px;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  background: #ffffff;
-  box-shadow:
-    0 3px 12px rgba(15, 23, 42, 0.04);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
+  background: var(--hms-surface);
+  box-shadow: var(--hms-shadow);
   overflow: hidden;
 }
 
@@ -359,26 +362,25 @@
   justify-content: space-between;
   gap: 20px;
   padding: 20px 22px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--hms-border);
 }
 
 .section-header h2 {
   margin: 0;
   font-size: 18px;
   font-weight: 700;
-  color: #111827;
+  color: var(--hms-text);
 }
 
 .section-header p {
   margin: 5px 0 0;
   font-size: 13px;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
-
-/* ===================================================== */
-/* QUEUE TABLE */
-/* ===================================================== */
+/* =====================================================
+   QUEUE TABLE
+   ===================================================== */
 
 .queue-table {
   width: 100%;
@@ -405,8 +407,8 @@
 
 .table-header {
   min-height: 44px;
-  background: #f8fafc;
-  border-bottom: 1px solid #e5e7eb;
+  background: var(--hms-surface-secondary);
+  border-bottom: 1px solid var(--hms-border);
 }
 
 .table-header span {
@@ -414,13 +416,13 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 }
 
 .table-row {
   min-height: 80px;
-  border-bottom: 1px solid #eef2f7;
-  transition: background 0.2s ease;
+  border-bottom: 1px solid var(--hms-border);
+  transition: background-color var(--hms-transition);
 }
 
 .table-row:last-child {
@@ -428,13 +430,12 @@
 }
 
 .table-row:hover {
-  background: #fafcff;
+  background: var(--hms-surface-secondary);
 }
 
-
-/* ===================================================== */
-/* PATIENT CELL */
-/* ===================================================== */
+/* =====================================================
+   PATIENT CELL
+   ===================================================== */
 
 .patient-cell {
   display: flex;
@@ -451,8 +452,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #e0f2fe;
-  color: #0284c7;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .patient-avatar .material-symbols-outlined {
@@ -470,7 +471,7 @@
   overflow: hidden;
   font-size: 13px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--hms-text);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -478,15 +479,14 @@
 .patient-info span {
   overflow: hidden;
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--hms-text-muted);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-
-/* ===================================================== */
-/* TABLE CELLS */
-/* ===================================================== */
+/* =====================================================
+   TABLE CELLS
+   ===================================================== */
 
 .table-cell {
   min-width: 0;
@@ -500,34 +500,33 @@
 .table-cell > strong {
   overflow: hidden;
   font-size: 12px;
-  color: #4b5563;
+  color: var(--hms-text-secondary);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .table-cell > strong {
   font-weight: 600;
-  color: #1f2937;
+  color: var(--hms-text);
 }
 
 .prescription-number {
-  color: #0284c7 !important;
+  color: var(--hms-primary) !important;
 }
 
 .medicine-count {
   display: inline-flex;
   width: fit-content;
   padding: 5px 9px;
-  border-radius: 6px;
-  background: #f1f5f9;
-  color: #475569 !important;
+  border-radius: var(--hms-radius-sm);
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text-secondary) !important;
   font-weight: 600;
 }
 
-
-/* ===================================================== */
-/* AMOUNT */
-/* ===================================================== */
+/* =====================================================
+   AMOUNT
+   ===================================================== */
 
 .amount-cell {
   align-items: flex-start;
@@ -535,18 +534,17 @@
 
 .amount-cell strong {
   font-size: 12px;
-  color: #111827;
+  color: var(--hms-text);
 }
 
 .balance-text {
   font-size: 10px !important;
-  color: #dc2626 !important;
+  color: var(--hms-danger) !important;
 }
 
-
-/* ===================================================== */
-/* STATUS BADGES */
-/* ===================================================== */
+/* =====================================================
+   STATUS BADGES
+   ===================================================== */
 
 .status-badge {
   display: inline-flex;
@@ -561,44 +559,43 @@
 }
 
 .status-waiting {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--hms-warning-light);
+  color: var(--hms-warning);
 }
 
 .status-preparing {
-  background: #ede9fe;
-  color: #6d28d9;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .status-payment {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--hms-danger-light);
+  color: var(--hms-danger);
 }
 
 .status-paid {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--hms-success-light);
+  color: var(--hms-success);
 }
 
 .status-ready {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--hms-info-light);
+  color: var(--hms-info);
 }
 
 .status-dispensed {
-  background: #e0e7ff;
-  color: #4338ca;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .status-cancelled {
-  background: #f3f4f6;
-  color: #4b5563;
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text-secondary);
 }
 
-
-/* ===================================================== */
-/* ACTIONS */
-/* ===================================================== */
+/* =====================================================
+   ACTIONS
+   ===================================================== */
 
 .actions-cell {
   display: flex;
@@ -613,14 +610,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #dbe2ea;
-  border-radius: 8px;
-  background: #ffffff;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius);
+  background: var(--hms-surface);
   cursor: pointer;
   transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition);
 }
 
 .action-button .material-symbols-outlined {
@@ -628,48 +625,48 @@
 }
 
 .action-button.view {
-  color: #475569;
+  color: var(--hms-text-secondary);
 }
 
 .action-button.view:hover {
-  border-color: #94a3b8;
-  background: #f8fafc;
+  border-color: var(--hms-text-muted);
+  background: var(--hms-surface-secondary);
 }
 
 .action-button.prepare {
-  color: #7c3aed;
-  border-color: #ddd6fe;
+  color: var(--hms-primary);
+  border-color: var(--hms-primary-light);
 }
 
 .action-button.prepare:hover {
-  background: #f5f3ff;
+  background: var(--hms-primary-light);
 }
 
 .action-button.billing {
-  color: #dc2626;
-  border-color: #fecaca;
+  color: var(--hms-danger);
+  border-color: var(--hms-danger-light);
 }
 
 .action-button.billing:hover {
-  background: #fef2f2;
+  background: var(--hms-danger-light);
 }
 
 .action-button.payment {
-  color: #2563eb;
-  border-color: #bfdbfe;
+  color: var(--hms-info);
+  border-color: var(--hms-info-light);
 }
 
 .action-button.payment:hover {
-  background: #eff6ff;
+  background: var(--hms-info-light);
 }
 
 .action-button.dispense {
-  color: #16a34a;
-  border-color: #bbf7d0;
+  color: var(--hms-success);
+  border-color: var(--hms-success-light);
 }
 
 .action-button.dispense:hover {
-  background: #f0fdf4;
+  background: var(--hms-success-light);
 }
 
 .completed-icon {
@@ -678,17 +675,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #16a34a;
+  color: var(--hms-success);
 }
 
 .completed-icon .material-symbols-outlined {
   font-size: 22px;
 }
 
-
-/* ===================================================== */
-/* EMPTY STATE */
-/* ===================================================== */
+/* =====================================================
+   EMPTY STATE
+   ===================================================== */
 
 .empty-state {
   min-height: 330px;
@@ -708,8 +704,8 @@
   justify-content: center;
   margin-bottom: 16px;
   border-radius: 50%;
-  background: #e0f2fe;
-  color: #0284c7;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .empty-icon .material-symbols-outlined {
@@ -719,7 +715,7 @@
 .empty-state h3 {
   margin: 0 0 7px;
   font-size: 17px;
-  color: #374151;
+  color: var(--hms-text);
 }
 
 .empty-state p {
@@ -727,21 +723,19 @@
   margin: 0 0 18px;
   font-size: 13px;
   line-height: 1.6;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
-
-/* ===================================================== */
-/* WORKFLOW CARD */
-/* ===================================================== */
+/* =====================================================
+   WORKFLOW CARD
+   ===================================================== */
 
 .workflow-card {
   padding: 22px;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  background: #ffffff;
-  box-shadow:
-    0 3px 12px rgba(15, 23, 42, 0.04);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
+  background: var(--hms-surface);
+  box-shadow: var(--hms-shadow);
 }
 
 .workflow-header {
@@ -758,8 +752,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 11px;
-  background: #e0f2fe;
-  color: #0284c7;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .workflow-icon .material-symbols-outlined {
@@ -769,13 +763,13 @@
 .workflow-header h2 {
   margin: 0;
   font-size: 18px;
-  color: #111827;
+  color: var(--hms-text);
 }
 
 .workflow-header p {
   margin: 4px 0 0;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 .workflow-steps {
@@ -800,7 +794,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #0284c7;
+  background: var(--hms-primary);
   color: #ffffff;
   font-size: 13px;
   font-weight: 700;
@@ -814,41 +808,32 @@
 
 .workflow-step strong {
   font-size: 12px;
-  color: #1f2937;
+  color: var(--hms-text);
 }
 
 .workflow-step span {
   font-size: 11px;
   line-height: 1.45;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
 }
 
 .workflow-arrow {
   flex-shrink: 0;
-  color: #9ca3af;
+  color: var(--hms-text-muted);
   font-size: 20px;
 }
 
-
-/* ===================================================== */
-/* RESPONSIVE - LARGE TABLET */
-/* ===================================================== */
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
 
 @media (max-width: 1250px) {
-
   .stats-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-
 }
 
-
-/* ===================================================== */
-/* RESPONSIVE - TABLET */
-/* ===================================================== */
-
 @media (max-width: 768px) {
-
   .pharmacy-queue-page {
     padding: 16px;
   }
@@ -900,16 +885,9 @@
   .workflow-arrow {
     display: none;
   }
-
 }
 
-
-/* ===================================================== */
-/* RESPONSIVE - MOBILE */
-/* ===================================================== */
-
 @media (max-width: 480px) {
-
   .pharmacy-queue-page {
     padding: 12px;
   }
@@ -942,5 +920,4 @@
   .workflow-card {
     padding: 17px;
   }
-
 }

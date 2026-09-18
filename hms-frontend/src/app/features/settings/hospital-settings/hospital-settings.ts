@@ -1,8 +1,22 @@
-// =====================================================
-// HOSPITAL SETTINGS COMPONENT
-// File:
-// src/app/features/settings/hospital-settings/hospital-settings.ts
-// =====================================================
+/**
+ * =====================================================
+ * TENANT / ORGANIZATION SETTINGS COMPONENT
+ * File:
+ * src/app/features/settings/hospital-settings/hospital-settings.ts
+ * =====================================================
+ *
+ * Multitenant rule:
+ *
+ * This component NEVER sends tenantId.
+ *
+ * The backend resolves the current tenant through:
+ *
+ * TenantContext.requireTenantId()
+ *
+ * Therefore the same component works independently
+ * for every tenant.
+ * =====================================================
+ */
 
 import {
   ChangeDetectorRef,
@@ -41,19 +55,22 @@ import {
     FormsModule
   ],
 
-  templateUrl: './hospital-settings.html',
+  templateUrl:
+    './hospital-settings.html',
 
-  styleUrl: './hospital-settings.css'
+  styleUrl:
+    './hospital-settings.css'
 })
 export class HospitalSettingsComponent
   implements OnInit {
 
 
   // =====================================================
-  // SETTINGS
+  // STATE
   // =====================================================
 
-  settings: HospitalSettings = {
+  settings:
+    HospitalSettings = {
 
     hospitalName: '',
 
@@ -76,15 +93,20 @@ export class HospitalSettingsComponent
   };
 
 
-  // =====================================================
-  // STATE
-  // =====================================================
+  isLoading =
+    false;
 
-  loading = true;
+  isSaving =
+    false;
 
-  saving = false;
+  isResetting =
+    false;
 
-  resetting = false;
+  errorMessage =
+    '';
+
+  successMessage =
+    '';
 
 
   // =====================================================
@@ -92,6 +114,7 @@ export class HospitalSettingsComponent
   // =====================================================
 
   constructor(
+
     private readonly settingsService:
       SettingsService,
 
@@ -100,11 +123,12 @@ export class HospitalSettingsComponent
 
     private readonly changeDetectorRef:
       ChangeDetectorRef
+
   ) {}
 
 
   // =====================================================
-  // INIT
+  // INITIALIZE
   // =====================================================
 
   ngOnInit(): void {
@@ -115,49 +139,57 @@ export class HospitalSettingsComponent
 
 
   // =====================================================
-  // LOAD
+  // LOAD SETTINGS
   // =====================================================
 
-  private loadSettings(): void {
+  loadSettings(): void {
 
-    this.loading = true;
+    this.isLoading =
+      true;
+
+    this.errorMessage =
+      '';
+
+    this.successMessage =
+      '';
+
+    this.changeDetectorRef.detectChanges();
 
 
     this.settingsService
       .getHospitalSettings()
       .subscribe({
 
-        next: (
-          settings: HospitalSettings
-        ) => {
+        next: settings => {
 
-          this.settings =
-            this.normalizeSettings(settings);
+          this.settings = {
+            ...settings
+          };
 
-          this.loading = false;
+          this.isLoading =
+            false;
 
           this.changeDetectorRef.detectChanges();
 
         },
 
-
-        error: (
-          error: unknown
-        ) => {
+        error: error => {
 
           console.error(
-            'Failed to load hospital settings:',
+            'Failed to load organization settings:',
             error
           );
 
-          this.loading = false;
+          this.isLoading =
+            false;
+
+          this.errorMessage =
+            this.getErrorMessage(
+              error,
+              'Unable to load organization settings.'
+            );
 
           this.changeDetectorRef.detectChanges();
-
-
-          window.alert(
-            'Unable to load hospital settings. Please make sure the HMS backend is running.'
-          );
 
         }
 
@@ -167,14 +199,14 @@ export class HospitalSettingsComponent
 
 
   // =====================================================
-  // SAVE
+  // SAVE SETTINGS
   // =====================================================
 
   saveSettings(): void {
 
     if (
-      this.saving ||
-      this.resetting
+      this.isSaving ||
+      this.isResetting
     ) {
 
       return;
@@ -182,183 +214,121 @@ export class HospitalSettingsComponent
     }
 
 
-    this.prepareSettings();
+    this.errorMessage =
+      '';
 
+    this.successMessage =
+      '';
 
-    // ===================================================
-    // REQUIRED VALIDATION
-    // ===================================================
-
-    if (!this.settings.hospitalName) {
-
-      window.alert(
-        'Please enter the hospital name.'
-      );
-
-      return;
-
-    }
-
-
-    // ===================================================
-    // EMAIL VALIDATION
-    // ===================================================
 
     if (
-      this.settings.email &&
-      !this.isValidEmail(
-        this.settings.email
-      )
+      !this.settings.hospitalName?.trim()
     ) {
 
-      window.alert(
-        'Please enter a valid email address.'
-      );
+      this.errorMessage =
+        'Organization name is required.';
+
+      this.changeDetectorRef.detectChanges();
 
       return;
 
     }
 
 
-    // ===================================================
-    // WEBSITE VALIDATION
-    // ===================================================
-
-    if (
-      this.settings.website &&
-      !this.isValidUrl(
-        this.settings.website
-      )
-    ) {
-
-      window.alert(
-        'Please enter a valid website URL, for example https://www.hospital.com'
-      );
-
-      return;
-
-    }
-
-
-    // ===================================================
-    // LOGO URL VALIDATION
-    // ===================================================
-
-    if (
-      this.settings.logoUrl &&
-      !this.isValidUrl(
-        this.settings.logoUrl
-      )
-    ) {
-
-      window.alert(
-        'Please enter a valid logo URL.'
-      );
-
-      return;
-
-    }
-
-
-    // ===================================================
-    // START SAVE
-    // ===================================================
-
-    this.saving = true;
+    this.isSaving =
+      true;
 
     this.changeDetectorRef.detectChanges();
 
 
-    const payload: HospitalSettings = {
+    const payload:
+      HospitalSettings = {
 
-      ...this.settings
+      hospitalName:
+        this.settings.hospitalName.trim(),
+
+      registrationNumber:
+        this.cleanValue(
+          this.settings.registrationNumber
+        ),
+
+      phone:
+        this.cleanValue(
+          this.settings.phone
+        ),
+
+      email:
+        this.cleanValue(
+          this.settings.email
+        ),
+
+      address:
+        this.cleanValue(
+          this.settings.address
+        ),
+
+      city:
+        this.cleanValue(
+          this.settings.city
+        ),
+
+      country:
+        this.cleanValue(
+          this.settings.country
+        ) || 'Uganda',
+
+      website:
+        this.cleanValue(
+          this.settings.website
+        ),
+
+      logoUrl:
+        this.cleanValue(
+          this.settings.logoUrl
+        )
 
     };
 
 
-    // ===================================================
-    // BACKEND SAVE
-    // ===================================================
-
     this.settingsService
-      .updateHospitalSettings(payload)
+      .updateHospitalSettings(
+        payload
+      )
       .subscribe({
 
-        next: (
-          updatedSettings: HospitalSettings
-        ) => {
+        next: updatedSettings => {
 
-          this.settings =
-            this.normalizeSettings(
-              updatedSettings
-            );
+          this.settings = {
+            ...updatedSettings
+          };
 
+          this.isSaving =
+            false;
 
-          this.saving = false;
+          this.successMessage =
+            'Organization settings saved successfully.';
 
           this.changeDetectorRef.detectChanges();
-
-
-          window.alert(
-            'Hospital information saved successfully.'
-          );
 
         },
 
-
-        error: (
-          error: any
-        ) => {
+        error: error => {
 
           console.error(
-            'Failed to save hospital settings:',
+            'Failed to save organization settings:',
             error
           );
 
+          this.isSaving =
+            false;
 
-          this.saving = false;
+          this.errorMessage =
+            this.getErrorMessage(
+              error,
+              'Unable to save organization settings.'
+            );
 
           this.changeDetectorRef.detectChanges();
-
-
-          let message =
-            'Failed to save hospital information. Please try again.';
-
-
-          if (error?.status === 0) {
-
-            message =
-              'Unable to connect to the HMS backend on port 8081.';
-
-          }
-          else if (error?.status === 400) {
-
-            message =
-              error?.error?.message ||
-              'The hospital information is invalid.';
-
-          }
-          else if (error?.status === 401) {
-
-            message =
-              'Your session has expired. Please log in again.';
-
-          }
-          else if (error?.status === 403) {
-
-            message =
-              'You do not have permission to update hospital settings.';
-
-          }
-          else if (error?.status === 500) {
-
-            message =
-              'The server encountered an error while saving hospital settings. Check the Spring Boot console.';
-
-          }
-
-
-          window.alert(message);
 
         }
 
@@ -368,14 +338,14 @@ export class HospitalSettingsComponent
 
 
   // =====================================================
-  // RESET
+  // RESET SETTINGS
   // =====================================================
 
   resetSettings(): void {
 
     if (
-      this.saving ||
-      this.resetting
+      this.isSaving ||
+      this.isResetting
     ) {
 
       return;
@@ -385,7 +355,7 @@ export class HospitalSettingsComponent
 
     const confirmed =
       window.confirm(
-        'Are you sure you want to reset the hospital information? This will replace the current saved hospital details with the system defaults.'
+        'Reset this organization\'s settings to the tenant defaults?'
       );
 
 
@@ -396,7 +366,14 @@ export class HospitalSettingsComponent
     }
 
 
-    this.resetting = true;
+    this.errorMessage =
+      '';
+
+    this.successMessage =
+      '';
+
+    this.isResetting =
+      true;
 
     this.changeDetectorRef.detectChanges();
 
@@ -405,46 +382,39 @@ export class HospitalSettingsComponent
       .resetHospitalSettings()
       .subscribe({
 
-        next: (
-          settings: HospitalSettings
-        ) => {
+        next: settings => {
 
-          this.settings =
-            this.normalizeSettings(
-              settings
-            );
+          this.settings = {
+            ...settings
+          };
 
+          this.isResetting =
+            false;
 
-          this.resetting = false;
+          this.successMessage =
+            'Organization settings have been reset successfully.';
 
           this.changeDetectorRef.detectChanges();
-
-
-          window.alert(
-            'Hospital information has been reset successfully.'
-          );
 
         },
 
-
-        error: (
-          error: unknown
-        ) => {
+        error: error => {
 
           console.error(
-            'Failed to reset hospital settings:',
+            'Failed to reset organization settings:',
             error
           );
 
+          this.isResetting =
+            false;
 
-          this.resetting = false;
+          this.errorMessage =
+            this.getErrorMessage(
+              error,
+              'Unable to reset organization settings.'
+            );
 
           this.changeDetectorRef.detectChanges();
-
-
-          window.alert(
-            'Failed to reset hospital information. Please try again.'
-          );
 
         }
 
@@ -454,20 +424,10 @@ export class HospitalSettingsComponent
 
 
   // =====================================================
-  // BACK
+  // CANCEL
   // =====================================================
 
-  goBack(): void {
-
-    if (
-      this.saving ||
-      this.resetting
-    ) {
-
-      return;
-
-    }
-
+  cancel(): void {
 
     this.router.navigate([
       '/settings'
@@ -477,139 +437,78 @@ export class HospitalSettingsComponent
 
 
   // =====================================================
-  // PREPARE SETTINGS
+  // LOGO PREVIEW
   // =====================================================
 
-  private prepareSettings(): void {
+  hasLogo(): boolean {
 
-    this.settings.hospitalName =
-      this.settings.hospitalName
-        ?.trim() ?? '';
-
-
-    this.settings.registrationNumber =
-      this.settings.registrationNumber
-        ?.trim() ?? '';
-
-
-    this.settings.phone =
-      this.settings.phone
-        ?.trim() ?? '';
-
-
-    this.settings.email =
-      this.settings.email
-        ?.trim()
-        .toLowerCase() ?? '';
-
-
-    this.settings.address =
-      this.settings.address
-        ?.trim() ?? '';
-
-
-    this.settings.city =
-      this.settings.city
-        ?.trim() ?? '';
-
-
-    this.settings.country =
-      this.settings.country
-        ?.trim() || 'Uganda';
-
-
-    this.settings.website =
-      this.settings.website
-        ?.trim() ?? '';
-
-
-    this.settings.logoUrl =
-      this.settings.logoUrl
-        ?.trim() ?? '';
+    return !!this.settings.logoUrl?.trim();
 
   }
 
 
   // =====================================================
-  // NORMALIZE
+  // CLEAN VALUE
   // =====================================================
 
-  private normalizeSettings(
-    settings: HospitalSettings
-  ): HospitalSettings {
+  private cleanValue(
+    value:
+      string |
+      null |
+      undefined
+  ): string {
 
-    return {
-
-      hospitalName:
-        settings?.hospitalName ?? '',
-
-      registrationNumber:
-        settings?.registrationNumber ?? '',
-
-      phone:
-        settings?.phone ?? '',
-
-      email:
-        settings?.email ?? '',
-
-      address:
-        settings?.address ?? '',
-
-      city:
-        settings?.city ?? '',
-
-      country:
-        settings?.country || 'Uganda',
-
-      website:
-        settings?.website ?? '',
-
-      logoUrl:
-        settings?.logoUrl ?? ''
-
-    };
+    return value?.trim() || '';
 
   }
 
 
   // =====================================================
-  // EMAIL VALIDATION
+  // ERROR MESSAGE
   // =====================================================
 
-  private isValidEmail(
-    email: string
-  ): boolean {
+  private getErrorMessage(
+    error: any,
+    fallback: string
+  ): string {
 
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      .test(email);
+    if (
+      error?.error?.message
+    ) {
 
-  }
-
-
-  // =====================================================
-  // URL VALIDATION
-  // =====================================================
-
-  private isValidUrl(
-    value: string
-  ): boolean {
-
-    try {
-
-      const url =
-        new URL(value);
-
-      return (
-        url.protocol === 'http:' ||
-        url.protocol === 'https:'
-      );
+      return error.error.message;
 
     }
-    catch {
 
-      return false;
+
+    if (
+      error?.error?.error
+    ) {
+
+      return error.error.error;
 
     }
+
+
+    if (
+      error?.message
+    ) {
+
+      return error.message;
+
+    }
+
+
+    if (
+      error?.status === 403
+    ) {
+
+      return 'You do not have permission to manage organization settings.';
+
+    }
+
+
+    return fallback;
 
   }
 

@@ -1,27 +1,50 @@
 // =====================================================
-// HOSPITAL SETTINGS ENTITY
+// HOSPITAL / ORGANIZATION SETTINGS ENTITY
 // File:
 // src/main/java/com/hms/backend/entity/HospitalSettings.java
 // =====================================================
 
 package com.hms.backend.entity;
 
-import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hms.backend.tenant.entity.Tenant;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "hospital_settings", indexes = {
-        @Index(name = "idx_hospital_settings_name", columnList = "hospital_name")
-})
+@Table(
+        name = "hospital_settings",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_hospital_settings_tenant",
+                        columnNames = "tenant_id"
+                )
+        },
+        indexes = {
+                @Index(
+                        name = "idx_hospital_settings_name",
+                        columnList = "hospital_name"
+                )
+        }
+)
 public class HospitalSettings {
 
+    // =====================================================
+    // TENANT
+    // =====================================================
+
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "tenant_id", nullable = false)
+    @ManyToOne(
+            fetch = FetchType.LAZY,
+            optional = false
+    )
+    @JoinColumn(
+            name = "tenant_id",
+            nullable = false
+    )
     private Tenant tenant;
+
 
     // =====================================================
     // ID
@@ -31,82 +54,138 @@ public class HospitalSettings {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     // =====================================================
-    // HOSPITAL NAME
+    // HOSPITAL / ORGANIZATION NAME
     // =====================================================
 
-    @Column(name = "hospital_name", nullable = false, length = 200)
+    @Column(
+            name = "hospital_name",
+            nullable = false,
+            length = 200
+    )
     private String hospitalName;
+
 
     // =====================================================
     // REGISTRATION NUMBER
     // =====================================================
 
-    @Column(name = "registration_number", length = 100)
+    @Column(
+            name = "registration_number",
+            length = 100
+    )
     private String registrationNumber;
+
 
     // =====================================================
     // PHONE
     // =====================================================
 
-    @Column(name = "phone", length = 50)
+    @Column(
+            name = "phone",
+            length = 50
+    )
     private String phone;
+
 
     // =====================================================
     // EMAIL
     // =====================================================
 
-    @Column(name = "email", length = 150)
+    @Column(
+            name = "email",
+            length = 150
+    )
     private String email;
+
 
     // =====================================================
     // ADDRESS
     // =====================================================
 
-    @Column(name = "address", length = 500)
+    @Column(
+            name = "address",
+            length = 500
+    )
     private String address;
+
 
     // =====================================================
     // CITY
     // =====================================================
 
-    @Column(name = "city", length = 100)
+    @Column(
+            name = "city",
+            length = 100
+    )
     private String city;
+
 
     // =====================================================
     // COUNTRY
     // =====================================================
 
-    @Column(name = "country", nullable = false, length = 100)
+    @Column(
+            name = "country",
+            nullable = false,
+            length = 100
+    )
     private String country = "Uganda";
+
 
     // =====================================================
     // WEBSITE
     // =====================================================
 
-    @Column(name = "website", length = 300)
+    @Column(
+            name = "website",
+            length = 300
+    )
     private String website;
+
 
     // =====================================================
     // LOGO URL
     // =====================================================
 
-    @Column(name = "logo_url", length = 500)
+    @Column(
+            name = "logo_url",
+            length = 500
+    )
     private String logoUrl;
+
 
     // =====================================================
     // CREATED AT
     // =====================================================
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(
+            name = "created_at",
+            nullable = false,
+            updatable = false
+    )
     private LocalDateTime createdAt;
+
 
     // =====================================================
     // UPDATED AT
     // =====================================================
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(
+            name = "updated_at",
+            nullable = false
+    )
     private LocalDateTime updatedAt;
+
+
+    // =====================================================
+    // CONSTRUCTOR
+    // =====================================================
+
+    public HospitalSettings() {
+    }
+
 
     // =====================================================
     // PRE PERSIST
@@ -115,30 +194,26 @@ public class HospitalSettings {
     @PrePersist
     protected void onCreate() {
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now =
+                LocalDateTime.now();
 
         if (createdAt == null) {
-
             createdAt = now;
-
         }
 
         if (updatedAt == null) {
-
             updatedAt = now;
-
         }
 
         if (country == null ||
                 country.isBlank()) {
 
             country = "Uganda";
-
         }
 
         normalizeFields();
-
     }
+
 
     // =====================================================
     // PRE UPDATE
@@ -147,11 +222,12 @@ public class HospitalSettings {
     @PreUpdate
     protected void onUpdate() {
 
-        updatedAt = LocalDateTime.now();
+        updatedAt =
+                LocalDateTime.now();
 
         normalizeFields();
-
     }
+
 
     // =====================================================
     // NORMALIZE FIELDS
@@ -160,39 +236,34 @@ public class HospitalSettings {
     private void normalizeFields() {
 
         if (hospitalName != null) {
-
-            hospitalName = hospitalName.trim();
-
+            hospitalName =
+                    hospitalName.trim();
         }
 
         if (registrationNumber != null) {
-
-            registrationNumber = registrationNumber.trim();
-
+            registrationNumber =
+                    registrationNumber.trim();
         }
 
         if (phone != null) {
-
-            phone = phone.trim();
-
+            phone =
+                    phone.trim();
         }
 
         if (email != null) {
-
-            email = email.trim().toLowerCase();
-
+            email =
+                    email.trim()
+                            .toLowerCase();
         }
 
         if (address != null) {
-
-            address = address.trim();
-
+            address =
+                    address.trim();
         }
 
         if (city != null) {
-
-            city = city.trim();
-
+            city =
+                    city.trim();
         }
 
         if (country == null ||
@@ -202,196 +273,215 @@ public class HospitalSettings {
 
         } else {
 
-            country = country.trim();
-
+            country =
+                    country.trim();
         }
 
         if (website != null) {
-
-            website = website.trim();
-
+            website =
+                    website.trim();
         }
 
         if (logoUrl != null) {
-
-            logoUrl = logoUrl.trim();
-
+            logoUrl =
+                    logoUrl.trim();
         }
-
     }
 
-    // =====================================================
-    // CONSTRUCTOR
-    // =====================================================
-
-    public HospitalSettings() {
-    }
 
     // =====================================================
-    // GETTERS / SETTERS
+    // TENANT
     // =====================================================
 
     public Tenant getTenant() {
         return tenant;
     }
 
-    public void setTenant(Tenant tenant) {
+    public void setTenant(
+            Tenant tenant) {
+
         this.tenant = tenant;
     }
 
+
+    // =====================================================
+    // ID
+    // =====================================================
+
     public Long getId() {
-
         return id;
-
     }
 
-    public void setId(Long id) {
+    public void setId(
+            Long id) {
 
         this.id = id;
-
     }
 
+
+    // =====================================================
+    // HOSPITAL / ORGANIZATION NAME
+    // =====================================================
+
     public String getHospitalName() {
-
         return hospitalName;
-
     }
 
     public void setHospitalName(
             String hospitalName) {
 
-        this.hospitalName = hospitalName;
-
+        this.hospitalName =
+                hospitalName;
     }
 
+
+    // =====================================================
+    // REGISTRATION NUMBER
+    // =====================================================
+
     public String getRegistrationNumber() {
-
         return registrationNumber;
-
     }
 
     public void setRegistrationNumber(
             String registrationNumber) {
 
-        this.registrationNumber = registrationNumber;
-
+        this.registrationNumber =
+                registrationNumber;
     }
 
+
+    // =====================================================
+    // PHONE
+    // =====================================================
+
     public String getPhone() {
-
         return phone;
-
     }
 
     public void setPhone(
             String phone) {
 
         this.phone = phone;
-
     }
 
+
+    // =====================================================
+    // EMAIL
+    // =====================================================
+
     public String getEmail() {
-
         return email;
-
     }
 
     public void setEmail(
             String email) {
 
         this.email = email;
-
     }
 
+
+    // =====================================================
+    // ADDRESS
+    // =====================================================
+
     public String getAddress() {
-
         return address;
-
     }
 
     public void setAddress(
             String address) {
 
         this.address = address;
-
     }
 
+
+    // =====================================================
+    // CITY
+    // =====================================================
+
     public String getCity() {
-
         return city;
-
     }
 
     public void setCity(
             String city) {
 
         this.city = city;
-
     }
 
+
+    // =====================================================
+    // COUNTRY
+    // =====================================================
+
     public String getCountry() {
-
         return country;
-
     }
 
     public void setCountry(
             String country) {
 
         this.country = country;
-
     }
 
+
+    // =====================================================
+    // WEBSITE
+    // =====================================================
+
     public String getWebsite() {
-
         return website;
-
     }
 
     public void setWebsite(
             String website) {
 
         this.website = website;
-
     }
 
+
+    // =====================================================
+    // LOGO URL
+    // =====================================================
+
     public String getLogoUrl() {
-
         return logoUrl;
-
     }
 
     public void setLogoUrl(
             String logoUrl) {
 
         this.logoUrl = logoUrl;
-
     }
 
+
+    // =====================================================
+    // CREATED AT
+    // =====================================================
+
     public LocalDateTime getCreatedAt() {
-
         return createdAt;
-
     }
 
     public void setCreatedAt(
             LocalDateTime createdAt) {
 
         this.createdAt = createdAt;
-
     }
 
+
+    // =====================================================
+    // UPDATED AT
+    // =====================================================
+
     public LocalDateTime getUpdatedAt() {
-
         return updatedAt;
-
     }
 
     public void setUpdatedAt(
             LocalDateTime updatedAt) {
 
         this.updatedAt = updatedAt;
-
     }
-
 }

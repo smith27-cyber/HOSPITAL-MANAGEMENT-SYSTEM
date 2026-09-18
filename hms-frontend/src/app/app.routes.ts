@@ -334,10 +334,6 @@ export const routes: Routes = [
       // MODULES
       // =================================================
 
-      // -------------------------------------------------
-      // /platform/modules
-      // -------------------------------------------------
-
       {
         path: 'modules',
 
@@ -406,7 +402,6 @@ export const routes: Routes = [
 
         children: [
 
-          // /patients
           {
             path: '',
 
@@ -426,7 +421,6 @@ export const routes: Routes = [
           },
 
 
-          // /patients/register
           {
             path: 'register',
 
@@ -446,7 +440,6 @@ export const routes: Routes = [
           },
 
 
-          // /patients/:id/edit
           {
             path: ':id/edit',
 
@@ -466,7 +459,6 @@ export const routes: Routes = [
           },
 
 
-          // /patients/:id
           {
             path: ':id',
 
@@ -498,7 +490,6 @@ export const routes: Routes = [
 
         children: [
 
-          // /doctors
           {
             path: '',
 
@@ -518,7 +509,6 @@ export const routes: Routes = [
           },
 
 
-          // /doctors/register
           {
             path: 'register',
 
@@ -538,7 +528,6 @@ export const routes: Routes = [
           },
 
 
-          // /doctors/:id/edit
           {
             path: ':id/edit',
 
@@ -558,7 +547,6 @@ export const routes: Routes = [
           },
 
 
-          // /doctors/:id
           {
             path: ':id',
 
@@ -590,7 +578,6 @@ export const routes: Routes = [
 
         children: [
 
-          // /departments
           {
             path: '',
 
@@ -610,7 +597,6 @@ export const routes: Routes = [
           },
 
 
-          // /departments/register
           {
             path: 'register',
 
@@ -630,7 +616,6 @@ export const routes: Routes = [
           },
 
 
-          // /departments/:id/edit
           {
             path: ':id/edit',
 
@@ -650,7 +635,6 @@ export const routes: Routes = [
           },
 
 
-          // /departments/:id
           {
             path: ':id',
 
@@ -682,7 +666,6 @@ export const routes: Routes = [
 
         children: [
 
-          // /appointments
           {
             path: '',
 
@@ -702,7 +685,6 @@ export const routes: Routes = [
           },
 
 
-          // /appointments/register
           {
             path: 'register',
 
@@ -722,7 +704,6 @@ export const routes: Routes = [
           },
 
 
-          // /appointments/queue
           {
             path: 'queue',
 
@@ -742,7 +723,6 @@ export const routes: Routes = [
           },
 
 
-          // /appointments/:id/edit
           {
             path: ':id/edit',
 
@@ -762,7 +742,6 @@ export const routes: Routes = [
           },
 
 
-          // /appointments/:id/consultation
           {
             path: ':id/consultation',
 
@@ -782,7 +761,6 @@ export const routes: Routes = [
           },
 
 
-          // /appointments/:id
           {
             path: ':id',
 
@@ -814,7 +792,6 @@ export const routes: Routes = [
 
         children: [
 
-          // /consultations
           {
             path: '',
 
@@ -834,7 +811,6 @@ export const routes: Routes = [
           },
 
 
-          // /consultations/register
           {
             path: 'register',
 
@@ -854,7 +830,6 @@ export const routes: Routes = [
           },
 
 
-          // /consultations/:id/edit
           {
             path: ':id/edit',
 
@@ -874,7 +849,6 @@ export const routes: Routes = [
           },
 
 
-          // /consultations/:id
           {
             path: ':id',
 
@@ -906,7 +880,6 @@ export const routes: Routes = [
 
         children: [
 
-          // /pharmacy
           {
             path: '',
 
@@ -926,7 +899,6 @@ export const routes: Routes = [
           },
 
 
-          // /pharmacy/queue
           {
             path: 'queue',
 
@@ -946,7 +918,6 @@ export const routes: Routes = [
           },
 
 
-          // /pharmacy/stock
           {
             path: 'stock',
 
@@ -966,7 +937,25 @@ export const routes: Routes = [
           },
 
 
-          // /pharmacy/prescriptions/:id
+          {
+            path: 'add-prescription',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'PHARMACY_PRESCRIPTION_CREATE'
+            },
+
+            loadComponent: () =>
+              import(
+                './features/pharmacy/pharmacy-add-prescription/pharmacy-add-prescription'
+              )
+                .then(m => m.PharmacyAddPrescription)
+          },
+
+
           {
             path: 'prescriptions/:id',
 
@@ -998,7 +987,6 @@ export const routes: Routes = [
 
         children: [
 
-          // /laboratory
           {
             path: '',
 
@@ -1018,7 +1006,6 @@ export const routes: Routes = [
           },
 
 
-          // /laboratory/register
           {
             path: 'register',
 
@@ -1047,7 +1034,6 @@ export const routes: Routes = [
 
             children: [
 
-              // /laboratory/requests
               {
                 path: '',
 
@@ -1067,7 +1053,6 @@ export const routes: Routes = [
               },
 
 
-              // /laboratory/requests/register
               {
                 path: 'register',
 
@@ -1087,7 +1072,6 @@ export const routes: Routes = [
               },
 
 
-              // /laboratory/requests/:id/edit
               {
                 path: ':id/edit',
 
@@ -1107,7 +1091,6 @@ export const routes: Routes = [
               },
 
 
-              // /laboratory/requests/:id
               {
                 path: ':id',
 
@@ -1130,7 +1113,6 @@ export const routes: Routes = [
           },
 
 
-          // /laboratory/:id/edit
           {
             path: ':id/edit',
 
@@ -1150,7 +1132,6 @@ export const routes: Routes = [
           },
 
 
-          // /laboratory/:id
           {
             path: ':id',
 
@@ -1182,7 +1163,6 @@ export const routes: Routes = [
 
         children: [
 
-          // /admissions
           {
             path: '',
 
@@ -1202,7 +1182,6 @@ export const routes: Routes = [
           },
 
 
-          // /admissions/register
           {
             path: 'register',
 
@@ -1222,7 +1201,6 @@ export const routes: Routes = [
           },
 
 
-          // /admissions/:id/edit
           {
             path: ':id/edit',
 
@@ -1242,7 +1220,6 @@ export const routes: Routes = [
           },
 
 
-          // /admissions/:id
           {
             path: ':id',
 
@@ -1274,7 +1251,10 @@ export const routes: Routes = [
 
         children: [
 
+          // =================================================
           // /billing
+          // =================================================
+
           {
             path: '',
 
@@ -1294,7 +1274,10 @@ export const routes: Routes = [
           },
 
 
+          // =================================================
           // /billing/register
+          // =================================================
+
           {
             path: 'register',
 
@@ -1314,7 +1297,37 @@ export const routes: Routes = [
           },
 
 
+          // =================================================
+          // /billing/receipts
+          //
+          // IMPORTANT:
+          // This route MUST appear before /billing/:id
+          // so "receipts" is not treated as an invoice ID.
+          // =================================================
+
+          {
+            path: 'receipts',
+
+            canActivate: [
+              permissionGuard
+            ],
+
+            data: {
+              permission: 'BILLING_VIEW'
+            },
+
+            loadComponent: () =>
+              import(
+                './features/billing/receipts/receipts'
+              )
+                .then(m => m.ReceiptsComponent)
+          },
+
+
+          // =================================================
           // /billing/:id/edit
+          // =================================================
+
           {
             path: ':id/edit',
 
@@ -1334,7 +1347,10 @@ export const routes: Routes = [
           },
 
 
+          // =================================================
           // /billing/:id
+          // =================================================
+
           {
             path: ':id',
 
@@ -1366,7 +1382,6 @@ export const routes: Routes = [
 
         children: [
 
-          // /inventory
           {
             path: '',
 
@@ -1386,7 +1401,6 @@ export const routes: Routes = [
           },
 
 
-          // /inventory/register
           {
             path: 'register',
 
@@ -1406,7 +1420,6 @@ export const routes: Routes = [
           },
 
 
-          // /inventory/stock
           {
             path: 'stock',
 
@@ -1426,7 +1439,6 @@ export const routes: Routes = [
           },
 
 
-          // /inventory/:id/edit
           {
             path: ':id/edit',
 
@@ -1446,7 +1458,6 @@ export const routes: Routes = [
           },
 
 
-          // /inventory/:id
           {
             path: ':id',
 
@@ -1488,7 +1499,7 @@ export const routes: Routes = [
           import(
             './features/reports/report/report'
           )
-            .then(m => m.ReportComponent)
+            .then(m => m.Report)
       },
 
 
@@ -1501,7 +1512,6 @@ export const routes: Routes = [
 
         children: [
 
-          // /settings
           {
             path: '',
 
@@ -1521,7 +1531,6 @@ export const routes: Routes = [
           },
 
 
-          // /settings/hospital
           {
             path: 'hospital',
 
@@ -1541,7 +1550,6 @@ export const routes: Routes = [
           },
 
 
-          // /settings/system
           {
             path: 'system',
 
@@ -1561,7 +1569,6 @@ export const routes: Routes = [
           },
 
 
-          // /settings/notifications
           {
             path: 'notifications',
 
@@ -1581,7 +1588,6 @@ export const routes: Routes = [
           },
 
 
-          // /settings/users
           {
             path: 'users',
 
@@ -1601,7 +1607,6 @@ export const routes: Routes = [
           },
 
 
-          // /settings/profile
           {
             path: 'profile',
 

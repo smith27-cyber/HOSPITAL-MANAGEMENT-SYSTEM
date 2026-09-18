@@ -4,6 +4,11 @@
    src/app/features/admissions/admission-register/admission-register.css
    ===================================================== */
 
+:host {
+  display: block;
+  width: 100%;
+}
+
 .admission-register-page {
   max-width: 1200px;
   margin: 0 auto;
@@ -20,15 +25,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-
   margin-bottom: 24px;
 }
 
 .page-header h1 {
   margin: 0;
-
-  color: #111827;
-
+  color: var(--hms-text);
   font-size: 26px;
   font-weight: 700;
   line-height: 1.25;
@@ -36,9 +38,7 @@
 
 .page-header p {
   margin: 5px 0 0;
-
-  color: #6b7280;
-
+  color: var(--hms-text-secondary);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -60,17 +60,11 @@
    ===================================================== */
 
 .form-card {
-  background: #ffffff;
-
-  border: 1px solid #e5e7eb;
-
-  border-radius: 12px;
-
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
   overflow: hidden;
-
-  box-shadow:
-    0 1px 2px
-    rgba(0, 0, 0, 0.03);
+  box-shadow: var(--hms-shadow);
 }
 
 
@@ -80,17 +74,13 @@
 
 .card-header {
   padding: 20px;
-
-  border-bottom: 1px solid #f0f0f0;
-
-  background: #ffffff;
+  border-bottom: 1px solid var(--hms-border);
+  background: var(--hms-surface);
 }
 
 .card-header h2 {
   margin: 0;
-
-  color: #111827;
-
+  color: var(--hms-text);
   font-size: 17px;
   font-weight: 700;
   line-height: 1.4;
@@ -98,9 +88,7 @@
 
 .card-header p {
   margin: 5px 0 0;
-
-  color: #9ca3af;
-
+  color: var(--hms-text-muted);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -112,12 +100,8 @@
 
 .form-grid {
   display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
-
   padding: 24px;
 }
 
@@ -128,9 +112,7 @@
 
 .form-group {
   display: flex;
-
   flex-direction: column;
-
   min-width: 0;
 }
 
@@ -150,13 +132,9 @@
 
 .form-group label {
   margin-bottom: 7px;
-
-  color: #374151;
-
+  color: var(--hms-text-secondary);
   font-size: 12px;
-
   font-weight: 600;
-
   line-height: 1.4;
 }
 
@@ -167,8 +145,7 @@
 
 .required {
   margin-left: 2px;
-
-  color: #dc2626;
+  color: var(--hms-danger);
 }
 
 
@@ -180,27 +157,18 @@
 .form-group select,
 .form-group textarea {
   width: 100%;
-
   box-sizing: border-box;
-
-  border: 1px solid #d1d5db;
-
-  border-radius: 7px;
-
-  background: #ffffff;
-
-  color: #111827;
-
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-sm);
+  background: var(--hms-input-bg);
+  color: var(--hms-input-text);
   font-family: inherit;
-
   font-size: 13px;
-
   outline: none;
-
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition),
+    background var(--hms-transition);
 }
 
 
@@ -211,7 +179,6 @@
 .form-group input,
 .form-group select {
   height: 42px;
-
   padding: 0 12px;
 }
 
@@ -222,11 +189,8 @@
 
 .form-group textarea {
   min-height: 90px;
-
   padding: 11px 12px;
-
   resize: vertical;
-
   line-height: 1.5;
 }
 
@@ -238,11 +202,8 @@
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  border-color: #0f766e;
-
-  box-shadow:
-    0 0 0 3px
-    rgba(15, 118, 110, 0.08);
+  border-color: var(--hms-primary);
+  box-shadow: 0 0 0 3px var(--hms-primary-light);
 }
 
 
@@ -253,11 +214,10 @@
 .form-group input:disabled,
 .form-group select:disabled,
 .form-group textarea:disabled {
-  background: #f9fafb;
-
-  color: #6b7280;
-
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text-muted);
   cursor: not-allowed;
+  opacity: 0.8;
 }
 
 
@@ -267,7 +227,7 @@
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 }
 
 
@@ -277,13 +237,9 @@
 
 .field-help {
   display: block;
-
   margin-top: 6px;
-
-  color: #9ca3af;
-
+  color: var(--hms-text-muted);
   font-size: 11px;
-
   line-height: 1.45;
 }
 
@@ -293,7 +249,7 @@
    ===================================================== */
 
 .error-text {
-  color: #dc2626;
+  color: var(--hms-danger);
 }
 
 
@@ -303,33 +259,21 @@
 
 .loading-field {
   display: flex;
-
   align-items: center;
-
   gap: 10px;
-
   min-height: 42px;
-
   margin: 24px;
-
   padding: 0 14px;
-
-  border: 1px solid #e5e7eb;
-
-  border-radius: 7px;
-
-  background: #f9fafb;
-
-  color: #6b7280;
-
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-sm);
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text-secondary);
   font-size: 13px;
 }
 
 .loading-field .material-symbols-outlined {
   font-size: 18px;
-
-  animation:
-    admission-spin 1s linear infinite;
+  animation: admission-spin 1s linear infinite;
 }
 
 
@@ -348,20 +292,13 @@
 
 .selected-patient-card {
   display: flex;
-
   align-items: center;
-
   gap: 14px;
-
   margin: 0 24px 24px;
-
   padding: 16px;
-
-  border: 1px solid #cfe8e5;
-
+  border: 1px solid var(--hms-primary-light);
   border-radius: 10px;
-
-  background: #f0fdfa;
+  background: var(--hms-primary-light);
 }
 
 
@@ -371,21 +308,14 @@
 
 .patient-icon {
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   flex-shrink: 0;
-
   width: 44px;
   height: 44px;
-
   border-radius: 50%;
-
-  background: #ccfbf1;
-
-  color: #0f766e;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .patient-icon .material-symbols-outlined {
@@ -399,27 +329,20 @@
 
 .selected-patient-info {
   display: flex;
-
   flex-direction: column;
-
   gap: 4px;
-
   min-width: 0;
 }
 
 .selected-patient-info strong {
-  color: #134e4a;
-
+  color: var(--hms-primary);
   font-size: 14px;
-
   font-weight: 700;
 }
 
 .selected-patient-info span {
-  color: #5f6f72;
-
+  color: var(--hms-text-secondary);
   font-size: 11px;
-
   line-height: 1.4;
 }
 
@@ -430,53 +353,37 @@
 
 .empty-patient-state {
   display: flex;
-
   align-items: center;
-
   gap: 14px;
-
   margin: 24px;
-
   padding: 16px;
-
-  border: 1px dashed #d1d5db;
-
+  border: 1px dashed var(--hms-border);
   border-radius: 10px;
-
-  background: #fafafa;
+  background: var(--hms-surface-secondary);
 }
 
 .empty-patient-state > .material-symbols-outlined {
   flex-shrink: 0;
-
   font-size: 28px;
-
-  color: #9ca3af;
+  color: var(--hms-text-muted);
 }
 
 .empty-patient-state > div {
   flex: 1;
-
   min-width: 0;
 }
 
 .empty-patient-state strong {
   display: block;
-
   margin-bottom: 3px;
-
-  color: #374151;
-
+  color: var(--hms-text-secondary);
   font-size: 13px;
 }
 
 .empty-patient-state p {
   margin: 0;
-
-  color: #9ca3af;
-
+  color: var(--hms-text-muted);
   font-size: 11px;
-
   line-height: 1.5;
 }
 
@@ -488,34 +395,23 @@
 .primary-button,
 .secondary-button {
   display: inline-flex;
-
   align-items: center;
-
   justify-content: center;
-
   gap: 7px;
-
   min-height: 40px;
-
   padding: 0 16px;
-
-  border-radius: 7px;
-
+  border-radius: var(--hms-radius-sm);
   font-family: inherit;
-
   font-size: 12px;
-
   font-weight: 600;
-
   white-space: nowrap;
-
   cursor: pointer;
-
   transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    opacity 0.2s ease;
+    background var(--hms-transition),
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition),
+    opacity var(--hms-transition),
+    color var(--hms-transition);
 }
 
 
@@ -524,25 +420,19 @@
    ===================================================== */
 
 .primary-button {
-  border: 1px solid #0f766e;
-
-  background: #0f766e;
-
+  border: 1px solid var(--hms-primary);
+  background: var(--hms-primary);
   color: #ffffff;
 }
 
 .primary-button:hover:not(:disabled) {
-  border-color: #115e59;
-
-  background: #115e59;
+  border-color: var(--hms-primary-hover);
+  background: var(--hms-primary-hover);
 }
 
 .primary-button:focus-visible {
   outline: none;
-
-  box-shadow:
-    0 0 0 3px
-    rgba(15, 118, 110, 0.18);
+  box-shadow: 0 0 0 3px var(--hms-primary-light);
 }
 
 
@@ -551,25 +441,20 @@
    ===================================================== */
 
 .secondary-button {
-  border: 1px solid #d1d5db;
-
-  background: #ffffff;
-
-  color: #374151;
+  border: 1px solid var(--hms-border);
+  background: var(--hms-surface);
+  color: var(--hms-text-secondary);
 }
 
 .secondary-button:hover:not(:disabled) {
-  background: #f9fafb;
-
-  border-color: #9ca3af;
+  background: var(--hms-surface-secondary);
+  border-color: var(--hms-primary);
+  color: var(--hms-primary);
 }
 
 .secondary-button:focus-visible {
   outline: none;
-
-  box-shadow:
-    0 0 0 3px
-    rgba(107, 114, 128, 0.12);
+  box-shadow: 0 0 0 3px var(--hms-primary-light);
 }
 
 
@@ -580,7 +465,6 @@
 .primary-button:disabled,
 .secondary-button:disabled {
   opacity: 0.55;
-
   cursor: not-allowed;
 }
 
@@ -601,20 +485,13 @@
 
 .page-actions {
   display: flex;
-
   align-items: center;
-
   justify-content: flex-end;
-
   gap: 10px;
-
   padding: 18px 24px;
-
-  border: 1px solid #e5e7eb;
-
-  border-radius: 12px;
-
-  background: #fafafa;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
+  background: var(--hms-surface-secondary);
 }
 
 
@@ -647,7 +524,6 @@
    ===================================================== */
 
 @media (max-width: 800px) {
-
   .form-grid {
     grid-template-columns: 1fr;
   }
@@ -655,7 +531,6 @@
   .full-width {
     grid-column: auto;
   }
-
 }
 
 
@@ -664,72 +539,54 @@
    ===================================================== */
 
 @media (max-width: 600px) {
-
   .admission-register-page {
     padding-bottom: 20px;
   }
 
-
   .page-header {
     align-items: flex-start;
-
     flex-direction: column;
-
     gap: 14px;
   }
-
 
   .page-header button {
     width: 100%;
   }
 
-
   .form-grid {
     padding: 18px;
   }
-
 
   .card-header {
     padding: 18px;
   }
 
-
   .form-card > .form-group {
     margin: 18px;
   }
-
 
   .loading-field {
     margin: 18px;
   }
 
-
   .selected-patient-card {
-    margin:
-      0 18px 18px;
+    margin: 0 18px 18px;
   }
-
 
   .empty-patient-state {
     align-items: flex-start;
-
     margin: 18px;
   }
 
-
   .page-actions {
     flex-direction: column-reverse;
-
     align-items: stretch;
-
     padding: 16px 18px;
   }
-
 
   .page-actions button {
     width: 100%;
   }
-
 }
 
 
@@ -738,19 +595,15 @@
    ===================================================== */
 
 @media (max-width: 400px) {
-
   .page-header h1 {
     font-size: 22px;
   }
-
 
   .page-header p {
     font-size: 13px;
   }
 
-
   .selected-patient-card {
     align-items: flex-start;
   }
-
 }

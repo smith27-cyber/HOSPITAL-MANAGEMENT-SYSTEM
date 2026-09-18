@@ -1,13 +1,18 @@
 /* =====================================================
    DEPARTMENT LIST PAGE
+   HMS GLOBAL THEME
    ===================================================== */
+
+:host {
+  display: block;
+  width: 100%;
+}
 
 .departments-page {
   width: 100%;
   padding: 24px;
   box-sizing: border-box;
 }
-
 
 /* =====================================================
    PAGE HEADER
@@ -23,20 +28,19 @@
 
 .page-header h1 {
   margin: 0 0 6px;
+  color: var(--hms-text);
   font-size: 28px;
   font-weight: 700;
-  color: #172033;
 }
 
 .page-header p {
   margin: 0;
-  color: #6b7280;
+  color: var(--hms-text-secondary);
   font-size: 14px;
 }
 
-
 /* =====================================================
-   BUTTONS
+   PRIMARY BUTTON
    ===================================================== */
 
 .primary-button {
@@ -44,34 +48,41 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-
-  border: none;
-  border-radius: 8px;
-
+  border: 1px solid var(--hms-primary);
+  border-radius: var(--hms-radius);
   padding: 11px 18px;
-
-  background: #0284c7;
+  background: var(--hms-primary);
   color: #ffffff;
-
   font-size: 14px;
   font-weight: 600;
-
   cursor: pointer;
-
   transition:
-    background 0.2s ease,
-    transform 0.2s ease;
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    transform var(--hms-transition),
+    box-shadow var(--hms-transition);
 }
 
 .primary-button:hover {
-  background: #0369a1;
+  background: var(--hms-primary-hover);
+  border-color: var(--hms-primary-hover);
   transform: translateY(-1px);
+}
+
+.primary-button:focus-visible {
+  outline: 2px solid var(--hms-primary);
+  outline-offset: 2px;
+}
+
+.primary-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .primary-button .material-symbols-outlined {
   font-size: 20px;
 }
-
 
 /* =====================================================
    STATISTICS
@@ -88,30 +99,31 @@
   display: flex;
   align-items: center;
   gap: 14px;
-
-  background: #ffffff;
-
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
   padding: 18px;
+  box-shadow: var(--hms-shadow);
+  color: var(--hms-text);
+  transition:
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition);
+}
 
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+.mini-stat:hover {
+  box-shadow: var(--hms-shadow-md);
 }
 
 .mini-stat-icon {
   width: 46px;
   height: 46px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border-radius: 10px;
-
-  background: #e0f2fe;
-  color: #0284c7;
-
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
   flex-shrink: 0;
 }
 
@@ -120,18 +132,18 @@
 }
 
 .active-icon {
-  background: #dcfce7;
-  color: #16a34a;
+  background: var(--hms-success-light);
+  color: var(--hms-success);
 }
 
 .inactive-icon {
-  background: #fee2e2;
-  color: #dc2626;
+  background: var(--hms-danger-light);
+  color: var(--hms-danger);
 }
 
 .code-icon {
-  background: #ede9fe;
-  color: #7c3aed;
+  background: var(--hms-info-light);
+  color: var(--hms-info);
 }
 
 .mini-stat div:last-child {
@@ -141,32 +153,28 @@
 }
 
 .mini-stat span {
-  color: #6b7280;
+  color: var(--hms-text-secondary);
   font-size: 13px;
 }
 
 .mini-stat strong {
-  color: #172033;
+  color: var(--hms-text);
   font-size: 22px;
   font-weight: 700;
 }
-
 
 /* =====================================================
    MAIN CARD
    ===================================================== */
 
 .departments-card {
-  background: #ffffff;
-
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
   overflow: hidden;
-
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+  box-shadow: var(--hms-shadow);
+  color: var(--hms-text);
 }
-
 
 /* =====================================================
    TABLE TOOLBAR
@@ -176,14 +184,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 18px;
-
   padding: 18px;
-
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--hms-border);
+  background: var(--hms-surface);
 }
-
 
 /* =====================================================
    SEARCH
@@ -192,57 +197,44 @@
 .search-box {
   width: 100%;
   max-width: 400px;
-
   height: 42px;
-
   display: flex;
   align-items: center;
-
   gap: 9px;
-
   padding: 0 13px;
-
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-
-  background: #ffffff;
-
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius);
+  background: var(--hms-input-bg);
+  color: var(--hms-input-text);
   box-sizing: border-box;
-
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition),
+    background-color var(--hms-transition);
 }
 
 .search-box:focus-within {
-  border-color: #0284c7;
-
-  box-shadow:
-    0 0 0 3px rgba(2, 132, 199, 0.1);
+  border-color: var(--hms-primary);
+  box-shadow: 0 0 0 3px var(--hms-primary-light);
 }
 
 .search-box .material-symbols-outlined {
-  color: #64748b;
+  color: var(--hms-text-secondary);
   font-size: 21px;
 }
 
 .search-box input {
   width: 100%;
-
   border: none;
   outline: none;
-
   background: transparent;
-
-  color: #172033;
-
+  color: var(--hms-input-text);
   font-size: 14px;
 }
 
 .search-box input::placeholder {
-  color: #94a3b8;
+  color: var(--hms-text-muted);
 }
-
 
 /* =====================================================
    FILTERS
@@ -256,32 +248,25 @@
 
 .filters select {
   min-width: 145px;
-
   height: 42px;
-
   padding: 0 12px;
-
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-
-  background: #ffffff;
-
-  color: #374151;
-
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius);
+  background: var(--hms-input-bg);
+  color: var(--hms-input-text);
   font-size: 14px;
-
   outline: none;
-
   cursor: pointer;
+  transition:
+    border-color var(--hms-transition),
+    box-shadow var(--hms-transition),
+    background-color var(--hms-transition);
 }
 
 .filters select:focus {
-  border-color: #0284c7;
-
-  box-shadow:
-    0 0 0 3px rgba(2, 132, 199, 0.1);
+  border-color: var(--hms-primary);
+  box-shadow: 0 0 0 3px var(--hms-primary-light);
 }
-
 
 /* =====================================================
    CLEAR BUTTON
@@ -289,39 +274,33 @@
 
 .clear-button {
   height: 42px;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   gap: 6px;
-
   padding: 0 13px;
-
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-
-  background: #ffffff;
-
-  color: #475569;
-
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius);
+  background: var(--hms-surface);
+  color: var(--hms-text-secondary);
   font-size: 13px;
   font-weight: 500;
-
   cursor: pointer;
-
-  transition: all 0.2s ease;
+  transition:
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition);
 }
 
 .clear-button:hover {
-  background: #f8fafc;
-  border-color: #94a3b8;
+  background: var(--hms-surface-secondary);
+  border-color: var(--hms-text-muted);
+  color: var(--hms-text);
 }
 
 .clear-button .material-symbols-outlined {
   font-size: 18px;
 }
-
 
 /* =====================================================
    TABLE WRAPPER
@@ -330,8 +309,8 @@
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
+  background: var(--hms-surface);
 }
-
 
 /* =====================================================
    TABLE
@@ -340,57 +319,47 @@
 table {
   width: 100%;
   border-collapse: collapse;
-
   min-width: 950px;
+  background: var(--hms-surface);
+  color: var(--hms-text);
 }
 
 thead {
-  background: #f8fafc;
+  background: var(--hms-surface-secondary);
 }
 
 th {
   padding: 14px 16px;
-
   text-align: left;
-
-  color: #64748b;
-
+  color: var(--hms-text-secondary);
   font-size: 12px;
   font-weight: 700;
-
   text-transform: uppercase;
-
   letter-spacing: 0.03em;
-
   white-space: nowrap;
-
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--hms-border);
 }
 
 td {
   padding: 15px 16px;
-
-  color: #374151;
-
+  color: var(--hms-text);
   font-size: 14px;
-
-  border-bottom: 1px solid #f1f5f9;
-
+  border-bottom: 1px solid var(--hms-border);
   vertical-align: middle;
 }
 
 tbody tr {
-  transition: background 0.15s ease;
+  transition:
+    background-color 0.15s ease;
 }
 
 tbody tr:hover {
-  background: #f8fafc;
+  background: var(--hms-surface-secondary);
 }
 
 tbody tr:last-child td {
   border-bottom: none;
 }
-
 
 /* =====================================================
    DEPARTMENT CELL
@@ -400,24 +369,19 @@ tbody tr:last-child td {
   display: flex;
   align-items: center;
   gap: 12px;
-
   min-width: 220px;
 }
 
 .department-icon {
   width: 42px;
   height: 42px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   flex-shrink: 0;
-
   border-radius: 10px;
-
-  background: #e0f2fe;
-  color: #0284c7;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .department-icon .material-symbols-outlined {
@@ -431,16 +395,15 @@ tbody tr:last-child td {
 }
 
 .department-cell strong {
-  color: #172033;
+  color: var(--hms-text);
   font-size: 14px;
   font-weight: 600;
 }
 
 .department-cell span {
-  color: #64748b;
+  color: var(--hms-text-secondary);
   font-size: 12px;
 }
-
 
 /* =====================================================
    DEPARTMENT CODE
@@ -448,21 +411,15 @@ tbody tr:last-child td {
 
 .department-code {
   display: inline-flex;
-
   padding: 5px 9px;
-
-  border-radius: 6px;
-
-  background: #f1f5f9;
-
-  color: #475569;
-
+  border-radius: var(--hms-radius-sm);
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text-secondary);
   font-family: monospace;
-
   font-size: 12px;
   font-weight: 600;
+  border: 1px solid var(--hms-border);
 }
-
 
 /* =====================================================
    DESCRIPTION
@@ -470,12 +427,9 @@ tbody tr:last-child td {
 
 .description-cell {
   max-width: 250px;
-
-  color: #64748b;
-
+  color: var(--hms-text-secondary);
   line-height: 1.5;
 }
-
 
 /* =====================================================
    HEAD OF DEPARTMENT
@@ -485,15 +439,13 @@ tbody tr:last-child td {
   display: flex;
   align-items: center;
   gap: 8px;
-
   white-space: nowrap;
 }
 
 .head-cell .material-symbols-outlined {
-  color: #64748b;
+  color: var(--hms-text-secondary);
   font-size: 19px;
 }
-
 
 /* =====================================================
    LOCATION
@@ -503,15 +455,13 @@ tbody tr:last-child td {
   display: flex;
   align-items: center;
   gap: 6px;
-
   white-space: nowrap;
 }
 
 .location-cell .material-symbols-outlined {
-  color: #64748b;
+  color: var(--hms-text-secondary);
   font-size: 18px;
 }
-
 
 /* =====================================================
    STATUS
@@ -520,25 +470,21 @@ tbody tr:last-child td {
 .status {
   display: inline-flex;
   align-items: center;
-
   padding: 5px 10px;
-
   border-radius: 20px;
-
   font-size: 12px;
   font-weight: 600;
 }
 
 .status.active {
-  background: #dcfce7;
-  color: #15803d;
+  background: var(--hms-success-light);
+  color: var(--hms-success);
 }
 
 .status.inactive {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--hms-danger-light);
+  color: var(--hms-danger);
 }
-
 
 /* =====================================================
    ACTION BUTTONS
@@ -553,74 +499,65 @@ tbody tr:last-child td {
 .action-button {
   width: 34px;
   height: 34px;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--hms-border);
   border-radius: 7px;
-
-  background: #ffffff;
-
-  color: #64748b;
-
+  background: var(--hms-surface);
+  color: var(--hms-text-secondary);
   cursor: pointer;
-
-  transition: all 0.2s ease;
+  transition:
+    background-color var(--hms-transition),
+    color var(--hms-transition),
+    border-color var(--hms-transition);
 }
 
 .action-button:hover {
-  background: #f1f5f9;
-  color: #0284c7;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
+  border-color: var(--hms-primary);
+}
 
-  border-color: #bae6fd;
+.action-button:focus-visible {
+  outline: 2px solid var(--hms-primary);
+  outline-offset: 2px;
 }
 
 .action-button .material-symbols-outlined {
   font-size: 18px;
 }
 
-
 /* =====================================================
    DANGER ACTION
    ===================================================== */
 
 .danger-action:hover {
-  color: #d97706;
-
-  background: #fffbeb;
-
-  border-color: #fde68a;
+  color: var(--hms-warning);
+  background: var(--hms-warning-light);
+  border-color: var(--hms-warning);
 }
 
 .danger-action:disabled {
   opacity: 0.45;
-
   cursor: not-allowed;
-
-  background: #f8fafc;
+  background: var(--hms-surface-secondary);
 }
 
 .danger-action:disabled:hover {
-  color: #64748b;
-
-  border-color: #e2e8f0;
+  color: var(--hms-text-secondary);
+  border-color: var(--hms-border);
 }
-
 
 /* =====================================================
    DELETE ACTION
    ===================================================== */
 
 .delete-action:hover {
-  color: #dc2626;
-
-  background: #fef2f2;
-
-  border-color: #fecaca;
+  color: var(--hms-danger);
+  background: var(--hms-danger-light);
+  border-color: var(--hms-danger);
 }
-
 
 /* =====================================================
    EMPTY STATE
@@ -628,17 +565,13 @@ tbody tr:last-child td {
 
 .empty-cell {
   padding: 60px 20px !important;
-
   text-align: center;
 }
 
 .empty-state {
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
-
   justify-content: center;
 }
 
@@ -646,45 +579,33 @@ tbody tr:last-child td {
   display: flex;
   align-items: center;
   justify-content: center;
-
   width: 64px;
   height: 64px;
-
   margin-bottom: 14px;
-
   border-radius: 50%;
-
-  background: #f1f5f9;
-
-  color: #94a3b8;
-
+  background: var(--hms-surface-secondary);
+  color: var(--hms-text-muted);
   font-size: 30px;
 }
 
 .empty-state h3 {
   margin: 0 0 6px;
-
-  color: #334155;
-
+  color: var(--hms-text);
   font-size: 17px;
   font-weight: 600;
 }
 
 .empty-state p {
   margin: 0;
-
-  color: #94a3b8;
-
+  color: var(--hms-text-muted);
   font-size: 13px;
 }
-
 
 /* =====================================================
    TABLET
    ===================================================== */
 
 @media (max-width: 1100px) {
-
   .department-stats {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -705,26 +626,20 @@ tbody tr:last-child td {
   .filters select {
     flex: 1;
   }
-
 }
-
 
 /* =====================================================
    MOBILE
    ===================================================== */
 
 @media (max-width: 700px) {
-
   .departments-page {
     padding: 16px;
   }
 
-
   .page-header {
     align-items: flex-start;
-
     flex-direction: column;
-
     gap: 15px;
   }
 
@@ -736,65 +651,50 @@ tbody tr:last-child td {
     width: 100%;
   }
 
-
   .department-stats {
     grid-template-columns: 1fr;
-
     gap: 12px;
   }
-
 
   .mini-stat {
     padding: 15px;
   }
 
-
   .table-toolbar {
     padding: 14px;
   }
 
-
   .filters {
     display: grid;
-
     grid-template-columns: 1fr 1fr;
-
     gap: 8px;
   }
 
   .filters select {
     min-width: 0;
-
     width: 100%;
   }
 
   .clear-button {
     width: 100%;
-
     grid-column: 1 / -1;
   }
-
 
   .departments-card {
     border-radius: 10px;
   }
 
-
   .table-wrapper {
     overflow-x: auto;
-
     -webkit-overflow-scrolling: touch;
   }
-
 }
-
 
 /* =====================================================
    SMALL MOBILE
    ===================================================== */
 
 @media (max-width: 450px) {
-
   .departments-page {
     padding: 12px;
   }
@@ -823,5 +723,4 @@ tbody tr:last-child td {
   .clear-button {
     grid-column: auto;
   }
-
 }

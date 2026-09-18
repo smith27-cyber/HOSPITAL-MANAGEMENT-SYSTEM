@@ -1,3 +1,12 @@
+/* =====================================================
+   ADMISSION DETAILS PAGE
+   ===================================================== */
+
+:host {
+  display: block;
+  width: 100%;
+}
+
 .admission-details-page {
   max-width: 1200px;
   margin: 0 auto;
@@ -12,24 +21,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   margin-bottom: 24px;
 }
 
 .page-header h1 {
   margin: 0;
-
-  color: #111827;
-
+  color: var(--hms-text);
   font-size: 26px;
   font-weight: 700;
 }
 
 .page-header p {
   margin: 5px 0 0;
-
-  color: #6b7280;
-
+  color: var(--hms-text-secondary);
   font-size: 14px;
 }
 
@@ -40,13 +44,11 @@
 
 .summary-card,
 .details-card {
-  background: #ffffff;
-
-  border: 1px solid #e5e7eb;
-
-  border-radius: 12px;
-
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
   margin-bottom: 20px;
+  box-shadow: var(--hms-shadow);
 }
 
 
@@ -61,25 +63,19 @@
 .patient-summary {
   display: flex;
   align-items: center;
-
   gap: 16px;
 }
 
 .patient-icon {
   width: 58px;
   height: 58px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   flex-shrink: 0;
-
-  border-radius: 12px;
-
-  background: #f0fdfa;
-
-  color: #0f766e;
+  border-radius: var(--hms-radius-lg);
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .patient-icon .material-symbols-outlined {
@@ -88,29 +84,23 @@
 
 .patient-summary-info {
   min-width: 0;
-
   flex: 1;
 }
 
 .patient-summary-info h2 {
   margin: 0;
-
-  color: #111827;
-
+  color: var(--hms-text);
   font-size: 21px;
 }
 
 .patient-summary-info p {
   margin: 4px 0;
-
-  color: #6b7280;
-
+  color: var(--hms-text-secondary);
   font-size: 13px;
 }
 
 .patient-summary-info span {
-  color: #9ca3af;
-
+  color: var(--hms-text-muted);
   font-size: 11px;
 }
 
@@ -125,25 +115,19 @@
 
 .card-header {
   padding: 18px 20px;
-
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--hms-border);
 }
 
 .card-header h3 {
   margin: 0;
-
-  color: #111827;
-
+  color: var(--hms-text);
   font-size: 16px;
 }
 
 .card-header span {
   display: block;
-
   margin-top: 4px;
-
-  color: #9ca3af;
-
+  color: var(--hms-text-muted);
   font-size: 12px;
 }
 
@@ -154,42 +138,32 @@
 
 .details-grid {
   display: grid;
-
   grid-template-columns: repeat(3, 1fr);
-
   gap: 0;
-
   padding: 6px 20px 20px;
 }
 
 .detail-item {
   padding: 16px 10px;
-
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--hms-border);
 }
 
 .detail-label {
   display: block;
-
   margin-bottom: 6px;
-
-  color: #9ca3af;
-
+  color: var(--hms-text-muted);
   font-size: 11px;
 }
 
 .detail-item strong {
   display: block;
-
-  color: #374151;
-
+  color: var(--hms-text-secondary);
   font-size: 13px;
-
   word-break: break-word;
 }
 
 .discharged-text {
-  color: #15803d !important;
+  color: var(--hms-success) !important;
 }
 
 
@@ -203,8 +177,7 @@
 
 .clinical-item {
   padding: 16px 0;
-
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--hms-border);
 }
 
 .clinical-item:first-child {
@@ -213,25 +186,19 @@
 
 .clinical-item:last-child {
   padding-bottom: 0;
-
   border-bottom: none;
 }
 
 .clinical-item p {
   margin: 0;
-
-  color: #4b5563;
-
+  color: var(--hms-text-secondary);
   font-size: 13px;
-
   line-height: 1.7;
-
   white-space: pre-line;
 }
 
 .not-available {
-  color: #9ca3af !important;
-
+  color: var(--hms-text-muted) !important;
   font-style: italic;
 }
 
@@ -242,38 +209,30 @@
 
 .status {
   display: inline-block;
-
   padding: 6px 10px;
-
   border-radius: 20px;
-
   font-size: 10px;
-
   font-weight: 600;
 }
 
 .status.admitted {
-  background: #dcfce7;
-
-  color: #15803d;
+  background: var(--hms-success-light);
+  color: var(--hms-success);
 }
 
 .status.discharged {
-  background: #dbeafe;
-
-  color: #1d4ed8;
+  background: var(--hms-info-light);
+  color: var(--hms-info);
 }
 
 .status.transferred {
-  background: #fef3c7;
-
-  color: #b45309;
+  background: var(--hms-warning-light);
+  color: var(--hms-warning);
 }
 
 .status.cancelled {
-  background: #fee2e2;
-
-  color: #b91c1c;
+  background: var(--hms-danger-light);
+  color: var(--hms-danger);
 }
 
 
@@ -287,42 +246,28 @@
 
 .status-actions {
   display: grid;
-
   grid-template-columns: repeat(4, 1fr);
-
   gap: 12px;
-
   padding: 20px;
 }
 
 .status-button {
   min-height: 44px;
-
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
-
   gap: 7px;
-
   padding: 0 14px;
-
-  border-radius: 8px;
-
-  background: #ffffff;
-
+  border-radius: var(--hms-radius);
+  background: var(--hms-surface);
   font-family: inherit;
-
   font-size: 12px;
-
   font-weight: 600;
-
   cursor: pointer;
-
   transition:
-    background 0.15s ease,
-    border-color 0.15s ease,
-    transform 0.15s ease;
+    background var(--hms-transition),
+    border-color var(--hms-transition),
+    transform var(--hms-transition);
 }
 
 .status-button:hover {
@@ -334,67 +279,67 @@
 }
 
 
-/* ADMITTED */
+/* =====================================================
+   ADMITTED
+   ===================================================== */
 
 .admitted-button {
-  border: 1px solid #bbf7d0;
-
-  color: #15803d;
+  border: 1px solid var(--hms-success-light);
+  color: var(--hms-success);
 }
 
 .admitted-button:hover,
 .admitted-button.current {
-  background: #dcfce7;
-
-  border-color: #86efac;
+  background: var(--hms-success-light);
+  border-color: var(--hms-success);
 }
 
 
-/* DISCHARGED */
+/* =====================================================
+   DISCHARGED
+   ===================================================== */
 
 .discharged-button {
-  border: 1px solid #bfdbfe;
-
-  color: #1d4ed8;
+  border: 1px solid var(--hms-info-light);
+  color: var(--hms-info);
 }
 
 .discharged-button:hover,
 .discharged-button.current {
-  background: #dbeafe;
-
-  border-color: #93c5fd;
+  background: var(--hms-info-light);
+  border-color: var(--hms-info);
 }
 
 
-/* TRANSFERRED */
+/* =====================================================
+   TRANSFERRED
+   ===================================================== */
 
 .transferred-button {
-  border: 1px solid #fde68a;
-
-  color: #b45309;
+  border: 1px solid var(--hms-warning-light);
+  color: var(--hms-warning);
 }
 
 .transferred-button:hover,
 .transferred-button.current {
-  background: #fef3c7;
-
-  border-color: #fcd34d;
+  background: var(--hms-warning-light);
+  border-color: var(--hms-warning);
 }
 
 
-/* CANCELLED */
+/* =====================================================
+   CANCELLED
+   ===================================================== */
 
 .cancelled-button {
-  border: 1px solid #fecaca;
-
-  color: #dc2626;
+  border: 1px solid var(--hms-danger-light);
+  color: var(--hms-danger);
 }
 
 .cancelled-button:hover,
 .cancelled-button.current {
-  background: #fee2e2;
-
-  border-color: #fca5a5;
+  background: var(--hms-danger-light);
+  border-color: var(--hms-danger);
 }
 
 
@@ -404,19 +349,14 @@
 
 .page-actions {
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   padding-bottom: 24px;
 }
 
 .right-actions {
   display: flex;
-
   align-items: center;
-
   gap: 10px;
 }
 
@@ -429,62 +369,54 @@
 .secondary-button,
 .danger-button {
   display: inline-flex;
-
   align-items: center;
-
   justify-content: center;
-
   gap: 7px;
-
   min-height: 40px;
-
   padding: 0 16px;
-
-  border-radius: 7px;
-
+  border-radius: var(--hms-radius-sm);
   font-family: inherit;
-
   font-size: 12px;
-
   font-weight: 600;
-
   cursor: pointer;
+  transition:
+    background var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition),
+    box-shadow var(--hms-transition);
 }
 
 .primary-button {
-  border: 1px solid #0f766e;
-
-  background: #0f766e;
-
+  border: 1px solid var(--hms-primary);
+  background: var(--hms-primary);
   color: #ffffff;
 }
 
 .primary-button:hover {
-  background: #115e59;
+  background: var(--hms-primary-hover);
+  border-color: var(--hms-primary-hover);
 }
 
 .secondary-button {
-  border: 1px solid #d1d5db;
-
-  background: #ffffff;
-
-  color: #374151;
+  border: 1px solid var(--hms-border);
+  background: var(--hms-surface);
+  color: var(--hms-text-secondary);
 }
 
 .secondary-button:hover {
-  background: #f9fafb;
+  background: var(--hms-surface-secondary);
+  border-color: var(--hms-primary);
+  color: var(--hms-primary);
 }
 
 .danger-button {
-  border: 1px solid #fecaca;
-
-  background: #ffffff;
-
-  color: #dc2626;
+  border: 1px solid var(--hms-danger-light);
+  background: var(--hms-surface);
+  color: var(--hms-danger);
 }
 
 .danger-button:hover {
-  background: #fef2f2;
+  background: var(--hms-danger-light);
 }
 
 .primary-button .material-symbols-outlined,
@@ -500,42 +432,28 @@
 
 .empty-card {
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
-
   justify-content: center;
-
   min-height: 400px;
-
   padding: 40px;
-
-  background: #ffffff;
-
-  border: 1px solid #e5e7eb;
-
-  border-radius: 12px;
-
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-lg);
   text-align: center;
+  box-shadow: var(--hms-shadow);
 }
 
 .empty-icon {
   width: 64px;
   height: 64px;
-
   display: flex;
-
   align-items: center;
   justify-content: center;
-
   margin-bottom: 16px;
-
   border-radius: 50%;
-
-  background: #f0fdfa;
-
-  color: #0f766e;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
 }
 
 .empty-icon .material-symbols-outlined {
@@ -544,21 +462,15 @@
 
 .empty-card h3 {
   margin: 0;
-
-  color: #111827;
-
+  color: var(--hms-text);
   font-size: 18px;
 }
 
 .empty-card p {
   margin: 8px 0 20px;
-
   max-width: 420px;
-
-  color: #6b7280;
-
+  color: var(--hms-text-secondary);
   font-size: 13px;
-
   line-height: 1.6;
 }
 
@@ -568,7 +480,6 @@
    ===================================================== */
 
 @media (max-width: 900px) {
-
   .details-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -576,17 +487,12 @@
   .status-actions {
     grid-template-columns: repeat(2, 1fr);
   }
-
 }
 
-
 @media (max-width: 600px) {
-
   .page-header {
     align-items: flex-start;
-
     flex-direction: column;
-
     gap: 14px;
   }
 
@@ -596,13 +502,11 @@
 
   .patient-summary {
     align-items: flex-start;
-
     flex-wrap: wrap;
   }
 
   .summary-status {
     width: 100%;
-
     margin-left: 0;
   }
 
@@ -616,15 +520,12 @@
 
   .page-actions {
     flex-direction: column;
-
     align-items: stretch;
-
     gap: 10px;
   }
 
   .right-actions {
     flex-direction: column;
-
     width: 100%;
   }
 
@@ -635,5 +536,4 @@
   .right-actions button {
     width: 100%;
   }
-
 }

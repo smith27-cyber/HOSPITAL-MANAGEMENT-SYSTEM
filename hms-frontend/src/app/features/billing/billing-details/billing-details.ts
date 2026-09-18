@@ -1,4 +1,3 @@
-
 import {
   ChangeDetectorRef,
   Component,
@@ -29,6 +28,11 @@ import {
 import {
   BillingService
 } from '../../../core/services/billing.service';
+
+import {
+  ReceiptResponse,
+  ReceiptService
+} from '../../../core/services/receipt.service';
 
 
 @Component({
@@ -91,6 +95,21 @@ export class BillingDetails
 
 
   // =====================================================
+  // RECEIPT
+  // =====================================================
+
+  latestReceipt:
+    ReceiptResponse | null =
+      null;
+
+  isLoadingReceipt =
+    false;
+
+  receiptMessage =
+    '';
+
+
+  // =====================================================
   // PAYMENT METHODS
   // =====================================================
 
@@ -120,6 +139,9 @@ export class BillingDetails
 
     private readonly billingService:
       BillingService,
+
+    private readonly receiptService:
+      ReceiptService,
 
     private readonly route:
       ActivatedRoute,
@@ -235,6 +257,9 @@ export class BillingDetails
 
     this.bill =
       undefined;
+
+    this.latestReceipt =
+      null;
 
 
     // ---------------------------------------------------
@@ -586,12 +611,22 @@ export class BillingDetails
         return 'Consultation';
 
 
+      case 'LAB':
+
       case 'LABORATORY':
+
+      case 'LABORATORY_TEST':
+
+      case 'LAB_TEST':
 
         return 'Laboratory';
 
 
       case 'PHARMACY':
+
+      case 'MEDICINE':
+
+      case 'MEDICATION':
 
         return 'Pharmacy';
 
@@ -636,7 +671,9 @@ export class BillingDetails
 
 
     const billId =
-      this.bill.id;
+      Number(
+        this.bill.id
+      );
 
 
     this.isLoading =
@@ -1025,7 +1062,9 @@ export class BillingDetails
 
     this.billingService
       .deleteBill(
-        this.bill.id
+        Number(
+          this.bill.id
+        )
       )
       .subscribe({
 
@@ -1179,14 +1218,26 @@ export class BillingDetails
     this.isProcessingPayment =
       true;
 
+    this.receiptMessage =
+      '';
+
+    this.latestReceipt =
+      null;
+
 
     this.changeDetectorRef.detectChanges();
 
 
+    // ===================================================
+    // RECORD PAYMENT
+    // ===================================================
+
     this.billingService
       .recordPayment(
 
-        this.bill.id,
+        Number(
+          this.bill.id
+        ),
 
         this.paymentAmount,
 
@@ -1195,11 +1246,21 @@ export class BillingDetails
       )
       .subscribe({
 
+        // =================================================
+        // PAYMENT SUCCESS
+        // =================================================
+
         next:
           (
             updatedBill:
               Bill
           ) => {
+
+            console.log(
+              'Payment recorded successfully:',
+              updatedBill
+            );
+
 
             this.bill =
               this.normalizeBill(
@@ -1223,25 +1284,22 @@ export class BillingDetails
             this.changeDetectorRef.detectChanges();
 
 
-            if (
-              this.bill.status ===
-              'Paid'
-            ) {
+            // ---------------------------------------------
+            // LOAD THE RECEIPT CREATED BY THE PAYMENT
+            // ---------------------------------------------
 
-              alert(
-                'Payment recorded successfully. The invoice is now fully paid.'
-              );
-
-            } else {
-
-              alert(
-                'Payment recorded successfully.'
-              );
-
-            }
+            this.loadLatestReceipt(
+              Number(
+                this.bill.id
+              )
+            );
 
           },
 
+
+        // =================================================
+        // PAYMENT ERROR
+        // =================================================
 
         error:
           (
@@ -1272,6 +1330,216 @@ export class BillingDetails
           }
 
       });
+
+  }
+
+
+  // =====================================================
+  // LOAD LATEST RECEIPT
+  // =====================================================
+
+  private loadLatestReceipt(
+    billingId:
+      number
+  ): void {
+
+    this.isLoadingReceipt =
+      true;
+
+    this.receiptMessage =
+      'Loading receipt...';
+
+
+    this.changeDetectorRef.detectChanges();
+
+
+    this.receiptService
+      .getReceiptsByBillingId(
+        billingId
+      )
+      .subscribe({
+
+        next:
+          (
+            receipts:
+              ReceiptResponse[]
+          ) => {
+
+            this.isLoadingReceipt =
+              false;
+
+
+            if (
+              !Array.isArray(
+                receipts
+              ) ||
+              receipts.length ===
+                0
+            ) {
+
+              this.latestReceipt =
+                null;
+
+              this.receiptMessage =
+                'Payment was recorded, but the receipt could not be loaded.';
+
+              this.changeDetectorRef.detectChanges();
+
+
+              alert(
+                'Payment recorded successfully, but the receipt could not be loaded.'
+              );
+
+              return;
+
+            }
+
+
+            // ------------------------------------------------
+            // Backend returns receipts newest first.
+            // ------------------------------------------------
+
+            this.latestReceipt =
+              receipts[0];
+
+
+            this.receiptMessage =
+              `Receipt ${this.latestReceipt.receiptNumber} generated successfully.`;
+
+
+            this.changeDetectorRef.detectChanges();
+
+
+            console.log(
+              'Latest receipt loaded:',
+              this.latestReceipt
+            );
+
+
+            alert(
+              `Payment recorded successfully.\n\nReceipt: ${this.latestReceipt.receiptNumber}`
+            );
+
+          },
+
+
+        error:
+          (
+            error:
+              unknown
+          ) => {
+
+            console.error(
+              'Failed to load payment receipt:',
+              error
+            );
+
+
+            this.isLoadingReceipt =
+              false;
+
+            this.latestReceipt =
+              null;
+
+            this.receiptMessage =
+              'Payment was recorded successfully, but the receipt could not be loaded.';
+
+
+            this.changeDetectorRef.detectChanges();
+
+
+            alert(
+              'Payment recorded successfully, but the receipt could not be loaded.'
+            );
+
+          }
+
+      });
+
+  }
+
+
+  // =====================================================
+  // OPEN RECEIPTS PAGE
+  // =====================================================
+
+  openReceipts(): void {
+
+    this.router.navigate([
+      '/billing',
+      'receipts'
+    ]);
+
+  }
+
+
+  // =====================================================
+  // OPEN LATEST RECEIPT
+  // =====================================================
+
+  openLatestReceipt(): void {
+
+    if (
+      !this.latestReceipt
+    ) {
+
+      this.openReceipts();
+
+      return;
+
+    }
+
+
+    this.router.navigate(
+      [
+        '/billing',
+        'receipts'
+      ],
+      {
+        queryParams: {
+          receiptNumber:
+            this.latestReceipt.receiptNumber
+        }
+      }
+    );
+
+  }
+
+
+  // =====================================================
+  // PRINT LATEST RECEIPT
+  // =====================================================
+
+  printLatestReceipt(): void {
+
+    if (
+      !this.latestReceipt
+    ) {
+
+      alert(
+        'No receipt is available to print.'
+      );
+
+      return;
+
+    }
+
+
+    this.router.navigate(
+      [
+        '/billing',
+        'receipts'
+      ],
+      {
+        queryParams: {
+          receiptNumber:
+            this.latestReceipt.receiptNumber,
+
+          print:
+            'true'
+        }
+      }
+    );
 
   }
 
@@ -1731,19 +1999,17 @@ export class BillingDetails
 
   }
 
- 
-// =====================================================
-// BACK TO BILLING
-// =====================================================
 
-backToBilling(): void {
+  // =====================================================
+  // BACK TO BILLING
+  // =====================================================
 
-  this.router.navigate([
-    '/billing'
-  ]);
+  backToBilling(): void {
+
+    this.router.navigate([
+      '/billing'
+    ]);
+
+  }
 
 }
-
-
-}
-

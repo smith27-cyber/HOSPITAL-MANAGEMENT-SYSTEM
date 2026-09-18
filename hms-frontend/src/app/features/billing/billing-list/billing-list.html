@@ -1,465 +1,398 @@
 <div class="billing-list-page">
 
   <!-- ===================================================== -->
-
   <!-- PAGE HEADER -->
-
   <!-- ===================================================== -->
 
   <div class="page-header">
 
+    <div class="page-title">
 
-<div class="page-title">
+      <div class="title-icon">
 
-  <div class="title-icon">
+        <span class="material-symbols-outlined">
+          receipt_long
+        </span>
 
-    <span class="material-symbols-outlined">
-      receipt_long
-    </span>
+      </div>
+
+
+      <div>
+
+        <h1>
+          Billing
+        </h1>
+
+        <p>
+          Manage patient invoices, payments and outstanding balances
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div class="header-actions">
+
+      <!-- REFRESH -->
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="loadBills()"
+      >
+
+        <span class="material-symbols-outlined">
+          refresh
+        </span>
+
+        Refresh
+
+      </button>
+
+
+      <!-- NEW BILL -->
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="registerBill()"
+      >
+
+        <span class="material-symbols-outlined">
+          add
+        </span>
+
+        New Bill
+
+      </button>
+
+
+      <!-- RECEIPTS -->
+
+      <button
+        type="button"
+        class="receipts-button"
+        (click)="viewReceipts()"
+      >
+
+        <span class="material-symbols-outlined">
+          receipt
+        </span>
+
+        Receipts
+
+      </button>
+
+    </div>
 
   </div>
 
-
-  <div>
-
-    <h1>
-      Billing
-    </h1>
-
-    <p>
-      Manage patient invoices, payments and outstanding balances
-    </p>
-
-  </div>
-
-</div>
-
-
-<div class="header-actions">
-
-  <button
-    type="button"
-    class="secondary-button"
-    (click)="loadBills()"
-  >
-
-    <span class="material-symbols-outlined">
-      refresh
-    </span>
-
-    Refresh
-
-  </button>
-
-
-  <button
-    type="button"
-    class="primary-button"
-    (click)="registerBill()"
-  >
-
-    <span class="material-symbols-outlined">
-      add
-    </span>
-
-    New Bill
-
-  </button>
-
-</div>
-
-
-  </div>
 
   <!-- ===================================================== -->
-
   <!-- STATISTICS -->
-
   <!-- ===================================================== -->
 
   <div class="stats-grid">
 
-<!-- tOTAL BILLS -->
+    <!-- TOTAL BILLS -->
 
-<div class="stat-card">
+    <div class="stat-card">
 
-  <div class="stat-icon total">
+      <div class="stat-icon total">
 
-    <span class="material-symbols-outlined">
-      receipt_long
-    </span>
+        <span class="material-symbols-outlined">
+          receipt_long
+        </span>
+
+      </div>
+
+
+      <div class="stat-content">
+
+        <span>
+          Total Bills
+        </span>
+
+        <strong>
+          {{ totalBills }}
+        </strong>
+
+        <small>
+          All billing records
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <!-- TOTAL AMOUNT -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon amount">
+
+        <span class="material-symbols-outlined">
+          payments
+        </span>
+
+      </div>
+
+
+      <div class="stat-content">
+
+        <span>
+          Total Amount
+        </span>
+
+        <strong>
+          {{ formatCurrency(totalAmount) }}
+        </strong>
+
+        <small>
+          Total billed
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <!-- TOTAL PAID -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon paid">
+
+        <span class="material-symbols-outlined">
+          check_circle
+        </span>
+
+      </div>
+
+
+      <div class="stat-content">
+
+        <span>
+          Total Paid
+        </span>
+
+        <strong>
+          {{ formatCurrency(totalPaid) }}
+        </strong>
+
+        <small>
+          Payments received
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <!-- TOTAL BALANCE -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon balance">
+
+        <span class="material-symbols-outlined">
+          account_balance_wallet
+        </span>
+
+      </div>
+
+
+      <div class="stat-content">
+
+        <span>
+          Outstanding
+        </span>
+
+        <strong>
+          {{ formatCurrency(totalBalance) }}
+        </strong>
+
+        <small>
+          Remaining balance
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <!-- PENDING -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon pending">
+
+        <span class="material-symbols-outlined">
+          pending_actions
+        </span>
+
+      </div>
+
+
+      <div class="stat-content">
+
+        <span>
+          Pending
+        </span>
+
+        <strong>
+          {{ pendingBills }}
+        </strong>
+
+        <small>
+          Awaiting payment
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <!-- PHARMACY -->
+
+    <div class="stat-card">
+
+      <div class="stat-icon pharmacy">
+
+        <span class="material-symbols-outlined">
+          local_pharmacy
+        </span>
+
+      </div>
+
+
+      <div class="stat-content">
+
+        <span>
+          Pharmacy
+        </span>
+
+        <strong>
+          {{ pharmacyBills }}
+        </strong>
+
+        <small>
+          Invoices containing pharmacy items
+        </small>
+
+      </div>
+
+    </div>
 
   </div>
 
-
-  <div class="stat-content">
-
-    <span>
-      Total Bills
-    </span>
-
-    <strong>
-      {{ totalBills }}
-    </strong>
-
-    <small>
-      All billing records
-    </small>
-
-  </div>
-
-</div>
-
-
-<!-- TOTAL AMOUNT -->
-
-<div class="stat-card">
-
-  <div class="stat-icon amount">
-
-    <span class="material-symbols-outlined">
-      payments
-    </span>
-
-  </div>
-
-
-  <div class="stat-content">
-
-    <span>
-      Total Amount
-    </span>
-
-    <strong>
-      {{ formatCurrency(totalAmount) }}
-    </strong>
-
-    <small>
-      Total billed
-    </small>
-
-  </div>
-
-</div>
-
-
-<!-- TOTAL PAID -->
-
-<div class="stat-card">
-
-  <div class="stat-icon paid">
-
-    <span class="material-symbols-outlined">
-      check_circle
-    </span>
-
-  </div>
-
-
-  <div class="stat-content">
-
-    <span>
-      Total Paid
-    </span>
-
-    <strong>
-      {{ formatCurrency(totalPaid) }}
-    </strong>
-
-    <small>
-      Payments received
-    </small>
-
-  </div>
-
-</div>
-
-
-<!-- TOTAL BALANCE -->
-
-<div class="stat-card">
-
-  <div class="stat-icon balance">
-
-    <span class="material-symbols-outlined">
-      account_balance_wallet
-    </span>
-
-  </div>
-
-
-  <div class="stat-content">
-
-    <span>
-      Outstanding
-    </span>
-
-    <strong>
-      {{ formatCurrency(totalBalance) }}
-    </strong>
-
-    <small>
-      Remaining balance
-    </small>
-
-  </div>
-
-</div>
-
-
-<!-- PENDING -->
-
-<div class="stat-card">
-
-  <div class="stat-icon pending">
-
-    <span class="material-symbols-outlined">
-      pending_actions
-    </span>
-
-  </div>
-
-
-  <div class="stat-content">
-
-    <span>
-      Pending
-    </span>
-
-    <strong>
-      {{ pendingBills }}
-    </strong>
-
-    <small>
-      Awaiting payment
-    </small>
-
-  </div>
-
-</div>
-
-
-<!-- PHARMACY -->
-
-<div class="stat-card">
-
-  <div class="stat-icon pharmacy">
-
-    <span class="material-symbols-outlined">
-      local_pharmacy
-    </span>
-
-  </div>
-
-
-  <div class="stat-content">
-
-    <span>
-      Pharmacy
-    </span>
-
-    <strong>
-      {{ pharmacyBills }}
-    </strong>
-
-    <small>
-      Invoices containing pharmacy items
-    </small>
-
-  </div>
-
-</div>
-
-
-  </div>
 
   <!-- ===================================================== -->
-
   <!-- FILTERS -->
-
   <!-- ===================================================== -->
 
   <section class="filter-card">
 
+    <!-- SEARCH -->
 
-<!-- SEARCH -->
-
-<div class="search-box">
-
-  <span class="material-symbols-outlined">
-    search
-  </span>
-
-  <input
-    type="text"
-    name="searchTerm"
-    [(ngModel)]="searchTerm"
-    (ngModelChange)="applyFilters()"
-    placeholder="Search patient, invoice, doctor, service..."
-  />
-
-</div>
-
-
-<!-- STATUS -->
-
-<div class="filter-control">
-
-  <label>
-    Status
-  </label>
-
-  <select
-    name="selectedStatus"
-    [(ngModel)]="selectedStatus"
-    (ngModelChange)="applyFilters()"
-  >
-
-    <option value="All">
-      All Statuses
-    </option>
-
-
-    @for (
-      status of statuses;
-      track status
-    ) {
-
-      <option
-        [value]="status"
-      >
-
-        {{ status }}
-
-      </option>
-
-    }
-
-  </select>
-
-</div>
-
-
-<!-- BILLING TYPE -->
-
-<div class="filter-control">
-
-  <label>
-    Billing Type
-  </label>
-
-  <select
-    name="selectedBillingType"
-    [(ngModel)]="selectedBillingType"
-    (ngModelChange)="applyFilters()"
-  >
-
-    <option value="All">
-      All Types
-    </option>
-
-
-    @for (
-      type of billingTypes;
-      track type
-    ) {
-
-      <option
-        [value]="type"
-      >
-
-        {{ type }}
-
-      </option>
-
-    }
-
-  </select>
-
-</div>
-
-
-<!-- CLEAR -->
-
-@if (
-  searchTerm ||
-  selectedStatus !== 'All' ||
-  selectedBillingType !== 'All'
-) {
-
-  <button
-    type="button"
-    class="clear-button"
-    (click)="clearFilters()"
-  >
-
-    <span class="material-symbols-outlined">
-      filter_alt_off
-    </span>
-
-    Clear
-
-  </button>
-
-}
-
-
-  </section>
-
-  <!-- ===================================================== -->
-
-  <!-- BILLING TABLE -->
-
-  <!-- ===================================================== -->
-
-  <section class="billing-card">
-
-
-<div class="section-header">
-
-  <div>
-
-    <h2>
-      Billing Records
-    </h2>
-
-    <p>
-      {{ filteredBills.length }}
-      record{{ filteredBills.length === 1 ? '' : 's' }}
-      displayed
-    </p>
-
-  </div>
-
-</div>
-
-
-<!-- =================================================== -->
-<!-- EMPTY STATE -->
-<!-- =================================================== -->
-
-@if (
-  filteredBills.length === 0
-) {
-
-  <div class="empty-state">
-
-    <div class="empty-icon">
+    <div class="search-box">
 
       <span class="material-symbols-outlined">
-        receipt_long
+        search
       </span>
+
+      <input
+        type="text"
+        name="searchTerm"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()"
+        placeholder="Search patient, invoice, doctor, service..."
+      />
 
     </div>
 
-    <h3>
-      No billing records found
-    </h3>
 
-    <p>
-      There are no billing records matching your current filters.
-    </p>
+    <!-- STATUS -->
 
+    <div class="filter-control">
+
+      <label>
+        Status
+      </label>
+
+      <select
+        name="selectedStatus"
+        [(ngModel)]="selectedStatus"
+        (ngModelChange)="applyFilters()"
+      >
+
+        <option value="All">
+          All Statuses
+        </option>
+
+
+        @for (
+          status of statuses;
+          track status
+        ) {
+
+          <option
+            [value]="status"
+          >
+
+            {{ status }}
+
+          </option>
+
+        }
+
+      </select>
+
+    </div>
+
+
+    <!-- BILLING TYPE -->
+
+    <div class="filter-control">
+
+      <label>
+        Billing Type
+      </label>
+
+      <select
+        name="selectedBillingType"
+        [(ngModel)]="selectedBillingType"
+        (ngModelChange)="applyFilters()"
+      >
+
+        <option value="All">
+          All Types
+        </option>
+
+
+        @for (
+          type of billingTypes;
+          track type
+        ) {
+
+          <option
+            [value]="type"
+          >
+
+            {{ type }}
+
+          </option>
+
+        }
+
+      </select>
+
+    </div>
+
+
+    <!-- CLEAR -->
 
     @if (
       searchTerm ||
@@ -469,159 +402,286 @@
 
       <button
         type="button"
-        class="primary-button"
+        class="clear-button"
         (click)="clearFilters()"
       >
 
-        Clear Filters
+        <span class="material-symbols-outlined">
+          filter_alt_off
+        </span>
+
+        Clear
 
       </button>
 
     }
 
-  </div>
-
-}
+  </section>
 
 
-<!-- =================================================== -->
-<!-- TABLE -->
-<!-- =================================================== -->
+  <!-- ===================================================== -->
+  <!-- BILLING TABLE -->
+  <!-- ===================================================== -->
 
-@if (
-  filteredBills.length > 0
-) {
+  <section class="billing-card">
 
-  <div class="billing-table">
+    <div class="section-header">
 
-    <!-- TABLE HEADER -->
+      <div>
 
-    <div class="table-header">
+        <h2>
+          Billing Records
+        </h2>
 
-      <span>
-        Patient
-      </span>
+        <p>
+          {{ filteredBills.length }}
+          record{{ filteredBills.length === 1 ? '' : 's' }}
+          displayed
+        </p>
 
-      <span>
-        Invoice
-      </span>
-
-      <span>
-        Services
-      </span>
-
-      <span>
-        Amount
-      </span>
-
-      <span>
-        Paid
-      </span>
-
-      <span>
-        Balance
-      </span>
-
-      <span>
-        Status
-      </span>
-
-      <span>
-        Date
-      </span>
-
-      <span>
-        Actions
-      </span>
+      </div>
 
     </div>
 
 
-    <!-- TABLE ROWS -->
+    <!-- =================================================== -->
+    <!-- EMPTY STATE -->
+    <!-- =================================================== -->
 
-    @for (
-      bill of filteredBills;
-      track bill.id
+    @if (
+      filteredBills.length === 0
     ) {
 
-      <div class="table-row">
+      <div class="empty-state">
 
-        <!-- ========================================= -->
-        <!-- PATIENT -->
-        <!-- ========================================= -->
+        <div class="empty-icon">
 
-        <div class="patient-cell">
-
-          <div class="patient-avatar">
-
-            <span class="material-symbols-outlined">
-              person
-            </span>
-
-          </div>
-
-
-          <div class="patient-info">
-
-            <strong>
-              {{ bill.patientName }}
-            </strong>
-
-            <span>
-              {{ bill.patientNumber || bill.patientId }}
-            </span>
-
-          </div>
+          <span class="material-symbols-outlined">
+            receipt_long
+          </span>
 
         </div>
 
+        <h3>
+          No billing records found
+        </h3>
 
-        <!-- ========================================= -->
-        <!-- INVOICE -->
-        <!-- ========================================= -->
+        <p>
+          There are no billing records matching your current filters.
+        </p>
 
-        <div class="table-cell">
 
-          <strong class="invoice-number">
-            {{ bill.invoiceNumber }}
-          </strong>
+        @if (
+          searchTerm ||
+          selectedStatus !== 'All' ||
+          selectedBillingType !== 'All'
+        ) {
+
+          <button
+            type="button"
+            class="primary-button"
+            (click)="clearFilters()"
+          >
+
+            Clear Filters
+
+          </button>
+
+        }
+
+      </div>
+
+    }
+
+
+    <!-- =================================================== -->
+    <!-- TABLE -->
+    <!-- =================================================== -->
+
+    @if (
+      filteredBills.length > 0
+    ) {
+
+      <div class="billing-table">
+
+        <!-- TABLE HEADER -->
+
+        <div class="table-header">
 
           <span>
-            {{ bill.id }}
+            Patient
+          </span>
+
+          <span>
+            Invoice
+          </span>
+
+          <span>
+            Services
+          </span>
+
+          <span>
+            Amount
+          </span>
+
+          <span>
+            Paid
+          </span>
+
+          <span>
+            Balance
+          </span>
+
+          <span>
+            Status
+          </span>
+
+          <span>
+            Date
+          </span>
+
+          <span>
+            Actions
           </span>
 
         </div>
 
 
-        <!-- ========================================= -->
-        <!-- SERVICES -->
-        <!-- ========================================= -->
+        <!-- TABLE ROWS -->
 
-        <div class="services-cell">
+        @for (
+          bill of filteredBills;
+          track bill.id
+        ) {
 
-          @if (
-            getBillItems(bill).length > 0
-          ) {
+          <div class="table-row">
 
-            <div class="service-list">
+            <!-- ========================================= -->
+            <!-- PATIENT -->
+            <!-- ========================================= -->
 
-              @for (
-                item of getBillItems(bill);
-                track item.id
+            <div class="patient-cell">
+
+              <div class="patient-avatar">
+
+                <span class="material-symbols-outlined">
+                  person
+                </span>
+
+              </div>
+
+
+              <div class="patient-info">
+
+                <strong>
+                  {{ bill.patientName }}
+                </strong>
+
+                <span>
+                  {{ bill.patientNumber || bill.patientId }}
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <!-- ========================================= -->
+            <!-- INVOICE -->
+            <!-- ========================================= -->
+
+            <div class="table-cell">
+
+              <strong class="invoice-number">
+                {{ bill.invoiceNumber }}
+              </strong>
+
+              <span>
+                {{ bill.id }}
+              </span>
+
+            </div>
+
+
+            <!-- ========================================= -->
+            <!-- SERVICES -->
+            <!-- ========================================= -->
+
+            <div class="services-cell">
+
+              @if (
+                getBillItems(bill).length > 0
               ) {
 
-                <div class="service-item">
+                <div class="service-list">
+
+                  @for (
+                    item of getBillItems(bill);
+                    track item.id
+                  ) {
+
+                    <div class="service-item">
+
+                      <span
+                        class="billing-type-badge"
+                        [ngClass]="
+                          getBillingTypeClass(
+                            item.billingType
+                          )
+                        "
+                      >
+
+                        {{ item.billingType }}
+
+                      </span>
+
+
+                      <div class="service-info">
+
+                        <strong>
+                          {{ item.description }}
+                        </strong>
+
+                        <span>
+                          Qty:
+                          {{ item.quantity }}
+                          ×
+                          {{ formatCurrency(item.unitPrice) }}
+                        </span>
+
+                      </div>
+
+
+                      <strong class="service-amount">
+
+                        {{ formatCurrency(item.amount) }}
+
+                      </strong>
+
+                    </div>
+
+                  }
+
+                </div>
+
+              }
+
+              @else {
+
+                <!-- LEGACY BILL -->
+
+                <div class="service-item legacy-service">
 
                   <span
                     class="billing-type-badge"
                     [ngClass]="
                       getBillingTypeClass(
-                        item.billingType
+                        bill.billingType
                       )
                     "
                   >
 
-                    {{ item.billingType }}
+                    {{ bill.billingType }}
 
                   </span>
 
@@ -629,24 +689,10 @@
                   <div class="service-info">
 
                     <strong>
-                      {{ item.description }}
+                      {{ bill.description }}
                     </strong>
 
-                    <span>
-                      Qty:
-                      {{ item.quantity }}
-                      ×
-                      {{ formatCurrency(item.unitPrice) }}
-                    </span>
-
                   </div>
-
-
-                  <strong class="service-amount">
-
-                    {{ formatCurrency(item.amount) }}
-
-                  </strong>
 
                 </div>
 
@@ -654,365 +700,325 @@
 
             </div>
 
-          }
 
-          @else {
+            <!-- ========================================= -->
+            <!-- AMOUNT -->
+            <!-- ========================================= -->
 
-            <!-- LEGACY BILL -->
+            <div class="table-cell amount-cell">
 
-            <div class="service-item legacy-service">
+              <strong>
+                {{ formatCurrency(bill.amount) }}
+              </strong>
+
+            </div>
+
+
+            <!-- ========================================= -->
+            <!-- PAID -->
+            <!-- ========================================= -->
+
+            <div class="table-cell">
+
+              <strong class="paid-text">
+                {{ formatCurrency(bill.amountPaid) }}
+              </strong>
+
+            </div>
+
+
+            <!-- ========================================= -->
+            <!-- BALANCE -->
+            <!-- ========================================= -->
+
+            <div class="table-cell">
+
+              <strong
+                [class.balance-text]="
+                  bill.balance > 0
+                "
+                [class.zero-balance]="
+                  bill.balance <= 0
+                "
+              >
+
+                {{ formatCurrency(bill.balance) }}
+
+              </strong>
+
+            </div>
+
+
+            <!-- ========================================= -->
+            <!-- STATUS -->
+            <!-- ========================================= -->
+
+            <div class="table-cell">
 
               <span
-                class="billing-type-badge"
+                class="status-badge"
                 [ngClass]="
-                  getBillingTypeClass(
-                    bill.billingType
+                  getStatusClass(
+                    bill.status
                   )
                 "
               >
 
-                {{ bill.billingType }}
+                {{ bill.status }}
 
               </span>
 
+            </div>
 
-              <div class="service-info">
 
-                <strong>
-                  {{ bill.description }}
-                </strong>
+            <!-- ========================================= -->
+            <!-- DATE -->
+            <!-- ========================================= -->
 
-              </div>
+            <div class="table-cell">
+
+              <span>
+                {{ formatDate(bill.billingDate) }}
+              </span>
 
             </div>
 
-          }
 
-        </div>
+            <!-- ========================================= -->
+            <!-- ACTIONS -->
+            <!-- ========================================= -->
 
+            <div class="actions-cell">
 
-        <!-- ========================================= -->
-        <!-- AMOUNT -->
-        <!-- ========================================= -->
+              <!-- VIEW -->
 
-        <div class="table-cell amount-cell">
+              <button
+                type="button"
+                class="action-button view"
+                title="View bill"
+                (click)="viewBill(bill)"
+              >
 
-          <strong>
-            {{ formatCurrency(bill.amount) }}
-          </strong>
+                <span class="material-symbols-outlined">
+                  visibility
+                </span>
 
-        </div>
-
-
-        <!-- ========================================= -->
-        <!-- PAID -->
-        <!-- ========================================= -->
-
-        <div class="table-cell">
-
-          <strong class="paid-text">
-            {{ formatCurrency(bill.amountPaid) }}
-          </strong>
-
-        </div>
+              </button>
 
 
-        <!-- ========================================= -->
-        <!-- BALANCE -->
-        <!-- ========================================= -->
+              <!-- EDIT -->
 
-        <div class="table-cell">
+              <button
+                type="button"
+                class="action-button edit"
+                title="Edit bill"
+                (click)="editBill(bill)"
+              >
 
-          <strong
-            [class.balance-text]="
-              bill.balance > 0
-            "
-            [class.zero-balance]="
-              bill.balance <= 0
-            "
-          >
+                <span class="material-symbols-outlined">
+                  edit
+                </span>
 
-            {{ formatCurrency(bill.balance) }}
-
-          </strong>
-
-        </div>
+              </button>
 
 
-        <!-- ========================================= -->
-        <!-- STATUS -->
-        <!-- ========================================= -->
+              <!-- DELETE -->
 
-        <div class="table-cell">
+              <button
+                type="button"
+                class="action-button delete"
+                title="Delete bill"
+                (click)="deleteBill(bill)"
+              >
 
-          <span
-            class="status-badge"
-            [ngClass]="
-              getStatusClass(
-                bill.status
-              )
-            "
-          >
+                <span class="material-symbols-outlined">
+                  delete
+                </span>
 
-            {{ bill.status }}
+              </button>
 
-          </span>
+            </div>
 
-        </div>
+          </div>
 
-
-        <!-- ========================================= -->
-        <!-- DATE -->
-        <!-- ========================================= -->
-
-        <div class="table-cell">
-
-          <span>
-            {{ formatDate(bill.billingDate) }}
-          </span>
-
-        </div>
-
-
-        <!-- ========================================= -->
-        <!-- ACTIONS -->
-        <!-- ========================================= -->
-
-        <div class="actions-cell">
-
-          <!-- VIEW -->
-
-          <button
-            type="button"
-            class="action-button view"
-            title="View bill"
-            (click)="viewBill(bill)"
-          >
-
-            <span class="material-symbols-outlined">
-              visibility
-            </span>
-
-          </button>
-
-
-          <!-- EDIT -->
-
-          <button
-            type="button"
-            class="action-button edit"
-            title="Edit bill"
-            (click)="editBill(bill)"
-          >
-
-            <span class="material-symbols-outlined">
-              edit
-            </span>
-
-          </button>
-
-
-          <!-- DELETE -->
-
-          <button
-            type="button"
-            class="action-button delete"
-            title="Delete bill"
-            (click)="deleteBill(bill)"
-          >
-
-            <span class="material-symbols-outlined">
-              delete
-            </span>
-
-          </button>
-
-        </div>
+        }
 
       </div>
 
     }
 
-  </div>
-
-}
-```
-
   </section>
 
+
   <!-- ===================================================== -->
-
   <!-- COMBINED BILLING INFORMATION -->
-
   <!-- ===================================================== -->
 
   <section class="workflow-card">
 
+    <div class="workflow-header">
 
-<div class="workflow-header">
+      <div class="workflow-icon">
 
-  <div class="workflow-icon">
+        <span class="material-symbols-outlined">
+          account_tree
+        </span>
 
-    <span class="material-symbols-outlined">
-      account_tree
-    </span>
-
-  </div>
-
-
-  <div>
-
-    <h2>
-      Combined Patient Billing
-    </h2>
-
-    <p>
-      Consultation, laboratory and pharmacy charges are combined on the patient's active invoice.
-    </p>
-
-  </div>
-
-</div>
+      </div>
 
 
-<div class="workflow-steps">
+      <div>
 
-  <!-- CONSULTATION -->
+        <h2>
+          Combined Patient Billing
+        </h2>
 
-  <div class="workflow-step">
+        <p>
+          Consultation, laboratory and pharmacy charges are combined on the patient's active invoice.
+        </p>
 
-    <div class="step-number">
-      1
+      </div>
+
     </div>
 
-    <div>
 
-      <strong>
-        Consultation
-      </strong>
+    <div class="workflow-steps">
 
-      <span>
-        Consultation fee added
+      <!-- CONSULTATION -->
+
+      <div class="workflow-step">
+
+        <div class="step-number">
+          1
+        </div>
+
+        <div>
+
+          <strong>
+            Consultation
+          </strong>
+
+          <span>
+            Consultation fee added
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <span class="material-symbols-outlined workflow-arrow">
+        add
       </span>
 
-    </div>
 
-  </div>
+      <!-- LABORATORY -->
+
+      <div class="workflow-step">
+
+        <div class="step-number">
+          2
+        </div>
+
+        <div>
+
+          <strong>
+            Laboratory
+          </strong>
+
+          <span>
+            Test charges added
+          </span>
+
+        </div>
+
+      </div>
 
 
-  <span class="material-symbols-outlined workflow-arrow">
-    add
-  </span>
-
-
-  <!-- LABORATORY -->
-
-  <div class="workflow-step">
-
-    <div class="step-number">
-      2
-    </div>
-
-    <div>
-
-      <strong>
-        Laboratory
-      </strong>
-
-      <span>
-        Test charges added
+      <span class="material-symbols-outlined workflow-arrow">
+        add
       </span>
 
-    </div>
 
-  </div>
+      <!-- PHARMACY -->
+
+      <div class="workflow-step">
+
+        <div class="step-number">
+          3
+        </div>
+
+        <div>
+
+          <strong>
+            Pharmacy
+          </strong>
+
+          <span>
+            Medicine charges added
+          </span>
+
+        </div>
+
+      </div>
 
 
-  <span class="material-symbols-outlined workflow-arrow">
-    add
-  </span>
-
-
-  <!-- PHARMACY -->
-
-  <div class="workflow-step">
-
-    <div class="step-number">
-      3
-    </div>
-
-    <div>
-
-      <strong>
-        Pharmacy
-      </strong>
-
-      <span>
-        Medicine charges added
+      <span class="material-symbols-outlined workflow-arrow">
+        arrow_forward
       </span>
 
-    </div>
 
-  </div>
+      <!-- PAYMENT -->
+
+      <div class="workflow-step">
+
+        <div class="step-number">
+          4
+        </div>
+
+        <div>
+
+          <strong>
+            Payment
+          </strong>
+
+          <span>
+            One invoice is paid
+          </span>
+
+        </div>
+
+      </div>
 
 
-  <span class="material-symbols-outlined workflow-arrow">
-    arrow_forward
-  </span>
-
-
-  <!-- PAYMENT -->
-
-  <div class="workflow-step">
-
-    <div class="step-number">
-      4
-    </div>
-
-    <div>
-
-      <strong>
-        Payment
-      </strong>
-
-      <span>
-        One invoice is paid
+      <span class="material-symbols-outlined workflow-arrow">
+        arrow_forward
       </span>
 
-    </div>
 
-  </div>
+      <!-- PHARMACY RELEASE -->
 
+      <div class="workflow-step">
 
-  <span class="material-symbols-outlined workflow-arrow">
-    arrow_forward
-  </span>
+        <div class="step-number">
+          5
+        </div>
 
+        <div>
 
-  <!-- PHARMACY -->
+          <strong>
+            Pharmacy Release
+          </strong>
 
-  <div class="workflow-step">
+          <span>
+            Medicine becomes ready for pickup
+          </span>
 
-    <div class="step-number">
-      5
-    </div>
+        </div>
 
-    <div>
-
-      <strong>
-        Pharmacy Release
-      </strong>
-
-      <span>
-        Medicine becomes ready for pickup
-      </span>
+      </div>
 
     </div>
-
-  </div>
-
-</div>
-
 
   </section>
 

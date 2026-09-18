@@ -1,1 +1,1135 @@
-/* You can add global styles to this file, and also import other style files */
+/* =====================================================
+   HMS GLOBAL STYLES
+   File:
+   src/styles.css
+   =====================================================
+
+   This file is the single source of truth for the
+   HMS visual design system.
+
+   Rules:
+   - Components should use HMS CSS variables.
+   - Do not hardcode theme colors inside components
+     unless the color is a semantic status color.
+   - Reports and the main HMS interface share the
+     same visual identity.
+   ===================================================== */
+
+
+/* =====================================================
+   GLOBAL DESIGN TOKENS — LIGHT THEME
+   ===================================================== */
+
+:root {
+
+  /* ===================================================
+     BRAND / PRIMARY
+     =================================================== */
+
+  --hms-primary:
+    #0f766e;
+
+  --hms-primary-hover:
+    #115e59;
+
+  --hms-primary-light:
+    #ccfbf1;
+
+
+  /* ===================================================
+     APPLICATION BACKGROUND
+     =================================================== */
+
+  --hms-bg:
+    #f5f7fa;
+
+  --hms-surface:
+    #ffffff;
+
+  --hms-surface-secondary:
+    #f8fafc;
+
+
+  /* ===================================================
+     TEXT
+     =================================================== */
+
+  --hms-text:
+    #1f2937;
+
+  --hms-text-secondary:
+    #64748b;
+
+  --hms-text-muted:
+    #94a3b8;
+
+
+  /* ===================================================
+     BORDERS
+     =================================================== */
+
+  --hms-border:
+    #e2e8f0;
+
+  --hms-border-light:
+    #f1f5f9;
+
+
+  /* ===================================================
+     HEADER / SIDEBAR
+     =================================================== */
+
+  --hms-header:
+    #ffffff;
+
+  --hms-sidebar:
+    #ffffff;
+
+
+  /* ===================================================
+     FORM CONTROLS
+     =================================================== */
+
+  --hms-input-bg:
+    #ffffff;
+
+  --hms-input-text:
+    #1f2937;
+
+  --hms-input-placeholder:
+    #94a3b8;
+
+
+  /* ===================================================
+     STATUS COLORS
+     =================================================== */
+
+  --hms-success:
+    #10b981;
+
+  --hms-success-light:
+    #d1fae5;
+
+
+  --hms-warning:
+    #f59e0b;
+
+  --hms-warning-light:
+    #fef3c7;
+
+
+  --hms-danger:
+    #ef4444;
+
+  --hms-danger-light:
+    #fee2e2;
+
+
+  --hms-info:
+    #3b82f6;
+
+  --hms-info-light:
+    #dbeafe;
+
+
+  /* ===================================================
+     SHADOWS
+     =================================================== */
+
+  --hms-shadow-sm:
+    0 1px 2px rgba(15, 23, 42, 0.05);
+
+  --hms-shadow:
+    0 4px 12px rgba(15, 23, 42, 0.08);
+
+  --hms-shadow-lg:
+    0 10px 30px rgba(15, 23, 42, 0.12);
+
+
+  /* ===================================================
+     BORDER RADIUS
+     =================================================== */
+
+  --hms-radius-sm:
+    6px;
+
+  --hms-radius:
+    10px;
+
+  --hms-radius-lg:
+    14px;
+
+
+  /* ===================================================
+     TRANSITIONS
+     =================================================== */
+
+  --hms-transition:
+    0.2s ease;
+
+
+  /* ===================================================
+     Z-INDEX
+     =================================================== */
+
+  --hms-z-sidebar:
+    1000;
+
+  --hms-z-header:
+    1100;
+
+  --hms-z-overlay:
+    1200;
+
+  --hms-z-modal:
+    1300;
+
+}
+
+
+/* =====================================================
+   DARK THEME
+   ===================================================== */
+
+html[data-theme="dark"] {
+
+  --hms-bg: #0f172a;
+
+  --hms-surface: #111827;
+
+  --hms-surface-secondary: #1e293b;
+
+  --hms-text: #f8fafc;
+
+  --hms-text-secondary: #cbd5e1;
+
+  --hms-text-muted: #94a3b8;
+
+  --hms-border: #334155;
+
+  --hms-border-light: #1e293b;
+
+  --hms-header: #111827;
+
+  --hms-sidebar: #111827;
+
+  --hms-primary: #14b8a6;
+
+  --hms-primary-hover: #2dd4bf;
+
+  --hms-primary-light:
+    rgba(20, 184, 166, 0.16);
+
+  --hms-input-bg: #1e293b;
+
+  --hms-input-text: #f8fafc;
+
+  --hms-input-placeholder: #94a3b8;
+
+  --hms-success-light:
+    rgba(16, 185, 129, 0.16);
+
+  --hms-warning-light:
+    rgba(245, 158, 11, 0.16);
+
+  --hms-danger-light:
+    rgba(239, 68, 68, 0.16);
+
+  --hms-info-light:
+    rgba(59, 130, 246, 0.16);
+
+  --hms-shadow-sm:
+    0 1px 2px rgba(0, 0, 0, 0.25);
+
+  --hms-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.30);
+
+  --hms-shadow-lg:
+    0 10px 30px rgba(0, 0, 0, 0.40);
+}
+
+/* =====================================================
+   SYSTEM THEME
+   =====================================================
+
+   When System Preferences selects "System", the browser
+   follows the operating system's light/dark preference.
+   ===================================================== */
+
+@media (prefers-color-scheme: dark) {
+
+  html[data-theme="system"] {
+
+    /* =================================================
+       APPLICATION BACKGROUND
+       ================================================= */
+
+    --hms-bg:
+      #0f172a;
+
+    --hms-surface:
+      #111827;
+
+    --hms-surface-secondary:
+      #1e293b;
+
+
+    /* =================================================
+       TEXT
+       ================================================= */
+
+    --hms-text:
+      #f8fafc;
+
+    --hms-text-secondary:
+      #cbd5e1;
+
+    --hms-text-muted:
+      #94a3b8;
+
+
+    /* =================================================
+       BORDERS
+       ================================================= */
+
+    --hms-border:
+      #334155;
+
+    --hms-border-light:
+      #1e293b;
+
+
+    /* =================================================
+       HEADER / SIDEBAR
+       ================================================= */
+
+    --hms-header:
+      #111827;
+
+    --hms-sidebar:
+      #111827;
+
+
+    /* =================================================
+       BRAND
+       ================================================= */
+
+    --hms-primary:
+      #14b8a6;
+
+    --hms-primary-hover:
+      #2dd4bf;
+
+    --hms-primary-light:
+      rgba(20, 184, 166, 0.16);
+
+
+    /* =================================================
+       FORM CONTROLS
+       ================================================= */
+
+    --hms-input-bg:
+      #1e293b;
+
+    --hms-input-text:
+      #f8fafc;
+
+    --hms-input-placeholder:
+      #94a3b8;
+
+
+    /* =================================================
+       SHADOWS
+       ================================================= */
+
+    --hms-shadow-sm:
+      0 1px 2px rgba(0, 0, 0, 0.25);
+
+    --hms-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.30);
+
+    --hms-shadow-lg:
+      0 10px 30px rgba(0, 0, 0, 0.40);
+
+  }
+
+}
+
+
+/* =====================================================
+   GLOBAL BOX SIZING
+   ===================================================== */
+
+*,
+*::before,
+*::after {
+
+  box-sizing:
+    border-box;
+
+}
+
+
+/* =====================================================
+   HTML
+   ===================================================== */
+
+html {
+
+  margin:
+    0;
+
+  padding:
+    0;
+
+  min-height:
+    100%;
+
+  background:
+    var(--hms-bg);
+
+  color:
+    var(--hms-text);
+
+}
+
+
+/* =====================================================
+   BODY
+   ===================================================== */
+
+body {
+
+  margin:
+    0;
+
+  padding:
+    0;
+
+  min-height:
+    100vh;
+
+  background:
+    var(--hms-bg);
+
+  color:
+    var(--hms-text);
+
+  font-family:
+    Inter,
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+
+  transition:
+    background-color var(--hms-transition),
+    color var(--hms-transition);
+
+}
+
+
+/* =====================================================
+   ANGULAR ROOT
+   ===================================================== */
+
+app-root {
+
+  display:
+    block;
+
+  min-height:
+    100vh;
+
+  background:
+    var(--hms-bg);
+
+  color:
+    var(--hms-text);
+
+}
+
+
+/* =====================================================
+   HMS APPLICATION ROOT
+   ===================================================== */
+
+.hms-layout {
+
+  min-height:
+    100vh;
+
+  background:
+    var(--hms-bg);
+
+  color:
+    var(--hms-text);
+
+}
+
+
+/* =====================================================
+   MAIN SECTION
+   ===================================================== */
+
+.main-section {
+
+  min-height:
+    100vh;
+
+  background:
+    var(--hms-bg);
+
+  color:
+    var(--hms-text);
+
+}
+
+
+/* =====================================================
+   PAGE CONTENT
+   ===================================================== */
+
+.page-content {
+
+  min-height:
+    calc(100vh - 72px);
+
+  background:
+    var(--hms-bg);
+
+  color:
+    var(--hms-text);
+
+}
+
+
+/* =====================================================
+   COMMON SURFACES
+   ===================================================== */
+
+.card,
+.panel,
+.section,
+.modal,
+.dropdown-menu,
+.table-container {
+
+  background:
+    var(--hms-surface);
+
+  color:
+    var(--hms-text);
+
+  border-color:
+    var(--hms-border);
+
+  transition:
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition);
+
+}
+
+
+/* =====================================================
+   HEADINGS
+   ===================================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+
+  color:
+    var(--hms-text);
+
+}
+
+
+/* =====================================================
+   PARAGRAPHS
+   ===================================================== */
+
+p {
+
+  color:
+    var(--hms-text);
+
+}
+
+
+/* =====================================================
+   LABELS
+   ===================================================== */
+
+label {
+
+  color:
+    var(--hms-text-secondary);
+
+}
+
+
+/* =====================================================
+   SECONDARY TEXT
+   ===================================================== */
+
+.text-secondary {
+
+  color:
+    var(--hms-text-secondary) !important;
+
+}
+
+
+.text-muted {
+
+  color:
+    var(--hms-text-muted) !important;
+
+}
+
+
+/* =====================================================
+   FORM CONTROLS
+   ===================================================== */
+
+input,
+textarea,
+select {
+
+  background:
+    var(--hms-input-bg);
+
+  color:
+    var(--hms-input-text);
+
+  border-color:
+    var(--hms-border);
+
+  transition:
+    background-color var(--hms-transition),
+    border-color var(--hms-transition),
+    color var(--hms-transition);
+
+}
+
+
+input::placeholder,
+textarea::placeholder {
+
+  color:
+    var(--hms-input-placeholder);
+
+}
+
+
+input:focus,
+textarea:focus,
+select:focus {
+
+  outline:
+    none;
+
+  border-color:
+    var(--hms-primary);
+
+  box-shadow:
+    0 0 0 3px var(--hms-primary-light);
+
+}
+
+
+/* =====================================================
+   DISABLED FORM CONTROLS
+   ===================================================== */
+
+input:disabled,
+textarea:disabled,
+select:disabled,
+button:disabled {
+
+  cursor:
+    not-allowed;
+
+  opacity:
+    0.65;
+
+}
+
+
+/* =====================================================
+   BUTTON BASE
+   ===================================================== */
+
+button {
+
+  font:
+    inherit;
+
+}
+
+
+/* =====================================================
+   PRIMARY BUTTON
+   ===================================================== */
+
+.btn-primary {
+
+  background:
+    var(--hms-primary);
+
+  color:
+    #ffffff;
+
+  border-color:
+    var(--hms-primary);
+
+}
+
+
+.btn-primary:hover {
+
+  background:
+    var(--hms-primary-hover);
+
+  border-color:
+    var(--hms-primary-hover);
+
+}
+
+
+/* =====================================================
+   SECONDARY BUTTON
+   ===================================================== */
+
+.btn-secondary {
+
+  background:
+    var(--hms-surface-secondary);
+
+  color:
+    var(--hms-text);
+
+  border-color:
+    var(--hms-border);
+
+}
+
+
+.btn-secondary:hover {
+
+  background:
+    var(--hms-border-light);
+
+}
+
+
+/* =====================================================
+   TABLES
+   ===================================================== */
+
+table {
+
+  width:
+    100%;
+
+  background:
+    var(--hms-surface);
+
+  color:
+    var(--hms-text);
+
+  border-color:
+    var(--hms-border);
+
+}
+
+
+thead {
+
+  background:
+    var(--hms-surface-secondary);
+
+}
+
+
+th {
+
+  background:
+    var(--hms-surface-secondary);
+
+  color:
+    var(--hms-text-secondary);
+
+  border-color:
+    var(--hms-border);
+
+}
+
+
+td {
+
+  color:
+    var(--hms-text);
+
+  border-color:
+    var(--hms-border);
+
+}
+
+
+tbody tr {
+
+  background:
+    var(--hms-surface);
+
+  transition:
+    background-color var(--hms-transition);
+
+}
+
+
+tbody tr:hover {
+
+  background:
+    var(--hms-surface-secondary);
+
+}
+
+
+/* =====================================================
+   LINKS
+   ===================================================== */
+
+a {
+
+  color:
+    var(--hms-primary);
+
+  transition:
+    color var(--hms-transition);
+
+}
+
+
+a:hover {
+
+  color:
+    var(--hms-primary-hover);
+
+}
+
+
+/* =====================================================
+   SIDEBAR
+   ===================================================== */
+
+.sidebar {
+
+  background:
+    var(--hms-sidebar);
+
+  color:
+    var(--hms-text);
+
+  border-color:
+    var(--hms-border);
+
+}
+
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+
+.header {
+
+  background:
+    var(--hms-header);
+
+  color:
+    var(--hms-text);
+
+  border-color:
+    var(--hms-border);
+
+}
+
+
+/* =====================================================
+   PRIMARY TEXT
+   ===================================================== */
+
+.hms-primary {
+
+  color:
+    var(--hms-primary) !important;
+
+}
+
+
+/* =====================================================
+   STATUS — SUCCESS
+   ===================================================== */
+
+.hms-success {
+
+  color:
+    var(--hms-success) !important;
+
+}
+
+.hms-success-bg {
+
+  background:
+    var(--hms-success-light) !important;
+
+}
+
+
+/* =====================================================
+   STATUS — WARNING
+   ===================================================== */
+
+.hms-warning {
+
+  color:
+    var(--hms-warning) !important;
+
+}
+
+.hms-warning-bg {
+
+  background:
+    var(--hms-warning-light) !important;
+
+}
+
+
+/* =====================================================
+   STATUS — DANGER
+   ===================================================== */
+
+.hms-danger {
+
+  color:
+    var(--hms-danger) !important;
+
+}
+
+.hms-danger-bg {
+
+  background:
+    var(--hms-danger-light) !important;
+
+}
+
+
+/* =====================================================
+   STATUS — INFO
+   ===================================================== */
+
+.hms-info {
+
+  color:
+    var(--hms-info) !important;
+
+}
+
+.hms-info-bg {
+
+  background:
+    var(--hms-info-light) !important;
+
+}
+
+
+/* =====================================================
+   COMMON CARD SHADOW
+   ===================================================== */
+
+.hms-card {
+
+  background:
+    var(--hms-surface);
+
+  border:
+    1px solid var(--hms-border);
+
+  border-radius:
+    var(--hms-radius);
+
+  box-shadow:
+    var(--hms-shadow);
+
+}
+
+
+/* =====================================================
+   COMMON DIVIDER
+   ===================================================== */
+
+.hms-divider {
+
+  border:
+    0;
+
+  border-top:
+    1px solid var(--hms-border);
+
+}
+
+
+/* =====================================================
+   COMMON BADGE
+   ===================================================== */
+
+.hms-badge {
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  min-height:
+    24px;
+
+  padding:
+    3px 9px;
+
+  border-radius:
+    999px;
+
+  background:
+    var(--hms-primary-light);
+
+  color:
+    var(--hms-primary);
+
+  font-size:
+    12px;
+
+  font-weight:
+    600;
+
+}
+
+
+/* =====================================================
+   SCROLLBAR
+   ===================================================== */
+
+* {
+
+  scrollbar-width:
+    thin;
+
+  scrollbar-color:
+    var(--hms-border)
+    var(--hms-bg);
+
+}
+
+
+*::-webkit-scrollbar {
+
+  width:
+    8px;
+
+  height:
+    8px;
+
+}
+
+
+*::-webkit-scrollbar-track {
+
+  background:
+    var(--hms-bg);
+
+}
+
+
+*::-webkit-scrollbar-thumb {
+
+  background:
+    var(--hms-border);
+
+  border-radius:
+    999px;
+
+}
+
+
+*::-webkit-scrollbar-thumb:hover {
+
+  background:
+    var(--hms-text-muted);
+
+}
+
+
+/* =====================================================
+   TEXT SELECTION
+   ===================================================== */
+
+::selection {
+
+  background:
+    var(--hms-primary-light);
+
+  color:
+    var(--hms-text);
+
+}
+
+
+/* =====================================================
+   FOCUS ACCESSIBILITY
+   ===================================================== */
+
+:focus-visible {
+
+  outline:
+    2px solid var(--hms-primary);
+
+  outline-offset:
+    2px;
+
+}
+
+
+/* =====================================================
+   OVERLAY
+   ===================================================== */
+
+.sidebar-overlay {
+
+  background:
+    rgba(15, 23, 42, 0.45);
+
+}
+
+
+/* =====================================================
+   RESPONSIVE PAGE CONTENT
+   ===================================================== */
+
+@media (max-width: 700px) {
+
+  .page-content {
+
+    min-height:
+      calc(100vh - 64px);
+
+  }
+
+}
