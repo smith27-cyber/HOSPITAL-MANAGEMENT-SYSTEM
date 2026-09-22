@@ -2,7 +2,7 @@
 
 **Phase:** [Phase 4 — Cross-cutting config decisions](../../phases/phase-4-cross-cutting-config.md)
 **Depends on:** [phase1-task7-add-ng-serve-proxy](./phase1-task7-add-ng-serve-proxy.md), [phase2-task5-add-reverse-proxy](./phase2-task5-add-reverse-proxy.md)
-**Status:** Done, except live verification (blocked — see below)
+**Status:** Done, including live verification
 
 ## Decision
 
@@ -63,14 +63,18 @@ cross-origin at all.
   that Phase 3 hadn't caught — removed it too.
 - **Verified:** `hms-jar` still compiles cleanly (105 source files, `BUILD
   SUCCESS`) with all of the above removed.
-- **Blocked:** the "confirm with a real cross-origin request" step —
-  `hms-jar` cannot even boot in this environment. Tried
-  `mvn spring-boot:run`: Hibernate fails immediately
-  (`Unable to determine Dialect without JDBC metadata`) because there's no
-  Postgres to connect to, so the app never reaches the point of starting
-  Tomcat or the security filter chain. Same Docker/Postgres limitation as
-  [phase1-task7](../verify/phase1-task7-add-ng-serve-proxy.md) and
-  [phase2-task6](../todo/phase2-task6-verify-api-call.md). Run this check
-  manually once Postgres is available: start `hms-jar`, then
-  `curl -H "Origin: http://evil.example" -i http://localhost:8081/api/departments`
-  and confirm the response has no `Access-Control-Allow-Origin` header.
+- **Live-verified.** Docker access became available in this environment
+  (rechecked rather than assumed still blocked). Started the project's own
+  Postgres via `docker-compose.yml`, then `hms-jar` for real:
+  - `curl -H "Origin: http://evil.example" -i http://localhost:8081/api/departments`
+    → `403` (JWT required, as expected) with **no**
+    `Access-Control-Allow-Origin` header at all.
+  - Also tested an actual preflight: `curl -X OPTIONS -H "Origin:
+    http://evil.example" -H "Access-Control-Request-Method: GET" ...` →
+    `200` (Spring Security's `permitAll()` on `OPTIONS` lets the preflight
+    request itself through) but still **no** CORS headers — a real browser
+    requires `Access-Control-Allow-Origin` in the preflight response to
+    proceed with the actual request, so this is still a correct block from
+    the browser's point of view, not a gap.
+  - See [phase2-task6](./phase2-task6-verify-api-call.md) for the
+    full end-to-end test (through `hms-webb`, with real login/JWT/data).

@@ -7,14 +7,15 @@ a `RestClient`-based catch-all on `/api/**` forwarding to
 `http://localhost:8081`. Used `.exchange()` rather than `.retrieve()` so
 upstream error statuses (401/404/400/etc.) pass through as-is instead of
 being thrown as exceptions. Verified the forwarding mechanism itself
-works: `curl localhost:8080/api/departments` (with `hms-jar` not running
-in this environment) returned a 500 with
-`ResourceAccessException: I/O error on GET request for
+works: with `hms-jar` not yet running, `curl localhost:8080/api/departments`
+returned a 500 with `ResourceAccessException: I/O error on GET request for
 "http://localhost:8081/api/departments"` — a connection failure to the
 *correct* target URL, proving the controller intercepts `/api/**` and
-attempts the relay correctly. The remaining gap
-([phase2-task6](../todo/phase2-task6-verify-api-call.md)) is seeing a
-real response once `hms-jar` is actually reachable.
+attempts the relay correctly. Later, with both `hms-jar` and Postgres
+actually running
+([phase2-task6](./phase2-task6-verify-api-call.md)), confirmed a full
+real round-trip: login through `hms-webb` → real JWT → authenticated
+`/api/departments` call through `hms-webb` → `200` with real data.
 
 ## Naming
 

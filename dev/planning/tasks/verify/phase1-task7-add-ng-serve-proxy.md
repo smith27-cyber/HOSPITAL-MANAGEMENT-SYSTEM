@@ -1,14 +1,17 @@
 # Task: Add a dev-server proxy for `ng serve`
 
 **Phase:** [Phase 1 — Scaffold the Spring Boot module](../../phases/phase-1-scaffold-module.md)
-**Status:** Config done, end-to-end verification still pending. Added
+**Status:** Done, including live verification. Added
 `hms-webb/angular/proxy.conf.json` (forwards `/api` to `http://localhost:8081`)
-and wired it into `angular.json`'s `serve.options.proxyConfig` — both
-files confirmed syntactically valid JSON. **Not yet verified against a
-real request**: this environment has no Docker/Postgres access, so
-`hms-jar` couldn't be started to confirm `ng serve` + a call to e.g.
-`/api/departments` actually reaches it and returns real data. Do that
-check manually before considering this task fully done.
+and wired it into `angular.json`'s `serve.options.proxyConfig`. Docker
+access became available in this environment (rechecked rather than
+assumed still blocked); started the project's own Postgres + `hms-jar`,
+then `ng serve`, and tested for real:
+- `curl http://localhost:4200/api/health` → `200 HMS Backend is running
+  successfully.` — the exact real response from `hms-jar`, reached through
+  the dev proxy.
+- `POST http://localhost:4200/api/auth/login` with a seeded test account
+  → a real JWT and user data, same as calling `hms-jar` directly.
 
 ## Decision
 

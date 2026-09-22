@@ -29,13 +29,6 @@
 
 ## Medium Priority (P2)
 
-- **`hms-webb`'s Web API forwarding is verified as a mechanism, not
-  end-to-end.** `WebApiForwardController` correctly attempts to relay
-  `/api/**` to `hms-jar` (confirmed: a request produced a
-  `ResourceAccessException` naming the exact correct target URL), but no
-  environment with both `hms-webb` and a running `hms-jar` + Postgres has
-  been available to confirm a real request/response round-trip. See
-  [WEBB_MODULE.md](./WEBB_MODULE.md).
 - Edge case handling in lab requests
 - Form validation refinements
 

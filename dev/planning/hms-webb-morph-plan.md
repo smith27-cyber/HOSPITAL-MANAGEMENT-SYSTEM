@@ -1,9 +1,9 @@
 # Plan: Morphing `hms-webb` into a Real Frontend Module
 
-**Status:** All 5 phases done, except two live verifications blocked on
-Docker/Postgres access not being available in this environment
-(`phase2-task6`, `phase4-task2`'s CORS check — see
-[KNOWN_ISSUES.md](../architecture/old/KNOWN_ISSUES.md) P2). Original
+**Status:** All 5 phases fully done, including full live verification
+(Docker/Postgres access became available partway through — real login,
+real JWT, real authenticated round-trip through `hms-webb`, and a real
+cross-origin request confirming CORS is genuinely blocked). Original
 design proposal has been implemented and promoted into
 `architecture/old/` — see
 [architecture/old/WEBB_MODULE.md](../architecture/old/WEBB_MODULE.md).
@@ -31,10 +31,10 @@ or be shared with `hms-jar`. See [Phase 3](./phases/phase-3-retire-stale-copy.md
 
 ## Phases
 
-1. [Scaffold the Spring Boot module](./phases/phase-1-scaffold-module.md) — Done
-2. [Wire Angular's build output directly into `static/`](./phases/phase-2-angular-output-wiring.md) — Done (except one blocked live check)
+1. [Scaffold the Spring Boot module](./phases/phase-1-scaffold-module.md) — Done, fully live-verified
+2. [Wire Angular's build output directly into `static/`](./phases/phase-2-angular-output-wiring.md) — Done, fully live-verified
 3. [Retire all frontend-serving code from `hms-jar`](./phases/phase-3-retire-stale-copy.md) — Done
-4. [Cross-cutting config decisions](./phases/phase-4-cross-cutting-config.md) — Done (except one blocked live check)
+4. [Cross-cutting config decisions](./phases/phase-4-cross-cutting-config.md) — Done, fully live-verified
 5. [Documentation catch-up](./phases/phase-5-documentation-catchup.md) — Done
 
 ---

@@ -67,12 +67,13 @@ This is what makes the "CORS blocked entirely" decision work (see
 [SECURITY.md](./SECURITY.md)): the browser only ever talks to `hms-webb`;
 from its point of view, `hms-webb` *is* the API.
 
-Verified (mechanism, not full end-to-end): a request to `/api/departments`
-correctly attempted a connection to `http://localhost:8081/api/departments`
-— confirmed via the resulting `ResourceAccessException` naming that exact
-URL when `hms-jar` wasn't running to answer it. Full request/response
-verification against a live `hms-jar` + Postgres is still open — see
-[KNOWN_ISSUES.md](./KNOWN_ISSUES.md).
+Verified fully end-to-end, not just the mechanism: with a live `hms-jar` +
+Postgres running, a real login (`POST /api/auth/login` with a seeded test
+account) through `hms-webb` returned a real JWT, and an authenticated
+`GET /api/departments` using that token returned `200` with real (if
+empty) data — the same response `hms-jar` gives directly. Public
+endpoints (`/api/health`) and auth-rejection behavior (`403` without a
+token) also matched exactly between `hms-webb` and `hms-jar` directly.
 
 ---
 
