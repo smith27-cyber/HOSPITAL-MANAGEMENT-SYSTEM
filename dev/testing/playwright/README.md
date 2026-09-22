@@ -1,5 +1,13 @@
 # HMS E2E Testing with Code Coverage Instrumentation
 
+**Note:** `app.spec.ts` (the single coverage-collection smoke test below)
+is planned to be replaced by a full UI/user-flow test suite covering
+every feature module — see
+[dev/planning/playwright-tests/plan.md](../../planning/playwright-tests/plan.md).
+That plan explicitly keeps this directory's coverage-instrumentation
+tooling as an open decision to revisit, not something to reuse or discard
+without thought — see its Phase 0.
+
 This directory contains Playwright E2E tests with **Istanbul code coverage instrumentation** enabled.
 
 ## Architecture
