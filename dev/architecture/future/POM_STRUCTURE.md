@@ -1,10 +1,9 @@
 # HMS Pom Structure — Frontend Module Proposal
 
-**Status:** Partially implemented — Phase 1 and most of Phase 2 done (see
-[dev/planning/tasks/verify/](../../planning/tasks/verify/)); Phase 3
-(retiring `hms-jar`'s frontend-serving code) and Phase 4 (CORS removal,
-dev-workflow docs) not started. **This section is not yet "promoted" to
-`../old/`** — that's [phase5-task1](../../planning/tasks/todo/phase5-task1-promote-proposal-doc.md),
+**Status:** Partially implemented — Phase 1, Phase 2, and Phase 3 done
+(see [dev/planning/tasks/verify/](../../planning/tasks/verify/)); Phase 4
+(CORS removal, dev-workflow docs) not started. **This section is not yet
+"promoted" to `../old/`** — that's [phase5-task1](../../planning/tasks/todo/phase5-task1-promote-proposal-doc.md),
 which explicitly waits until all of Phase 1–4 are done and verified. The
 paragraphs below are patched for accuracy in the meantime, not rewritten
 wholesale.
@@ -20,11 +19,8 @@ wholesale.
 hms-pom/
 ├── pom.xml            # hms-parent (packaging: pom)
 ├── hms-jar/           # backend — real Spring Boot module (packaging: jar)
-│   ├── src/main/resources/static/   # STILL contains the manually-copied,
-│   │                                 # stale Angular build — not yet removed
-│   │                                 # (Phase 3, not started)
-│   └── src/.../config/AngularForwardController.java   # STILL VIOLATES the
-│                        # hard constraint below — not yet removed (Phase 3)
+│                        # NOW CLEAN — no static/, no AngularForwardController
+│                        # (both removed, Phase 3 done); zero Angular-awareness
 └── hms-webb/          # frontend — NOW A REAL SPRING BOOT MODULE (packaging: jar)
     ├── pom.xml         # spring-boot-starter-webmvc + devtools, runs on 8080
     ├── src/main/java/com/hms/webb/
@@ -38,11 +34,11 @@ hms-pom/
 
 **Hard constraint:** Angular must not be aware of anything outside
 `hms-webb`. `hms-jar` carries zero Angular-awareness — no static build, no
-SPA-routing/forward logic, nothing. Both artifacts still violate this as
-of this writing; removing them is
-[Phase 3](../../planning/phases/phase-3-retire-stale-copy.md), which
-hasn't started (it waits on `hms-webb` working, which is now true —
-nothing is blocking it anymore except doing the work).
+SPA-routing/forward logic, nothing. **Satisfied** — both violations were
+removed in [Phase 3](../../planning/phases/phase-3-retire-stale-copy.md)
+(`git rm` on the 67-file static folder and on
+`AngularForwardController.java`; `hms-jar` confirmed still compiling
+cleanly, 105 source files, without them).
 
 `hms-webb` is now a real, runnable Spring Boot module — verified booting
 on port 8080, serving the real built Angular app (not a placeholder), with
@@ -117,15 +113,16 @@ All four items below are now resolved — nothing left open. Kept under
 this heading (rather than folded into the design above) so the reasoning
 behind each decision stays visible, not just the conclusion.
 
-1. **Frontend-serving code in `hms-jar` — resolved: `hms-jar` must NEVER
-   serve static files, that is `hms-webb`'s job, full stop.**
-   `hms-jar/src/main/resources/static` holds a manually-copied Angular
-   build, and `hms-jar/.../config/AngularForwardController.java` forwards
-   Angular app routes to `index.html` (working SPA-routing fallback,
-   solving the same problem [phase2-task4](../../planning/tasks/verify/phase2-task4-verify-routing.md)
-   flags for `hms-webb` — just in the wrong module). Both get removed from
-   `hms-jar` once `hms-webb` has its own working equivalent — sequenced
-   for that reason, not because the removal itself is still in question.
+1. **Frontend-serving code in `hms-jar` — resolved and done: `hms-jar`
+   must NEVER serve static files, that is `hms-webb`'s job, full stop.**
+   `hms-jar/src/main/resources/static` used to hold a manually-copied
+   Angular build, and `hms-jar/.../config/AngularForwardController.java`
+   used to forward Angular app routes to `index.html` (the same problem
+   [phase2-task4](../../planning/tasks/verify/phase2-task4-verify-routing.md)
+   solves for `hms-webb`, via `SpaWebConfig`, a `PathResourceResolver`
+   rather than a hardcoded route list). Both were removed once `hms-webb`
+   had its own working equivalent — sequenced for that reason, not
+   because the removal itself was in question.
    See [Phase 3](../../planning/phases/phase-3-retire-stale-copy.md).
 2. **CORS — resolved: blocked entirely, same mechanism in both modes.**
    `hms-jar` is the **Backend API** — all business logic and its 17

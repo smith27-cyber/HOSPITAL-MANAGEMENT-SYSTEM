@@ -17,7 +17,7 @@ depends on the two violations already found:
   problem [phase2-task4](./phase2-task4-verify-routing.md) flags
   for `hms-webb` — except solved in the wrong module.
 
-Both get removed in [phase3-task2](../todo/phase3-task2-remove-stale-static.md),
+Both get removed in [phase3-task2](./phase3-task2-remove-stale-static.md),
 once `hms-webb` is verified serving correctly
 ([phase2-task3](./phase2-task3-verify-serving.md)) — sequenced so
 the fallback isn't removed before its replacement exists, not because the

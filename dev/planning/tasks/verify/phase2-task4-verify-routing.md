@@ -37,5 +37,5 @@ into `hms-webb` without review — it hardcodes routes by name, so it goes
 stale every time a new top-level route is added, and per the hard
 constraint in [hms-webb-morph-plan.md](../../hms-webb-morph-plan.md), it
 needs to be removed from `hms-jar` entirely
-([phase3-task2](../todo/phase3-task2-remove-stale-static.md)), not left
+([phase3-task2](./phase3-task2-remove-stale-static.md)), not left
 duplicated in both modules.
