@@ -79,17 +79,21 @@ HMS/
 │       ├── package.json
 │       └── angular.json
 │
-├── architecture/             # Comprehensive documentation
-│   ├── old/                  # Docs describing the CURRENT system
-│   │   ├── README.md             # Architecture overview
-│   │   ├── ARCHITECTURE.md       # System design & patterns
-│   │   ├── COMPONENTS.md         # Detailed component breakdown
-│   │   ├── DATA_FLOW.md          # Data flow patterns & workflows
-│   │   ├── API_DESIGN.md         # API specification
-│   │   ├── PROJECT_STATE.md      # Current status
-│   │   └── CLAUDE.md             # Documentation fixes log
-│   └── future/                # Proposed future-state designs
-│       └── POM_STRUCTURE.md      # Frontend Spring Boot module proposal
+├── dev/                       # Working docs not shipped as end-user docs
+│   ├── architecture/          # Comprehensive documentation
+│   │   ├── old/                # Docs describing the CURRENT system
+│   │   │   ├── README.md             # Architecture overview
+│   │   │   ├── ARCHITECTURE.md       # System design & patterns
+│   │   │   ├── COMPONENTS.md         # Detailed component breakdown
+│   │   │   ├── DATA_FLOW.md          # Data flow patterns & workflows
+│   │   │   ├── API_DESIGN.md         # API specification
+│   │   │   ├── PROJECT_STATE.md      # Current status
+│   │   │   └── CLAUDE.md             # Documentation fixes log
+│   │   └── future/             # Proposed future-state designs
+│   │       └── POM_STRUCTURE.md      # Frontend Spring Boot module proposal
+│   └── planning/               # Implementation plans for proposed changes
+│       ├── hms-webb-morph-plan.md    # Plan index
+│       └── phases/                    # One file per phase, with checklists
 │
 ├── docker-compose.yml        # PostgreSQL container setup
 ├── CLAUDE.md                 # Project-specific guidance
@@ -183,7 +187,7 @@ GET    /billing/{id}            # Get invoice details
 POST   /billing/{id}/payments   # Record payment
 ```
 
-**[Complete API Documentation →](./architecture/old/API_DESIGN.md)**
+**[Complete API Documentation →](./dev/architecture/old/API_DESIGN.md)**
 
 ---
 
@@ -342,13 +346,13 @@ docker logs hms-postgres-dev -f
 |----------|---------|
 | **What-Is-This-Good-For.md** | Business value & use cases |
 | **CLAUDE.md** | Project notes & guidance |
-| **architecture/old/README.md** | Architecture overview & navigation |
-| **architecture/old/ARCHITECTURE.md** | System design & patterns |
-| **architecture/old/COMPONENTS.md** | Detailed component breakdown |
-| **architecture/old/API_DESIGN.md** | API specification |
-| **architecture/old/DATA_FLOW.md** | Data flow patterns & workflows |
-| **architecture/old/PROJECT_STATE.md** | Current project status |
-| **architecture/future/POM_STRUCTURE.md** | Proposed frontend Spring Boot module (not yet implemented) |
+| **dev/architecture/old/README.md** | Architecture overview & navigation |
+| **dev/architecture/old/ARCHITECTURE.md** | System design & patterns |
+| **dev/architecture/old/COMPONENTS.md** | Detailed component breakdown |
+| **dev/architecture/old/API_DESIGN.md** | API specification |
+| **dev/architecture/old/DATA_FLOW.md** | Data flow patterns & workflows |
+| **dev/architecture/old/PROJECT_STATE.md** | Current project status |
+| **dev/architecture/future/POM_STRUCTURE.md** | Proposed frontend Spring Boot module (not yet implemented) |
 
 ---
 
@@ -437,7 +441,7 @@ docker exec hms-postgres-dev psql -U hms_user -d hms_database -c "SELECT 1"
 ## Support & Contribution
 
 ### Reporting Issues
-1. Check [architecture/old/PROJECT_STATE.md](./architecture/old/PROJECT_STATE.md) for known issues
+1. Check [dev/architecture/old/PROJECT_STATE.md](./dev/architecture/old/PROJECT_STATE.md) for known issues
 2. Check logs for error messages
 3. Review [CLAUDE.md](./CLAUDE.md) for project notes
 
@@ -462,7 +466,7 @@ Built with modern technologies and best practices.
 - 🌐 **Frontend:** http://localhost:4200
 - 🔌 **Backend:** http://localhost:8081/api
 - 📚 **API Docs:** http://localhost:8081/swagger-ui/index.html
-- 📖 **Architecture:** [./architecture/](./architecture/)
+- 📖 **Architecture:** [./dev/architecture/](./dev/architecture/)
 - 💼 **About HMS:** [./What-Is-This-Good-For.md](./What-Is-This-Good-For.md)
 
 ---
