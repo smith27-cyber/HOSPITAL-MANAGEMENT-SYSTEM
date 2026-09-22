@@ -1,7 +1,7 @@
 # HMS System Architecture
 
-**Version:** 1.0  
-**Last Updated:** 2026-09-03
+**Version:** 1.1  
+**Last Updated:** 2026-09-22
 
 ---
 
@@ -77,7 +77,7 @@ The Hospital Management System follows a **3-tier client-server architecture** w
 src/app/
 ├── auth/              # Authentication feature
 ├── core/              # Shared services & guards
-├── features/          # 14 feature modules
+├── features/          # 13 feature modules
 ├── layout/            # Main layout wrapper
 ├── app.routes.ts      # Route definitions
 └── app.config.ts      # App configuration
@@ -102,7 +102,7 @@ src/app/
 
 **REST Endpoint Pattern:**
 ```
-Base URL: http://localhost:8080/api
+Base URL: http://localhost:8081/api
 
 Endpoints:
 - GET    /api/{resource}           # List all
@@ -124,7 +124,7 @@ Endpoints:
 - Workflow orchestration
 
 **Key Components:**
-- Service classes (13 services)
+- Service classes (16 services)
 - Business rule implementation
 - Data transformation
 - Transaction boundaries
@@ -152,8 +152,8 @@ Entities (Models)
 - Transaction coordination
 
 **Key Components:**
-- Repository interfaces (13+ repositories)
-- JPA entity classes (14+ entities)
+- Repository interfaces (16 repositories)
+- JPA entity classes (18 entities)
 - Custom query methods
 - Lazy/Eager loading strategies
 

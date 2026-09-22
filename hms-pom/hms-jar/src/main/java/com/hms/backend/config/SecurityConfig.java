@@ -119,7 +119,13 @@ public class SecurityConfig {
                     // -----------------------------------------
 
                     .requestMatchers(
-                        "/api/auth/**"
+                        "/api/auth/login",
+                        "/api/auth/register"
+                    )
+                    .permitAll()
+
+                    .requestMatchers(
+                        "/api/"
                     )
                     .permitAll()
 
@@ -130,6 +136,21 @@ public class SecurityConfig {
 
                     .requestMatchers(
                         "/api/health"
+                    )
+                    .permitAll()
+
+
+                    // -----------------------------------------
+                    // SWAGGER UI & API DOCUMENTATION
+                    // -----------------------------------------
+
+                    .requestMatchers(
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/api-docs",
+                        "/api-docs/**",
+                        "/v3/api-docs",
+                        "/v3/api-docs/**"
                     )
                     .permitAll()
 

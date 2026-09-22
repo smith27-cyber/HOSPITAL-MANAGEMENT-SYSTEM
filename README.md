@@ -28,7 +28,7 @@ docker compose up -d
 
 #### 2. Start Backend (Spring Boot)
 ```bash
-cd hms-backend
+cd hms-pom/hms-jar
 mvn spring-boot:run
 # Backend runs on http://localhost:8081
 # API endpoints: http://localhost:8081/api
@@ -37,7 +37,7 @@ mvn spring-boot:run
 
 #### 3. Start Frontend (Angular)
 ```bash
-cd hms-frontend
+cd hms-pom/hms-webb/angular
 npm install  # First time only
 npm start
 # Frontend runs on http://localhost:4200
@@ -54,29 +54,30 @@ npm start
 
 ```
 HMS/
-├── hms-backend/              # Spring Boot REST API
-│   ├── src/main/java/
-│   │   └── com/hms/backend/
-│   │       ├── auth/         # Authentication & JWT
-│   │       ├── config/       # Configuration (Security, OpenAPI)
-│   │       ├── controller/   # REST endpoints
-│   │       ├── service/      # Business logic (13 services)
-│   │       ├── repository/   # Data access layer
-│   │       ├── entity/       # JPA entities (14 entities)
-│   │       └── dto/          # Data transfer objects
-│   ├── pom.xml               # Maven dependencies
-│   └── application.properties # Configuration
-│
-├── hms-frontend/             # Angular 22.1.0 UI
-│   ├── src/app/
-│   │   ├── auth/             # Login & authentication
-│   │   ├── core/             # Shared services & guards
-│   │   ├── features/         # 13 feature modules
-│   │   ├── layout/           # Main layout wrapper
-│   │   ├── shared/           # Shared models & utilities
-│   │   └── app.routes.ts     # Route definitions
-│   ├── package.json
-│   └── angular.json
+├── hms-pom/                  # Maven multi-module parent
+│   ├── hms-jar/               # Spring Boot REST API
+│   │   ├── src/main/java/
+│   │   │   └── com/hms/backend/
+│   │   │       ├── auth/         # Authentication, JWT, RBAC (User/Role/Permission)
+│   │   │       ├── config/       # Configuration (Security, OpenAPI)
+│   │   │       ├── controller/   # REST endpoints
+│   │   │       ├── service/      # Business logic (16 services)
+│   │   │       ├── repository/   # Data access layer
+│   │   │       ├── entity/       # JPA entities (18 entities)
+│   │   │       └── dto/          # Data transfer objects
+│   │   ├── pom.xml               # Maven dependencies
+│   │   └── application.properties # Configuration
+│   │
+│   └── hms-webb/angular/      # Angular 22.1.0 UI
+│       ├── src/app/
+│       │   ├── auth/             # Login & authentication
+│       │   ├── core/             # Shared services & guards
+│       │   ├── features/         # 13 feature modules
+│       │   ├── layout/           # Main layout wrapper
+│       │   ├── shared/           # Shared models & utilities
+│       │   └── app.routes.ts     # Route definitions
+│       ├── package.json
+│       └── angular.json
 │
 ├── architecture/             # Comprehensive documentation
 │   ├── README.md             # Architecture overview
@@ -112,20 +113,21 @@ HMS/
 
 ---
 
-## Features (13 Modules)
+## Features (14 Modules)
 
 ✅ **Patient Management** — Register, track, view patient profiles  
 ✅ **Doctor Management** — Doctor profiles, specializations, departments  
 ✅ **Appointments** — Schedule, queue management, status tracking  
 ✅ **Consultations** — Clinical notes, diagnoses, treatment plans  
+✅ **Admissions** — Inpatient admission, ward/bed assignment, transfer, discharge  
 ✅ **Pharmacy** — Prescriptions, medication inventory, stock tracking  
 ✅ **Laboratory** — Lab tests, requests, results management  
 ✅ **Billing** — Invoices, payment tracking, financial reports  
 ✅ **Inventory** — Equipment and supply management  
 ✅ **Reports** — Analytics, dashboards, metrics  
-✅ **Settings** — System configuration, preferences  
+✅ **Settings** — Hospital configuration (backend-backed), system preferences  
 ✅ **Dashboard** — Real-time metrics and KPIs  
-✅ **Authentication** — Login, JWT tokens, security  
+✅ **Authentication & RBAC** — Login, JWT tokens, roles & permissions  
 ✅ **Departments** — Department management and organization  
 
 ---
@@ -184,13 +186,16 @@ POST   /billing/{id}/payments   # Record payment
 
 ## Database Schema
 
-### Entities (14 Total)
+### Entities (18 Total)
 - User (auth)
+- Role (auth/RBAC)
+- Permission (auth/RBAC)
 - Patient
 - Doctor
 - Department
 - Appointment
 - Consultation
+- Admission
 - PharmacyPrescription
 - PharmacyPrescriptionItem
 - LaboratoryTest
@@ -199,12 +204,14 @@ POST   /billing/{id}/payments   # Record payment
 - BillingItem
 - BillingPayment
 - Inventory
+- HospitalSettings
 
 **Relationships:**
 - Patient → Appointments, Consultations, Admissions, Billing
-- Doctor → Appointments, Consultations, Departments
+- Doctor → Appointments, Consultations, Departments, Admissions
 - Consultation → Prescriptions, Billing
 - Appointment → Consultation
+- User → Role → Permissions
 
 ---
 
@@ -242,7 +249,7 @@ POST   /billing/{id}/payments   # Record payment
 
 #### Build & Run
 ```bash
-cd hms-backend
+cd hms-pom/hms-jar
 
 # Compile
 mvn clean compile
@@ -268,7 +275,7 @@ mvn spring-boot:run
 
 #### Build & Run
 ```bash
-cd hms-frontend
+cd hms-pom/hms-webb/angular
 
 # Install dependencies
 npm install
@@ -295,8 +302,8 @@ pkill -f "ng serve"
 
 # Start fresh
 docker compose up -d         # Database
-cd hms-backend && mvn spring-boot:run &
-cd hms-frontend && npm start
+cd hms-pom/hms-jar && mvn spring-boot:run &
+cd hms-pom/hms-webb/angular && npm start
 ```
 
 ### Reset Database
@@ -309,7 +316,7 @@ docker compose down -v
 docker compose up -d
 
 # Restart backend (schema auto-created)
-cd hms-backend && mvn spring-boot:run
+cd hms-pom/hms-jar && mvn spring-boot:run
 ```
 
 ### View Logs
@@ -356,7 +363,7 @@ tail -50 /tmp/backend.log | grep -i error
 ### Frontend won't start
 ```bash
 # Clear node_modules and reinstall
-cd hms-frontend
+cd hms-pom/hms-webb/angular
 rm -rf node_modules package-lock.json
 npm install
 npm start
@@ -381,7 +388,7 @@ docker compose up -d
 docker ps | grep postgres
 
 # Check database credentials in application.properties
-cat hms-backend/src/main/resources/application.properties | grep datasource
+cat hms-pom/hms-jar/src/main/resources/application.properties | grep datasource
 
 # Test connection
 docker exec hms-postgres-dev psql -U hms_user -d hms_database -c "SELECT 1"

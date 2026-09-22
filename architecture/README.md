@@ -1,8 +1,8 @@
 # HMS Architecture Documentation
 
-**Last Updated:** 2026-09-03  
+**Last Updated:** 2026-09-22  
 **Project:** Hospital Management System  
-**Version:** 1.0
+**Version:** 1.1
 
 ---
 
@@ -126,10 +126,10 @@ This directory contains comprehensive architecture and design documentation for 
 
 ### Key Statistics
 - **13** feature modules
-- **14** entity types (13 mapped + 1 auth)
-- **13** services
+- **18** entity types (17 domain + 1 auth `User`; includes RBAC `Role`/`Permission`)
+- **16** services (13 domain + 3 auth)
 - **80+** Java files
-- **14** Angular services
+- **15** Angular services
 - **6** core infrastructure components
 
 ---
@@ -146,13 +146,15 @@ This directory contains comprehensive architecture and design documentation for 
 | **Departments** | ✅ Complete | Department management |
 | **Appointments** | ✅ Complete | Scheduling with queue management |
 | **Consultations** | ✅ Complete | Consultation records and notes |
+| **Admissions** | ✅ Complete | Inpatient admission, ward/bed, transfer, discharge |
 | **Pharmacy** | ✅ Complete | Prescriptions and stock management |
 | **Laboratory** | ✅ Complete | Lab tests and request tracking |
 | **Billing** | ✅ Complete | Invoicing and payment processing |
 | **Inventory** | ✅ Complete | Equipment and supply tracking |
 | **Reports** | ✅ Complete | Analytics and reporting |
-| **Settings** | ⚠️ Frontend Only | System configuration (frontend only) |
-| **Authentication** | ✅ Complete | Login and JWT management |
+| **Settings** | ✅ Complete | Hospital settings (backend); system/notification prefs (frontend only) |
+
+Authentication lives outside `features/` in its own `auth/` module and is ✅ complete, including RBAC (roles & permissions).
 
 ---
 
@@ -258,7 +260,7 @@ HTTP interceptors automatically add JWT tokens to requests and handle responses.
 ### Authorization
 - Route guards check authentication status
 - Spring Security validates on backend
-- Role-based access control ready (if needed)
+- Role-based access control implemented (`Role`/`Permission` entities, `@PreAuthorize` authority checks per endpoint, seeded by `RbacDataInitializer`)
 
 ### Data Protection
 - HTTPS recommended for production
@@ -332,16 +334,16 @@ HTTP interceptors automatically add JWT tokens to requests and handle responses.
 
 ### Frontend
 ```bash
-cd hms-frontend
+cd hms-pom/hms-webb/angular
 npm install
 npm start  # Runs on http://localhost:4200
 ```
 
 ### Backend
 ```bash
-cd hms-backend
+cd hms-pom/hms-jar
 mvn clean install
-mvn spring-boot:run  # Runs on http://localhost:8080
+mvn spring-boot:run  # Runs on http://localhost:8081
 ```
 
 ### Database
@@ -355,12 +357,12 @@ Default database: hms
 ## Common Development Tasks
 
 ### Adding a New Feature
-1. Create entity in `hms-backend/src/main/java/com/hms/backend/entity/`
+1. Create entity in `hms-pom/hms-jar/src/main/java/com/hms/backend/entity/`
 2. Create repository in `repository/` folder
 3. Create service in `service/` folder
 4. Create controller for API endpoints
-5. Create Angular service in `hms-frontend/src/app/core/services/`
-6. Create components in `hms-frontend/src/app/features/`
+5. Create Angular service in `hms-pom/hms-webb/angular/src/app/core/services/`
+6. Create components in `hms-pom/hms-webb/angular/src/app/features/`
 7. Add routes in `app.routes.ts`
 
 ### Adding an API Endpoint
@@ -424,6 +426,7 @@ Default database: hms
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2026-09-03 | Initial architecture documentation complete |
+| 1.1 | 2026-09-22 | Reconciled docs with actual code: added Admissions module, backend-backed Settings, RBAC (Role/Permission/User), corrected entity/service/repository/controller counts, fixed port (8080→8081) and project paths (`hms-backend`/`hms-frontend` → `hms-pom/hms-jar`/`hms-pom/hms-webb/angular`) |
 
 ---
 

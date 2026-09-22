@@ -1,6 +1,6 @@
 # HMS Project State Document
 
-**Last Updated:** 2026-09-03  
+**Last Updated:** 2026-09-22  
 **Status:** Feature Complete - Final Touchups  
 **Version:** 0.0.1-SNAPSHOT
 
@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-The Hospital Management System (HMS) is a comprehensive full-stack healthcare management platform that is **feature-complete** with 14+ major modules covering all hospital operations. The backend and frontend are fully integrated with JWT-based authentication, and all core systems are operational.
+The Hospital Management System (HMS) is a comprehensive full-stack healthcare management platform that is **feature-complete** with 13 major modules covering all hospital operations, plus a role-based access control (RBAC) layer for authentication and authorization. The backend and frontend are fully integrated with JWT-based authentication, and all core systems are operational.
 
 ---
 
@@ -40,10 +40,11 @@ The Hospital Management System (HMS) is a comprehensive full-stack healthcare ma
 **Key Implementations:**
 - ✅ SecurityConfig.java - Authentication & authorization
 - ✅ PasswordConfig.java - Password encryption
-- ✅ 14+ Entity classes (Patient, Doctor, Department, etc.)
-- ✅ 13+ Repository interfaces (Spring Data JPA)
-- ✅ 13+ Service classes (Business logic)
-- ✅ Multiple REST Controllers
+- ✅ RbacDataInitializer.java - Seeds roles & permissions
+- ✅ 18 Entity classes (Patient, Doctor, Department, Admission, Role, Permission, etc.)
+- ✅ 16 Repository interfaces (Spring Data JPA)
+- ✅ 16 Service classes (Business logic)
+- ✅ 17 REST Controllers
 
 **Recent Fixes:**
 - ✅ Billing workflow fixed
@@ -57,22 +58,24 @@ The Hospital Management System (HMS) is a comprehensive full-stack healthcare ma
 - Material Design UI
 - RxJS for reactive programming
 
-**Feature Modules (14 total):**
+**Feature Modules (13 total):**
 - ✅ Dashboard
 - ✅ Patients
 - ✅ Doctors
 - ✅ Departments
 - ✅ Appointments
 - ✅ Consultations
+- ✅ Admissions
 - ✅ Pharmacy
 - ✅ Laboratory
 - ✅ Billing
 - ✅ Inventory
 - ✅ Reports
 - ✅ Settings
-- ✅ Authentication
 
-**Services (14 total):**
+(Authentication lives outside `features/` in its own `auth/` module.)
+
+**Services (15 total):**
 - ✅ All core services implemented
 - ✅ HTTP interceptors for token injection
 - ✅ Route guards for protection
@@ -80,21 +83,25 @@ The Hospital Management System (HMS) is a comprehensive full-stack healthcare ma
 
 ### Database
 
-**Entities (14+):**
+**Entities (18):**
+- ✅ User (auth)
+- ✅ Role (RBAC)
+- ✅ Permission (RBAC)
 - ✅ Patient
 - ✅ Doctor
 - ✅ Department
 - ✅ Appointment
 - ✅ Consultation
+- ✅ Admission
 - ✅ PharmacyPrescription
 - ✅ PharmacyPrescriptionItem
 - ✅ LaboratoryTest
 - ✅ LaboratoryRequest
-- ✅ Admission
 - ✅ Billing
 - ✅ BillingPayment
 - ✅ BillingItem
 - ✅ Inventory
+- ✅ HospitalSettings
 
 ---
 
@@ -127,6 +134,13 @@ The Hospital Management System (HMS) is a comprehensive full-stack healthcare ma
 - ✅ Edit consultation notes
 - ✅ Link to prescriptions
 
+### Admissions
+- ✅ Admit patient (ward/bed assignment)
+- ✅ View admission list & details
+- ✅ Transfer between wards/beds
+- ✅ Discharge / cancel admission
+- ✅ Admission statistics (active, discharged, transferred, cancelled)
+
 ### Pharmacy
 - ✅ Prescription management
 - ✅ Pharmacy queue view
@@ -157,9 +171,14 @@ The Hospital Management System (HMS) is a comprehensive full-stack healthcare ma
 - ✅ Analytics visualization
 
 ### Settings & Configuration
-- ✅ Hospital settings
-- ✅ System preferences
-- ✅ Notification settings
+- ✅ Hospital settings (backend-persisted via `HospitalSettingsController`)
+- 🟡 System preferences (frontend only, no backend persistence yet)
+- 🟡 Notification settings (frontend only, no backend persistence yet)
+
+### Authentication & RBAC
+- ✅ JWT login/logout
+- ✅ Role-based access control (`Role`, `Permission` entities, `RbacDataInitializer` seed data)
+- ✅ User management (`UserController`, `UserService`)
 
 ---
 
@@ -294,8 +313,8 @@ The Hospital Management System (HMS) is a comprehensive full-stack healthcare ma
 ## Team Notes
 
 - **Backend Lead:** Complete with 80+ files structured by layer
-- **Frontend Lead:** All 14 feature modules operational
-- **Database:** Schema finalized with 14+ entities
+- **Frontend Lead:** All 13 feature modules operational
+- **Database:** Schema finalized with 18 entities
 - **Integration:** All frontend-backend connections working
 - **Last Review:** Recent commits show workflow fixes and integration completion
 

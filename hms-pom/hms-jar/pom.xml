@@ -9,14 +9,14 @@
 
 
     <!-- =====================================================
-         SPRING BOOT
+         PARENT POM
          ===================================================== -->
 
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.1</version>
-        <relativePath/>
+        <groupId>com.hms</groupId>
+        <artifactId>hms-parent</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
 
@@ -26,24 +26,15 @@
 
     <groupId>com.hms</groupId>
 
-    <artifactId>hms-backend</artifactId>
+    <artifactId>hms-jar</artifactId>
 
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
 
-    <name>hms-backend</name>
+    <name>HMS JAR</name>
 
-    <description>Hospital Management System Backend</description>
+    <description>Hospital Management System - Spring Boot JAR Module</description>
 
 
-    <!-- =====================================================
-         JAVA
-         ===================================================== -->
-
-    <properties>
-
-        <java.version>21</java.version>
-
-    </properties>
 
 
     <!-- =====================================================

@@ -1,8 +1,8 @@
 # HMS API Design Specification
 
-**Version:** 1.0  
-**Last Updated:** 2026-09-03  
-**Base URL:** `http://localhost:8080/api`
+**Version:** 1.1  
+**Last Updated:** 2026-09-22  
+**Base URL:** `http://localhost:8081/api`
 
 ---
 
@@ -647,6 +647,86 @@ Response (200 OK):
   "status": "paid",
   "payments": [...]
 }
+```
+
+---
+
+## Admission Endpoints
+
+### Admit Patient
+```
+POST /api/admissions
+Authorization: Bearer {token}
+Content-Type: application/json
+
+Request Body:
+{
+  "patientId": "1",
+  "patientName": "John Doe",
+  "doctorId": "2",
+  "doctorName": "Dr. Robert Johnson",
+  "departmentId": "3",
+  "departmentName": "Cardiology",
+  "ward": "GENERAL",
+  "bedNumber": "G-12",
+  "admissionType": "ROUTINE",
+  "reason": "Observation for chest pain"
+}
+
+Response (201 Created):
+{
+  "id": "adm-1001",
+  "patientId": "1",
+  "ward": "GENERAL",
+  "bedNumber": "G-12",
+  "admissionType": "ROUTINE",
+  "status": "ADMITTED",
+  "admissionDate": "2026-09-22T10:00:00Z",
+  "createdAt": "2026-09-22T10:00:00Z"
+}
+```
+
+### List / Filter Admissions
+```
+GET /api/admissions                              # All admissions
+GET /api/admissions/{id}                         # By ID
+GET /api/admissions/patient/{patientId}           # By patient
+GET /api/admissions/patient/{patientId}/active    # Active admission for patient
+GET /api/admissions/status/{status}               # By status (ADMITTED, DISCHARGED, TRANSFERRED, CANCELLED)
+GET /api/admissions/doctor/{doctorId}             # By doctor
+GET /api/admissions/department/{departmentId}     # By department
+GET /api/admissions/ward/{ward}/active             # Active admissions by ward
+```
+
+### Update, Transfer, Discharge, Cancel
+```
+PUT    /api/admissions/{id}                # Update admission record
+PATCH  /api/admissions/{id}/status         # Update status (?status=...)
+PATCH  /api/admissions/{id}/transfer       # Transfer ward/bed (?ward=...&bedNumber=...)
+PATCH  /api/admissions/{id}/discharge      # Discharge patient
+PATCH  /api/admissions/{id}/cancel         # Cancel admission
+DELETE /api/admissions/{id}                # Delete admission record
+```
+
+### Statistics
+```
+GET /api/admissions/statistics/count
+GET /api/admissions/statistics/active
+GET /api/admissions/statistics/discharged
+GET /api/admissions/statistics/transferred
+GET /api/admissions/statistics/cancelled
+```
+
+All admission endpoints require RBAC authorities: `ADMISSION_VIEW`, `ADMISSION_CREATE`, `ADMISSION_UPDATE`, `ADMISSION_DISCHARGE`, `ADMISSION_TRANSFER`, or `ADMISSION_CANCEL`.
+
+---
+
+## Hospital Settings Endpoints
+
+```
+GET   /api/settings/hospital           # Get current settings (requires SETTINGS_HOSPITAL_VIEW)
+PUT   /api/settings/hospital           # Update settings (requires SETTINGS_HOSPITAL_UPDATE)
+POST  /api/settings/hospital/reset     # Reset to defaults (requires SETTINGS_HOSPITAL_UPDATE)
 ```
 
 ---

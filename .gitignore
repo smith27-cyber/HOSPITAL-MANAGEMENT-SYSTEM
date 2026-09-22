@@ -3,16 +3,19 @@ node_modules/
 /node_modules
 package-lock.json
 
-# Build artifacts
+# Multi-module build artifacts
+**/target/
+hms-pom/**/target/
+*.jar
+*.war
+
+# Build outputs
 /dist
 dist/
 /build
 build/
 out/
-/target
 .angular/
-*.jar
-*.war
 
 # Test results and coverage
 /testing/node_modules

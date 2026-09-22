@@ -1,13 +1,13 @@
 # HMS Components & Modules Breakdown
 
-**Version:** 1.0  
-**Last Updated:** 2026-09-03
+**Version:** 1.1  
+**Last Updated:** 2026-09-22
 
 ---
 
 ## Component Overview
 
-HMS consists of 14 major feature modules plus core infrastructure. Each feature is independently developed and integrated through services and shared utilities.
+HMS consists of 13 major feature modules plus core infrastructure. Each feature is independently developed and integrated through services and shared utilities.
 
 ---
 
@@ -46,15 +46,17 @@ HMS consists of 14 major feature modules plus core infrastructure. Each feature 
   - Handles token refresh (if applicable)
   - Manages error responses
 
-**Services (14 total):**
+**Services (15 total):**
 
 | Service | File | Responsibility |
 |---------|------|-----------------|
 | AuthService | auth.service.ts | Authentication, login/logout, token management |
+| UserService | user.service.ts | User account & RBAC management |
 | PatientService | patient.service.ts | Patient CRUD operations, search |
 | DoctorService | doctor.service.ts | Doctor management |
 | AppointmentService | appointment.service.ts | Appointment scheduling and management |
 | ConsultationService | consultation.service.ts | Consultation records |
+| AdmissionService | admission.service.ts | Patient admission, ward/bed, transfer, discharge |
 | PharmacyService | pharmacy.service.ts | Prescriptions, stock management |
 | LaboratoryService | laboratory.service.ts | Lab tests, requests, results |
 | BillingService | billing.service.ts | Invoices, payments |
@@ -62,6 +64,7 @@ HMS consists of 14 major feature modules plus core infrastructure. Each feature 
 | DepartmentService | department.service.ts | Department management |
 | DashboardService | dashboard.service.ts | Analytics and metrics |
 | ReportService | report.service.ts | Report generation |
+| SettingsService | settings.service.ts | Hospital settings, system preferences (backed by `/api/settings/hospital`) |
 
 #### 3. Layout Module
 **Location:** `src/app/layout/`  
@@ -73,7 +76,7 @@ HMS consists of 14 major feature modules plus core infrastructure. Each feature 
   - Content outlet for feature components
   - Footer
 
-### Feature Modules (14 total)
+### Feature Modules (13 total)
 
 #### 1. Dashboard Module
 **Location:** `src/app/features/dashboard/`  
@@ -273,7 +276,46 @@ HMS consists of 14 major feature modules plus core infrastructure. Each feature 
 
 ---
 
-#### 7. Pharmacy Module
+#### 7. Admissions Module
+**Location:** `src/app/features/admissions/`  
+**Status:** ✅ Complete  
+**Responsibility:** Inpatient admission management
+
+**Sub-Components:**
+- `AdmissionListComponent` - List all admissions
+- `AdmissionRegisterComponent` - Admit a patient
+- `AdmissionEditComponent` - Update admission, transfer ward/bed
+- `AdmissionDetailsComponent` - Admission details, discharge/cancel actions
+
+**Routes:**
+- `GET /admissions`
+- `GET /admissions/register`
+- `GET /admissions/:id`
+- `GET /admissions/:id/edit`
+
+**Services Used:**
+- AdmissionService
+- PatientService
+- DoctorService
+- DepartmentService
+
+**Key Features:**
+- Admit patient to a ward/bed
+- Track admission type (emergency, routine, referral, surgical, maternity, other)
+- Transfer between wards/beds
+- Discharge and cancellation
+- Admission statistics (active, discharged, transferred, cancelled counts)
+
+**Key Fields:**
+- Patient ID/Name, Doctor ID/Name, Department ID/Name
+- Ward (general, private, pediatric, maternity, surgical, ICU, emergency, other)
+- Bed Number
+- Admission Type, Admission/Expected Discharge/Discharge Dates
+- Reason, Diagnosis, Notes, Status
+
+---
+
+#### 8. Pharmacy Module
 **Location:** `src/app/features/pharmacy/`  
 **Status:** ✅ Complete  
 **Responsibility:** Prescription and pharmacy management
@@ -308,7 +350,7 @@ HMS consists of 14 major feature modules plus core infrastructure. Each feature 
 
 ---
 
-#### 8. Laboratory Module
+#### 9. Laboratory Module
 **Location:** `src/app/features/laboratory/`  
 **Status:** ✅ Complete  
 **Responsibility:** Lab tests and request management
@@ -347,7 +389,7 @@ HMS consists of 14 major feature modules plus core infrastructure. Each feature 
 
 ---
 
-#### 9. Billing Module
+#### 10. Billing Module
 **Location:** `src/app/features/billing/`  
 **Status:** ✅ Complete  
 **Responsibility:** Billing and payment management
@@ -386,7 +428,7 @@ HMS consists of 14 major feature modules plus core infrastructure. Each feature 
 
 ---
 
-#### 10. Inventory Module
+#### 11. Inventory Module
 **Location:** `src/app/features/inventory/`  
 **Status:** ✅ Complete  
 **Responsibility:** Equipment and supply tracking
@@ -425,7 +467,7 @@ HMS consists of 14 major feature modules plus core infrastructure. Each feature 
 
 ---
 
-#### 11. Reports Module
+#### 12. Reports Module
 **Location:** `src/app/features/reports/`  
 **Status:** ✅ Complete  
 **Responsibility:** Analytics and reporting
@@ -449,30 +491,35 @@ HMS consists of 14 major feature modules plus core infrastructure. Each feature 
 
 ---
 
-#### 12. Settings Module
+#### 13. Settings Module
 **Location:** `src/app/features/settings/`  
-**Status:** ⚠️ Frontend Only  
-**Responsibility:** System configuration (frontend only, no backend implementation)
+**Status:** ✅ Complete (hospital settings backend-backed; system/notification preferences frontend-only)  
+**Responsibility:** System configuration
 
 **Sub-Components:**
-- `HospitalSettingsComponent` - Hospital configuration
-- `SystemPreferencesComponent` - System settings
-- `NotificationSettingsComponent` - Notification preferences
+- `HospitalSettingsComponent` - Hospital configuration (backed by `HospitalSettingsController`/`HospitalSettingsService`)
+- `SystemPreferencesComponent` - System settings (frontend only)
+- `NotificationSettingsComponent` - Notification preferences (frontend only)
+- `ProfileSettingsComponent` - User profile settings
+- `UserManagementComponent` - User/role administration (RBAC)
 
 **Routes:**
 - `GET /settings/hospital`
 - `GET /settings/system`
 - `GET /settings/notifications`
+- `GET /settings/profile`
+- `GET /settings/users`
 
 **Services Used:**
-- None (frontend configuration only)
+- SettingsService (hospital settings — real backend calls)
+- UserService (user/role management)
+- None for system preferences / notification settings (frontend configuration only)
 
 **Settings Available:**
-- Hospital name, address, contact
-- Operating hours
+- Hospital name, address, contact, operating hours (persisted via `GET/PUT /api/settings/hospital`, `POST /api/settings/hospital/reset`)
 - Department names
-- System preferences
-- Email notifications
+- System preferences (frontend only)
+- Email notifications (frontend only)
 - User preferences
 
 ---
@@ -508,16 +555,19 @@ HMS consists of 14 major feature modules plus core infrastructure. Each feature 
 
 ### Entity Layer (Database Models)
 
-14+ JPA entities representing hospital domain:
+18 JPA entities representing hospital domain:
 
 | Entity | Purpose | Key Fields |
 |--------|---------|-----------|
 | User | Authentication and user accounts | ID, Username, Password, Email, Role |
+| Role | RBAC role definitions | ID, Name, Permissions |
+| Permission | RBAC permission definitions | ID, Name (e.g. `ADMISSION_VIEW`) |
 | Patient | Patient records | ID, Name, Email, DOB, Gender, Address |
 | Doctor | Doctor profiles | ID, Name, Specialization, License, Department |
 | Department | Hospital departments | ID, Name, Description, Location |
 | Appointment | Doctor-patient meetings | ID, PatientID, DoctorID, DateTime, Status |
 | Consultation | Consultation records | ID, PatientID, DoctorID, Notes, Date |
+| Admission | Inpatient admission records | ID, PatientID, DoctorID, DepartmentID, Ward, BedNumber, AdmissionType, Status, Dates |
 | PharmacyPrescription | Medication prescriptions | ID, PatientID, Medications, Date |
 | PharmacyPrescriptionItem | Individual medications | ID, PrescriptionID, Medication, Dosage |
 | LaboratoryTest | Lab test definitions | ID, Name, Type, Cost |
@@ -526,6 +576,7 @@ HMS consists of 14 major feature modules plus core infrastructure. Each feature 
 | BillingPayment | Payment records | ID, BillingID, Amount, Date, Method |
 | BillingItem | Invoice line items | ID, BillingID, Description, Cost |
 | Inventory | Equipment/supplies | ID, Name, Quantity, Category |
+| HospitalSettings | Hospital configuration (singleton) | ID, Name, Address, Contact, OperatingHours |
 
 **Entity Relationships:**
 ```
@@ -546,7 +597,7 @@ Doctor ────→ Appointment ←─── Patient
 
 ### Repository Layer
 
-13+ Spring Data JPA repositories providing CRUD operations and custom queries:
+16 Spring Data JPA repositories providing CRUD operations and custom queries:
 
 **Pattern:**
 ```java
@@ -563,20 +614,23 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 - DepartmentRepository
 - AppointmentRepository
 - ConsultationRepository
+- AdmissionRepository
 - PharmacyPrescriptionRepository
 - LaboratoryTestRepository
 - LaboratoryRequestRepository
-- AdmissionRepository
 - BillingRepository
 - BillingItemRepository
-- BillingPaymentRepository
 - InventoryRepository
+- HospitalSettingsRepository
+- RoleRepository
+- PermissionRepository
+- UserRepository (auth package)
 
 ---
 
 ### Service Layer
 
-13+ business logic services:
+16 business logic services:
 
 **PatientService**
 ```java
@@ -610,10 +664,13 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 - DoctorService
 - DepartmentService
 - ConsultationService
+- AdmissionService
 - PharmacyService
 - LaboratoryService
 - InventoryService
 - DashboardService
+- HospitalSettingsService
+- AuthService, JwtService, UserService (auth package)
 
 ---
 
@@ -645,10 +702,15 @@ DELETE /api/appointments/{id}         # Cancel
 - DepartmentController
 - ConsultationController
 - BillingController
-- LaboratoryController
+- LaboratoryTestController
+- LaboratoryRequestController
 - AdmissionController
 - InventoryController
-- PharmacyController
+- PharmacyPrescriptionController
+- HospitalSettingsController
+- DashboardController
+- HealthController
+- AuthController, LoginFormController, UserController (auth package)
 
 ---
 
