@@ -174,6 +174,68 @@
     </a>
 
 
+    <!-- =================================================
+         DEV LOGIN (only rendered when the backend reports
+         hms.dev-login.enabled=true — never a security
+         boundary on its own, see AuthService.devLogin())
+         ================================================= -->
+
+    @if (devLoginEnabled) {
+
+      <div class="dev-login">
+
+        <div class="dev-login-divider">
+          Dev login
+        </div>
+
+
+        <!-- ===============================================
+             THOR (SUPER_ADMIN)
+             =============================================== -->
+
+        <button
+          type="button"
+          class="dev-login-thor"
+          (click)="loginAsThor()"
+          [disabled]="devLoginLoading"
+        >
+          Login as Thor (SUPER_ADMIN)
+        </button>
+
+
+        <!-- ===============================================
+             TEST USER DROPDOWN — starts on the empty
+             placeholder option, selecting a role logs in
+             immediately.
+             =============================================== -->
+
+        <select
+          class="dev-login-testuser"
+          [(ngModel)]="selectedTestUser"
+          name="devTestUser"
+          [disabled]="devLoginLoading"
+          (change)="onTestUserSelected()"
+        >
+
+          <option value="">
+            Login as test user...
+          </option>
+
+          @for (username of testUserOptions; track username) {
+
+            <option [value]="username">
+              {{ username }}
+            </option>
+
+          }
+
+        </select>
+
+      </div>
+
+    }
+
+
   </div>
 
 </div>

@@ -111,7 +111,9 @@ public class SecurityConfig {
 
                     .requestMatchers(
                         "/api/auth/login",
-                        "/api/auth/register"
+                        "/api/auth/register",
+                        "/api/auth/dev-login",
+                        "/api/auth/dev-login/status"
                     )
                     .permitAll()
 

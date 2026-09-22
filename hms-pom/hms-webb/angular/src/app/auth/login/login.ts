@@ -79,6 +79,26 @@ export class Login {
 
 
   // ===================================================
+  // DEV LOGIN STATE
+  // ===================================================
+  //
+  // Purely cosmetic — whether these render at all comes
+  // from the backend's own /api/auth/dev-login/status.
+  // The real gate (hms.dev-login.enabled + loopback-only
+  // caller) is enforced server-side regardless of what
+  // this component shows.
+  // ===================================================
+
+  devLoginEnabled = false;
+
+  testUserOptions: string[] = [];
+
+  selectedTestUser = '';
+
+  devLoginLoading = false;
+
+
+  // ===================================================
   // INITIALIZATION
   // ===================================================
 
@@ -96,6 +116,38 @@ export class Login {
       );
 
     }
+
+
+    // ================================================
+    // CHECK DEV LOGIN AVAILABILITY
+    // ================================================
+
+    this.authService
+      .devLoginStatus()
+      .subscribe({
+
+        next: status => {
+
+          this.devLoginEnabled =
+            status.enabled;
+
+          this.testUserOptions =
+            (status.usernames ?? [])
+              .filter(
+                username => username !== 'thor'
+              );
+
+        },
+
+        // Dev-login status itself is best-effort —
+        // if it fails, just don't show the buttons.
+        error: () => {
+
+          this.devLoginEnabled = false;
+
+        }
+
+      });
 
   }
 
@@ -262,6 +314,80 @@ export class Login {
 
     this.showPassword =
       !this.showPassword;
+
+  }
+
+
+  // ===================================================
+  // DEV LOGIN — THOR
+  // ===================================================
+
+  loginAsThor(): void {
+
+    this.runDevLogin('thor');
+
+  }
+
+
+  // ===================================================
+  // DEV LOGIN — TEST USER DROPDOWN
+  // ===================================================
+
+  onTestUserSelected(): void {
+
+    if (!this.selectedTestUser) {
+
+      return;
+
+    }
+
+    this.runDevLogin(this.selectedTestUser);
+
+  }
+
+
+  // ===================================================
+  // DEV LOGIN — SHARED
+  // ===================================================
+
+  private runDevLogin(username: string): void {
+
+    this.errorMessage = '';
+
+    this.devLoginLoading = true;
+
+    this.authService
+      .devLogin(username)
+      .subscribe({
+
+        next: () => {
+
+          this.devLoginLoading = false;
+
+          this.router.navigate(
+            ['/dashboard']
+          );
+
+        },
+
+        error: error => {
+
+          this.devLoginLoading = false;
+
+          this.selectedTestUser = '';
+
+          console.error(
+            'Dev login error:',
+            error
+          );
+
+          this.errorMessage =
+            error?.error?.message ||
+            'Dev login failed.';
+
+        }
+
+      });
 
   }
 

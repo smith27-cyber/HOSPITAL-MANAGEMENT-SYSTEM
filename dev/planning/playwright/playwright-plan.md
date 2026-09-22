@@ -28,9 +28,11 @@ Grounded in what's actually in the codebase, not assumed:
   `test_labtech`/`labtech123` (LABORATORY_TECHNICIAN),
   `test_accountant`/`accountant123` (ACCOUNTANT),
   `test_records`/`records123` (RECORDS_OFFICER),
-  `test_manager`/`manager123` (HOSPITAL_MANAGER). An `ADMIN`/`SUPER_ADMIN`
-  role also exists but the exact seeded admin login wasn't confirmed while
-  writing this plan — resolving that is a [Phase 0](./phases/phase-0-foundation.md) task, not assumed.
+  `test_manager`/`manager123` (HOSPITAL_MANAGER), plus `admin`/`admin123`
+  (`ADMIN`) confirmed directly from `RbacDataInitializer.java` — see
+  [task-0-8-confirm-admin-login](./tasks/todo/task-0-8-confirm-admin-login.md).
+  `SUPER_ADMIN` exists only as a `Role` with no `User` ever created
+  against it — there is no seeded `SUPER_ADMIN` login.
 
 ## Phases
 

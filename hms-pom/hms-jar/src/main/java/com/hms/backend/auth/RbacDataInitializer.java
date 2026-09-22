@@ -130,6 +130,17 @@ public class RbacDataInitializer {
         );
 
 
+        // =================================================
+        // 6. CREATE DEV LOGIN USERS (thor, *-testuser)
+        // =================================================
+
+        createDevLoginUsers(
+            userRepository,
+            roleRepository,
+            passwordEncoder
+        );
+
+
         System.out.println(
             "================================================="
         );
@@ -1475,6 +1486,144 @@ public class RbacDataInitializer {
 
         System.out.println(
             "RBAC TEST USERS READY"
+        );
+
+        System.out.println(
+            "================================================="
+        );
+    }
+
+
+    // =====================================================
+    // CREATE DEV LOGIN USERS
+    // =====================================================
+    //
+    // thor (SUPER_ADMIN) plus one *-testuser per RBAC role,
+    // for AuthService.devLogin() — see AuthController's
+    // /api/auth/dev-login. Each gets a random, never-revealed
+    // password so normal password login can never reach them;
+    // the only way in is the gated dev-login endpoint.
+    //
+    // Keep this list in sync with AuthService's
+    // DEV_LOGIN_USERNAMES set.
+    // =====================================================
+
+    private void createDevLoginUsers(
+        UserRepository userRepository,
+        RoleRepository roleRepository,
+        PasswordEncoder passwordEncoder
+    ) {
+
+        System.out.println(
+            "================================================="
+        );
+
+        System.out.println(
+            "CREATING / VERIFYING DEV LOGIN USERS"
+        );
+
+        System.out.println(
+            "================================================="
+        );
+
+
+        createTestUser(
+            userRepository,
+            roleRepository,
+            passwordEncoder,
+            "thor",
+            java.util.UUID.randomUUID().toString(),
+            "Dev Login Superuser",
+            "SUPER_ADMIN"
+        );
+
+        createTestUser(
+            userRepository,
+            roleRepository,
+            passwordEncoder,
+            "doc-testuser",
+            java.util.UUID.randomUUID().toString(),
+            "Dev Login Doctor",
+            "DOCTOR"
+        );
+
+        createTestUser(
+            userRepository,
+            roleRepository,
+            passwordEncoder,
+            "nurse-testuser",
+            java.util.UUID.randomUUID().toString(),
+            "Dev Login Nurse",
+            "NURSE"
+        );
+
+        createTestUser(
+            userRepository,
+            roleRepository,
+            passwordEncoder,
+            "rec-testuser",
+            java.util.UUID.randomUUID().toString(),
+            "Dev Login Receptionist",
+            "RECEPTIONIST"
+        );
+
+        createTestUser(
+            userRepository,
+            roleRepository,
+            passwordEncoder,
+            "pharm-testuser",
+            java.util.UUID.randomUUID().toString(),
+            "Dev Login Pharmacist",
+            "PHARMACIST"
+        );
+
+        createTestUser(
+            userRepository,
+            roleRepository,
+            passwordEncoder,
+            "lab-testuser",
+            java.util.UUID.randomUUID().toString(),
+            "Dev Login Laboratory Technician",
+            "LABORATORY_TECHNICIAN"
+        );
+
+        createTestUser(
+            userRepository,
+            roleRepository,
+            passwordEncoder,
+            "acct-testuser",
+            java.util.UUID.randomUUID().toString(),
+            "Dev Login Accountant",
+            "ACCOUNTANT"
+        );
+
+        createTestUser(
+            userRepository,
+            roleRepository,
+            passwordEncoder,
+            "records-testuser",
+            java.util.UUID.randomUUID().toString(),
+            "Dev Login Records Officer",
+            "RECORDS_OFFICER"
+        );
+
+        createTestUser(
+            userRepository,
+            roleRepository,
+            passwordEncoder,
+            "mgr-testuser",
+            java.util.UUID.randomUUID().toString(),
+            "Dev Login Hospital Manager",
+            "HOSPITAL_MANAGER"
+        );
+
+
+        System.out.println(
+            "================================================="
+        );
+
+        System.out.println(
+            "DEV LOGIN USERS READY"
         );
 
         System.out.println(

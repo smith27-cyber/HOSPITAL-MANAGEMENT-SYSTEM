@@ -54,6 +54,19 @@ export interface LoginResponse {
 
 
 // =====================================================
+// DEV LOGIN STATUS
+// =====================================================
+
+export interface DevLoginStatus {
+
+  enabled: boolean;
+
+  usernames: string[];
+
+}
+
+
+// =====================================================
 // AUTH SERVICE
 // =====================================================
 
@@ -106,70 +119,119 @@ export class AuthService {
       .pipe(
 
         tap(
-          (response: LoginResponse) => {
-
-            // =========================================
-            // SAVE JWT TOKEN
-            // =========================================
-
-            sessionStorage.setItem(
-              this.TOKEN_KEY,
-              response.token
-            );
-
-
-            // =========================================
-            // SAVE COMPLETE USER SESSION
-            // =========================================
-
-            sessionStorage.setItem(
-              this.USER_KEY,
-              JSON.stringify({
-
-                username:
-                  response.username,
-
-                fullName:
-                  response.fullName,
-
-                role:
-                  response.role,
-
-                roles:
-                  response.roles ?? [],
-
-                permissions:
-                  response.permissions ?? []
-
-              })
-            );
-
-
-            // =========================================
-            // DEBUG
-            // =========================================
-
-            console.log(
-              'HMS user authenticated:',
-              {
-                username:
-                  response.username,
-
-                role:
-                  response.role,
-
-                roles:
-                  response.roles,
-
-                permissions:
-                  response.permissions
-              }
-            );
-
-          }
+          (response: LoginResponse) =>
+            this.persistSession(response)
         )
 
       );
+
+  }
+
+
+  // ===================================================
+  // DEV LOGIN (local dev / testing only — no password)
+  // ===================================================
+
+  devLogin(
+    username: string
+  ): Observable<LoginResponse> {
+
+    return this.http
+      .post<LoginResponse>(
+        `${this.API_URL}/dev-login`,
+        { username }
+      )
+      .pipe(
+
+        tap(
+          (response: LoginResponse) =>
+            this.persistSession(response)
+        )
+
+      );
+
+  }
+
+
+  // ===================================================
+  // DEV LOGIN STATUS
+  // ===================================================
+
+  devLoginStatus(): Observable<DevLoginStatus> {
+
+    return this.http
+      .get<DevLoginStatus>(
+        `${this.API_URL}/dev-login/status`
+      );
+
+  }
+
+
+  // ===================================================
+  // PERSIST SESSION (shared: login + devLogin)
+  // ===================================================
+
+  private persistSession(
+    response: LoginResponse
+  ): void {
+
+    // =========================================
+    // SAVE JWT TOKEN
+    // =========================================
+
+    sessionStorage.setItem(
+      this.TOKEN_KEY,
+      response.token
+    );
+
+
+    // =========================================
+    // SAVE COMPLETE USER SESSION
+    // =========================================
+
+    sessionStorage.setItem(
+      this.USER_KEY,
+      JSON.stringify({
+
+        username:
+          response.username,
+
+        fullName:
+          response.fullName,
+
+        role:
+          response.role,
+
+        roles:
+          response.roles ?? [],
+
+        permissions:
+          response.permissions ?? []
+
+      })
+    );
+
+
+    // =========================================
+    // DEBUG
+    // =========================================
+
+    console.log(
+      'HMS user authenticated:',
+      {
+        username:
+          response.username,
+
+        role:
+          response.role,
+
+        roles:
+          response.roles,
+
+        permissions:
+          response.permissions
+      }
+    );
 
   }
 
