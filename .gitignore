@@ -18,12 +18,12 @@ out/
 .angular/
 
 # Test results and coverage
-/testing/node_modules
-/testing/test-results/
-/testing/playwright/test-results/
+/dev/testing/node_modules
+/dev/testing/test-results/
+/dev/testing/playwright/test-results/
 test-results/
-/testing/.nyc_output
-/testing/coverage
+/dev/testing/.nyc_output
+/dev/testing/coverage
 coverage/
 .nyc_output/
 .playwright/

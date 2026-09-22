@@ -3,15 +3,11 @@
 **Plan:** [hms-webb-morph-plan.md](../hms-webb-morph-plan.md)
 **Status:** Not started
 
-- [ ] `hms-webb/pom.xml`: `packaging: pom` → `packaging: jar`
-- [ ] Add `spring-boot-starter-webmvc` (matches the starter name already
-      used in `hms-jar` for this Spring Boot 4.x setup) + `spring-boot-devtools`
-      (runtime, optional)
-- [ ] Add `spring-boot-maven-plugin` to `<build><plugins>`
-- [ ] Add main class `com.hms.webb.HmsWebbApplication`
-- [ ] Add `src/main/resources/application.properties` — needs at minimum
-      `spring.application.name` and `server.port` (see
-      [Phase 4](./phase-4-cross-cutting-config.md), port isn't finalized yet)
-- [ ] Verify `mvn -pl hms-webb spring-boot:run` boots cleanly with no
-      static content yet (should just be an empty Whitelabel error page —
-      that's expected before [Phase 2](./phase-2-angular-output-wiring.md))
+## Tasks
+
+1. [Convert `hms-webb` packaging to jar](../tasks/phase1-task1-convert-packaging.md)
+2. [Add Spring Boot dependencies](../tasks/phase1-task2-add-dependencies.md)
+3. [Add spring-boot-maven-plugin](../tasks/phase1-task3-add-maven-plugin.md)
+4. [Add `HmsWebbApplication` main class](../tasks/phase1-task4-add-main-class.md)
+5. [Add `application.properties`](../tasks/phase1-task5-add-application-properties.md) — blocked on [Phase 4's port decision](./phase-4-cross-cutting-config.md)
+6. [Verify `hms-webb` boots cleanly](../tasks/phase1-task6-verify-boot.md)
