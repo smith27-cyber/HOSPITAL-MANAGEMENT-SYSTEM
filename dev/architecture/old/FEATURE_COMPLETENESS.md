@@ -10,7 +10,7 @@ Backend vs. frontend coverage, verified directly (not inferred from either side 
 | Doctors | Full CRUD | Full CRUD UI | Entity bound directly |
 | Departments | Full CRUD | Full CRUD UI | Entity bound directly |
 | Appointments | Full CRUD + queue + status | Full UI incl. queue | Uses DTOs both sides |
-| Consultations | Full workflow (open→complete) | Full UI | `@CrossOrigin(*)` inconsistency — see [SECURITY.md](./SECURITY.md) |
+| Consultations | Full workflow (open→complete) | Full UI | — |
 | Pharmacy prescriptions | Full 5-stage dispense workflow | Full UI incl. dispense flow | Largest service impl (2020 lines) |
 | Laboratory (tests + requests) | Full CRUD both | Full UI both | `testId`↔`LaboratoryTest` has no FK |
 | Admissions | Full CRUD + ward/bed logic | Full UI | No `ADMISSION_DELETE` permission (reuses UPDATE) |
@@ -39,8 +39,8 @@ Three independent gaps compound:
    patients, users, tenants, platform actions) writes an audit entry.
 2. **Read is unreachable** — `AuditLogController` requires `AUDIT_LOG_VIEW`, which no RBAC initializer
    ever seeds. No role, including SUPER_ADMIN, can currently call `/api/audit-logs`.
-3. **No frontend surface** — no component, service, or route in `hms-frontend` references audit logs at
-   all.
+3. **No frontend surface** — no component, service, or route in the Angular app (`hms-pom/hms-webb/angular`)
+   references audit logs at all.
 
 If audit logging is meant to be a real compliance/security feature rather than a partial, currently
 inert scaffold, all three gaps need addressing together. See

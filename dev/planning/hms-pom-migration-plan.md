@@ -151,13 +151,16 @@ Each step below is also broken out as its own tracked phase file under
 - No change to `hms-jar`'s business logic, entities, controllers' actual behavior, or API contracts
   beyond removing the `@CrossOrigin` annotations themselves.
 - No CI/deployment wiring.
-- Not refreshing `dev/architecture/old/` to reflect the new module layout — that doc set describes
-  *pre-migration* `paul` by design; once this migration lands, a follow-up pass to update it (or fold it
-  into `dev/architecture/20260922/`, which already assumed this layout) is a separate, later task.
-- Not touching `testing/playwright/` config for the new dual-port setup — flagged as a follow-up, not
-  required for the module restructuring itself to be correct.
 - Not deleting the reference branches (`dev`, `architecture/gsn-creating-a-new-pom-structure`) or their
   docs — they remain useful history/reference.
+
+Two items originally flagged out-of-scope have since been resolved or picked up:
+
+- **`testing/playwright/` config** — checked, needs no change: `playwright.config.ts` already targets
+  `http://localhost:4200` (`ng serve`), which the pom move doesn't affect.
+- **Refreshing `dev/architecture/old/`** — picked up as [Phase 7](./pom/phases/phase-7-refresh-architecture-docs.md),
+  since 13 of its 16 files reference the now-retired `hms-backend`/`hms-frontend`/CORS/
+  `AngularForwardController` state.
 
 ## Verification
 

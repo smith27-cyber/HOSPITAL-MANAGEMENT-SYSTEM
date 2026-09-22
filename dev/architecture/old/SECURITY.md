@@ -66,15 +66,21 @@
 
 ## CORS
 
-- Global bean in `SecurityConfig`: `allowedOrigins=["http://localhost:4200"]`, methods
-  GET/POST/PUT/PATCH/DELETE/OPTIONS, all headers, no credentials, 1-hour max-age, applied to `/**`.
-- 21 controllers redundantly repeat `@CrossOrigin(origins="http://localhost:4200")`.
-- **`ConsultationController` uses `@CrossOrigin(origins="*")`** — wildcard, widening CORS to any origin
-  for `/api/consultations/**` only. Inconsistent with every other controller and worth fixing.
-- `ReceiptController` and `SystemPreferencesController` have no `@CrossOrigin` at all (rely on the global
-  bean).
-- No `WebMvcConfigurer.addCorsMappings` exists anywhere — CORS is entirely `SecurityConfig` + per-controller
-  annotations.
+**Blocked entirely — no configuration.** As part of the `hms-jar`/`hms-webb` pom migration
+(`dev/planning/hms-pom-migration-plan.md`), the global `CorsConfigurationSource` bean, the `.cors(...)`
+registration, and all 20 `@CrossOrigin` annotations (19 controllers using
+`http://localhost:4200`, plus `ConsultationController`'s wildcard `@CrossOrigin(origins="*")`, which had
+been the one real gap — wide open to any origin, not just redundant boilerplate) were removed from
+`SecurityConfig` and every controller.
+
+This is safe because the browser now never makes a cross-origin request to `hms-jar` at all: `ng serve`'s
+dev proxy and `hms-webb`'s `WebApiForwardController` both forward `/api/**` to `hms-jar` server-side, so
+from the browser's perspective whichever of those it's talking to *is* the API. See
+[WEBB_MODULE.md](./WEBB_MODULE.md) for the mechanism.
+
+Live-verified: `curl -H "Origin: http://evil.example" -i http://localhost:8081/api/departments` → `403`
+with no `Access-Control-Allow-Origin` header in the response, confirming CORS is closed at the source,
+not just unused.
 
 ## Filter chain order
 

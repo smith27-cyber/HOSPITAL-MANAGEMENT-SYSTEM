@@ -20,9 +20,14 @@ documentation.
   code — built with Lombok `@Builder`, static factories, `@JsonInclude(NON_NULL)`, but never constructed.
   Only `LaboratoryRequestController` manually catches exceptions inline; every other controller lets
   service-layer exceptions propagate to Spring Boot's default `/error` handler.
-- **`ConsultationController` allows any CORS origin.** `@CrossOrigin(origins = "*")`, inconsistent with
-  the global `http://localhost:4200`-only policy and every other controller's explicit
-  `@CrossOrigin(origins = "http://localhost:4200")`.
+- **`OLIVES-DEFAULT` tenant has zero enabled modules.** Every module-gated endpoint tried
+  (`/api/departments`, `/api/dashboard`) returns `403 MODULE_NOT_ENABLED` for a normal tenant user,
+  reproduced identically hitting `hms-jar` directly (not a proxy artifact) — surfaced during the
+  hms-jar/hms-webb pom migration's live verification. Likely an initializer-ordering issue:
+  `RbacDataInitializer` creates the `OLIVES-DEFAULT` tenant, but `PlatformDataInitializer`'s
+  `initializeTenantDefaults` (which enables all modules) only runs for tenants that already exist at
+  `@Order(100)`, so a tenant created by the unordered `RbacDataInitializer` may get no `TenantModule`
+  rows at all depending on initializer run order.
 - **Secrets are plaintext in version control.** `hms.jwt.secret` and the Postgres password are committed
   as plaintext in `application.properties` (and the Postgres password again in `docker-compose.yml`), not
   sourced from environment variables or a secrets manager.
@@ -52,10 +57,6 @@ documentation.
   A user with an expired token has to notice the message and manually log out.
 - **`permissionGuard` logs verbose debug info to the browser console on every route check**,
   unconditionally — no dev/prod gate.
-- **Stray build artifacts at the repository root** (`index.html`, `main-V6MMLPDK.js`,
-  `styles-4KNJEDFK.css`) with different content hashes than the bundle actually served from
-  `hms-backend/src/main/resources/static/` — looks like an accidental or superseded build output
-  committed at the wrong location.
 - **No CI pipeline** builds, tests, or lints the project on push/PR (see [OPERATIONS.md](./OPERATIONS.md)).
 - **No `application-{profile}.properties` files** — dev/staging/prod share one config file with
   hardcoded, plaintext secrets.
@@ -77,6 +78,16 @@ documentation.
 - Seeded RBAC test accounts (`test_doctor`/`doctor123`, `admin`/`admin123`, `superadmin`/`superadmin123`,
   etc.) have hardcoded passwords that are never rotated — fine for local dev, a real risk if this
   initializer ever runs against a production database.
+
+## Resolved
+
+- **`ConsultationController` allowed any CORS origin** (`@CrossOrigin(origins = "*")`, inconsistent with
+  the rest of the API's `http://localhost:4200`-only policy). Resolved by the hms-jar/hms-webb pom
+  migration, which removed CORS entirely from `hms-jar` (not just this one annotation) — see
+  [SECURITY.md](./SECURITY.md).
+- **Stray build artifacts at the repository root** (`index.html`, `main-V6MMLPDK.js`,
+  `styles-4KNJEDFK.css`, different content hashes than anything actually served) — deleted as part of the
+  same migration's cleanup.
 
 ## Not an issue, but worth documenting clearly
 

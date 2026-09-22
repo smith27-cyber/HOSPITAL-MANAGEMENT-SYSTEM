@@ -4,11 +4,14 @@
 
 ## Backend
 
-**One test file exists**: `hms-backend/src/test/java/com/hms/backend/HmsBackendApplicationTests.java` —
-the default Spring Boot context-load smoke test. **No unit tests, no integration tests, no repository
+**One test file exists**: `hms-pom/hms-jar/src/test/java/com/hms/backend/HmsBackendApplicationTests.java`
+— the default Spring Boot context-load smoke test. **No unit tests, no integration tests, no repository
 tests, no controller/`@WebMvcTest` tests exist for any of the 24 entities, 24 repositories, 25 services,
-or 27 controllers**, despite `pom.xml` declaring the full Boot 4 "split" test starters
-(`spring-boot-starter-data-jpa-test`, `-security-test`, `-validation-test`, `-webmvc-test`).
+or 26 controllers**, despite `pom.xml` declaring the full Boot 4 "split" test starters
+(`spring-boot-starter-data-jpa-test`, `-security-test`, `-validation-test`, `-webmvc-test`). `hms-webb`
+(the new module added by the pom migration) has no tests at all — it has no business logic to test, but
+also no coverage for `SpaWebConfig`'s fallback behavior or `WebApiForwardController`'s header-forwarding
+logic, both of which were only checked manually (`curl`) during the migration's verification.
 
 ## Frontend
 
@@ -22,13 +25,14 @@ or 27 controllers**, despite `pom.xml` declaring the full Boot 4 "split" test st
 - **Test runner**: Angular 22's native Vitest integration (`@angular/build:unit-test` builder), not
   classic Karma — `package.json` has `vitest@^4.0.8` and `jsdom@^28.0.0`; `tsconfig.spec.json` sets
   `"types": ["vitest/globals"]`.
-- **Not verified as runnable in this pass** — `node_modules` was not installed in the checked-out tree, so
-  `ng test` was not actually executed. The configuration looks complete and consistent, but "a spec file
-  exists" has not been confirmed to mean "the suite currently passes."
+- **`ng test` itself still not verified as passing.** `node_modules` is now installed and `npm run build`/
+  `npm start` were both confirmed working during the pom migration's verification pass, but `ng test`
+  (the Vitest suite specifically) was not run. The configuration looks complete and consistent, but "a
+  spec file exists" has not been confirmed to mean "the suite currently passes."
 
 ## End-to-end (Playwright)
 
-`testing/playwright/` (top-level, outside `hms-backend`/`hms-frontend`) contains a Playwright + nyc
+`testing/playwright/` (top-level, outside `hms-pom/`) contains a Playwright + nyc
 coverage-merge setup (`playwright.config.ts`, `.nycrc.json`, `merge-coverage.js`) but **only one spec
 file**, `tests/app.spec.ts`. A much larger Playwright test plan exists as planning documents under
 `dev/planning/playwright/` (10 phases, dozens of task files) — but per this doc set's scope (architecture

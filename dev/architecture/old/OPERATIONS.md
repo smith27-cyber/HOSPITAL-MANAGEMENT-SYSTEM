@@ -6,22 +6,25 @@
 
 1. **Database**: `docker-compose up -d` (root `docker-compose.yml`) — Postgres 15, `hms_database`/
    `hms_user`, port 5432, with a healthcheck.
-2. **Backend**: `cd hms-backend && ./mvnw spring-boot:run` (or via IDE) — Spring Boot 4.1.1, Java 21,
-   listens on `0.0.0.0:8081`. Schema is created/updated automatically at boot
+2. **Backend API (`hms-jar`)**: `cd hms-pom && mvn -pl hms-jar spring-boot:run` (or via IDE) — Spring
+   Boot 4.1.1, Java 21, listens on `0.0.0.0:8081`. Schema is created/updated automatically at boot
    (`ddl-auto=update`, no migration step needed). `RbacDataInitializer`, `PlatformDataInitializer`
    (`@Order(100)`), and `PlatformPermissionInitializer` (`@Order(110)`) all run automatically and are
    idempotent (get-or-create), so repeated restarts are safe.
-3. **Frontend, dev mode**: `cd hms-frontend && npm start` (`ng serve`) — proxies `/api/**` to
-   `localhost:8081` via `proxy.conf.json`.
-4. **Frontend, bundled with backend**: `cd hms-frontend && npm run build` (`ng build`) writes directly
-   into `hms-backend/src/main/resources/static`; the backend then serves the whole app as one jar. There
-   is already a built bundle committed there.
+3. **Frontend, dev loop**: `cd hms-pom/hms-webb/angular && npm start` (`ng serve`) — proxies `/api/**` to
+   `localhost:8081` via `proxy.conf.json`. Never touches `hms-webb`'s Java side.
+4. **Frontend, packaged (`hms-webb`)**: `cd hms-pom/hms-webb/angular && npm run build` (`ng build`)
+   writes directly into `hms-pom/hms-webb/src/main/resources/static` (gitignored); then
+   `cd .. && mvn spring-boot:run` — `hms-webb` serves the built bundle on port 8080 and forwards
+   `/api/**` to `hms-jar` on 8081. No hot-reload in this mode — a fresh `ng build` requires restarting
+   `hms-webb`.
 
 ## Configuration
 
-All backend config is in `hms-backend/src/main/resources/application.properties` — no
-`application-{profile}.properties` files exist, so there is currently **no dev/staging/prod profile
-separation**; the same file (with plaintext DB password and JWT secret) is used everywhere.
+Backend config is split across two modules, each with its own `application.properties`: `hms-jar`'s
+(DB, JWT, Swagger — see below) and `hms-webb`'s (just `server.port=8080`). Neither module has
+`application-{profile}.properties` files, so there is currently **no dev/staging/prod profile
+separation**; `hms-jar`'s single file (with plaintext DB password and JWT secret) is used everywhere.
 
 Key properties: `server.port=8081`, `spring.datasource.url=jdbc:postgresql://localhost:5432/hms_database`,
 `spring.jpa.hibernate.ddl-auto=update`, `hms.jwt.secret`/`hms.jwt.expiration` (8h), `springdoc.*`

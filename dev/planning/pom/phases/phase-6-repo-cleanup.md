@@ -6,8 +6,8 @@
 
 ## Tasks
 
-1. [Delete stray build artifacts at the repo root](../tasks/todo/task6-1-delete-stray-root-build-artifacts.md) — Done
-2. [Update root `README.md`](../tasks/todo/task6-2-update-readme.md) — Done
+1. [Delete stray build artifacts at the repo root](../tasks/verify/task6-1-delete-stray-root-build-artifacts.md) — Done
+2. [Update root `README.md`](../tasks/verify/task6-2-update-readme.md) — Done
 
 ## Out of scope for this plan (tracked separately, not part of this phase)
 

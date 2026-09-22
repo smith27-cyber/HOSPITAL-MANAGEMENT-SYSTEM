@@ -6,7 +6,7 @@
 
 - **PostgreSQL 15** (`postgres:15-alpine` in `docker-compose.yml`), database `hms_database`, user
   `hms_user` — credentials are plaintext in both `docker-compose.yml` and
-  `hms-backend/src/main/resources/application.properties` (see [SECURITY.md](./SECURITY.md)).
+  `hms-pom/hms-jar/src/main/resources/application.properties` (see [SECURITY.md](./SECURITY.md)).
 - **No Flyway or Liquibase.** Confirmed: no such dependency in `pom.xml`, no `db/migration` directory, no
   file matching `*migration*`/`*flyway*`/`*liquibase*` anywhere under `src/main/resources`.
 - `spring.jpa.hibernate.ddl-auto=update` — the **entire schema is Hibernate-managed**. Every table,

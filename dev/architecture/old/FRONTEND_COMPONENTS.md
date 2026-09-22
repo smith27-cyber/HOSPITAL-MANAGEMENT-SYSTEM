@@ -1,11 +1,13 @@
 # HMS Frontend Components — As-Built
 
 **Last Updated:** 2026-09-23
-**Verified by reading source directly** under `hms-frontend/src/app/`.
+**Verified by reading source directly** under `hms-pom/hms-webb/angular/src/app/`.
 
 Angular 22, **100% standalone components — no `NgModule` exists anywhere** in `src/app` (confirmed via
-grep). Directory is literally named `hms-frontend` (not `hms-webb` — see
-[WEBB_MODULE.md](./WEBB_MODULE.md)). No `environment.ts`/`environment.prod.ts` files exist at all.
+grep). Now lives at `hms-pom/hms-webb/angular/` (moved there, unchanged internally, by the
+hms-jar/hms-webb pom migration — see [WEBB_MODULE.md](./WEBB_MODULE.md)); the Angular project's own
+`package.json` name is still `hms-frontend`, a cosmetic leftover, not a path. No
+`environment.ts`/`environment.prod.ts` files exist at all.
 
 ## App structure
 
@@ -83,9 +85,9 @@ enforced. All backend entities except `AuditLog` have a corresponding frontend m
 
 - No environment files. `proxy.conf.json`: `{"/api": {"target": "http://localhost:8081", ...}}`
   (dev-server only), matching the backend's real port.
-- `angular.json`'s build output path is `../hms-backend/src/main/resources/static` — `ng build` compiles
-  straight into the backend's static resources, confirming the single-jar production deployment model.
-  See [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md).
+- `angular.json`'s build output path is `../src/main/resources/static` (relative to `hms-webb/angular/`)
+  — `ng build` compiles straight into `hms-webb`'s own static resources, not `hms-jar`'s. See
+  [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md) and [WEBB_MODULE.md](./WEBB_MODULE.md).
 
 ## Auth handling
 

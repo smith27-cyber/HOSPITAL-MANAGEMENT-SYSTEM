@@ -1,21 +1,25 @@
 # HMS Architecture Documentation — As-Built (branch `paul`)
 
-**Last Updated:** 2026-09-23
-**Verified against:** branch `paul`, commit `9f5abdb` (code) — docs added on top at `ff68a3d`
-**Scope:** `hms-backend/` and `hms-frontend/` only. Does **not** cover `dev/planning/` or `dev/testing/`.
+**Last Updated:** 2026-09-23 (post pom-migration refresh)
+**Verified against:** branch `paul`, `hms-jar`/`hms-webb` pom migration complete and live-verified
+(`dev/planning/hms-pom-migration-plan.md`)
+**Scope:** `hms-pom/hms-jar/` and `hms-pom/hms-webb/` only. Does **not** cover `dev/planning/` or
+`dev/testing/`.
 
 ---
 
 ## Why this doc set exists
 
-`dev/architecture/20260922/` (the sibling directory) documents a *different* line of work: a planned
-migration to an `hms-jar`/`hms-webb` module layout, carried out on the
+`dev/architecture/20260922/` (the sibling directory) documents a *different* line of work: the
+`hms-jar`/`hms-webb` module layout as it was designed and proven on the
 `architecture/gsn-creating-a-new-pom-structure` branch. Its counts (18 entities, 16 repositories, 16
-services) were accurate for that branch at the time they were written, but `paul` never received that
-restructuring — it still uses the `hms-backend`/`hms-frontend` layout — and `paul` separately gained an
-entire multi-tenant SaaS platform layer (`platform`, `tenant`, `audit` packages) that the `20260922` set
-never saw. The two doc sets ended up describing two different, divergent codebases while sitting side by
-side in the same repo.
+services) were accurate for that branch, but never accounted for the entire multi-tenant SaaS platform
+layer (`platform`, `tenant`, `audit` packages) that `paul` separately gained. This directory (`old/`)
+was originally written when `paul` still used the flat `hms-backend`/`hms-frontend` layout; `paul` has
+since had that same `hms-jar`/`hms-webb` restructuring replayed against its own, more advanced code (see
+[WEBB_MODULE.md](./WEBB_MODULE.md)), so the module *layout* the two doc sets describe has converged —
+but they still disagree on backend content, since `20260922` was never updated for `platform`/`tenant`/
+`audit`.
 
 This directory (`old/`) documents what is **actually in `paul`'s working tree right now**, verified by
 reading the source directly (not by trusting any prior doc). "Old" here follows the repo's established
@@ -29,13 +33,13 @@ naming convention (as-built/current state), not "outdated."
   xlsx. Tests via Angular's native Vitest integration (not Karma).
 - **Database:** PostgreSQL 15 (via `docker-compose.yml`), schema entirely Hibernate-managed
   (`ddl-auto=update`) — no Flyway/Liquibase.
-- **Deployment model:** dual — `ng serve` + `proxy.conf.json` for dev, or `ng build` compiled straight into
-  `hms-backend/src/main/resources/static` for a single-jar production deploy (see
-  [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md)).
+- **Deployment model:** two Spring Boot processes — `hms-jar` (API only, port 8081) and `hms-webb`
+  (static serving + `/api/**` forwarding, port 8080), with `ng serve` + `proxy.conf.json` as the
+  dev-loop alternative (see [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md)).
 
 ## What HMS actually is, as of this branch
 
-A single-jar-deployable, **multi-tenant** hospital management system: one Spring Boot backend serves
+A **multi-tenant** hospital management system split across two Spring Boot processes: `hms-jar` serves
 both a tenant-facing HMS application (patients, doctors, appointments, consultations, pharmacy,
 laboratory, admissions, billing, inventory, reports, hospital/system settings) and a separate
 platform/SaaS administration surface ("Olives Tech" platform) for managing tenants, subscription plans,
@@ -59,5 +63,5 @@ custom servlet filters, not by a database-level mechanism (see [SECURITY.md](./S
 | [FEATURE_COMPLETENESS.md](./FEATURE_COMPLETENESS.md) | Backend vs. frontend coverage per module |
 | [TESTING_STATUS.md](./TESTING_STATUS.md) | What test coverage actually exists |
 | [STATUS_OVERVIEW.md](./STATUS_OVERVIEW.md) | One-page summary of all of the above |
-| [WEBB_MODULE.md](./WEBB_MODULE.md) | Status of the planned hms-jar/hms-webb migration (not yet applied here) |
+| [WEBB_MODULE.md](./WEBB_MODULE.md) | The hms-jar/hms-webb module split: mechanics, ports, how to run each |
 | [CLAUDE.md](./CLAUDE.md) | Provenance note for this doc set |

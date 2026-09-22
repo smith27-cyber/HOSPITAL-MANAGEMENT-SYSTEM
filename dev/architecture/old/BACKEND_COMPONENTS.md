@@ -1,7 +1,7 @@
 # HMS Backend Components — As-Built
 
 **Last Updated:** 2026-09-23
-**Verified by reading source directly** under `hms-backend/src/main/java/com/hms/backend/`.
+**Verified by reading source directly** under `hms-pom/hms-jar/src/main/java/com/hms/backend/`.
 
 Package root contains exactly 11 subpackages plus one top-level class
 (`HmsBackendApplication.java`): **audit, auth, config, controller, dto, entity, platform, repository,
@@ -14,7 +14,7 @@ service, settings, tenant**.
 | JPA `@Entity` classes (table-backed) | **24** | Excludes 5 pure enums, 1 `@Embeddable`, 1 dead empty file |
 | Repositories | **24** | One per entity, all `JpaRepository` |
 | Service classes | **25** | 20 interface+Impl pairs, plus 5 concrete no-interface services |
-| Controllers | **27** | Including 1 non-REST (`AngularForwardController`) |
+| Controllers | **26** | All REST — `AngularForwardController` was retired in the hms-jar/hms-webb pom migration |
 | Enums (entity-adjacent) | **10** | `AdmissionStatus/Type`, `WardType`, `BillingType`, `PaymentMethod`, `BillingStatus`, `ConsultationStatus`, `BillingCycle`, `ModuleCode`, `SubscriptionStatus`, `TenantStatus`, `TenantType` |
 
 This is **not** 18 entities / 16 repositories / 16 services as `dev/architecture/20260922/` documents —
@@ -27,13 +27,13 @@ subsystem: `platform` (SaaS plans/subscriptions/module entitlement), `tenant`, `
 
 ## Configuration layer (`config/`)
 
-4 classes:
+3 classes (was 4 — `AngularForwardController` retired in the hms-jar/hms-webb pom migration; SPA
+deep-linking is now `hms-webb`'s `SpaWebConfig`, see [WEBB_MODULE.md](./WEBB_MODULE.md)):
 
-- **`SecurityConfig`** — full filter chain, CORS, authorization rules. See [SECURITY.md](./SECURITY.md).
+- **`SecurityConfig`** — full filter chain, authorization rules. No CORS configuration at all (removed
+  in the same migration). See [SECURITY.md](./SECURITY.md).
 - **`PasswordConfig`** — single bean, `BCryptPasswordEncoder`.
 - **`OpenApiConfig`** — Swagger/OpenAPI metadata. See [API_DESIGN.md](./API_DESIGN.md).
-- **`AngularForwardController`** — plain `@Controller` (not REST) forwarding a whitelist of Angular
-  client routes to `forward:/index.html` for SPA deep-linking.
 
 ## Entity layer
 

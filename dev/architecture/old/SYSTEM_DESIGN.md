@@ -6,34 +6,40 @@
 
 ## High-level shape
 
-Two applications, one deployable artifact:
+Two Spring Boot processes, one Maven reactor (`hms-pom/`):
 
-- **`hms-backend/`** — Spring Boot 4.1.1 / Java 21 / Maven, package root `com.hms.backend`. Serves the
-  REST API under `/api/**`, and in production also serves the compiled Angular bundle as static content.
-- **`hms-frontend/`** — Angular 22, 100% standalone components (no `NgModule` anywhere in `src/app`).
+- **`hms-pom/hms-jar/`** — the Backend API. Spring Boot 4.1.1 / Java 21, package root `com.hms.backend`
+  (unchanged by the pom migration — only the module/directory path moved). Serves `/api/**` only, port
+  8081. No frontend awareness at all: no static resources, no CORS configuration, no SPA-forwarding
+  controller.
+- **`hms-pom/hms-webb/`** — the Web module. A separate, minimal Spring Boot app (`com.hms.webb`, port
+  8080) that does two things: serves the compiled Angular bundle as static content (with SPA-fallback
+  routing) and forwards `/api/**` to `hms-jar`. Has no entities, repositories, or business logic.
+  Contains the Angular project at `hms-webb/angular/`.
 
-There is no API gateway, message queue, cache layer, or separate auth server — a single Spring Boot
-process does everything: REST API, static asset serving, and SPA fallback routing.
+There is no API gateway, message queue, cache layer, or separate auth server. See
+[WEBB_MODULE.md](./WEBB_MODULE.md) for full detail on `hms-webb`'s two classes
+(`SpaWebConfig`, `WebApiForwardController`) and why this split lets `hms-jar` have zero CORS
+configuration.
 
 ## Deployment model (dual, both real)
 
-1. **Standalone dev serving**: `ng serve` (`npm start` in `hms-frontend/`) runs the Angular dev server on
-   its own port. `hms-frontend/proxy.conf.json` forwards `/api/**` to `http://localhost:8081` (the
-   backend's actual port per `application.properties`). Frontend code calls relative `/api/...` paths so
-   this works transparently.
-2. **Bundled production serving**: `angular.json`'s `build.options.outputPath` is set to
-   `{"base": "../hms-backend/src/main/resources/static", "browser": ""}` — `ng build` compiles the
-   Angular app **directly into the Spring Boot module's static resources folder**, not into
-   `hms-frontend/dist`. A built bundle already exists there (`index.html`, hashed `chunk-*.js`,
-   `main-ZRC3TWN4.js`, `styles-IFUDU7FW.css`). `com.hms.backend.config.AngularForwardController` forwards
-   a whitelist of Angular client routes (`/`, `/login`, `/dashboard`, every feature root + `/**`,
-   `/platform/**`) to `forward:/index.html` so Angular's client-side router can take over — the standard
-   SPA-fallback pattern.
+1. **Standalone dev serving**: `ng serve` (`npm start` in `hms-webb/angular/`) runs the Angular dev
+   server on its own port (4200). `hms-webb/angular/proxy.conf.json` forwards `/api/**` to
+   `http://localhost:8081` (`hms-jar`'s actual port). Frontend code calls relative `/api/...` paths so
+   this works transparently, and this mode never touches `hms-webb`'s Java side or its `static/` output.
+2. **Packaged serving**: `angular.json`'s `build.options.outputPath` is set to
+   `{"base": "../src/main/resources/static", "browser": ""}` (relative to `hms-webb/angular/`) — `ng
+   build` compiles the Angular app **directly into `hms-webb`'s static resources folder**
+   (`hms-pom/hms-webb/src/main/resources/static/`, gitignored). Running `hms-webb`
+   (`mvn -pl hms-webb spring-boot:run`) then serves that bundle on port 8080, with `SpaWebConfig` handling
+   client-side-route fallback to `index.html` (works for every route automatically, no hardcoded list)
+   and `WebApiForwardController` forwarding `/api/**` to `hms-jar`. No hot-reload in this mode — a fresh
+   `ng build` requires restarting `hms-webb`.
 
-**Stray artifacts**: `index.html`, `main-V6MMLPDK.js`, and `styles-4KNJEDFK.css` also exist directly at
-the repository root (not inside `hms-frontend/` or `hms-backend/.../static/`), with different content
-hashes than the ones actually served from `static/`. These look like an accidental or superseded build
-output left at the wrong location — see [KNOWN_ISSUES.md](./KNOWN_ISSUES.md).
+The formerly-stray build artifacts at the repository root (`index.html`, `main-V6MMLPDK.js`,
+`styles-4KNJEDFK.css`) and the git-tracked static bundle that used to live inside `hms-jar` have both
+been removed — see [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) for the resolved entries.
 
 ## Request lifecycle (authenticated API call)
 

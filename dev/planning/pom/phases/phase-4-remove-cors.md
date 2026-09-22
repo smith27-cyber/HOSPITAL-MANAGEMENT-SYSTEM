@@ -6,11 +6,11 @@
 
 ## Tasks
 
-1. [Remove the global CORS bean and registration](../tasks/todo/task4-1-remove-cors-bean-and-config.md) — Done
-2. [Remove the Angular-route `permitAll()` whitelist](../tasks/todo/task4-2-remove-permitall-angular-whitelist.md) — Done
-3. [Remove `@CrossOrigin` from all controllers](../tasks/todo/task4-3-remove-crossorigin-annotations.md) — Done
-4. [Document why CORS is absent](../tasks/todo/task4-4-add-cors-removed-comment.md) — Done
-5. [Verify CORS is genuinely blocked](../tasks/todo/task4-5-verify-cors-blocked.md) — Done
+1. [Remove the global CORS bean and registration](../tasks/verify/task4-1-remove-cors-bean-and-config.md) — Done
+2. [Remove the Angular-route `permitAll()` whitelist](../tasks/verify/task4-2-remove-permitall-angular-whitelist.md) — Done
+3. [Remove `@CrossOrigin` from all controllers](../tasks/verify/task4-3-remove-crossorigin-annotations.md) — Done
+4. [Document why CORS is absent](../tasks/verify/task4-4-add-cors-removed-comment.md) — Done
+5. [Verify CORS is genuinely blocked](../tasks/verify/task4-5-verify-cors-blocked.md) — Done
 
 **Explicit non-goal:** do not touch `JwtAuthenticationFilter`, `TenantContextFilter`,
 `ModuleAccessFilter`, or any `@PreAuthorize` rule — none of that is CORS-related and all of it postdates
