@@ -16,16 +16,16 @@ called out explicitly rather than assumed.
       `proxy.conf.json` to reach the real `hms-jar` API on `:8081`. The
       packaged `hms-webb` module (8080) is not a test target, and there's
       no dual-target parametrization. See
-      [phase0-task1-decide-base-url](../tasks/todo/phase0-task1-decide-base-url.md).
-- [ ] **Test data strategy.** Many flows need existing reference data
-      (a department before you can register a doctor into it, a patient
-      before an appointment, etc.). Decide: seed via direct API calls in a
-      `beforeAll`/fixture (fast, but bypasses the UI you're supposed to be
-      testing for *setup* — acceptable, since the UI under test is the
-      *subject*, not the setup) vs. create everything through the UI in
-      each test (slower, more brittle, but tests the create-flows too as a
-      side effect). Recommend: API-seeded seed data for prerequisites,
-      UI-driven for the thing actually being tested.
+      [task-0-1-decide-base-url](../tasks/todo/task-0-1-decide-base-url.md).
+- [x] **Test data strategy — decided: UI-only, no API or DB seeding.**
+      All test data, including prerequisite/reference data (a department
+      before you can register a doctor into it, a patient before an
+      appointment, etc.), is created by driving the real UI — never a
+      direct API call, never a direct DB insert. Kept strictly top-down:
+      any backend code exercised only via seeding would look "covered"
+      without a real user action ever proving it reachable, hiding the
+      dead-code signal this suite is meant to surface. See
+      [task-0-2-decide-test-data-strategy](../tasks/todo/task-0-2-decide-test-data-strategy.md).
 - [ ] **Test isolation.** The app persists real state in Postgres — tests
       running in parallel (or repeatedly) will collide on names/unique
       fields (e.g. patient email, department name) unless test data is
