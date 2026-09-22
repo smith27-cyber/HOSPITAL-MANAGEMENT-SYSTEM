@@ -2,7 +2,9 @@
 
 **Phase:** [Phase 2 — Wire Angular's build output directly into `static/`](../../phases/phase-2-angular-output-wiring.md)
 **Depends on:** [phase2-task1-set-output-path](./phase2-task1-set-output-path.md)
-**Status:** Not started
+**Status:** Done — ran `ng build --configuration development`; confirmed
+`hms-webb/src/main/resources/static/index.html` exists directly, no
+`browser/` subfolder.
 
 Run `ng build` from `hms-webb/angular/` and confirm
 `hms-webb/src/main/resources/static/index.html` exists directly — **not**

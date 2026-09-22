@@ -1,6 +1,13 @@
 # HMS Pom Structure — Frontend Module Proposal
 
-**Status:** Proposed — not yet implemented
+**Status:** Partially implemented — Phase 1 and most of Phase 2 done (see
+[dev/planning/tasks/verify/](../../planning/tasks/verify/)); Phase 3
+(retiring `hms-jar`'s frontend-serving code) and Phase 4 (CORS removal,
+dev-workflow docs) not started. **This section is not yet "promoted" to
+`../old/`** — that's [phase5-task1](../../planning/tasks/todo/phase5-task1-promote-proposal-doc.md),
+which explicitly waits until all of Phase 1–4 are done and verified. The
+paragraphs below are patched for accuracy in the meantime, not rewritten
+wholesale.
 **Last Updated:** 2026-09-22
 
 ---
@@ -13,33 +20,37 @@
 hms-pom/
 ├── pom.xml            # hms-parent (packaging: pom)
 ├── hms-jar/           # backend — real Spring Boot module (packaging: jar)
-│   ├── src/main/resources/static/   # contains a manually-copied, stale
-│   │                                 # Angular build (not produced by any
-│   │                                 # build step in this repo)
-│   └── src/.../config/AngularForwardController.java   # VIOLATES the hard
-│                        # constraint below — forwards Angular app routes
-│                        # to index.html; this is hms-webb's job, not hms-jar's
-└── hms-webb/          # frontend — packaging: pom, EMPTY CONTAINER ONLY
-    ├── pom.xml         # no dependencies, no main class, does not run
-    └── angular/        # the actual Angular 22 project
-        └── dist/hms-frontend/browser/   # `ng build` default output location
+│   ├── src/main/resources/static/   # STILL contains the manually-copied,
+│   │                                 # stale Angular build — not yet removed
+│   │                                 # (Phase 3, not started)
+│   └── src/.../config/AngularForwardController.java   # STILL VIOLATES the
+│                        # hard constraint below — not yet removed (Phase 3)
+└── hms-webb/          # frontend — NOW A REAL SPRING BOOT MODULE (packaging: jar)
+    ├── pom.xml         # spring-boot-starter-webmvc + devtools, runs on 8080
+    ├── src/main/java/com/hms/webb/
+    │   ├── HmsWebbApplication.java
+    │   ├── config/SpaWebConfig.java        # SPA routing fallback (Phase 2, done)
+    │   └── controller/WebApiForwardController.java  # Web API forwarder (Phase 2, done)
+    ├── src/main/resources/static/   # `ng build` writes directly here — verified working
+    └── angular/        # the Angular 22 project
+        └── proxy.conf.json   # ng serve dev proxy (Phase 1, done — config only, unverified end-to-end)
 ```
 
 **Hard constraint:** Angular must not be aware of anything outside
 `hms-webb`. `hms-jar` carries zero Angular-awareness — no static build, no
-SPA-routing/forward logic, nothing. Both artifacts above violate this and
-are covered by
-[Phase 3](../../planning/phases/phase-3-retire-stale-copy.md).
+SPA-routing/forward logic, nothing. Both artifacts still violate this as
+of this writing; removing them is
+[Phase 3](../../planning/phases/phase-3-retire-stale-copy.md), which
+hasn't started (it waits on `hms-webb` working, which is now true —
+nothing is blocking it anymore except doing the work).
 
-`hms-webb`'s own pom.xml states its intent directly: *"Angular is built
-separately using npm and served independently. This POM organizes the
-structure logically."* In practice this means:
-- `hms-webb` is not a runnable Spring Boot app today.
-- The Angular build (`ng build`) writes to its own `dist/` folder and isn't
-  wired to anything.
-- Whatever is being served as static content by the backend
-  (`hms-jar/src/main/resources/static`) got there by hand, not by build
-  automation.
+`hms-webb` is now a real, runnable Spring Boot module — verified booting
+on port 8080, serving the real built Angular app (not a placeholder), with
+working SPA-route fallback and a functioning `/api/**` forwarding layer
+(confirmed to correctly attempt relaying to `hms-jar`, though a real
+end-to-end response through a running `hms-jar` + Postgres hasn't been
+observed in this environment — see
+[phase2-task6](../../planning/tasks/todo/phase2-task6-verify-api-call.md)).
 
 ---
 
@@ -111,7 +122,7 @@ behind each decision stays visible, not just the conclusion.
    `hms-jar/src/main/resources/static` holds a manually-copied Angular
    build, and `hms-jar/.../config/AngularForwardController.java` forwards
    Angular app routes to `index.html` (working SPA-routing fallback,
-   solving the same problem [phase2-task4](../../planning/tasks/todo/phase2-task4-verify-routing.md)
+   solving the same problem [phase2-task4](../../planning/tasks/verify/phase2-task4-verify-routing.md)
    flags for `hms-webb` — just in the wrong module). Both get removed from
    `hms-jar` once `hms-webb` has its own working equivalent — sequenced
    for that reason, not because the removal itself is still in question.
@@ -143,7 +154,7 @@ behind each decision stays visible, not just the conclusion.
    currently widens access beyond that global policy for its own
    endpoints. Both need removing, not just the annotations. See
    `dev/planning/tasks/verify/phase1-task7-add-ng-serve-proxy.md`,
-   `dev/planning/tasks/todo/phase2-task5-add-reverse-proxy.md`, and
+   `dev/planning/tasks/verify/phase2-task5-add-reverse-proxy.md`, and
    `dev/planning/tasks/todo/phase4-task2-resolve-cors.md`.
 3. **Port choice — resolved.** `hms-webb` runs on `8080` (Spring Boot's
    conventional default), `hms-jar` stays on `8081`, Angular dev server on

@@ -2,7 +2,16 @@
 
 **Phase:** [Phase 2 — Wire Angular's build output directly into `static/`](../../phases/phase-2-angular-output-wiring.md)
 **Depends on:** [phase2-task3-verify-serving](./phase2-task3-verify-serving.md)
-**Status:** Not started — likely to surface a real decision point
+**Status:** Done — the predicted 404 happened exactly as expected
+(confirmed via `curl localhost:8080/patients` → 404
+`NoResourceFoundException`). **Decision made:** implemented a
+`PathResourceResolver` override in `com.hms.webb.config.SpaWebConfig`
+(the standard Spring Boot SPA-fallback pattern) rather than an explicit
+route list — falls back to `index.html` for any unmatched path
+automatically, present or future route, without needing updates when new
+routes are added. Verified: `curl localhost:8080/patients` now returns
+200 with `index.html`, while `curl localhost:8080/favicon.ico` still
+correctly returns the real file (fallback doesn't shadow real assets).
 
 Navigate to a non-root Angular route (e.g. `/patients`) via in-app
 navigation, then hard-refresh the browser on that URL.
@@ -28,5 +37,5 @@ into `hms-webb` without review — it hardcodes routes by name, so it goes
 stale every time a new top-level route is added, and per the hard
 constraint in [hms-webb-morph-plan.md](../../hms-webb-morph-plan.md), it
 needs to be removed from `hms-jar` entirely
-([phase3-task2](./phase3-task2-remove-stale-static.md)), not left
+([phase3-task2](../todo/phase3-task2-remove-stale-static.md)), not left
 duplicated in both modules.

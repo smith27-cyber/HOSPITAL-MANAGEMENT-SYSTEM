@@ -1,7 +1,7 @@
 # Task: Block CORS on `hms-jar` entirely — no cross-origin API access
 
 **Phase:** [Phase 4 — Cross-cutting config decisions](../../phases/phase-4-cross-cutting-config.md)
-**Depends on:** [phase1-task7-add-ng-serve-proxy](../verify/phase1-task7-add-ng-serve-proxy.md), [phase2-task5-add-reverse-proxy](./phase2-task5-add-reverse-proxy.md)
+**Depends on:** [phase1-task7-add-ng-serve-proxy](../verify/phase1-task7-add-ng-serve-proxy.md), [phase2-task5-add-reverse-proxy](../verify/phase2-task5-add-reverse-proxy.md)
 **Status:** Not started — **decision made**, this is now implementation
 
 ## Decision
@@ -11,7 +11,7 @@ entirely. The delivering server (`ng serve` in dev, `hms-webb`'s Web API
 layer when packaged) is the only thing the browser ever talks to; both
 forward `/api/**` to `hms-jar`'s Backend API server-side
 ([phase1-task7](../verify/phase1-task7-add-ng-serve-proxy.md),
-[phase2-task5](./phase2-task5-add-reverse-proxy.md)). From the browser's
+[phase2-task5](../verify/phase2-task5-add-reverse-proxy.md)). From the browser's
 side, whichever server delivered the page *is* the API — there is never a
 cross-origin request to the Backend API to allow.
 
@@ -27,9 +27,7 @@ narrowly-scoped policy that needs to be **removed** (not just left alone
 assuming a default), since the new design has nothing calling `hms-jar`
 cross-origin at all.
 
-**Separately, and worth fixing regardless of this migration:** per-controller
-`@CrossOrigin` annotations currently *override* that global policy —
-checked all 18 controllers directly, not sampled:
+**Checked all 18 controllers directly, not sampled:**
 - **15 of 18** carry `@CrossOrigin(origins = "http://localhost:4200")` —
   `AdmissionController`, `AppointmentController`, `AuthController`,
   `BillingController`, `DashboardController`, `DepartmentController`,

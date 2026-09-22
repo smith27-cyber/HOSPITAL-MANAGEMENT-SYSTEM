@@ -17,6 +17,10 @@ build/
 out/
 .angular/
 
+# hms-webb's static/ is `ng build`'s output (see angular.json outputPath),
+# generated fresh every build — same treatment as hms-webb/angular/dist/
+hms-pom/hms-webb/src/main/resources/static/
+
 # Test results and coverage
 /dev/testing/node_modules
 /dev/testing/test-results/
