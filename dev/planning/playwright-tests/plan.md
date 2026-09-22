@@ -20,7 +20,7 @@ its real lifecycle (schedule → complete → bill; admit → transfer →
 discharge), and see different things depending on role (RBAC).
 
 Grounded in what's actually in the codebase, not assumed:
-- **13 feature modules** ([FRONTEND_COMPONENTS.md](../../architecture/old/FRONTEND_COMPONENTS.md)): Dashboard, Patients, Doctors, Departments, Appointments, Consultations, Admissions, Pharmacy, Laboratory, Billing, Inventory, Reports, Settings.
+- **13 feature modules** ([FRONTEND_COMPONENTS.md](../../architecture/20260922/FRONTEND_COMPONENTS.md)): Dashboard, Patients, Doctors, Departments, Appointments, Consultations, Admissions, Pharmacy, Laboratory, Billing, Inventory, Reports, Settings.
 - **8 seeded RBAC test accounts** (`RbacDataInitializer.java`):
   `test_doctor`/`doctor123` (DOCTOR), `test_nurse`/`nurse123` (NURSE),
   `test_receptionist`/`receptionist123` (RECEPTIONIST),
@@ -52,11 +52,17 @@ module phases it chains together.
 9. [RBAC & error/validation UX (cross-cutting)](./phases/phase-9-rbac-and-error-handling.md)
 10. [Full user journeys (cross-module)](./phases/phase-10-full-user-journeys.md)
 
+## Explicitly in scope: fixing what these tests find
+
+Bugs, gaps, and doc-vs-reality mismatches these tests surface (e.g. a
+role seeing an action it has no permission for, a hidden button with an
+unprotected endpoint behind it, a validation error that isn't shown to
+the user) get fixed as part of this plan — writing a test that finds a
+real problem and then leaving the problem in place isn't the goal.
+
 ## Explicitly out of scope for this plan
 
 - Unit/component tests (Vitest) — this is E2E/user-flow testing only.
 - Load/performance testing.
 - Visual regression testing (pixel-diffing) — not ruled out for later,
   just not part of this plan.
-- Fixing any bugs these tests surface — this plan is about writing the
-  tests, not the app.

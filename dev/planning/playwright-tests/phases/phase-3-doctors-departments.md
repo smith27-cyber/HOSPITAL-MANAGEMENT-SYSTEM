@@ -47,5 +47,5 @@ Location/Floor.
 
 ### Cross-reference integrity
 - [ ] Deleting or reassigning shouldn't silently orphan references —
-      confirm actual behavior (this may surface a real gap rather than
-      just verify a working feature; document what's found either way).
+      confirm actual behavior. If this surfaces a real gap rather than a
+      working feature, fix it (per the plan's scope), don't just log it.

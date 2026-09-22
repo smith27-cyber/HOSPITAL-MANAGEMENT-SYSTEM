@@ -13,7 +13,7 @@ called out explicitly rather than assumed.
 - [ ] **Base URL: `ng serve` (4200) vs `hms-webb` (8080), or both?**
       `ng serve` is faster to iterate against locally; `hms-webb` matches
       what a real user actually gets in the packaged path (see
-      `dev/architecture/old/WEBB_MODULE.md`). Recommend: parametrize via
+      `dev/architecture/20260922/WEBB_MODULE.md`). Recommend: parametrize via
       env var (`PLAYWRIGHT_BASE_URL` or similar) so the same suite runs
       against either, and CI runs it against `hms-webb` at least once
       since that's the real deployment shape.

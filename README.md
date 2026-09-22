@@ -62,7 +62,7 @@ mvn spring-boot:run
 `hms-webb` does **not** hot-reload — a fresh `ng build` needs `hms-webb`
 restarted (or at least `mvn compile`, then restarted) before it's served.
 Nobody develops against this path directly; it exists to test the packaged
-deployment shape. See [WEBB_MODULE.md](./dev/architecture/old/WEBB_MODULE.md)
+deployment shape. See [WEBB_MODULE.md](./dev/architecture/20260922/WEBB_MODULE.md)
 for why.
 
 #### 4. Access the Application
@@ -227,7 +227,7 @@ GET    /billing/{id}            # Get invoice details
 POST   /billing/{id}/payments   # Record payment
 ```
 
-**[Complete API Documentation →](./dev/architecture/old/API_DESIGN.md)**
+**[Complete API Documentation →](./dev/architecture/20260922/API_DESIGN.md)**
 
 ---
 
@@ -276,7 +276,7 @@ POST   /billing/{id}/payments   # Record payment
 ✅ JWT token-based authentication  
 ✅ Spring Security for authorization  
 ✅ BCrypt password encryption  
-🟡 CORS configured for frontend access — one controller currently overrides the global policy, see [dev/architecture/old/KNOWN_ISSUES.md](./dev/architecture/old/KNOWN_ISSUES.md)  
+🟡 CORS configured for frontend access — one controller currently overrides the global policy, see [dev/architecture/20260922/KNOWN_ISSUES.md](./dev/architecture/20260922/KNOWN_ISSUES.md)  
 ✅ SQL injection prevention via JPA  
 ✅ HTTPS ready for production  
 
@@ -386,16 +386,16 @@ docker logs hms-postgres-dev -f
 |----------|---------|
 | **What-Is-This-Good-For.md** | Business value & use cases |
 | **CLAUDE.md** | Project notes & guidance |
-| **dev/architecture/old/README.md** | Architecture doc navigation (13 concern-based docs) |
-| **dev/architecture/old/KNOWN_ISSUES.md** | Open issues (P0–P3) — start here for the honest picture |
-| **dev/architecture/old/STATUS_OVERVIEW.md** | Current project status |
-| **dev/architecture/old/SYSTEM_DESIGN.md** | System design & patterns |
-| **dev/architecture/old/SECURITY.md** | Auth, JWT, RBAC, CORS |
-| **dev/architecture/old/FRONTEND_COMPONENTS.md** / **BACKEND_COMPONENTS.md** | Component breakdowns |
-| **dev/architecture/old/DATA_MODEL.md** | Entities & relationships |
-| **dev/architecture/old/API_DESIGN.md** | API specification |
-| **dev/architecture/old/DATA_FLOW.md** | Data flow patterns & workflows |
-| **dev/architecture/old/WEBB_MODULE.md** | The frontend Spring Boot module (`hms-webb`) — implemented |
+| **dev/architecture/20260922/README.md** | Architecture doc navigation (13 concern-based docs) |
+| **dev/architecture/20260922/KNOWN_ISSUES.md** | Open issues (P0–P3) — start here for the honest picture |
+| **dev/architecture/20260922/STATUS_OVERVIEW.md** | Current project status |
+| **dev/architecture/20260922/SYSTEM_DESIGN.md** | System design & patterns |
+| **dev/architecture/20260922/SECURITY.md** | Auth, JWT, RBAC, CORS |
+| **dev/architecture/20260922/FRONTEND_COMPONENTS.md** / **BACKEND_COMPONENTS.md** | Component breakdowns |
+| **dev/architecture/20260922/DATA_MODEL.md** | Entities & relationships |
+| **dev/architecture/20260922/API_DESIGN.md** | API specification |
+| **dev/architecture/20260922/DATA_FLOW.md** | Data flow patterns & workflows |
+| **dev/architecture/20260922/WEBB_MODULE.md** | The frontend Spring Boot module (`hms-webb`) — implemented |
 
 ---
 
@@ -484,7 +484,7 @@ docker exec hms-postgres-dev psql -U hms_user -d hms_database -c "SELECT 1"
 ## Support & Contribution
 
 ### Reporting Issues
-1. Check [dev/architecture/old/KNOWN_ISSUES.md](./dev/architecture/old/KNOWN_ISSUES.md) for known issues
+1. Check [dev/architecture/20260922/KNOWN_ISSUES.md](./dev/architecture/20260922/KNOWN_ISSUES.md) for known issues
 2. Check logs for error messages
 3. Review [CLAUDE.md](./CLAUDE.md) for project notes
 

@@ -66,13 +66,16 @@ writing their comparison tests.
 - [ ] Simulate a 401 (expired/invalid token) mid-session and confirm the
       user is redirected to login rather than stuck on a broken page.
 
-### Known gap this phase will surface, not hide
+### Known gap this phase will surface — and fix, per this plan's scope
 - [ ] Per `KNOWN_ISSUES.md` (P1), there's no global exception handler in
       `hms-jar` — unhandled backend exceptions return Spring Boot's
       default error shape, not the documented
       `{"timestamp","status","error","message","path"}` contract. Any
       test here that hits an unhandled error path should assert what
-      **actually** comes back, and note plainly if the frontend's error
+      **actually** comes back, and confirm whether the frontend's error
       handling was built assuming the documented (but unimplemented)
-      shape — that mismatch is worth surfacing through a real UI test,
-      not just a backend code read.
+      shape. If it was — meaning real users see broken/inconsistent error
+      handling today — implementing the actual
+      `@ExceptionHandler`/`@ControllerAdvice` in `hms-jar` is in scope
+      here too, closing out `KNOWN_ISSUES.md` (P1) rather than leaving it
+      as a permanently-documented gap.

@@ -5,8 +5,8 @@
 real JWT, real authenticated round-trip through `hms-webb`, and a real
 cross-origin request confirming CORS is genuinely blocked). Original
 design proposal has been implemented and promoted into
-`architecture/old/` — see
-[architecture/old/WEBB_MODULE.md](../architecture/old/WEBB_MODULE.md).
+`architecture/20260922/` — see
+[architecture/20260922/WEBB_MODULE.md](../architecture/20260922/WEBB_MODULE.md).
 **Branch:** `architecture/gsn-creating-a-new-pom-structure`
 
 This is the step-by-step breakdown for turning `hms-webb` from an empty

@@ -21,7 +21,7 @@ real round-trip: login through `hms-webb` → real JWT → authenticated
 
 To avoid ambiguity: `hms-jar` is the **Backend API** (owns all business
 logic, entities, the 17 controllers listed in
-`dev/architecture/old/BACKEND_COMPONENTS.md`). `hms-webb` gets its own thin **Web
+`dev/architecture/20260922/BACKEND_COMPONENTS.md`). `hms-webb` gets its own thin **Web
 API** — not a copy of any business logic, just a forwarding layer that
 receives `/api/**` requests and relays them to the Backend API. This
 avoids refactoring any of the existing Backend API controllers or any of

@@ -16,17 +16,17 @@ have; the gap is tracked in `KNOWN_ISSUES.md` (P2), not hidden.
 file — its content was distributed across the concern-based `old/` docs
 rather than dropped in as one large file, matching how the rest of `old/`
 is organized:
-- [WEBB_MODULE.md](../../../architecture/old/WEBB_MODULE.md) (new) —
+- [WEBB_MODULE.md](../../../architecture/20260922/WEBB_MODULE.md) (new) —
   `hms-webb`'s structure, `SpaWebConfig`, `WebApiForwardController`, the
   `ng build` → `static/` mechanism
-- [SECURITY.md](../../../architecture/old/SECURITY.md) — CORS, now resolved
+- [SECURITY.md](../../../architecture/20260922/SECURITY.md) — CORS, now resolved
   (blocked entirely)
-- [SYSTEM_DESIGN.md](../../../architecture/old/SYSTEM_DESIGN.md) — the
+- [SYSTEM_DESIGN.md](../../../architecture/20260922/SYSTEM_DESIGN.md) — the
   two-Spring-Boot-process reality
-- [OPERATIONS.md](../../../architecture/old/OPERATIONS.md) — updated
+- [OPERATIONS.md](../../../architecture/20260922/OPERATIONS.md) — updated
   deployment diagram
-- [KNOWN_ISSUES.md](../../../architecture/old/KNOWN_ISSUES.md) — CORS issue
+- [KNOWN_ISSUES.md](../../../architecture/20260922/KNOWN_ISSUES.md) — CORS issue
   resolved; the still-open end-to-end verification tracked as P2
-- [STATUS_OVERVIEW.md](../../../architecture/old/STATUS_OVERVIEW.md) and
-  [README.md](../../../architecture/old/README.md) — counts and navigation
+- [STATUS_OVERVIEW.md](../../../architecture/20260922/STATUS_OVERVIEW.md) and
+  [README.md](../../../architecture/20260922/README.md) — counts and navigation
   updated
