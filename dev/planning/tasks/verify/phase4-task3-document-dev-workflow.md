@@ -1,16 +1,13 @@
 # Task: Document the dev-vs-packaged frontend workflow
 
 **Phase:** [Phase 4 — Cross-cutting config decisions](../../phases/phase-4-cross-cutting-config.md)
-**Status:** Content decided and tested (below) — applying it to root
-`README.md` is deliberately deferred to
-[phase5-task2](./phase5-task2-update-readme.md), not left undone by
-oversight. Phase 5 hasn't started yet since it depends on all of Phases
-1–4 being done *and verified*, and Phase 2's `phase2-task6` is still
-blocked on Docker/Postgres access.
+**Status:** Done — content decided, tested, and applied to root
+`README.md`'s Quick Start via
+[phase5-task2](../verify/phase5-task2-update-readme.md).
 
 State explicitly, somewhere a developer will actually read it (root
 `README.md` Quick Start is the likely spot — see
-[phase5-task2](./phase5-task2-update-readme.md)):
+[phase5-task2](../verify/phase5-task2-update-readme.md)):
 
 - `ng serve` (port `4200`, proxies API calls to `hms-jar` on `8081` via
   `proxy.conf.json`) is the loop for active frontend development. Tested

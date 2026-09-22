@@ -35,16 +35,39 @@ mvn spring-boot:run
 # Swagger docs: http://localhost:8081/swagger-ui/index.html
 ```
 
-#### 3. Start Frontend (Angular)
+#### 3. Start Frontend (Angular) — two ways, pick one
+
+**Development (fast loop — use this day to day):**
 ```bash
 cd hms-pom/hms-webb/angular
 npm install  # First time only
 npm start
 # Frontend runs on http://localhost:4200
+# proxy.conf.json forwards /api to hms-jar on :8081 automatically
 ```
+No hot-reload trade-off here — this is the loop for active development.
+Editing a `.ts` file rebuilds and refreshes automatically.
+
+**Packaged (production-like — for testing the real deployment shape):**
+```bash
+# Build the Angular app first — writes directly into hms-webb's static/
+cd hms-pom/hms-webb/angular
+npm run build
+
+# Then run hms-webb, which serves that build + forwards /api to hms-jar
+cd ../
+mvn spring-boot:run
+# Frontend + Web API run on http://localhost:8080
+```
+`hms-webb` does **not** hot-reload — a fresh `ng build` needs `hms-webb`
+restarted (or at least `mvn compile`, then restarted) before it's served.
+Nobody develops against this path directly; it exists to test the packaged
+deployment shape. See [WEBB_MODULE.md](./dev/architecture/old/WEBB_MODULE.md)
+for why.
 
 #### 4. Access the Application
-- **Web UI:** http://localhost:4200
+- **Web UI (dev):** http://localhost:4200
+- **Web UI (packaged):** http://localhost:8080
 - **API Docs:** http://localhost:8081/swagger-ui/index.html
 - **OpenAPI JSON:** http://localhost:8081/api-docs
 
@@ -68,16 +91,25 @@ HMS/
 │   │   ├── pom.xml               # Maven dependencies
 │   │   └── application.properties # Configuration
 │   │
-│   └── hms-webb/angular/      # Angular 22.1.0 UI
-│       ├── src/app/
-│       │   ├── auth/             # Login & authentication
-│       │   ├── core/             # Shared services & guards
-│       │   ├── features/         # 13 feature modules
-│       │   ├── layout/           # Main layout wrapper
-│       │   ├── shared/           # Shared models & utilities
-│       │   └── app.routes.ts     # Route definitions
-│       ├── package.json
-│       └── angular.json
+│   └── hms-webb/              # Frontend Spring Boot module (Web API + static serving)
+│       ├── src/main/java/com/hms/webb/
+│       │   ├── HmsWebbApplication.java
+│       │   ├── config/SpaWebConfig.java              # SPA-routing fallback
+│       │   └── controller/WebApiForwardController.java  # forwards /api/** to hms-jar
+│       ├── src/main/resources/
+│       │   └── static/           # `ng build` writes directly here (gitignored)
+│       ├── pom.xml               # spring-boot-starter-webmvc + devtools, port 8080
+│       └── angular/              # Angular 22.1.0 UI
+│           ├── src/app/
+│           │   ├── auth/             # Login & authentication
+│           │   ├── core/             # Shared services & guards
+│           │   ├── features/         # 13 feature modules
+│           │   ├── layout/           # Main layout wrapper
+│           │   ├── shared/           # Shared models & utilities
+│           │   └── app.routes.ts     # Route definitions
+│           ├── proxy.conf.json   # ng serve dev proxy → hms-jar:8081
+│           ├── package.json
+│           └── angular.json
 │
 ├── dev/                       # Working docs not shipped as end-user docs
 │   ├── architecture/          # Comprehensive documentation
@@ -97,8 +129,8 @@ HMS/
 │   │   │   ├── API_DESIGN.md
 │   │   │   ├── DATA_FLOW.md
 │   │   │   └── CLAUDE.md             # Documentation fixes log
-│   │   └── future/             # Proposed future-state designs
-│   │       └── POM_STRUCTURE.md      # Frontend Spring Boot module proposal
+│   │   └── future/             # Proposed future-state designs (currently empty —
+│   │                            # last proposal, hms-webb, was implemented & promoted)
 │   └── planning/               # Implementation plans for proposed changes
 │       ├── hms-webb-morph-plan.md    # Plan index
 │       └── phases/                    # One file per phase, with checklists
@@ -363,7 +395,7 @@ docker logs hms-postgres-dev -f
 | **dev/architecture/old/DATA_MODEL.md** | Entities & relationships |
 | **dev/architecture/old/API_DESIGN.md** | API specification |
 | **dev/architecture/old/DATA_FLOW.md** | Data flow patterns & workflows |
-| **dev/architecture/future/POM_STRUCTURE.md** | Proposed frontend Spring Boot module (not yet implemented) |
+| **dev/architecture/old/WEBB_MODULE.md** | The frontend Spring Boot module (`hms-webb`) — implemented |
 
 ---
 

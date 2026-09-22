@@ -67,19 +67,24 @@ Signature (HMAC SHA-256)
 
 ## CORS
 
-`SecurityConfig.java` registers a global `CorsConfigurationSource` bean on
-`/**`, restricting cross-origin access to `http://localhost:4200`. This is
-**not consistently enforced** — see
-[KNOWN_ISSUES.md](./KNOWN_ISSUES.md) (P0): `ConsultationController`
-overrides it with `@CrossOrigin(origins = "*")`, opening its endpoints to
-any origin. 15 of the other 17 controllers redundantly re-declare the same
-`http://localhost:4200` origin (harmless boilerplate); `HealthController`
-and `LoginFormController` carry no `@CrossOrigin` at all.
+Blocked entirely. `hms-jar` has no CORS configuration at all — no global
+`CorsConfigurationSource` bean, no per-controller `@CrossOrigin`
+annotations. It never needs to allow a cross-origin request because the
+browser never makes one: whichever server delivered the page also answers
+`/api/**`, by forwarding server-side rather than relying on CORS:
 
-A future redesign of this policy — blocking CORS entirely in favor of
-same-origin proxying in both dev and packaged modes — is proposed in
-[../future/POM_STRUCTURE.md](../future/POM_STRUCTURE.md); not yet
-implemented.
+- **Dev (`ng serve`, port 4200):** `hms-webb/angular/proxy.conf.json`
+  forwards `/api` to `hms-jar` (`http://localhost:8081`).
+- **Packaged (`hms-webb`, port 8080):** `com.hms.webb.controller.WebApiForwardController`
+  forwards `/api/**` to `hms-jar` server-side.
+
+See [WEBB_MODULE.md](./WEBB_MODULE.md) for how `hms-webb` does this.
+
+This used to be a live gap (`ConsultationController`'s
+`@CrossOrigin(origins = "*")` overrode a global `:4200`-only policy,
+opening its endpoints to any origin) — both the global bean and all 15
+per-controller `@CrossOrigin` annotations were removed once the proxy
+mechanism made them unnecessary.
 
 ---
 

@@ -99,15 +99,14 @@ CI/CD Pipeline (Optional)
 Build Artifacts
     ↓
 Production Environment
-    ├── Frontend (Static files on web server)
-    ├── Backend (Spring Boot JAR)
+    ├── hms-webb (Spring Boot JAR, port 8080 — serves Angular + Web API)
+    ├── hms-jar (Spring Boot JAR, port 8081 — Backend API)
     └── Database (PostgreSQL instance)
 ```
 
-**Note:** this diagram predates the proposed `hms-webb` frontend module —
-see [../future/POM_STRUCTURE.md](../future/POM_STRUCTURE.md) for the
-target deployment shape (two Spring Boot processes, not one JAR plus
-static files on a separate web server).
+**Updated:** this now reflects `hms-webb`'s actual role — two Spring Boot
+processes, not one JAR plus static files on a separate web server. See
+[WEBB_MODULE.md](./WEBB_MODULE.md) for how they fit together.
 
 ---
 

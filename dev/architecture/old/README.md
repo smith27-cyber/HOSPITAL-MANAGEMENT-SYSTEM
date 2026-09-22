@@ -11,7 +11,9 @@
 This directory describes the system **as it actually exists today**,
 split into one document per concern instead of a few large files that
 mixed unrelated topics together. For proposed future changes not yet
-implemented, see [../future/](../future/) instead.
+implemented, see `../future/` instead (currently empty — its last
+proposal, `hms-webb` becoming a real Spring Boot module, was implemented
+and promoted here; see [WEBB_MODULE.md](./WEBB_MODULE.md)).
 
 ---
 
@@ -31,7 +33,8 @@ implemented, see [../future/](../future/) instead.
 
 ### Components
 - **[FRONTEND_COMPONENTS.md](./FRONTEND_COMPONENTS.md)** — all 13 Angular feature modules
-- **[BACKEND_COMPONENTS.md](./BACKEND_COMPONENTS.md)** — config/repository/service/controller/DTO layers
+- **[BACKEND_COMPONENTS.md](./BACKEND_COMPONENTS.md)** — `hms-jar`'s config/repository/service/controller/DTO layers
+- **[WEBB_MODULE.md](./WEBB_MODULE.md)** — `hms-webb`, the frontend Spring Boot module (Web API forwarder + static serving)
 - **[DATA_MODEL.md](./DATA_MODEL.md)** — 18 entities and their relationships
 
 ### Reference
@@ -63,8 +66,9 @@ implemented, see [../future/](../future/) instead.
 - **13** feature modules
 - **18** entity types (17 domain + 1 auth `User`; includes RBAC `Role`/`Permission`)
 - **16** services (13 domain + 3 auth)
-- **18** Spring controllers (17 REST API + 1 non-REST — `AngularForwardController`, slated for removal, see `../future/POM_STRUCTURE.md`)
+- **17** REST controllers in `hms-jar` (the Backend API)
 - **15** Angular services
+- **2** classes in `hms-webb` (the Web API / static-serving module) — see [WEBB_MODULE.md](./WEBB_MODULE.md)
 
 See [DATA_MODEL.md](./DATA_MODEL.md) and [BACKEND_COMPONENTS.md](./BACKEND_COMPONENTS.md) for the detail behind these numbers.
 
@@ -185,6 +189,6 @@ history (see the root `CLAUDE.md` for that story).
 
 - Main README in project root
 - Root `CLAUDE.md` for the doc-consistency history
-- [../future/](../future/) for proposed, not-yet-implemented designs
+- `../future/` for proposed, not-yet-implemented designs (currently empty)
 - [Angular Documentation](https://angular.io/docs)
 - [Spring Boot Documentation](https://spring.io/projects/spring-boot)

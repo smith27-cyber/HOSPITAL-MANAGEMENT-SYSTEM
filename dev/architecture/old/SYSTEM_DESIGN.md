@@ -51,6 +51,14 @@ The Hospital Management System follows a **3-tier client-server architecture** w
 └─────────────────────────────────────────┘
 ```
 
+**Two separate Spring Boot processes**, not one: `hms-jar` (the Backend
+API, port 8081 — everything in the "API Gateway & Business Logic" and
+"Data Access" layers above) and `hms-webb` (port 8080 — serves the
+Angular build and forwards `/api/**` to `hms-jar`). The diagram above
+describes logical layers, not physical deployment — see
+[WEBB_MODULE.md](./WEBB_MODULE.md) for how the two processes fit
+together, and why `hms-jar` has no knowledge of the frontend at all.
+
 ---
 
 ## Architectural Layers
@@ -398,7 +406,8 @@ Component updates UI
 ## Related Documentation
 
 - [FRONTEND_COMPONENTS.md](./FRONTEND_COMPONENTS.md) — Angular feature modules
-- [BACKEND_COMPONENTS.md](./BACKEND_COMPONENTS.md) — Spring Boot layers
+- [BACKEND_COMPONENTS.md](./BACKEND_COMPONENTS.md) — `hms-jar`'s Spring Boot layers
+- [WEBB_MODULE.md](./WEBB_MODULE.md) — `hms-webb`, the frontend Spring Boot module
 - [DATA_MODEL.md](./DATA_MODEL.md) — entities and relationships
 - [SECURITY.md](./SECURITY.md) — authentication & authorization
 - [DATABASE_DESIGN.md](./DATABASE_DESIGN.md) — schema design, scalability

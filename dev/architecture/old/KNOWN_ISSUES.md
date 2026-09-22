@@ -6,16 +6,11 @@
 
 ## Critical (P0)
 
-- **CORS misconfiguration on `ConsultationController`.** `SecurityConfig`
-  registers a centralized `CorsConfigurationSource` bean restricting
-  cross-origin access to `http://localhost:4200` — but
-  `ConsultationController` carries its own `@CrossOrigin(origins = "*")`,
-  which overrides the global policy for its endpoints and allows any
-  origin to reach consultation data. 15 of the other 17 controllers
-  redundantly re-declare the same origin (`http://localhost:4200`) as the
-  global config — harmless boilerplate, but only `ConsultationController`
-  actually diverges from it. (`HealthController`/`LoginFormController`
-  carry no `@CrossOrigin` at all, relying solely on the global bean.) See
+- None currently. The CORS misconfiguration previously listed here
+  (`ConsultationController`'s `@CrossOrigin(origins = "*")` overriding a
+  global `:4200`-only policy) is **resolved** — CORS is now blocked
+  entirely on `hms-jar`, with `ng serve` and `hms-webb` each forwarding
+  `/api/**` server-side instead of relying on cross-origin access. See
   [SECURITY.md](./SECURITY.md).
 
 ## High Priority (P1)
@@ -34,6 +29,13 @@
 
 ## Medium Priority (P2)
 
+- **`hms-webb`'s Web API forwarding is verified as a mechanism, not
+  end-to-end.** `WebApiForwardController` correctly attempts to relay
+  `/api/**` to `hms-jar` (confirmed: a request produced a
+  `ResourceAccessException` naming the exact correct target URL), but no
+  environment with both `hms-webb` and a running `hms-jar` + Postgres has
+  been available to confirm a real request/response round-trip. See
+  [WEBB_MODULE.md](./WEBB_MODULE.md).
 - Edge case handling in lab requests
 - Form validation refinements
 
@@ -60,7 +62,7 @@
 
 ## Related Documentation
 
-- [SECURITY.md](./SECURITY.md) — the CORS gap in detail
+- [SECURITY.md](./SECURITY.md) — the CORS design (resolved) in detail
 - [OPERATIONS.md](./OPERATIONS.md) — the intended (unimplemented) error-handling shape
 - [TESTING_STATUS.md](./TESTING_STATUS.md) — why "run full integration tests" is step 2, not step 0
 - [STATUS_OVERVIEW.md](./STATUS_OVERVIEW.md) — overall project status

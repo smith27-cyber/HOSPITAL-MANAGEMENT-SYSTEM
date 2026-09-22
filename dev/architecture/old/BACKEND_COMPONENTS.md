@@ -13,11 +13,10 @@
 
 **Key Methods:**
 - Configure JWT filter
-- Configure CORS — a global `CorsConfigurationSource` bean restricting
-  origins to `http://localhost:4200`, registered on `/**`. **Note:**
-  `ConsultationController` overrides this per-controller with
-  `@CrossOrigin(origins = "*")`, opening its endpoints to any origin
-  despite the global policy — see [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) (P0).
+- CORS — none. No `CorsConfigurationSource` bean, no `@CrossOrigin`
+  anywhere in the backend. See [SECURITY.md](./SECURITY.md) for why:
+  `ng serve` and `hms-webb` both forward `/api/**` server-side, so the
+  browser never makes a cross-origin request to `hms-jar` to allow.
 - Configure authorization rules
 - Configure password encoder
 

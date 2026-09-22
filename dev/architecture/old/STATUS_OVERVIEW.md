@@ -159,7 +159,7 @@ prior version of this document.
 | Aspect | Status | Notes |
 |--------|--------|-------|
 | Code Quality | 🟡 Good | Minor refactoring opportunities |
-| Security | 🟡 Partial | JWT + Spring Security configured, but see [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) (P0) — `ConsultationController`'s CORS override |
+| Security | ✅ Ready | JWT + Spring Security configured; CORS blocked entirely (see [SECURITY.md](./SECURITY.md)) |
 | Documentation | 🟡 Partial | Architecture docs being added |
 | Database | ✅ Ready | Schema complete, migrations ready |
 | API | ✅ Ready | RESTful endpoints operational |
