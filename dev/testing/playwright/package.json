@@ -1,0 +1,15 @@
+{
+  "name": "hms-e2e-coverage",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "playwright test",
+    "test:coverage": "rm -rf .nyc_output coverage && playwright test && npm run coverage:report",
+    "coverage:report": "node merge-coverage.js && nyc report --reporter=html --reporter=text-summary --reporter=lcov",
+    "server:instrumented": "cd ../../hms-frontend && node instrument-serve.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "nyc": "^15.1.0",
+    "istanbul-lib-instrument": "^6.0.0"
+  }
+}
