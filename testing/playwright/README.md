@@ -13,7 +13,7 @@ This directory contains Playwright E2E tests with **Istanbul code coverage instr
 
 ### 1. Start the Instrumented Server (in one terminal)
 ```bash
-cd hms-frontend
+cd hms-pom/hms-webb/angular
 node instrument-serve.js
 ```
 This starts a server on `http://localhost:4200` that serves all JS files with Istanbul instrumentation.
@@ -54,7 +54,7 @@ This will:
 
 ### Server won't start
 - Port 4200 already in use? Kill it: `lsof -i :4200` then `kill -9 <PID>`
-- Missing dependencies? Run `npm install` in `hms-frontend/`
+- Missing dependencies? Run `npm install` in `hms-pom/hms-webb/angular/`
 
 ### Coverage data is incomplete
 - Wait longer before collecting (coverage accumulates as code executes)

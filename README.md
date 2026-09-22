@@ -1007,19 +1007,19 @@ PlatformModule
 ### Build & Run
 
 ```bash
-cd hms-backend
+cd hms-pom
 
 # Compile
-mvn clean compile
+./mvnw -pl hms-jar clean compile
 
 # Run tests
-mvn test
+./mvnw -pl hms-jar test
 
 # Package
-mvn clean package
+./mvnw -pl hms-jar clean package
 
 # Run
-mvn spring-boot:run
+./mvnw -pl hms-jar spring-boot:run
 ```
 
 ## Frontend Development
@@ -1070,9 +1070,9 @@ pkill -f "ng serve"
 # Start fresh
 docker compose up -d
 
-cd hms-backend && mvn spring-boot:run &
+cd hms-pom && ./mvnw -pl hms-jar spring-boot:run &
 
-cd hms-frontend && npm start
+cd hms-pom/hms-webb/angular && npm start
 ```
 
 ## Reset Database
@@ -1086,8 +1086,8 @@ docker compose down -v
 docker compose up -d
 
 # Restart backend
-cd hms-backend
-mvn spring-boot:run
+cd hms-pom
+./mvnw -pl hms-jar spring-boot:run
 ```
 
 > **Warning:** `docker compose down -v` removes the PostgreSQL volume and therefore destroys the development database data.
@@ -1278,7 +1278,7 @@ tail -50 /tmp/backend.log | grep -i error
 ## Frontend won't start
 
 ```bash
-cd hms-frontend
+cd hms-pom/hms-webb/angular
 
 rm -rf node_modules package-lock.json
 
@@ -1314,7 +1314,7 @@ docker compose up -d
 docker ps | grep postgres
 
 # Check database configuration
-cat hms-backend/src/main/resources/application.properties | grep datasource
+cat hms-pom/hms-jar/src/main/resources/application.properties | grep datasource
 
 # Test connection
 docker exec hms-postgres-dev \

@@ -4,14 +4,16 @@
 
 ## Backend
 
-**One test file exists**: `hms-pom/hms-jar/src/test/java/com/hms/backend/HmsBackendApplicationTests.java`
-— the default Spring Boot context-load smoke test. **No unit tests, no integration tests, no repository
-tests, no controller/`@WebMvcTest` tests exist for any of the 24 entities, 24 repositories, 25 services,
-or 26 controllers**, despite `pom.xml` declaring the full Boot 4 "split" test starters
-(`spring-boot-starter-data-jpa-test`, `-security-test`, `-validation-test`, `-webmvc-test`). `hms-webb`
-(the new module added by the pom migration) has no tests at all — it has no business logic to test, but
-also no coverage for `SpaWebConfig`'s fallback behavior or `WebApiForwardController`'s header-forwarding
-logic, both of which were only checked manually (`curl`) during the migration's verification.
+**`hms-jar`**: one test file, `HmsBackendApplicationTests.java` — the default Spring Boot context-load
+smoke test. **No unit tests, no integration tests, no repository tests, no controller/`@WebMvcTest`
+tests exist for any of the 24 entities, 24 repositories, 25 services, or 26 controllers**, despite
+`pom.xml` declaring the full Boot 4 "split" test starters (`spring-boot-starter-data-jpa-test`,
+`-security-test`, `-validation-test`, `-webmvc-test`).
+
+**`hms-webb`**: also just one test file (`HmsWebbApplicationTests.java`, added in Phase 8 of the pom
+migration, mirroring `hms-jar`'s own smoke-test pattern) — a context-load check only. No coverage for
+`SpaWebConfig`'s fallback behavior or `WebApiForwardController`'s header-forwarding logic; both were only
+checked manually (`curl`) during the migration's verification, not by an automated test.
 
 ## Frontend
 
