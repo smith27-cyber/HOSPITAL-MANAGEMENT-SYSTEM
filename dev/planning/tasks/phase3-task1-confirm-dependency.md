@@ -1,18 +1,24 @@
-# Task: Confirm nothing depends on `hms-jar`'s stale static content
+# Task: `hms-jar` never serves static files — policy confirmed
 
-**Phase:** [Phase 3 — Retire the stale manual copy in `hms-jar`](../phases/phase-3-retire-stale-copy.md)
+**Phase:** [Phase 3 — Retire all frontend-serving code from `hms-jar`](../phases/phase-3-retire-stale-copy.md)
 **Depends on:** [phase2-task3-verify-serving](../tasks/phase2-task3-verify-serving.md)
-**Status:** Not started — this is a question to ask, not a code change
+**Status:** Resolved — settled policy, not a case-by-case question
 
-`hms-jar/src/main/resources/static/*` currently holds a manually-copied
-Angular build, and it's **git-tracked**, not gitignored — meaning someone
-committed it on purpose at some point. Before removing it:
+## Decision
 
-- Check whether any deployed/running environment currently relies on
-  `hms-jar` serving the frontend (e.g. a prod deploy that only runs the
-  backend jar and expects it to also serve the UI).
-- Ask the person who added it, or check commit history / deploy scripts,
-  rather than assuming it's dead weight.
+"`hms-jar` should NEVER serve static files — that is `hms-webb`'s job."
+This is absolute, not conditional on checking whether anything currently
+depends on the two violations already found:
 
-Do not delete anything in this task — it's purely the confirmation step
-that unblocks [phase3-task2](./phase3-task2-remove-stale-static.md).
+- `hms-jar/src/main/resources/static/*` — a manually-copied Angular build,
+  **git-tracked**, not gitignored.
+- `hms-jar/src/main/java/com/hms/backend/config/AngularForwardController.java`
+  — forwards Angular app routes to `/index.html`, the same SPA-routing
+  problem [phase2-task4](../tasks/phase2-task4-verify-routing.md) flags
+  for `hms-webb` — except solved in the wrong module.
+
+Both get removed in [phase3-task2](./phase3-task2-remove-stale-static.md),
+once `hms-webb` is verified serving correctly
+([phase2-task3](../tasks/phase2-task3-verify-serving.md)) — sequenced so
+the fallback isn't removed before its replacement exists, not because the
+removal itself is still in question.

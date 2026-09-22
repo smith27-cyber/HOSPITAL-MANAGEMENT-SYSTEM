@@ -52,5 +52,5 @@ API_DESIGN.md, DATA_FLOW.md (date only).
 Architecture docs drift fastest right after a "doc alignment" pass, because
 that pass captures a snapshot the code then moves past within days. When
 adding a new entity/service/controller (or removing one), update
-`dev/architecture/old/COMPONENTS.md`'s counts and tables in the same change, not as
+`dev/architecture/old/BACKEND_COMPONENTS.md`'s counts and tables in the same change, not as
 a follow-up cleanup.

@@ -10,6 +10,11 @@
 
 The HMS API follows RESTful principles with JSON request/response payloads. All endpoints (except authentication) require JWT token authentication via `Authorization` header.
 
+**⚠️ Error responses throughout this document (the `Response (4xx/5xx)`
+examples on every endpoint below) describe the *intended* contract, not
+current behavior.** No global exception handling exists yet — see
+[Error Response Format](#error-response-format) for details.
+
 ### API Characteristics
 - **Style:** RESTful
 - **Format:** JSON
@@ -790,6 +795,13 @@ Response (200 OK):
 
 ## Error Response Format
 
+**⚠️ Not yet implemented.** This section documents the *intended* error
+contract. There is currently no `@ExceptionHandler`/`@ControllerAdvice`
+anywhere in `hms-jar`, and `dto/ErrorResponse.java` (which models this
+shape) is never actually constructed or returned. Unhandled exceptions
+today fall through to Spring Boot's default error response instead of
+this shape. See [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) (P1).
+
 ### General Error Response
 ```json
 {
@@ -897,7 +909,8 @@ X-RateLimit-Reset: 1693667400
 
 ## Related Documentation
 
-- See [PROJECT_STATE.md](./PROJECT_STATE.md) for current status
-- See [ARCHITECTURE.md](./ARCHITECTURE.md) for system design
-- See [COMPONENTS.md](./COMPONENTS.md) for detailed component breakdown
+- See [STATUS_OVERVIEW.md](./STATUS_OVERVIEW.md) for current status
+- See [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md) for system design
+- See [BACKEND_COMPONENTS.md](./BACKEND_COMPONENTS.md) and [FRONTEND_COMPONENTS.md](./FRONTEND_COMPONENTS.md) for component breakdowns
 - See [DATA_FLOW.md](./DATA_FLOW.md) for data flow patterns
+- See [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) for the error-response-format gap noted above

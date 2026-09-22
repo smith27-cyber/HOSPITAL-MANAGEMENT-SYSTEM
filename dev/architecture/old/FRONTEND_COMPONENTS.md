@@ -1,23 +1,23 @@
-# HMS Components & Modules Breakdown
+# HMS Frontend Components
 
-**Version:** 1.1  
+**Version:** 1.1
 **Last Updated:** 2026-09-22
 
 ---
 
 ## Component Overview
 
-HMS consists of 13 major feature modules plus core infrastructure. Each feature is independently developed and integrated through services and shared utilities.
+13 major feature modules plus core infrastructure. Each feature is
+independently developed and integrated through services and shared
+utilities.
 
 ---
 
-## Frontend Components Structure
+## Core Infrastructure
 
-### Core Infrastructure
-
-#### 1. Auth Module
-**Location:** `src/app/auth/`  
-**Responsibility:** User authentication  
+### 1. Auth Module
+**Location:** `src/app/auth/`
+**Responsibility:** User authentication
 **Components:**
 - `LoginComponent` - Login form and authentication handling
 
@@ -28,11 +28,9 @@ HMS consists of 13 major feature modules plus core infrastructure. Each feature 
   - `isAuthenticated()` - Check auth status
   - `getToken()` - Retrieve JWT token
 
-#### 2. Core Module
-**Location:** `src/app/core/`  
+### 2. Core Module
+**Location:** `src/app/core/`
 **Responsibility:** Shared services and guards
-
-**Subdirectories:**
 
 **Guards:**
 - `auth.guard.ts` - Protects routes, requires authentication
@@ -66,9 +64,9 @@ HMS consists of 13 major feature modules plus core infrastructure. Each feature 
 | ReportService | report.service.ts | Report generation |
 | SettingsService | settings.service.ts | Hospital settings, system preferences (backed by `/api/settings/hospital`) |
 
-#### 3. Layout Module
-**Location:** `src/app/layout/`  
-**Responsibility:** Main application layout wrapper  
+### 3. Layout Module
+**Location:** `src/app/layout/`
+**Responsibility:** Main application layout wrapper
 **Components:**
 - `MainLayoutComponent` - Wrapper for authenticated pages
   - Navigation menu
@@ -76,11 +74,13 @@ HMS consists of 13 major feature modules plus core infrastructure. Each feature 
   - Content outlet for feature components
   - Footer
 
-### Feature Modules (13 total)
+---
+
+## Feature Modules (13 total)
 
 #### 1. Dashboard Module
-**Location:** `src/app/features/dashboard/`  
-**Status:** ✅ Complete  
+**Location:** `src/app/features/dashboard/`
+**Status:** ✅ Complete
 **Responsibility:** Centralized analytics and KPIs
 
 **Components:**
@@ -104,8 +104,8 @@ HMS consists of 13 major feature modules plus core infrastructure. Each feature 
 ---
 
 #### 2. Patients Module
-**Location:** `src/app/features/patients/`  
-**Status:** ✅ Complete  
+**Location:** `src/app/features/patients/`
+**Status:** ✅ Complete
 **Responsibility:** Patient management system
 
 **Sub-Components:**
@@ -146,8 +146,8 @@ HMS consists of 13 major feature modules plus core infrastructure. Each feature 
 ---
 
 #### 3. Doctors Module
-**Location:** `src/app/features/doctors/`  
-**Status:** ✅ Complete  
+**Location:** `src/app/features/doctors/`
+**Status:** ✅ Complete
 **Responsibility:** Doctor management
 
 **Sub-Components:**
@@ -175,8 +175,8 @@ HMS consists of 13 major feature modules plus core infrastructure. Each feature 
 ---
 
 #### 4. Departments Module
-**Location:** `src/app/features/departments/`  
-**Status:** ✅ Complete  
+**Location:** `src/app/features/departments/`
+**Status:** ✅ Complete
 **Responsibility:** Department management
 
 **Sub-Components:**
@@ -204,8 +204,8 @@ HMS consists of 13 major feature modules plus core infrastructure. Each feature 
 ---
 
 #### 5. Appointments Module
-**Location:** `src/app/features/appointments/`  
-**Status:** ✅ Complete  
+**Location:** `src/app/features/appointments/`
+**Status:** ✅ Complete
 **Responsibility:** Appointment scheduling and management
 
 **Sub-Components:**
@@ -244,8 +244,8 @@ HMS consists of 13 major feature modules plus core infrastructure. Each feature 
 ---
 
 #### 6. Consultations Module
-**Location:** `src/app/features/consultations/`  
-**Status:** ✅ Complete  
+**Location:** `src/app/features/consultations/`
+**Status:** ✅ Complete
 **Responsibility:** Consultation records
 
 **Sub-Components:**
@@ -277,8 +277,8 @@ HMS consists of 13 major feature modules plus core infrastructure. Each feature 
 ---
 
 #### 7. Admissions Module
-**Location:** `src/app/features/admissions/`  
-**Status:** ✅ Complete  
+**Location:** `src/app/features/admissions/`
+**Status:** ✅ Complete
 **Responsibility:** Inpatient admission management
 
 **Sub-Components:**
@@ -316,8 +316,8 @@ HMS consists of 13 major feature modules plus core infrastructure. Each feature 
 ---
 
 #### 8. Pharmacy Module
-**Location:** `src/app/features/pharmacy/`  
-**Status:** ✅ Complete  
+**Location:** `src/app/features/pharmacy/`
+**Status:** ✅ Complete
 **Responsibility:** Prescription and pharmacy management
 
 **Sub-Components:**
@@ -351,8 +351,8 @@ HMS consists of 13 major feature modules plus core infrastructure. Each feature 
 ---
 
 #### 9. Laboratory Module
-**Location:** `src/app/features/laboratory/`  
-**Status:** ✅ Complete  
+**Location:** `src/app/features/laboratory/`
+**Status:** ✅ Complete
 **Responsibility:** Lab tests and request management
 
 **Sub-Components:**
@@ -390,8 +390,8 @@ HMS consists of 13 major feature modules plus core infrastructure. Each feature 
 ---
 
 #### 10. Billing Module
-**Location:** `src/app/features/billing/`  
-**Status:** ✅ Complete  
+**Location:** `src/app/features/billing/`
+**Status:** ✅ Complete
 **Responsibility:** Billing and payment management
 
 **Sub-Components:**
@@ -429,8 +429,8 @@ HMS consists of 13 major feature modules plus core infrastructure. Each feature 
 ---
 
 #### 11. Inventory Module
-**Location:** `src/app/features/inventory/`  
-**Status:** ✅ Complete  
+**Location:** `src/app/features/inventory/`
+**Status:** ✅ Complete
 **Responsibility:** Equipment and supply tracking
 
 **Sub-Components:**
@@ -468,8 +468,8 @@ HMS consists of 13 major feature modules plus core infrastructure. Each feature 
 ---
 
 #### 12. Reports Module
-**Location:** `src/app/features/reports/`  
-**Status:** ✅ Complete  
+**Location:** `src/app/features/reports/`
+**Status:** ✅ Complete
 **Responsibility:** Analytics and reporting
 
 **Sub-Components:**
@@ -492,8 +492,8 @@ HMS consists of 13 major feature modules plus core infrastructure. Each feature 
 ---
 
 #### 13. Settings Module
-**Location:** `src/app/features/settings/`  
-**Status:** ✅ Complete (hospital settings backend-backed; system/notification preferences frontend-only)  
+**Location:** `src/app/features/settings/`
+**Status:** ✅ Complete (hospital settings backend-backed; system/notification preferences frontend-only)
 **Responsibility:** System configuration
 
 **Sub-Components:**
@@ -524,299 +524,9 @@ HMS consists of 13 major feature modules plus core infrastructure. Each feature 
 
 ---
 
-## Backend Components Structure
-
-### Configuration Layer
-
-#### 1. SecurityConfig
-**File:** `src/main/java/com/hms/backend/config/SecurityConfig.java`  
-**Responsibility:** Spring Security configuration
-
-**Key Methods:**
-- Configure JWT filter
-- Configure CORS
-- Configure authorization rules
-- Configure password encoder
-
-**Security Rules:**
-- Public endpoints: `/api/auth/login`, `/api/auth/register`
-- Protected endpoints: All other `/api/**` paths require JWT
-- Role-based access control (if applicable)
-
-#### 2. PasswordConfig
-**File:** `src/main/java/com/hms/backend/config/PasswordConfig.java`  
-**Responsibility:** Password encoding configuration
-
-**Components:**
-- BCryptPasswordEncoder bean
-- Password encoding algorithm selection
-
----
-
-### Entity Layer (Database Models)
-
-18 JPA entities representing hospital domain:
-
-| Entity | Purpose | Key Fields |
-|--------|---------|-----------|
-| User | Authentication and user accounts | ID, Username, Password, Email, Role |
-| Role | RBAC role definitions | ID, Name, Permissions |
-| Permission | RBAC permission definitions | ID, Name (e.g. `ADMISSION_VIEW`) |
-| Patient | Patient records | ID, Name, Email, DOB, Gender, Address |
-| Doctor | Doctor profiles | ID, Name, Specialization, License, Department |
-| Department | Hospital departments | ID, Name, Description, Location |
-| Appointment | Doctor-patient meetings | ID, PatientID, DoctorID, DateTime, Status |
-| Consultation | Consultation records | ID, PatientID, DoctorID, Notes, Date |
-| Admission | Inpatient admission records | ID, PatientID, DoctorID, DepartmentID, Ward, BedNumber, AdmissionType, Status, Dates |
-| PharmacyPrescription | Medication prescriptions | ID, PatientID, Medications, Date |
-| PharmacyPrescriptionItem | Individual medications | ID, PrescriptionID, Medication, Dosage |
-| LaboratoryTest | Lab test definitions | ID, Name, Type, Cost |
-| LaboratoryRequest | Lab test orders | ID, PatientID, TestID, Status |
-| Billing | Invoices | ID, PatientID, Date, Total, Status |
-| BillingPayment | Payment records | ID, BillingID, Amount, Date, Method |
-| BillingItem | Invoice line items | ID, BillingID, Description, Cost |
-| Inventory | Equipment/supplies | ID, Name, Quantity, Category |
-| HospitalSettings | Hospital configuration (singleton) | ID, Name, Address, Contact, OperatingHours |
-
-**Entity Relationships:**
-```
-Department
-    ↑
-    │ (1:N)
-    │
-Doctor ────→ Appointment ←─── Patient
-             ↓ (1:1)        (1:N) ↑
-        Consultation         │
-             ↓               │
-        Prescriptions    Billing
-             ↓
-        Pharmacy Items
-```
-
----
-
-### Repository Layer
-
-16 Spring Data JPA repositories providing CRUD operations and custom queries:
-
-**Pattern:**
-```java
-public interface PatientRepository extends JpaRepository<Patient, Long> {
-    List<Patient> findByNameContaining(String name);
-    Optional<Patient> findByEmail(String email);
-    // Auto-generated: findAll(), findById(), save(), delete()...
-}
-```
-
-**Repositories:**
-- PatientRepository
-- DoctorRepository
-- DepartmentRepository
-- AppointmentRepository
-- ConsultationRepository
-- AdmissionRepository
-- PharmacyPrescriptionRepository
-- LaboratoryTestRepository
-- LaboratoryRequestRepository
-- BillingRepository
-- BillingItemRepository
-- InventoryRepository
-- HospitalSettingsRepository
-- RoleRepository
-- PermissionRepository
-- UserRepository (auth package)
-
----
-
-### Service Layer
-
-16 business logic services:
-
-**PatientService**
-```java
-- createPatient(PatientDTO)
-- updatePatient(Long id, PatientDTO)
-- getPatient(Long id)
-- getAllPatients()
-- deletePatient(Long id)
-- searchPatient(String name)
-```
-
-**AppointmentService**
-```java
-- scheduleAppointment(AppointmentDTO)
-- cancelAppointment(Long id)
-- getAppointmentQueue()
-- updateAppointmentStatus()
-- getAppointmentsByPatient(Long patientId)
-```
-
-**BillingService**
-```java
-- createBilling(BillingDTO)
-- addBillingItem()
-- recordPayment()
-- updateBillingStatus()
-- getBillingByPatient()
-```
-
-**Similar patterns for other services:**
-- DoctorService
-- DepartmentService
-- ConsultationService
-- AdmissionService
-- PharmacyService
-- LaboratoryService
-- InventoryService
-- DashboardService
-- HospitalSettingsService
-- AuthService, JwtService, UserService (auth package)
-
----
-
-### Controller Layer
-
-REST controllers exposing API endpoints:
-
-**PatientController**
-```
-POST   /api/patients                  # Create
-GET    /api/patients                  # List all
-GET    /api/patients/{id}             # Get by ID
-PUT    /api/patients/{id}             # Update
-DELETE /api/patients/{id}             # Delete
-```
-
-**AppointmentController**
-```
-POST   /api/appointments              # Schedule
-GET    /api/appointments              # List
-GET    /api/appointments/queue        # Get queue
-GET    /api/appointments/{id}         # Get details
-PUT    /api/appointments/{id}         # Update
-DELETE /api/appointments/{id}         # Cancel
-```
-
-**Similar patterns for:**
-- DoctorController
-- DepartmentController
-- ConsultationController
-- BillingController
-- LaboratoryTestController
-- LaboratoryRequestController
-- AdmissionController
-- InventoryController
-- PharmacyPrescriptionController
-- HospitalSettingsController
-- DashboardController
-- HealthController
-- AuthController, LoginFormController, UserController (auth package)
-
----
-
-### DTO Layer (Data Transfer Objects)
-
-Data transfer objects for API communication:
-
-**PatientDTO**
-```java
-- Long id
-- String name
-- String email
-- LocalDate dateOfBirth
-- String gender
-- String address
-- String phoneNumber
-```
-
-**AppointmentDTO**
-```java
-- Long id
-- Long patientId
-- Long doctorId
-- LocalDateTime dateTime
-- String status
-- String notes
-```
-
-Similar DTOs for all entities:
-- DoctorDTO
-- DepartmentDTO
-- ConsultationDTO
-- BillingDTO
-- InventoryDTO
-- etc.
-
----
-
-## Data Entity Relationships
-
-### One-to-Many
-```
-Department 1 ──→ ∞ Doctor
-Patient 1 ──→ ∞ Appointment
-Patient 1 ──→ ∞ Consultation
-Patient 1 ──→ ∞ Admission
-Patient 1 ──→ ∞ Billing
-Consultation 1 ──→ ∞ Prescription
-```
-
-### Many-to-One
-```
-Doctor ∞ ──→ 1 Department
-Appointment ∞ ──→ 1 Patient
-Appointment ∞ ──→ 1 Doctor
-Consultation ∞ ──→ 1 Patient
-```
-
-### One-to-One
-```
-Appointment 1 ──→ 1 Consultation (Optional)
-```
-
----
-
-## Component Communication Pattern
-
-```
-Frontend Component
-    ↓
-Calls Service Method
-    ↓
-HTTP Request (with JWT)
-    ↓
-AuthInterceptor adds token
-    ↓
-Backend Controller receives
-    ↓
-Validates request
-    ↓
-Calls Service method
-    ↓
-Service calls Repository
-    ↓
-Repository queries Database
-    ↓
-Data returned
-    ↓
-Service processes data
-    ↓
-Controller formats response
-    ↓
-HTTP Response
-    ↓
-AuthInterceptor processes
-    ↓
-Frontend Service handles
-    ↓
-Component updates UI
-```
-
----
-
 ## Related Documentation
 
-- See [PROJECT_STATE.md](./PROJECT_STATE.md) for current status
-- See [ARCHITECTURE.md](./ARCHITECTURE.md) for system design
-- See [DATA_FLOW.md](./DATA_FLOW.md) for data flow patterns
-- See [API_DESIGN.md](./API_DESIGN.md) for API specifications
+- [BACKEND_COMPONENTS.md](./BACKEND_COMPONENTS.md) — the Spring Boot side each service talks to
+- [DATA_MODEL.md](./DATA_MODEL.md) — entities backing these features
+- [API_DESIGN.md](./API_DESIGN.md) — full endpoint specifications
+- [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md) — overall architecture

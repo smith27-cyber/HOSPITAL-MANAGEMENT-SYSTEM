@@ -81,13 +81,21 @@ HMS/
 │
 ├── dev/                       # Working docs not shipped as end-user docs
 │   ├── architecture/          # Comprehensive documentation
-│   │   ├── old/                # Docs describing the CURRENT system
-│   │   │   ├── README.md             # Architecture overview
-│   │   │   ├── ARCHITECTURE.md       # System design & patterns
-│   │   │   ├── COMPONENTS.md         # Detailed component breakdown
-│   │   │   ├── DATA_FLOW.md          # Data flow patterns & workflows
-│   │   │   ├── API_DESIGN.md         # API specification
-│   │   │   ├── PROJECT_STATE.md      # Current status
+│   │   ├── old/                # Docs describing the CURRENT system (13 concern-based files)
+│   │   │   ├── README.md             # Navigation index
+│   │   │   ├── KNOWN_ISSUES.md       # Open issues (P0-P3) — start here
+│   │   │   ├── STATUS_OVERVIEW.md    # Current status
+│   │   │   ├── FEATURE_COMPLETENESS.md
+│   │   │   ├── TESTING_STATUS.md
+│   │   │   ├── SYSTEM_DESIGN.md      # 3-tier architecture, patterns
+│   │   │   ├── SECURITY.md           # Auth, JWT, RBAC, CORS
+│   │   │   ├── DATABASE_DESIGN.md
+│   │   │   ├── OPERATIONS.md         # Error handling, performance, deployment
+│   │   │   ├── FRONTEND_COMPONENTS.md
+│   │   │   ├── BACKEND_COMPONENTS.md
+│   │   │   ├── DATA_MODEL.md
+│   │   │   ├── API_DESIGN.md
+│   │   │   ├── DATA_FLOW.md
 │   │   │   └── CLAUDE.md             # Documentation fixes log
 │   │   └── future/             # Proposed future-state designs
 │   │       └── POM_STRUCTURE.md      # Frontend Spring Boot module proposal
@@ -236,7 +244,7 @@ POST   /billing/{id}/payments   # Record payment
 ✅ JWT token-based authentication  
 ✅ Spring Security for authorization  
 ✅ BCrypt password encryption  
-✅ CORS configured for frontend access  
+🟡 CORS configured for frontend access — one controller currently overrides the global policy, see [dev/architecture/old/KNOWN_ISSUES.md](./dev/architecture/old/KNOWN_ISSUES.md)  
 ✅ SQL injection prevention via JPA  
 ✅ HTTPS ready for production  
 
@@ -346,12 +354,15 @@ docker logs hms-postgres-dev -f
 |----------|---------|
 | **What-Is-This-Good-For.md** | Business value & use cases |
 | **CLAUDE.md** | Project notes & guidance |
-| **dev/architecture/old/README.md** | Architecture overview & navigation |
-| **dev/architecture/old/ARCHITECTURE.md** | System design & patterns |
-| **dev/architecture/old/COMPONENTS.md** | Detailed component breakdown |
+| **dev/architecture/old/README.md** | Architecture doc navigation (13 concern-based docs) |
+| **dev/architecture/old/KNOWN_ISSUES.md** | Open issues (P0–P3) — start here for the honest picture |
+| **dev/architecture/old/STATUS_OVERVIEW.md** | Current project status |
+| **dev/architecture/old/SYSTEM_DESIGN.md** | System design & patterns |
+| **dev/architecture/old/SECURITY.md** | Auth, JWT, RBAC, CORS |
+| **dev/architecture/old/FRONTEND_COMPONENTS.md** / **BACKEND_COMPONENTS.md** | Component breakdowns |
+| **dev/architecture/old/DATA_MODEL.md** | Entities & relationships |
 | **dev/architecture/old/API_DESIGN.md** | API specification |
 | **dev/architecture/old/DATA_FLOW.md** | Data flow patterns & workflows |
-| **dev/architecture/old/PROJECT_STATE.md** | Current project status |
 | **dev/architecture/future/POM_STRUCTURE.md** | Proposed frontend Spring Boot module (not yet implemented) |
 
 ---
@@ -441,7 +452,7 @@ docker exec hms-postgres-dev psql -U hms_user -d hms_database -c "SELECT 1"
 ## Support & Contribution
 
 ### Reporting Issues
-1. Check [dev/architecture/old/PROJECT_STATE.md](./dev/architecture/old/PROJECT_STATE.md) for known issues
+1. Check [dev/architecture/old/KNOWN_ISSUES.md](./dev/architecture/old/KNOWN_ISSUES.md) for known issues
 2. Check logs for error messages
 3. Review [CLAUDE.md](./CLAUDE.md) for project notes
 

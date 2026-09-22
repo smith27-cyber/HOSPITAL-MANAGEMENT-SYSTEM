@@ -720,7 +720,7 @@ Client receives JSON
 
 ## Related Documentation
 
-- See [PROJECT_STATE.md](./PROJECT_STATE.md) for current status
-- See [ARCHITECTURE.md](./ARCHITECTURE.md) for system design
-- See [COMPONENTS.md](./COMPONENTS.md) for detailed component breakdown
+- See [STATUS_OVERVIEW.md](./STATUS_OVERVIEW.md) for current status
+- See [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md) for system design
+- See [BACKEND_COMPONENTS.md](./BACKEND_COMPONENTS.md) and [FRONTEND_COMPONENTS.md](./FRONTEND_COMPONENTS.md) for component breakdowns
 - See [API_DESIGN.md](./API_DESIGN.md) for API specifications

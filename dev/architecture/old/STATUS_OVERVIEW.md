@@ -1,7 +1,7 @@
-# HMS Project State Document
+# HMS Status Overview
 
-**Last Updated:** 2026-09-22  
-**Status:** Feature Complete - Final Touchups  
+**Last Updated:** 2026-09-22
+**Status:** Feature Complete - Final Touchups
 **Version:** 0.0.1-SNAPSHOT
 
 ---
@@ -9,6 +9,11 @@
 ## Executive Summary
 
 The Hospital Management System (HMS) is a comprehensive full-stack healthcare management platform that is **feature-complete** with 13 major modules covering all hospital operations, plus a role-based access control (RBAC) layer for authentication and authorization. The backend and frontend are fully integrated with JWT-based authentication, and all core systems are operational.
+
+See [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) for real gaps behind that
+headline — a live CORS misconfiguration and a completely missing global
+error handler, both found by reading the actual code rather than the
+prior version of this document.
 
 ---
 
@@ -105,103 +110,6 @@ The Hospital Management System (HMS) is a comprehensive full-stack healthcare ma
 
 ---
 
-## Feature Completeness Matrix
-
-### Patient Management
-- ✅ Register new patient
-- ✅ View patient list
-- ✅ View patient profile
-- ✅ Edit patient information
-- ✅ Patient medical history
-
-### Doctor Management
-- ✅ Register new doctor
-- ✅ View doctor list
-- ✅ View doctor profile
-- ✅ Edit doctor information
-- ✅ Department assignment
-
-### Appointments
-- ✅ Schedule appointment
-- ✅ View appointment list
-- ✅ Manage appointment queue
-- ✅ Appointment details
-- ✅ Edit appointment
-
-### Consultations
-- ✅ Create consultation record
-- ✅ View consultations
-- ✅ Edit consultation notes
-- ✅ Link to prescriptions
-
-### Admissions
-- ✅ Admit patient (ward/bed assignment)
-- ✅ View admission list & details
-- ✅ Transfer between wards/beds
-- ✅ Discharge / cancel admission
-- ✅ Admission statistics (active, discharged, transferred, cancelled)
-
-### Pharmacy
-- ✅ Prescription management
-- ✅ Pharmacy queue view
-- ✅ Stock management
-- ✅ Medication tracking
-
-### Laboratory
-- ✅ Lab test management
-- ✅ Lab request handling
-- ✅ Test result tracking
-- ✅ Lab queue management
-
-### Billing
-- ✅ Create invoice
-- ✅ View billing records
-- ✅ Payment processing
-- ✅ Billing items management
-
-### Inventory
-- ✅ Equipment tracking
-- ✅ Supply management
-- ✅ Stock levels
-- ✅ Reorder management
-
-### Reports & Analytics
-- ✅ Dashboard metrics
-- ✅ Report generation
-- ✅ Analytics visualization
-
-### Settings & Configuration
-- ✅ Hospital settings (backend-persisted via `HospitalSettingsController`)
-- 🟡 System preferences (frontend only, no backend persistence yet)
-- 🟡 Notification settings (frontend only, no backend persistence yet)
-
-### Authentication & RBAC
-- ✅ JWT login/logout
-- ✅ Role-based access control (`Role`, `Permission` entities, `RbacDataInitializer` seed data)
-- ✅ User management (`UserController`, `UserService`)
-
----
-
-## Known Issues & Pending Work
-
-### Critical (P0)
-- None identified
-
-### High Priority (P1)
-- Final billing workflow validation
-- Performance optimization on large datasets
-
-### Medium Priority (P2)
-- Edge case handling in lab requests
-- Form validation refinements
-
-### Low Priority (P3)
-- UI/UX polish
-- Accessibility improvements
-- Loading state animations
-
----
-
 ## Integration Status
 
 ### Frontend-Backend Communication
@@ -246,46 +154,17 @@ The Hospital Management System (HMS) is a comprehensive full-stack healthcare ma
 
 ---
 
-## Testing Status
-
-### Frontend
-- Unit tests: ✅ Framework configured (Vitest)
-- Component tests: 🟡 Partial coverage
-- Integration tests: 🟡 Partial coverage
-- E2E tests: ⏳ Not yet implemented
-
-### Backend
-- Unit tests: 🟡 Partial coverage
-- Integration tests: 🟡 Partial coverage
-- API tests: 🟡 Partial coverage
-- Database tests: 🟡 Partial coverage
-
----
-
 ## Deployment Readiness
 
 | Aspect | Status | Notes |
 |--------|--------|-------|
 | Code Quality | 🟡 Good | Minor refactoring opportunities |
-| Security | ✅ Secure | JWT + Spring Security configured |
+| Security | 🟡 Partial | JWT + Spring Security configured, but see [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) (P0) — `ConsultationController`'s CORS override |
 | Documentation | 🟡 Partial | Architecture docs being added |
 | Database | ✅ Ready | Schema complete, migrations ready |
 | API | ✅ Ready | RESTful endpoints operational |
-| Error Handling | ✅ Implemented | Global error management active |
+| Error Handling | 🔴 Not implemented | No `@ExceptionHandler`/`@ControllerAdvice` anywhere; `dto/ErrorResponse.java` exists but is unused. See [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) (P1). |
 | Logging | 🟡 Partial | Basic logging, can be enhanced |
-
----
-
-## Next Steps (Priority Order)
-
-1. **Complete bug fixes** from billing workflow validation
-2. **Run full integration tests** across all modules
-3. **Performance optimization** for large datasets
-4. **Add comprehensive logging** for debugging
-5. **Complete test coverage** for critical paths
-6. **Security audit** for authentication/authorization
-7. **Prepare deployment documentation**
-8. **Load testing** for production readiness
 
 ---
 
@@ -322,7 +201,7 @@ The Hospital Management System (HMS) is a comprehensive full-stack healthcare ma
 
 ## Related Documentation
 
-- See [ARCHITECTURE.md](./ARCHITECTURE.md) for system design
-- See [COMPONENTS.md](./COMPONENTS.md) for detailed component breakdown
-- See [DATA_FLOW.md](./DATA_FLOW.md) for data flow patterns
-- See [API_DESIGN.md](./API_DESIGN.md) for API specifications
+- [FEATURE_COMPLETENESS.md](./FEATURE_COMPLETENESS.md) — per-module checklist
+- [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) — open issues and next steps
+- [TESTING_STATUS.md](./TESTING_STATUS.md) — actual test coverage
+- [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md) — architecture

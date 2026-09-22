@@ -13,14 +13,23 @@
 hms-pom/
 ├── pom.xml            # hms-parent (packaging: pom)
 ├── hms-jar/           # backend — real Spring Boot module (packaging: jar)
-│   └── src/main/resources/static/   # contains a manually-copied, stale
-│                                     # Angular build (not produced by any
-│                                     # build step in this repo)
+│   ├── src/main/resources/static/   # contains a manually-copied, stale
+│   │                                 # Angular build (not produced by any
+│   │                                 # build step in this repo)
+│   └── src/.../config/AngularForwardController.java   # VIOLATES the hard
+│                        # constraint below — forwards Angular app routes
+│                        # to index.html; this is hms-webb's job, not hms-jar's
 └── hms-webb/          # frontend — packaging: pom, EMPTY CONTAINER ONLY
     ├── pom.xml         # no dependencies, no main class, does not run
     └── angular/        # the actual Angular 22 project
         └── dist/hms-frontend/browser/   # `ng build` default output location
 ```
+
+**Hard constraint:** Angular must not be aware of anything outside
+`hms-webb`. `hms-jar` carries zero Angular-awareness — no static build, no
+SPA-routing/forward logic, nothing. Both artifacts above violate this and
+are covered by
+[Phase 3](../../planning/phases/phase-3-retire-stale-copy.md).
 
 `hms-webb`'s own pom.xml states its intent directly: *"Angular is built
 separately using npm and served independently. This POM organizes the
@@ -49,9 +58,9 @@ hms-pom/
         └── angular.json
 ```
 
-Two independent Spring Boot processes: `hms-jar` (the REST API, port 8081)
-and `hms-webb` (serves the built Angular app as static content, proposed
-port 8082).
+Two independent Spring Boot processes: `hms-jar` (the Backend API, port
+8081) and `hms-webb` (serves the built Angular app plus its own Web API
+forwarding layer, port 8080 — standard ports throughout).
 
 ### Mechanism: Angular writes directly into the module's static folder
 
@@ -91,28 +100,63 @@ between Maven and npm required.
 
 ---
 
-## Open Items (not yet decided)
+## Design Decisions
 
-1. **Stale static content in `hms-jar`.** `hms-jar/src/main/resources/static`
-   currently holds a manually-copied Angular build. Once `hms-webb` is real
-   and serving its own build, this should presumably be removed from the
-   backend module — but it hasn't been touched, in case it's serving a
-   purpose today (e.g. a deployed environment depends on it).
-2. **CORS configuration.** `hms-jar`'s controllers currently allow
-   `http://localhost:4200` (the Angular dev-server port) via
-   `@CrossOrigin`. Once `hms-webb` serves the built app on its own port
-   (proposed `8082`), that origin list needs revisiting — and reverse-proxy
-   vs. direct-CORS between the two Spring Boot processes needs a decision.
-3. **Port choice.** `8082` for `hms-webb` is a placeholder, not confirmed.
-4. **Dev workflow.** During active frontend development, `ng serve` (port
-   4200, proxying API calls to `:8081`) is still the fast loop; `hms-webb`
-   is the *production/packaged* serving path. Worth stating explicitly so
-   nobody expects hot-reload from `hms-webb` itself.
+All four items below are now resolved — nothing left open. Kept under
+this heading (rather than folded into the design above) so the reasoning
+behind each decision stays visible, not just the conclusion.
+
+1. **Frontend-serving code in `hms-jar` — resolved: `hms-jar` must NEVER
+   serve static files, that is `hms-webb`'s job, full stop.**
+   `hms-jar/src/main/resources/static` holds a manually-copied Angular
+   build, and `hms-jar/.../config/AngularForwardController.java` forwards
+   Angular app routes to `index.html` (working SPA-routing fallback,
+   solving the same problem [phase2-task4](../../planning/tasks/phase2-task4-verify-routing.md)
+   flags for `hms-webb` — just in the wrong module). Both get removed from
+   `hms-jar` once `hms-webb` has its own working equivalent — sequenced
+   for that reason, not because the removal itself is still in question.
+   See [Phase 3](../../planning/phases/phase-3-retire-stale-copy.md).
+2. **CORS — resolved: blocked entirely, same mechanism in both modes.**
+   `hms-jar` is the **Backend API** — all business logic and its 17
+   controllers stay there, untouched (18 total Spring controllers in
+   `hms-jar` today, including the one being removed per item 1 above; 17
+   are the real REST API). Every Angular service calls it with
+   a *relative* URL (`API_URL = '/api/departments'`, no host/port — true
+   across all ~15 core services), which is already correct and needs no
+   code changes. Both serving modes are proxies in front of the Backend
+   API, so the browser never sees a second origin:
+   - **Dev (`ng serve`):** an `angular.json` `proxyConfig` forwards
+     `/api/**` to `hms-jar`.
+   - **Packaged (`hms-webb`):** `hms-webb` gets its own thin **Web API** —
+     not a copy of business logic, just a forwarding layer that relays
+     `/api/**` to the Backend API server-side.
+   From the browser's point of view, whichever server delivered the page
+   *is* the API. The Backend API itself allows no cross-origin access at
+   all — there's nothing to allow-list.
+
+   `hms-jar` today has CORS configured in **two overlapping places**, not
+   one: a centralized `CorsConfigurationSource` bean in `SecurityConfig`
+   (registered on `/**`, currently allowing exactly `http://localhost:4200`
+   — a real, active policy, not an absent default), *and* per-controller
+   `@CrossOrigin` annotations that override it inconsistently —
+   `ConsultationController`'s `@CrossOrigin(origins = "*")` in particular
+   currently widens access beyond that global policy for its own
+   endpoints. Both need removing, not just the annotations. See
+   `dev/planning/tasks/phase1-task7-add-ng-serve-proxy.md`,
+   `phase2-task5-add-reverse-proxy.md`, and `phase4-task2-resolve-cors.md`.
+3. **Port choice — resolved.** `hms-webb` runs on `8080` (Spring Boot's
+   conventional default), `hms-jar` stays on `8081`, Angular dev server on
+   `4200` — standard ports throughout.
+4. **Dev workflow.** `ng serve` (port 4200, now proxying `/api` to
+   `hms-jar` per point 2) is still the fast loop for active frontend
+   development; `hms-webb` is the *production/packaged* serving path — no
+   hot-reload there.
 
 ---
 
 ## Related Documentation
 
-- See [ARCHITECTURE.md](../old/ARCHITECTURE.md) for overall system design
-- See [COMPONENTS.md](../old/COMPONENTS.md) for component breakdown
-- See [PROJECT_STATE.md](../old/PROJECT_STATE.md) for current status
+- See [SYSTEM_DESIGN.md](../old/SYSTEM_DESIGN.md) for overall system design
+- See [BACKEND_COMPONENTS.md](../old/BACKEND_COMPONENTS.md) and [FRONTEND_COMPONENTS.md](../old/FRONTEND_COMPONENTS.md) for component breakdowns
+- See [STATUS_OVERVIEW.md](../old/STATUS_OVERVIEW.md) for current status
+- See [KNOWN_ISSUES.md](../old/KNOWN_ISSUES.md) for the CORS issue referenced above

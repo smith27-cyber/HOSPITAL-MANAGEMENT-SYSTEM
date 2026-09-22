@@ -1,21 +1,59 @@
-# Task: Resolve CORS strategy between `hms-jar` and `hms-webb`
+# Task: Block CORS on `hms-jar` entirely — no cross-origin API access
 
 **Phase:** [Phase 4 — Cross-cutting config decisions](../phases/phase-4-cross-cutting-config.md)
-**Depends on:** [phase4-task1-choose-port](./phase4-task1-choose-port.md)
-**Status:** Not started — a decision, not a code change
+**Depends on:** [phase1-task7-add-ng-serve-proxy](../tasks/phase1-task7-add-ng-serve-proxy.md), [phase2-task5-add-reverse-proxy](../tasks/phase2-task5-add-reverse-proxy.md)
+**Status:** Not started — **decision made**, this is now implementation
 
-`hms-jar`'s controllers are already inconsistent about CORS, independent
-of this migration:
-- `AppointmentController`, `UserController`: `@CrossOrigin(origins = "http://localhost:4200")`
-- `ConsultationController`: `@CrossOrigin(origins = "*")`
-- `BillingController`: custom config — needs checking directly
+## Decision
 
-Once `hms-webb` serves the built app on its own origin, decide between:
-1. **Reverse proxy** — put both modules behind one origin in production,
-   so no CORS is needed at all.
-2. **Keep CORS, add the new origin everywhere** — but do it consistently
-   this time, fixing the existing `*` vs. fixed-origin split rather than
-   adding a third inconsistent pattern on top.
+CORS is blocked, full stop — not scoped to an allow-list, blocked
+entirely. The delivering server (`ng serve` in dev, `hms-webb`'s Web API
+layer when packaged) is the only thing the browser ever talks to; both
+forward `/api/**` to `hms-jar`'s Backend API server-side
+([phase1-task7](./phase1-task7-add-ng-serve-proxy.md),
+[phase2-task5](./phase2-task5-add-reverse-proxy.md)). From the browser's
+side, whichever server delivered the page *is* the API — there is never a
+cross-origin request to the Backend API to allow.
 
-This decision should be made once, then applied uniformly — not decided
-per-controller as it evidently was before.
+## Current reality — more than just annotations
+
+`SecurityConfig.java` already has an active, centralized
+`CorsConfigurationSource` bean (`corsConfigurationSource()`), registered
+via `.cors(cors -> cors.configurationSource(...))` on path `/**`,
+currently allowing exactly `http://localhost:4200`, methods
+`GET/POST/PUT/PATCH/DELETE/OPTIONS`, all headers, no credentials. This
+isn't "no CORS config, default deny" — it's an existing, deliberate,
+narrowly-scoped policy that needs to be **removed** (not just left alone
+assuming a default), since the new design has nothing calling `hms-jar`
+cross-origin at all.
+
+**Separately, and worth fixing regardless of this migration:** per-controller
+`@CrossOrigin` annotations currently *override* that global policy —
+checked all 18 controllers directly, not sampled:
+- **15 of 18** carry `@CrossOrigin(origins = "http://localhost:4200")` —
+  `AdmissionController`, `AppointmentController`, `AuthController`,
+  `BillingController`, `DashboardController`, `DepartmentController`,
+  `DoctorController`, `HospitalSettingsController`, `InventoryController`,
+  `LaboratoryRequestController`, `LaboratoryTestController`,
+  `PatientController`, `PharmacyPrescriptionController`, `UserController`.
+  Same origin as the global config — redundant boilerplate, not a gap.
+- **1 of 18** — `ConsultationController` — has `@CrossOrigin(origins = "*")`.
+  **This is the actual gap**: it actively widens access beyond the global
+  policy for Consultation endpoints specifically, allowing any origin to
+  reach them today, contradicting the documented `:4200`-only intent
+  everywhere else.
+- **2 of 18** — `HealthController`, `LoginFormController` — carry no
+  `@CrossOrigin` at all, relying solely on the global bean (correctly
+  minimal).
+
+## Implementation
+
+- Remove the global `corsConfigurationSource()` bean and its
+  `.cors(...)` registration from `SecurityConfig` entirely.
+- Remove all 15 redundant per-controller `@CrossOrigin` annotations and
+  `ConsultationController`'s wildcard — the wildcard is the one that
+  actually matters to fix (a live gap), the other 15 are just cleanup.
+- Verify (don't assume) that after removal, Spring Security's default
+  behavior actually denies cross-origin requests — confirm this with a
+  real cross-origin request in a browser or via `curl -H "Origin:
+  http://evil.example"`, not just by reading the absence of config.

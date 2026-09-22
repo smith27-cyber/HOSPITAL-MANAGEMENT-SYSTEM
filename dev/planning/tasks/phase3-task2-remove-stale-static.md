@@ -1,9 +1,20 @@
-# Task: Remove the stale static copy from `hms-jar`
+# Task: Remove all frontend-serving code from `hms-jar`
 
 **Phase:** [Phase 3 — Retire the stale manual copy in `hms-jar`](../phases/phase-3-retire-stale-copy.md)
-**Depends on:** [phase3-task1-confirm-dependency](./phase3-task1-confirm-dependency.md) — do not do this until that's answered
-**Status:** Not started, blocked
+**Depends on:** [phase3-task1-confirm-dependency](./phase3-task1-confirm-dependency.md) (policy resolved) and [phase2-task3-verify-serving](./phase2-task3-verify-serving.md) (`hms-webb` must work first)
+**Status:** Not started
 
-Once confirmed safe, remove `hms-jar/src/main/resources/static/*` (the
-manually-copied Angular build and its committed files) via `git rm`, since
-`hms-webb` now serves the built app on its own.
+Remove from `hms-jar` — both pieces, not just the static files:
+
+- `hms-jar/src/main/resources/static/*` (the manually-copied Angular
+  build and its committed files) via `git rm`.
+- `hms-jar/src/main/java/com/hms/backend/config/AngularForwardController.java`
+  — its SPA-routing-fallback logic needs an equivalent in `hms-webb`
+  (tracked separately as an open decision in
+  [phase2-task4](./phase2-task4-verify-routing.md), which can now use this
+  file as a reference for *what* it needs to do — forward known app routes
+  to `index.html` — without keeping the file itself in `hms-jar`, per the
+  hard constraint that `hms-jar` carries zero Angular-awareness).
+
+`hms-webb` now serves the built app — and its own routing fallback —
+entirely on its own.
