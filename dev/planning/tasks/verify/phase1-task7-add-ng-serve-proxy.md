@@ -16,7 +16,7 @@ Neither `ng serve` nor `hms-webb` should need CORS. Both are proxies in
 front of `hms-jar`: from the browser's point of view, whichever server
 delivered the page also answers `/api/**` — the delivering server *is* the
 API, as far as any client can tell. `hms-jar` itself allows no
-cross-origin access at all ([phase4-task2](../todo/phase4-task2-resolve-cors.md)).
+cross-origin access at all ([phase4-task2](./phase4-task2-resolve-cors.md)).
 
 This also means the existing relative-URL pattern in every Angular
 service (`API_URL = '/api/departments'`, no host/port) is already correct

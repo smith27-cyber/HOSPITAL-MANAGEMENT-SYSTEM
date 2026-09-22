@@ -16,7 +16,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admissions")
-@CrossOrigin(origins = "http://localhost:4200")
 public class AdmissionController {
 
     private final AdmissionService admissionService;

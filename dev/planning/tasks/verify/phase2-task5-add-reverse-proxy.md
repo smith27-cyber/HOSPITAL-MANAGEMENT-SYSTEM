@@ -47,5 +47,5 @@ per [phase4-task1](./phase4-task1-choose-port.md)) — any request under
 This keeps the packaged path same-origin — from the browser's point of
 view, `hms-webb`'s Web API *is* the API. The Backend API's origin is never
 seen by the browser at all, which is what lets
-[phase4-task2](../todo/phase4-task2-resolve-cors.md) block CORS on `hms-jar`
+[phase4-task2](./phase4-task2-resolve-cors.md) block CORS on `hms-jar`
 entirely, with no allow-list needed for either serving mode.

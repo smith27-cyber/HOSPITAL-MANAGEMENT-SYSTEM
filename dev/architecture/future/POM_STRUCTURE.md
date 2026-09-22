@@ -152,7 +152,7 @@ behind each decision stays visible, not just the conclusion.
    endpoints. Both need removing, not just the annotations. See
    `dev/planning/tasks/verify/phase1-task7-add-ng-serve-proxy.md`,
    `dev/planning/tasks/verify/phase2-task5-add-reverse-proxy.md`, and
-   `dev/planning/tasks/todo/phase4-task2-resolve-cors.md`.
+   `dev/planning/tasks/verify/phase4-task2-resolve-cors.md`.
 3. **Port choice — resolved.** `hms-webb` runs on `8080` (Spring Boot's
    conventional default), `hms-jar` stays on `8081`, Angular dev server on
    `4200` — standard ports throughout.

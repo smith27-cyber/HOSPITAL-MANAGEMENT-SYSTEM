@@ -1,7 +1,12 @@
 # Task: Document the dev-vs-packaged frontend workflow
 
 **Phase:** [Phase 4 — Cross-cutting config decisions](../../phases/phase-4-cross-cutting-config.md)
-**Status:** Not started
+**Status:** Content decided and tested (below) — applying it to root
+`README.md` is deliberately deferred to
+[phase5-task2](./phase5-task2-update-readme.md), not left undone by
+oversight. Phase 5 hasn't started yet since it depends on all of Phases
+1–4 being done *and verified*, and Phase 2's `phase2-task6` is still
+blocked on Docker/Postgres access.
 
 State explicitly, somewhere a developer will actually read it (root
 `README.md` Quick Start is the likely spot — see

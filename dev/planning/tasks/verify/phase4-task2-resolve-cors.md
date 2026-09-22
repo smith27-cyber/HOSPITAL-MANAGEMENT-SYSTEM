@@ -1,8 +1,8 @@
 # Task: Block CORS on `hms-jar` entirely — no cross-origin API access
 
 **Phase:** [Phase 4 — Cross-cutting config decisions](../../phases/phase-4-cross-cutting-config.md)
-**Depends on:** [phase1-task7-add-ng-serve-proxy](../verify/phase1-task7-add-ng-serve-proxy.md), [phase2-task5-add-reverse-proxy](../verify/phase2-task5-add-reverse-proxy.md)
-**Status:** Not started — **decision made**, this is now implementation
+**Depends on:** [phase1-task7-add-ng-serve-proxy](./phase1-task7-add-ng-serve-proxy.md), [phase2-task5-add-reverse-proxy](./phase2-task5-add-reverse-proxy.md)
+**Status:** Done, except live verification (blocked — see below)
 
 ## Decision
 
@@ -46,12 +46,31 @@ cross-origin at all.
 
 ## Implementation
 
-- Remove the global `corsConfigurationSource()` bean and its
-  `.cors(...)` registration from `SecurityConfig` entirely.
-- Remove all 15 redundant per-controller `@CrossOrigin` annotations and
-  `ConsultationController`'s wildcard — the wildcard is the one that
-  actually matters to fix (a live gap), the other 15 are just cleanup.
-- Verify (don't assume) that after removal, Spring Security's default
-  behavior actually denies cross-origin requests — confirm this with a
-  real cross-origin request in a browser or via `curl -H "Origin:
-  http://evil.example"`, not just by reading the absence of config.
+- **Done:** removed the global `corsConfigurationSource()` bean and its
+  `.cors(...)` registration from `SecurityConfig`, plus the three now-unused
+  imports (`CorsConfiguration`, `CorsConfigurationSource`,
+  `UrlBasedCorsConfigurationSource`; `java.util.List` too, only used inside
+  that bean).
+- **Done:** removed all 15 redundant per-controller `@CrossOrigin`
+  annotations and `ConsultationController`'s wildcard (verified with a
+  repo-wide `grep -rn "CrossOrigin"` — zero remaining).
+- **Bonus find while in `SecurityConfig`:** `authorizeHttpRequests` also
+  had a hardcoded `permitAll()` whitelist of Angular routes
+  (`/patients/**`, `/dashboard`, etc. — the same list
+  `AngularForwardController` used), now dead code since Phase 3 removed
+  the static folder and forwarding controller it existed to support. This
+  was itself a hard-constraint violation (Angular-awareness in `hms-jar`)
+  that Phase 3 hadn't caught — removed it too.
+- **Verified:** `hms-jar` still compiles cleanly (105 source files, `BUILD
+  SUCCESS`) with all of the above removed.
+- **Blocked:** the "confirm with a real cross-origin request" step —
+  `hms-jar` cannot even boot in this environment. Tried
+  `mvn spring-boot:run`: Hibernate fails immediately
+  (`Unable to determine Dialect without JDBC metadata`) because there's no
+  Postgres to connect to, so the app never reaches the point of starting
+  Tomcat or the security filter chain. Same Docker/Postgres limitation as
+  [phase1-task7](../verify/phase1-task7-add-ng-serve-proxy.md) and
+  [phase2-task6](../todo/phase2-task6-verify-api-call.md). Run this check
+  manually once Postgres is available: start `hms-jar`, then
+  `curl -H "Origin: http://evil.example" -i http://localhost:8081/api/departments`
+  and confirm the response has no `Access-Control-Allow-Origin` header.
