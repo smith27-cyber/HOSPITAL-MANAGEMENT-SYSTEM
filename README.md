@@ -80,13 +80,16 @@ HMS/
 │       └── angular.json
 │
 ├── architecture/             # Comprehensive documentation
-│   ├── README.md             # Architecture overview
-│   ├── ARCHITECTURE.md       # System design & patterns
-│   ├── COMPONENTS.md         # Detailed component breakdown
-│   ├── DATA_FLOW.md          # Data flow patterns & workflows
-│   ├── API_DESIGN.md         # API specification
-│   ├── PROJECT_STATE.md      # Current status
-│   └── CLAUDE.md             # Documentation fixes log
+│   ├── old/                  # Docs describing the CURRENT system
+│   │   ├── README.md             # Architecture overview
+│   │   ├── ARCHITECTURE.md       # System design & patterns
+│   │   ├── COMPONENTS.md         # Detailed component breakdown
+│   │   ├── DATA_FLOW.md          # Data flow patterns & workflows
+│   │   ├── API_DESIGN.md         # API specification
+│   │   ├── PROJECT_STATE.md      # Current status
+│   │   └── CLAUDE.md             # Documentation fixes log
+│   └── future/                # Proposed future-state designs
+│       └── POM_STRUCTURE.md      # Frontend Spring Boot module proposal
 │
 ├── docker-compose.yml        # PostgreSQL container setup
 ├── CLAUDE.md                 # Project-specific guidance
@@ -180,7 +183,7 @@ GET    /billing/{id}            # Get invoice details
 POST   /billing/{id}/payments   # Record payment
 ```
 
-**[Complete API Documentation →](./architecture/API_DESIGN.md)**
+**[Complete API Documentation →](./architecture/old/API_DESIGN.md)**
 
 ---
 
@@ -339,12 +342,13 @@ docker logs hms-postgres-dev -f
 |----------|---------|
 | **What-Is-This-Good-For.md** | Business value & use cases |
 | **CLAUDE.md** | Project notes & guidance |
-| **architecture/README.md** | Architecture overview & navigation |
-| **architecture/ARCHITECTURE.md** | System design & patterns |
-| **architecture/COMPONENTS.md** | Detailed component breakdown |
-| **architecture/API_DESIGN.md** | API specification |
-| **architecture/DATA_FLOW.md** | Data flow patterns & workflows |
-| **architecture/PROJECT_STATE.md** | Current project status |
+| **architecture/old/README.md** | Architecture overview & navigation |
+| **architecture/old/ARCHITECTURE.md** | System design & patterns |
+| **architecture/old/COMPONENTS.md** | Detailed component breakdown |
+| **architecture/old/API_DESIGN.md** | API specification |
+| **architecture/old/DATA_FLOW.md** | Data flow patterns & workflows |
+| **architecture/old/PROJECT_STATE.md** | Current project status |
+| **architecture/future/POM_STRUCTURE.md** | Proposed frontend Spring Boot module (not yet implemented) |
 
 ---
 
@@ -433,7 +437,7 @@ docker exec hms-postgres-dev psql -U hms_user -d hms_database -c "SELECT 1"
 ## Support & Contribution
 
 ### Reporting Issues
-1. Check [architecture/PROJECT_STATE.md](./architecture/PROJECT_STATE.md) for known issues
+1. Check [architecture/old/PROJECT_STATE.md](./architecture/old/PROJECT_STATE.md) for known issues
 2. Check logs for error messages
 3. Review [CLAUDE.md](./CLAUDE.md) for project notes
 
