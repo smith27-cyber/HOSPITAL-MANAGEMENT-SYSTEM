@@ -37,12 +37,14 @@ called out explicitly rather than assumed.
       it. Used everywhere, no per-phase variants. See
       [task-0-3-decide-test-isolation](../tasks/todo/task-0-3-decide-test-isolation.md).
 - [x] **Auth reuse — decided: one setup project, storageState per
-      role.** A single `auth.setup.ts` logs in through the real UI once
-      per identity (the 8 RBAC accounts plus `admin`/`admin123`) and
-      saves each session's `storageState` to its own file; a shared
-      fixture loads the right file per spec. Runs once per full suite
-      run via Playwright's `dependencies` mechanism, not once per test.
-      See
+      identity, via dev-login.** A single `auth.setup.ts` establishes
+      10 identities once — 9 via the no-password `POST
+      /api/auth/dev-login` (`thor`/`SUPER_ADMIN` plus 8 `*-testuser`
+      accounts, one per RBAC role) and `admin`/`admin123` via the real
+      form (no dev-login account exists for plain `ADMIN`) — and saves
+      each session's `storageState` to its own file; a shared fixture
+      loads the right file per spec. Runs once per full suite run via
+      Playwright's `dependencies` mechanism, not once per test. See
       [task-0-4-decide-auth-reuse](../tasks/todo/task-0-4-decide-auth-reuse.md).
 - [ ] **What happens to the existing coverage-instrumentation tooling
       (`dev/testing/playwright/instrument-serve.js`-adjacent setup in

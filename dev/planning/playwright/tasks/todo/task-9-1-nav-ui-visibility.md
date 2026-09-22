@@ -4,11 +4,14 @@
 **Depends on:** [Phase 0 — Foundation & Test Infrastructure](../../phases/phase-0-foundation.md); benefits from Phases 1-8 existing first, since it reuses their page interactions rather than inventing new ones
 **Status:** Not started
 
-For each of the 8 seeded roles, log in and record which nav items are
-visible/hidden, and which action buttons (create/edit/delete) are
-present/absent on each module's list page. Compare against that role's
-actual captured permission set (see the phase doc's real captured
-`test_doctor` permission list, and capture the other 7 roles' actual
-permission lists the same way — a real login call, not inference from
-the role name) — a visible "Create Invoice" button for a role without
-any `BILLING_*` permission is a bug, not a variant.
+For each of the 8 RBAC roles (logged in via their `*-testuser` dev-login
+identity, per
+[task-0-4-decide-auth-reuse](./task-0-4-decide-auth-reuse.md)),
+record which nav items are visible/hidden, and which action buttons
+(create/edit/delete) are present/absent on each module's list page.
+Compare against that role's actual captured permission set (see the
+phase doc's real captured `doc-testuser` permission list, and capture
+the other 7 roles' actual permission lists the same way — a real login
+call, not inference from the role name) — a visible "Create Invoice"
+button for a role without any `BILLING_*` permission is a bug, not a
+variant.

@@ -5,7 +5,7 @@
 **Status:** Not started
 
 - Log in as a role known (from Phase 9's captured data) to lack a
-  specific permission — e.g. `test_doctor` attempting to create a
+  specific permission — e.g. `doc-testuser` attempting to create a
   billing invoice.
 - Confirm the *entire* experience of being denied is reasonable: the
   action isn't offered, and if reached anyway (direct URL), the user

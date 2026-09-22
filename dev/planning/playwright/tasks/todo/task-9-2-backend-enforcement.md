@@ -5,7 +5,7 @@
 **Status:** Not started
 
 For at least one case per role, confirm the restriction is enforced
-**server-side**, not just hidden in the UI — e.g. as `test_doctor`,
+**server-side**, not just hidden in the UI — e.g. as `doc-testuser`,
 attempt the billing-create action directly (bypassing the hidden
 button, e.g. via direct navigation to `/billing/register` or a crafted
 request) and confirm it's actually rejected (403), not just invisible.

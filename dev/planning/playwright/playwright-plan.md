@@ -21,18 +21,30 @@ discharge), and see different things depending on role (RBAC).
 
 Grounded in what's actually in the codebase, not assumed:
 - **13 feature modules** ([FRONTEND_COMPONENTS.md](../../architecture/20260922/FRONTEND_COMPONENTS.md)): Dashboard, Patients, Doctors, Departments, Appointments, Consultations, Admissions, Pharmacy, Laboratory, Billing, Inventory, Reports, Settings.
-- **8 seeded RBAC test accounts** (`RbacDataInitializer.java`):
+- **10 identities this suite authenticates as** (`auth.setup.ts`, see
+  [task-0-4-decide-auth-reuse](./tasks/todo/task-0-4-decide-auth-reuse.md)):
+  9 via the no-password `POST /api/auth/dev-login` — `thor` (`SUPER_ADMIN`,
+  full permissions) and one `*-testuser` account per RBAC role
+  (`doc-testuser` DOCTOR, `nurse-testuser` NURSE, `rec-testuser`
+  RECEPTIONIST, `pharm-testuser` PHARMACIST, `lab-testuser`
+  LABORATORY_TECHNICIAN, `acct-testuser` ACCOUNTANT, `records-testuser`
+  RECORDS_OFFICER, `mgr-testuser` HOSPITAL_MANAGER) — plus `admin`/
+  `admin123` (`ADMIN`) via the real login form, since `ADMIN` has no
+  dev-login account (confirmed directly from `RbacDataInitializer.java`
+  — see
+  [task-0-8-confirm-admin-login](./tasks/todo/task-0-8-confirm-admin-login.md)).
+  Dev-login requires `hms.dev-login.enabled=true` on the `hms-jar`
+  instance under test (default off).
+- **8 original seeded RBAC test accounts** (`RbacDataInitializer.java`):
   `test_doctor`/`doctor123` (DOCTOR), `test_nurse`/`nurse123` (NURSE),
   `test_receptionist`/`receptionist123` (RECEPTIONIST),
   `test_pharmacist`/`pharmacist123` (PHARMACIST),
   `test_labtech`/`labtech123` (LABORATORY_TECHNICIAN),
   `test_accountant`/`accountant123` (ACCOUNTANT),
   `test_records`/`records123` (RECORDS_OFFICER),
-  `test_manager`/`manager123` (HOSPITAL_MANAGER), plus `admin`/`admin123`
-  (`ADMIN`) confirmed directly from `RbacDataInitializer.java` — see
-  [task-0-8-confirm-admin-login](./tasks/todo/task-0-8-confirm-admin-login.md).
-  `SUPER_ADMIN` exists only as a `Role` with no `User` ever created
-  against it — there is no seeded `SUPER_ADMIN` login.
+  `test_manager`/`manager123` (HOSPITAL_MANAGER) still exist and are
+  unaffected, but this suite's `auth.setup.ts` no longer uses them —
+  see the `*-testuser` accounts above instead.
 
 ## Phases
 

@@ -22,14 +22,19 @@ PHARMACY_PRESCRIPTION_CANCEL, PHARMACY_PRESCRIPTION_CREATE,
 PHARMACY_PRESCRIPTION_UPDATE, PHARMACY_PRESCRIPTION_VIEW,
 PHARMACY_VIEW, REPORT_VIEW, SETTINGS_VIEW`.
 
+This suite actually authenticates via `doc-testuser` (dev-login, per
+[task-0-4-decide-auth-reuse](../tasks/todo/task-0-4-decide-auth-reuse.md)),
+not `test_doctor` — same `DOCTOR` role, and re-verified live to return
+this exact permission set, not assumed identical.
+
 Notably **absent**: any `BILLING_*`, `INVENTORY_*`, `PATIENT_CREATE`/`UPDATE`,
 `ADMISSION_CREATE`/`UPDATE`, or `SETTINGS_*_MANAGE`/`USER_MANAGE`
 permission. That gives concrete, real assertions to write — e.g. "logged
-in as `test_doctor`, the Billing module's create-invoice action should be
+in as `doc-testuser`, the Billing module's create-invoice action should be
 unavailable or rejected" — instead of guessing at what each role can do.
-**Capture the actual permission list for the other 7 seeded roles the
-same way** (a real login call, not inference from the role name) before
-writing their comparison tests.
+**Capture the actual permission list for the other 7 dev-login identities
+the same way** (a real login call, not inference from the role name)
+before writing their comparison tests.
 
 ## Test Scenarios
 
@@ -43,7 +48,7 @@ writing their comparison tests.
 
 ### Backend enforcement, not just UI hiding
 - [ ] For at least one case per role, confirm the restriction is enforced
-      **server-side**, not just hidden in the UI — e.g. as `test_doctor`,
+      **server-side**, not just hidden in the UI — e.g. as `doc-testuser`,
       attempt the billing-create action directly (bypassing the hidden
       button, e.g. via direct navigation to `/billing/register` or a
       crafted request) and confirm it's actually rejected (403), not just

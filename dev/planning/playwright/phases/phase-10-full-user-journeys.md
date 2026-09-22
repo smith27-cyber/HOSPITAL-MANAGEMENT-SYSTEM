@@ -51,7 +51,7 @@ produce — it means the parts work but the seams don't.
 
 ### Journey 4 — A denied action, end to end
 - [ ] Log in as a role known (from [Phase 9](./phase-9-rbac-and-error-handling.md)'s
-      captured data) to lack a specific permission — e.g. `test_doctor`
+      captured data) to lack a specific permission — e.g. `doc-testuser`
       attempting to create a billing invoice.
 - [ ] Confirm the *entire* experience of being denied is reasonable: the
       action isn't offered, and if reached anyway (direct URL), the user
