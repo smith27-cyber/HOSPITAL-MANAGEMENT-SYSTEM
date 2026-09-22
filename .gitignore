@@ -33,6 +33,9 @@ coverage/
 .playwright/
 *.lcov
 
+# Playwright auth.setup.ts storageState output — contains real JWTs
+/dev/testing/playwright/.auth/
+
 # IDE and editor files
 .vscode/
 .idea/

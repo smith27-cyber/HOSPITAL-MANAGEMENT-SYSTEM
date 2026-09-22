@@ -6,6 +6,7 @@
 // =====================================================
 
 import {
+  ChangeDetectorRef,
   Component,
   inject
 } from '@angular/core';
@@ -56,6 +57,9 @@ export class Login {
 
   private readonly router =
     inject(Router);
+
+  private readonly changeDetectorRef =
+    inject(ChangeDetectorRef);
 
 
   // ===================================================
@@ -137,6 +141,12 @@ export class Login {
                 username => username !== 'thor'
               );
 
+          // HttpClient's fetch-based backend isn't reliably
+          // zone-patched here, so the @if(devLoginEnabled)
+          // block wouldn't otherwise re-render on its own.
+
+          this.changeDetectorRef.detectChanges();
+
         },
 
         // Dev-login status itself is best-effort —
@@ -144,6 +154,8 @@ export class Login {
         error: () => {
 
           this.devLoginEnabled = false;
+
+          this.changeDetectorRef.detectChanges();
 
         }
 

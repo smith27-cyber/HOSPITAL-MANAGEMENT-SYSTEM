@@ -4,9 +4,14 @@
 is planned to be replaced by a full UI/user-flow test suite covering
 every feature module — see
 [dev/planning/playwright/playwright-plan.md](../../planning/playwright/playwright-plan.md).
-That plan explicitly keeps this directory's coverage-instrumentation
-tooling as an open decision to revisit, not something to reuse or discard
-without thought — see its Phase 0.
+That plan's Phase 0 decided to **drop** this directory's Istanbul
+coverage-instrumentation tooling (`instrument-serve.js` hardcodes port
+4200 and has no `/api/**` proxying to `hms-jar`, so it can't coexist
+with the new suite's `ng serve` target) in favor of Playwright's
+built-in V8 coverage — see
+[task-0-5-decide-coverage-tooling](../../planning/playwright/tasks/todo/task-0-5-decide-coverage-tooling.md).
+This README (and the tooling it documents) still describes the old,
+soon-to-be-removed setup below.
 
 This directory contains Playwright E2E tests with **Istanbul code coverage instrumentation** enabled.
 
