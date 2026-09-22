@@ -1,14 +1,15 @@
-# Task: Decide the base URL strategy (ng serve vs hms-webb)
+# Task: Base URL — ng serve only (decided)
 
 **Phase:** [Phase 0 — Foundation & Test Infrastructure](../../phases/phase-0-foundation.md)
 **Depends on:** nothing — this blocks everything else
-**Status:** Not started
+**Status:** Decided — the suite targets the Angular dev server exclusively
 
-Decide whether the suite runs against `ng serve` (port 4200, faster local
-iteration) or `hms-webb` (port 8080, the real packaged deployment shape —
-see `dev/architecture/20260922/WEBB_MODULE.md`), or both.
+The suite is a **UI test suite for the Angular app** — it shoots solely
+against `ng serve` (`hms-pom/hms-webb/angular`) at
+`http://localhost:4200`. There is no dual-target parametrization and the
+packaged `hms-webb` Spring Boot module (port 8080, static-serving +
+`/api/**` forwarding) is not a test target for this suite.
 
-Recommendation from the plan: parametrize via an env var (e.g.
-`PLAYWRIGHT_BASE_URL`) so the same suite runs against either target, and
-make sure CI runs it against `hms-webb` at least once, since that's what
-a real user actually gets.
+`ng serve`'s own `proxy.conf.json` forwards `/api/**` to `hms-jar` on
+`:8081`, so API calls still reach the real backend — the fixed base URL
+for every test is `http://localhost:4200`.

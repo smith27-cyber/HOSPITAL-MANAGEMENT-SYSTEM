@@ -1,6 +1,6 @@
 # Phase 1 — Authentication & App Shell
 
-**Plan:** [plan.md](../plan.md)
+**Plan:** [playwright-plan.md](../playwright-plan.md)
 **Depends on:** [Phase 0](./phase-0-foundation.md) (auth fixtures)
 **Status:** Not started
 

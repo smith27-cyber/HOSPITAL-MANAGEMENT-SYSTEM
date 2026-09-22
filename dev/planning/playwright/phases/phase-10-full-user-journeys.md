@@ -1,6 +1,6 @@
 # Phase 10 — Full User Journeys (Cross-Module)
 
-**Plan:** [plan.md](../plan.md)
+**Plan:** [playwright-plan.md](../playwright-plan.md)
 **Depends on:** Phases 2–8 (chains together interactions already tested individually)
 **Status:** Not started
 

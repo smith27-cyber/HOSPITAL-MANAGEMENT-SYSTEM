@@ -1,6 +1,6 @@
 # Phase 6 — Pharmacy & Laboratory
 
-**Plan:** [plan.md](../plan.md)
+**Plan:** [playwright-plan.md](../playwright-plan.md)
 **Depends on:** [Phase 0](./phase-0-foundation.md), [Phase 1](./phase-1-auth-and-shell.md), [Phase 4](./phase-4-appointments-consultations.md) (prescriptions/lab requests originate from consultations)
 **Status:** Not started
 

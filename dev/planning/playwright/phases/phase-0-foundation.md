@@ -1,6 +1,6 @@
 # Phase 0 — Foundation & Test Infrastructure
 
-**Plan:** [plan.md](../plan.md)
+**Plan:** [playwright-plan.md](../playwright-plan.md)
 **Depends on:** nothing — this blocks everything else
 **Status:** Not started
 
@@ -10,13 +10,13 @@ called out explicitly rather than assumed.
 
 ## Open decisions (need answers, not just code)
 
-- [ ] **Base URL: `ng serve` (4200) vs `hms-webb` (8080), or both?**
-      `ng serve` is faster to iterate against locally; `hms-webb` matches
-      what a real user actually gets in the packaged path (see
-      `dev/architecture/20260922/WEBB_MODULE.md`). Recommend: parametrize via
-      env var (`PLAYWRIGHT_BASE_URL` or similar) so the same suite runs
-      against either, and CI runs it against `hms-webb` at least once
-      since that's the real deployment shape.
+- [x] **Base URL — decided: `ng serve` (4200) only.** This is a UI test
+      suite for the Angular app (`hms-pom/hms-webb/angular`) — it shoots
+      solely against `http://localhost:4200`, using `ng serve`'s own
+      `proxy.conf.json` to reach the real `hms-jar` API on `:8081`. The
+      packaged `hms-webb` module (8080) is not a test target, and there's
+      no dual-target parametrization. See
+      [phase0-task1-decide-base-url](../tasks/todo/phase0-task1-decide-base-url.md).
 - [ ] **Test data strategy.** Many flows need existing reference data
       (a department before you can register a doctor into it, a patient
       before an appointment, etc.). Decide: seed via direct API calls in a
@@ -34,7 +34,7 @@ called out explicitly rather than assumed.
 - [ ] **Auth reuse.** Don't log in via the UI in every single test —
       Playwright's `storageState` lets you log in once per role and reuse
       the authenticated session. Set up one fixture per seeded role (see
-      `plan.md`'s account list), plus resolve the admin/`SUPER_ADMIN`
+      `playwright-plan.md`'s account list), plus resolve the admin/`SUPER_ADMIN`
       account question before writing an admin fixture.
 - [ ] **What happens to the existing coverage-instrumentation tooling
       (`dev/testing/playwright/instrument-serve.js`-adjacent setup in

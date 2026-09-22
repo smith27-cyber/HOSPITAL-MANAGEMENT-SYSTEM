@@ -1,6 +1,6 @@
 # Phase 2 — Patients Module
 
-**Plan:** [plan.md](../plan.md)
+**Plan:** [playwright-plan.md](../playwright-plan.md)
 **Depends on:** [Phase 0](./phase-0-foundation.md), [Phase 1](./phase-1-auth-and-shell.md) (auth)
 **Status:** Not started
 

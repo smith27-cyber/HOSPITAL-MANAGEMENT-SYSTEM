@@ -1,6 +1,6 @@
 # Phase 5 — Admissions
 
-**Plan:** [plan.md](../plan.md)
+**Plan:** [playwright-plan.md](../playwright-plan.md)
 **Depends on:** [Phase 0](./phase-0-foundation.md), [Phase 1](./phase-1-auth-and-shell.md), [Phase 2](./phase-2-patients.md), [Phase 3](./phase-3-doctors-departments.md)
 **Status:** Not started
 

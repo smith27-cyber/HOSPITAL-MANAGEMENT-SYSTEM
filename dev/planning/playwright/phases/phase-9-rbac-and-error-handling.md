@@ -1,6 +1,6 @@
 # Phase 9 — RBAC & Error/Validation UX (Cross-Cutting)
 
-**Plan:** [plan.md](../plan.md)
+**Plan:** [playwright-plan.md](../playwright-plan.md)
 **Depends on:** [Phase 0](./phase-0-foundation.md); benefits from Phases 1–8 existing first, since it reuses their page interactions rather than inventing new ones
 **Status:** Not started
 

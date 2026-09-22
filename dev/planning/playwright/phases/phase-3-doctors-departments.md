@@ -1,6 +1,6 @@
 # Phase 3 — Doctors & Departments
 
-**Plan:** [plan.md](../plan.md)
+**Plan:** [playwright-plan.md](../playwright-plan.md)
 **Depends on:** [Phase 0](./phase-0-foundation.md), [Phase 1](./phase-1-auth-and-shell.md)
 **Status:** Not started
 
