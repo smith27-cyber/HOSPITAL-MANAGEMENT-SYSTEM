@@ -1,7 +1,7 @@
 # Task: Remove `AngularForwardController`
 
 **Phase:** [Phase 3 — Retire frontend-serving code from hms-jar](../../phases/phase-3-retire-stale-frontend-code.md)
-**Status:** Not started
+**Status:** Done
 
 `git rm hms-pom/hms-jar/src/main/java/com/hms/backend/config/AngularForwardController.java`.
 

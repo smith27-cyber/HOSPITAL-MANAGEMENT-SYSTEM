@@ -1,7 +1,7 @@
 # Task: Create the `hms-pom/pom.xml` parent
 
 **Phase:** [Phase 1 — Scaffold the module skeleton](../../phases/phase-1-scaffold-module.md)
-**Status:** Not started
+**Status:** Done
 
 Create `hms-pom/pom.xml`:
 

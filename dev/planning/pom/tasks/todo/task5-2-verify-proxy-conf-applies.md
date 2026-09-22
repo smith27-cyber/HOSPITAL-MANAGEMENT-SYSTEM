@@ -1,7 +1,7 @@
 # Task: Confirm `proxy.conf.json` still applies post-move
 
 **Phase:** [Phase 5 — Wire the Angular build into hms-webb](../../phases/phase-5-wire-angular-output.md)
-**Status:** Not started
+**Status:** Done
 
 `hms-pom/hms-webb/angular/proxy.conf.json` already forwards `/api` → `http://localhost:8081` (carried
 over unchanged from `hms-frontend/proxy.conf.json` by the Phase 1 move — no edit needed). Just confirm

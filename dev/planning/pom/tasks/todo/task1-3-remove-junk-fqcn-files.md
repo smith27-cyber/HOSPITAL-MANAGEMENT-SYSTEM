@@ -1,7 +1,7 @@
 # Task: Remove stray FQCN-named junk files
 
 **Phase:** [Phase 1 — Scaffold the module skeleton](../../phases/phase-1-scaffold-module.md)
-**Status:** Not started
+**Status:** Done
 
 `git rm` the binary/garbage files sitting directly under `hms-pom/hms-jar/` (moved there from
 `hms-backend/` root) whose filenames look like fully-qualified Java/Spring class names but are actually

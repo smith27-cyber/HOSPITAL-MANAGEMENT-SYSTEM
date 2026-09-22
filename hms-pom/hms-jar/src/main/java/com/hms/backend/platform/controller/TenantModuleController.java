@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tenant/modules")
-@CrossOrigin(origins = "http://localhost:4200")
 public class TenantModuleController {
 
     private final PlatformModuleService platformModuleService;

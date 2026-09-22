@@ -15,7 +15,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/pharmacy/prescriptions")
-@CrossOrigin(origins = "http://localhost:4200")
 public class PharmacyPrescriptionController {
 
     private final PharmacyPrescriptionService prescriptionService;

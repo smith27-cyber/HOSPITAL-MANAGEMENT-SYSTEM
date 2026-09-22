@@ -18,7 +18,7 @@
           "builder": "@angular/build:application",
           "options": {
           "outputPath": {
-  "base": "../hms-backend/src/main/resources/static",
+  "base": "../src/main/resources/static",
   "browser": ""
 },
             "browser": "src/main.ts",

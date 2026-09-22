@@ -2,7 +2,7 @@
 
 **Phase:** [Phase 1 — Scaffold the module skeleton](../../phases/phase-1-scaffold-module.md)
 **Depends on:** [task1-4-create-parent-pom](./task1-4-create-parent-pom.md)
-**Status:** Not started
+**Status:** Done
 
 In `hms-pom/hms-jar/pom.xml`:
 

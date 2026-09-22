@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/platform/users")
-@CrossOrigin(origins = "http://localhost:4200")
 public class PlatformUserController {
 
     private final PlatformUserService platformUserService;

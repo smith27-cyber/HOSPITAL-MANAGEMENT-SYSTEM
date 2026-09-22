@@ -28,31 +28,52 @@ docker compose up -d
 # Password: leahsm27
 ```
 
-#### 2. Start Backend (Spring Boot)
+#### 2. Start the Backend API (`hms-jar`)
 
 ```bash
-cd hms-backend
-mvn spring-boot:run
+cd hms-pom
+mvn -pl hms-jar spring-boot:run
 
-# Backend runs on http://localhost:8081
+# Backend API runs on http://localhost:8081
 # API endpoints: http://localhost:8081/api
 # Swagger docs: http://localhost:8081/swagger-ui/index.html
 ```
 
-#### 3. Start Frontend (Angular)
+#### 3. Start the Frontend
+
+There are two ways to run the frontend, depending on what you're doing:
+
+**Fast dev loop** (recommended for day-to-day frontend work) — `ng serve` proxies `/api/**` to `hms-jar`
+on 8081 and never touches `hms-webb`'s static output:
 
 ```bash
-cd hms-frontend
+cd hms-pom/hms-webb/angular
 
 npm install  # First time only
 npm start
 
-# Frontend runs on http://localhost:4200
+# Dev server runs on http://localhost:4200
 ```
+
+**Packaged path** (to test the real production wiring — static serving + `hms-webb`'s `/api/**`
+forwarding) — build the Angular app straight into `hms-webb`, then run `hms-webb` itself:
+
+```bash
+cd hms-pom/hms-webb/angular
+npm run build            # writes directly into ../src/main/resources/static
+
+cd ..
+mvn spring-boot:run      # hms-webb runs on http://localhost:8080
+```
+
+Note: `hms-webb` has **no hot-reload** for the frontend — it serves whatever was in `static/` at the
+last build. A fresh `ng build` requires restarting `hms-webb` to pick it up (Maven's resource copy is a
+one-time build step, not a background sync).
 
 #### 4. Access the Application
 
-* **Web UI:** http://localhost:4200
+* **Web UI (dev loop):** http://localhost:4200
+* **Web UI (packaged):** http://localhost:8080
 * **API Docs:** http://localhost:8081/swagger-ui/index.html
 * **OpenAPI JSON:** http://localhost:8081/api-docs
 
@@ -63,29 +84,48 @@ npm start
 ```text
 HMS/
 
-├── hms-backend/                    # Spring Boot REST API
-│   ├── src/main/java/
-│   │   └── com/hms/backend/
-│   │       ├── auth/               # Authentication & JWT
-│   │       ├── config/             # Configuration (Security, OpenAPI)
-│   │       ├── controller/         # REST endpoints
-│   │       ├── service/            # Business logic
-│   │       ├── repository/         # Data access layer
-│   │       ├── entity/             # JPA entities
-│   │       └── dto/                # Data transfer objects
-│   ├── pom.xml                     # Maven dependencies
-│   └── application.properties     # Configuration
-│
-├── hms-frontend/                   # Angular 22.1.0 UI
-│   ├── src/app/
-│   │   ├── auth/                   # Login & authentication
-│   │   ├── core/                   # Shared services & guards
-│   │   ├── features/               # Feature modules
-│   │   ├── layout/                 # Main layout wrapper
-│   │   ├── shared/                 # Shared models & utilities
-│   │   └── app.routes.ts           # Route definitions
-│   ├── package.json
-│   └── angular.json
+├── hms-pom/                         # Maven multi-module reactor
+│   ├── pom.xml                      # Parent POM (modules: hms-jar, hms-webb)
+│   │
+│   ├── hms-jar/                     # Backend API (Spring Boot)
+│   │   ├── src/main/java/
+│   │   │   └── com/hms/backend/
+│   │   │       ├── auth/            # Authentication & JWT
+│   │   │       ├── config/          # Configuration (Security, OpenAPI)
+│   │   │       ├── controller/      # REST endpoints
+│   │   │       ├── service/         # Business logic
+│   │   │       ├── repository/      # Data access layer
+│   │   │       ├── entity/          # JPA entities
+│   │   │       ├── dto/             # Data transfer objects
+│   │   │       ├── platform/        # SaaS platform admin (tenants, plans, subscriptions, modules)
+│   │   │       ├── tenant/          # Tenant entity & context/module-access filters
+│   │   │       ├── audit/           # Audit logging
+│   │   │       └── settings/        # System preferences
+│   │   ├── pom.xml
+│   │   └── src/main/resources/application.properties
+│   │
+│   └── hms-webb/                    # Web module: static serving + /api/** forwarding
+│       ├── src/main/java/
+│       │   └── com/hms/webb/
+│       │       ├── HmsWebbApplication.java
+│       │       ├── config/SpaWebConfig.java          # SPA-routing fallback
+│       │       └── controller/WebApiForwardController.java  # forwards /api/** to hms-jar
+│       ├── src/main/resources/
+│       │   ├── application.properties
+│       │   └── static/              # `ng build` writes directly here (gitignored)
+│       ├── pom.xml
+│       └── angular/                 # Angular 22.1.0 UI
+│           ├── src/app/
+│           │   ├── auth/            # Login & authentication
+│           │   ├── core/            # Shared services & guards
+│           │   ├── features/        # Tenant-facing feature modules
+│           │   ├── platform/        # Platform/SaaS administration UI
+│           │   ├── layout/          # Main + platform layout wrappers
+│           │   ├── shared/          # Shared models & utilities
+│           │   └── app.routes.ts    # Route definitions
+│           ├── proxy.conf.json      # ng serve dev proxy → hms-jar:8081
+│           ├── package.json
+│           └── angular.json         # outputPath → ../src/main/resources/static
 │
 ├── architecture/                   # Comprehensive documentation
 │   ├── README.md                   # Architecture overview

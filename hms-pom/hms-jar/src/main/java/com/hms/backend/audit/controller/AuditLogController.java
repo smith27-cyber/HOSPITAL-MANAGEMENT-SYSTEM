@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/audit-logs")
-@CrossOrigin(origins = "http://localhost:4200")
 public class AuditLogController {
 
     private final AuditLogService auditLogService;

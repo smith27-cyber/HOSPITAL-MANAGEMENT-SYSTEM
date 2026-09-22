@@ -2,12 +2,12 @@
 
 **Plan:** [../../hms-pom-migration-plan.md](../../hms-pom-migration-plan.md)
 **Depends on:** Phases 1–5 complete and verified
-**Status:** Not started
+**Status:** Done
 
 ## Tasks
 
-1. [Delete stray build artifacts at the repo root](../tasks/todo/task6-1-delete-stray-root-build-artifacts.md) — Not started
-2. [Update root `README.md`](../tasks/todo/task6-2-update-readme.md) — Not started
+1. [Delete stray build artifacts at the repo root](../tasks/todo/task6-1-delete-stray-root-build-artifacts.md) — Done
+2. [Update root `README.md`](../tasks/todo/task6-2-update-readme.md) — Done
 
 ## Out of scope for this plan (tracked separately, not part of this phase)
 

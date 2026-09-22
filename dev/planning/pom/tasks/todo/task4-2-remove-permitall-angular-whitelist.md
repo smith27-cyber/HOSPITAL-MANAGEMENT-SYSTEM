@@ -2,7 +2,7 @@
 
 **Phase:** [Phase 4 — Remove CORS from hms-jar entirely](../../phases/phase-4-remove-cors.md)
 **Depends on:** Phase 3 (AngularForwardController must already be gone)
-**Status:** Not started
+**Status:** Done
 
 In `SecurityConfig.java`'s `authorizeHttpRequests(...)`, remove the large `permitAll()` block listing
 static assets and Angular client routes (`/`, `/index.html`, `/favicon.ico`, `/assets/**`, `*.js/.css/...`,

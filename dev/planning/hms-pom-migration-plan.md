@@ -1,6 +1,7 @@
 # Plan: Migrate `paul` to the `hms-pom/hms-jar` + `hms-pom/hms-webb/angular` layout
 
-**Status:** Approved, in progress.
+**Status:** Done — all 6 phases complete, all 9 verification checks passed live (real Postgres, real
+`hms-jar`/`hms-webb`/`ng serve` processes, real login/JWT/CORS/module-gating round trips).
 **Branch:** `paul`
 **Reference implementation:** `architecture/gsn-creating-a-new-pom-structure` (see
 [hms-webb-morph-plan.md](./hms-webb-morph-plan.md) — that plan's target design, already fully
@@ -182,3 +183,31 @@ Each step below is also broken out as its own tracked phase file under
 9. `git log --follow -- hms-pom/hms-jar/src/main/java/com/hms/backend/service/impl/BillingServiceImpl.java`
    (or any pre-existing file) still shows its full pre-move history — confirms `git mv` preserved
    history rather than appearing as a delete+add.
+
+### Results — all 9 passed, live
+
+All checks above were run for real (Postgres already running from a prior session, `hms-jar` on 8081,
+`hms-webb` on 8080, `ng serve` on 4200, all three simultaneously):
+
+- `hms-jar` and `hms-webb` both compile clean, no warnings (added an explicit
+  `maven-compiler-plugin` version to `hms-parent`'s `pluginManagement` to fix a "missing plugin version"
+  warning that appeared once `spring-boot-starter-parent` moved from `<parent>` to a `dependencyManagement`
+  BOM import — that import doesn't carry `pluginManagement` with it).
+- `hms-jar` booted cleanly on 8081; RBAC/platform initializers ran without errors.
+- `ng build` produced `hms-webb/src/main/resources/static/index.html` directly, confirmed gitignored.
+- Through `hms-webb` (8080): `/` → 200 real `index.html`; `/patients` → 200 via `SpaWebConfig` fallback;
+  `/favicon.ico` → 200 real asset, not the fallback; `/api/health` forwarded correctly;
+  `POST /api/auth/login` (`test_doctor`/`doctor123`) returned a real JWT; a `superadmin` token against
+  `/api/tenants` returned real tenant data with `200`.
+- `curl -H "Origin: http://evil.example" -i http://localhost:8081/api/departments` → `403`, no
+  `Access-Control-Allow-Origin` header — CORS genuinely closed at the source.
+- `ng serve` on 4200 confirmed still proxying `/api/health` to `hms-jar` on 8081 unchanged.
+- `git log --follow` on a pre-existing file traces cleanly back through the move to the initial commit.
+
+**Incidental finding (pre-existing, not caused by this migration, not fixed here — out of scope per
+above):** `test_doctor` (tenant `OLIVES-DEFAULT`) got `403 MODULE_NOT_ENABLED` on every module-gated
+endpoint tried (`/api/departments`, `/api/dashboard`), reproduced identically hitting `hms-jar` directly
+on 8081 — so it's a real backend behavior, not a proxy bug. Likely an initializer-ordering issue between
+`RbacDataInitializer` (creates `OLIVES-DEFAULT`) and `PlatformDataInitializer`'s
+`initializeTenantDefaults` (enables all modules for tenants that already exist at the time it runs) —
+worth a `KNOWN_ISSUES.md` entry in a future documentation pass, not part of this plan's scope.

@@ -1,7 +1,7 @@
 # Task: Remove `@CrossOrigin` from all controllers
 
 **Phase:** [Phase 4 — Remove CORS from hms-jar entirely](../../phases/phase-4-remove-cors.md)
-**Status:** Not started
+**Status:** Done
 
 Remove the `@CrossOrigin(...)` annotation (and its now-unused import where it's the only reason for the
 import) from all 20 controllers under `hms-pom/hms-jar` that carry one — this includes 19 controllers

@@ -15,7 +15,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/laboratory/tests")
-@CrossOrigin(origins = "http://localhost:4200")
 public class LaboratoryTestController {
 
     private final LaboratoryTestService laboratoryTestService;

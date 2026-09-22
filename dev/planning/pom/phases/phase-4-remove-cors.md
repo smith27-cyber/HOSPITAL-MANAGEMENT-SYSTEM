@@ -2,15 +2,15 @@
 
 **Plan:** [../../hms-pom-migration-plan.md](../../hms-pom-migration-plan.md)
 **Depends on:** Phase 2 (same-origin proxying must exist before CORS can be safely removed)
-**Status:** Not started
+**Status:** Done
 
 ## Tasks
 
-1. [Remove the global CORS bean and registration](../tasks/todo/task4-1-remove-cors-bean-and-config.md) — Not started
-2. [Remove the Angular-route `permitAll()` whitelist](../tasks/todo/task4-2-remove-permitall-angular-whitelist.md) — Not started
-3. [Remove `@CrossOrigin` from all controllers](../tasks/todo/task4-3-remove-crossorigin-annotations.md) — Not started
-4. [Document why CORS is absent](../tasks/todo/task4-4-add-cors-removed-comment.md) — Not started
-5. [Verify CORS is genuinely blocked](../tasks/todo/task4-5-verify-cors-blocked.md) — Not started
+1. [Remove the global CORS bean and registration](../tasks/todo/task4-1-remove-cors-bean-and-config.md) — Done
+2. [Remove the Angular-route `permitAll()` whitelist](../tasks/todo/task4-2-remove-permitall-angular-whitelist.md) — Done
+3. [Remove `@CrossOrigin` from all controllers](../tasks/todo/task4-3-remove-crossorigin-annotations.md) — Done
+4. [Document why CORS is absent](../tasks/todo/task4-4-add-cors-removed-comment.md) — Done
+5. [Verify CORS is genuinely blocked](../tasks/todo/task4-5-verify-cors-blocked.md) — Done
 
 **Explicit non-goal:** do not touch `JwtAuthenticationFilter`, `TenantContextFilter`,
 `ModuleAccessFilter`, or any `@PreAuthorize` rule — none of that is CORS-related and all of it postdates

@@ -2,7 +2,7 @@
 
 **Phase:** [Phase 4 — Remove CORS from hms-jar entirely](../../phases/phase-4-remove-cors.md)
 **Depends on:** task4-1, task4-2
-**Status:** Not started
+**Status:** Done
 
 Add a short comment block in `SecurityConfig.java`, where the CORS configuration used to be, explaining
 the decision for future readers — matching the reference branch's own comment:

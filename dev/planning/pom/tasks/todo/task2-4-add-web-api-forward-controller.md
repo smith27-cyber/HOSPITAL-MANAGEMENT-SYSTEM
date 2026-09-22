@@ -1,7 +1,7 @@
 # Task: Add `WebApiForwardController`
 
 **Phase:** [Phase 2 — Create the hms-webb Spring Boot module](../../phases/phase-2-create-hms-webb-module.md)
-**Status:** Not started
+**Status:** Done
 
 Create `hms-pom/hms-webb/src/main/java/com/hms/webb/controller/WebApiForwardController.java` — a
 `RestClient`-based catch-all on `/api/**`, forwarding every request (all HTTP methods) to `hms-jar` at

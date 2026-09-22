@@ -2,7 +2,7 @@
 
 **Phase:** [Phase 6 — Repo-root cleanup and documentation](../../phases/phase-6-repo-cleanup.md)
 **Depends on:** All of Phases 1–5 verified
-**Status:** Not started
+**Status:** Done
 
 Update root `README.md`'s Quick Start and Project Structure sections to describe:
 

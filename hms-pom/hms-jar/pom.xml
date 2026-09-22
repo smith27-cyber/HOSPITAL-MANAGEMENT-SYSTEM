@@ -9,14 +9,14 @@
 
 
     <!-- =====================================================
-         SPRING BOOT
+         PARENT - HMS PROJECT
          ===================================================== -->
 
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.1</version>
-        <relativePath/>
+        <groupId>com.hms</groupId>
+        <artifactId>hms-parent</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
 
@@ -26,24 +26,13 @@
 
     <groupId>com.hms</groupId>
 
-    <artifactId>hms-backend</artifactId>
+    <artifactId>hms-jar</artifactId>
 
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
 
-    <name>hms-backend</name>
+    <name>hms-jar</name>
 
     <description>Hospital Management System Backend</description>
-
-
-    <!-- =====================================================
-         JAVA
-         ===================================================== -->
-
-    <properties>
-
-        <java.version>21</java.version>
-
-    </properties>
 
 
     <!-- =====================================================
@@ -115,8 +104,6 @@
 
             <artifactId>jjwt-api</artifactId>
 
-            <version>0.12.6</version>
-
         </dependency>
 
 
@@ -129,8 +116,6 @@
             <groupId>io.jsonwebtoken</groupId>
 
             <artifactId>jjwt-impl</artifactId>
-
-            <version>0.12.6</version>
 
             <scope>runtime</scope>
 
@@ -146,8 +131,6 @@
             <groupId>io.jsonwebtoken</groupId>
 
             <artifactId>jjwt-jackson</artifactId>
-
-            <version>0.12.6</version>
 
             <scope>runtime</scope>
 
@@ -210,8 +193,6 @@
             <groupId>org.springdoc</groupId>
 
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-
-            <version>2.6.0</version>
 
         </dependency>
 

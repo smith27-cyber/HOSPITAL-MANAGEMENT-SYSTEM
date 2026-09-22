@@ -2,7 +2,7 @@
 
 **Phase:** [Phase 4 — Remove CORS from hms-jar entirely](../../phases/phase-4-remove-cors.md)
 **Depends on:** Phase 2 (same-origin proxying must exist first)
-**Status:** Not started
+**Status:** Done
 
 In `hms-pom/hms-jar/src/main/java/com/hms/backend/config/SecurityConfig.java`:
 

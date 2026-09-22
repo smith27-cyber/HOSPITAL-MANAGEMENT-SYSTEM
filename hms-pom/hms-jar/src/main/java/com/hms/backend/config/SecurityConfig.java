@@ -10,8 +10,6 @@ import com.hms.backend.auth.security.JwtAuthenticationFilter;
 import com.hms.backend.platform.filter.ModuleAccessFilter;
 import com.hms.backend.tenant.security.TenantContextFilter;
 
-import java.util.List;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,10 +22,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 // =====================================================
 // CONFIGURATION
@@ -89,12 +83,14 @@ public class SecurityConfig {
                         AbstractHttpConfigurer::disable)
 
                 // =================================================
-                // CORS
+                // CORS - blocked entirely, no configuration.
+                //
+                // The delivering server (ng serve's dev proxy, or
+                // hms-webb's Web API forwarding layer when packaged)
+                // is the only thing the browser ever talks to; both
+                // forward /api/** to hms-jar server-side. There is
+                // never a legitimate cross-origin request to allow.
                 // =================================================
-
-                .cors(
-                        cors -> cors.configurationSource(
-                                corsConfigurationSource()))
 
                 // =================================================
                 // SESSION MANAGEMENT
@@ -142,89 +138,6 @@ public class SecurityConfig {
 
                                 .requestMatchers(
                                         "/error")
-                                .permitAll()
-
-                                // -----------------------------------------
-                                // ANGULAR FRONTEND
-                                // -----------------------------------------
-
-                                .requestMatchers(
-
-                                        // =====================================
-                                        // ANGULAR ENTRY POINT
-                                        // =====================================
-
-                                        "/",
-                                        "/index.html",
-                                        "/favicon.ico",
-
-                                        // =====================================
-                                        // ANGULAR STATIC FILES
-                                        // =====================================
-
-                                        "/assets/**",
-
-                                        "/*.js",
-                                        "/*.css",
-                                        "/*.ico",
-                                        "/*.png",
-                                        "/*.jpg",
-                                        "/*.jpeg",
-                                        "/*.svg",
-                                        "/*.webp",
-                                        "/*.woff",
-                                        "/*.woff2",
-                                        "/*.ttf",
-
-                                        // =====================================
-                                        // ANGULAR APPLICATION ROUTES
-                                        // =====================================
-
-                                        "/login",
-
-                                        "/dashboard",
-
-                                        "/patients",
-                                        "/patients/**",
-
-                                        "/doctors",
-                                        "/doctors/**",
-
-                                        "/departments",
-                                        "/departments/**",
-
-                                        "/appointments",
-                                        "/appointments/**",
-
-                                        "/consultations",
-                                        "/consultations/**",
-
-                                        "/pharmacy",
-                                        "/pharmacy/**",
-
-                                        "/laboratory",
-                                        "/laboratory/**",
-
-                                        "/admissions",
-                                        "/admissions/**",
-
-                                        "/billing",
-                                        "/billing/**",
-
-                                        "/inventory",
-                                        "/inventory/**",
-
-                                        "/reports",
-                                        "/reports/**",
-
-                                        "/settings",
-                                        "/settings/**",
-                                        // =====================================
-                                        // OLIVES TECH PLATFORM
-                                        // =====================================
-
-                                        "/platform",
-                                        "/platform/**")
                                 .permitAll()
 
                                 // -----------------------------------------
@@ -297,78 +210,5 @@ public class SecurityConfig {
                         TenantContextFilter.class);
 
         return http.build();
-    }
-
-    // =====================================================
-    // GLOBAL CORS CONFIGURATION
-    // =====================================================
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        // =================================================
-        // FRONTEND
-        // =================================================
-
-        configuration.setAllowedOrigins(
-                List.of(
-                         "http://localhost:4200"));
-        // =================================================
-        // METHODS
-        // =================================================
-
-        configuration.setAllowedMethods(
-                List.of(
-                        "GET",
-                        "POST",
-                        "PUT",
-                        "PATCH",
-                        "DELETE",
-                        "OPTIONS"));
-
-        // =================================================
-        // HEADERS
-        // =================================================
-
-        configuration.setAllowedHeaders(
-                List.of(
-                        "*"));
-
-        // =================================================
-        // EXPOSED HEADERS
-        // =================================================
-
-        configuration.setExposedHeaders(
-                List.of(
-                        "Authorization",
-                        "Content-Type"));
-
-        // =================================================
-        // CREDENTIALS
-        // =================================================
-
-        configuration.setAllowCredentials(
-                false);
-
-        // =================================================
-        // PREFLIGHT CACHE
-        // =================================================
-
-        configuration.setMaxAge(
-                3600L);
-
-        // =================================================
-        // REGISTER CORS
-        // =================================================
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
-        source.registerCorsConfiguration(
-                "/**",
-                configuration);
-
-        return source;
     }
 }

@@ -2,7 +2,7 @@
 
 **Phase:** [Phase 4 — Remove CORS from hms-jar entirely](../../phases/phase-4-remove-cors.md)
 **Depends on:** All prior Phase 4 tasks
-**Status:** Not started
+**Status:** Done
 
 With `hms-jar` running on 8081 (Postgres up via `docker-compose up -d`):
 

@@ -2,7 +2,7 @@
 
 **Phase:** [Phase 5 — Wire the Angular build into hms-webb](../../phases/phase-5-wire-angular-output.md)
 **Depends on:** Phase 2 (hms-webb's directory structure must exist)
-**Status:** Not started
+**Status:** Done
 
 In `hms-pom/hms-webb/angular/angular.json`, `architect.build.options.outputPath`, change:
 

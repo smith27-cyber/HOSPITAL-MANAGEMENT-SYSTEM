@@ -1,7 +1,7 @@
 # Task: Add `SpaWebConfig`
 
 **Phase:** [Phase 2 — Create the hms-webb Spring Boot module](../../phases/phase-2-create-hms-webb-module.md)
-**Status:** Not started
+**Status:** Done
 
 Create `hms-pom/hms-webb/src/main/java/com/hms/webb/config/SpaWebConfig.java` — overrides
 `PathResourceResolver` so any request that doesn't resolve to a real static file falls back to

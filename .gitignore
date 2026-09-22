@@ -14,6 +14,13 @@ out/
 *.jar
 *.war
 
+# hms-webb: Angular build output written directly here by `ng build`
+hms-pom/hms-webb/src/main/resources/static/
+
+# hms-jar must never serve static content (hard constraint) - guard against
+# anyone accidentally rebuilding the frontend into it again
+hms-pom/hms-jar/src/main/resources/static/
+
 # Test results and coverage
 /testing/node_modules
 /testing/test-results/

@@ -1,7 +1,7 @@
 # Task: Add `hms-webb`'s `application.properties`
 
 **Phase:** [Phase 2 — Create the hms-webb Spring Boot module](../../phases/phase-2-create-hms-webb-module.md)
-**Status:** Not started
+**Status:** Done
 
 Create `hms-pom/hms-webb/src/main/resources/application.properties`:
 
