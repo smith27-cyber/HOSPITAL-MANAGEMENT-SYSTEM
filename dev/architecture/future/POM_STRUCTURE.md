@@ -111,7 +111,7 @@ behind each decision stays visible, not just the conclusion.
    `hms-jar/src/main/resources/static` holds a manually-copied Angular
    build, and `hms-jar/.../config/AngularForwardController.java` forwards
    Angular app routes to `index.html` (working SPA-routing fallback,
-   solving the same problem [phase2-task4](../../planning/tasks/phase2-task4-verify-routing.md)
+   solving the same problem [phase2-task4](../../planning/tasks/todo/phase2-task4-verify-routing.md)
    flags for `hms-webb` — just in the wrong module). Both get removed from
    `hms-jar` once `hms-webb` has its own working equivalent — sequenced
    for that reason, not because the removal itself is still in question.
@@ -142,8 +142,9 @@ behind each decision stays visible, not just the conclusion.
    `ConsultationController`'s `@CrossOrigin(origins = "*")` in particular
    currently widens access beyond that global policy for its own
    endpoints. Both need removing, not just the annotations. See
-   `dev/planning/tasks/phase1-task7-add-ng-serve-proxy.md`,
-   `phase2-task5-add-reverse-proxy.md`, and `phase4-task2-resolve-cors.md`.
+   `dev/planning/tasks/verify/phase1-task7-add-ng-serve-proxy.md`,
+   `dev/planning/tasks/todo/phase2-task5-add-reverse-proxy.md`, and
+   `dev/planning/tasks/todo/phase4-task2-resolve-cors.md`.
 3. **Port choice — resolved.** `hms-webb` runs on `8080` (Spring Boot's
    conventional default), `hms-jar` stays on `8081`, Angular dev server on
    `4200` — standard ports throughout.

@@ -1,6 +1,6 @@
 # Task: Verify client-side routing survives a hard refresh
 
-**Phase:** [Phase 2 — Wire Angular's build output directly into `static/`](../phases/phase-2-angular-output-wiring.md)
+**Phase:** [Phase 2 — Wire Angular's build output directly into `static/`](../../phases/phase-2-angular-output-wiring.md)
 **Depends on:** [phase2-task3-verify-serving](./phase2-task3-verify-serving.md)
 **Status:** Not started — likely to surface a real decision point
 
@@ -26,7 +26,7 @@ app path, forwarding to `/index.html`). It's useful as a *pattern* to
 adapt, but the file itself must not be reused in place or copied as-is
 into `hms-webb` without review — it hardcodes routes by name, so it goes
 stale every time a new top-level route is added, and per the hard
-constraint in [hms-webb-morph-plan.md](../hms-webb-morph-plan.md), it
+constraint in [hms-webb-morph-plan.md](../../hms-webb-morph-plan.md), it
 needs to be removed from `hms-jar` entirely
 ([phase3-task2](./phase3-task2-remove-stale-static.md)), not left
 duplicated in both modules.

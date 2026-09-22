@@ -1,6 +1,6 @@
 # Task: Verify `ng build` output lands at the static root
 
-**Phase:** [Phase 2 — Wire Angular's build output directly into `static/`](../phases/phase-2-angular-output-wiring.md)
+**Phase:** [Phase 2 — Wire Angular's build output directly into `static/`](../../phases/phase-2-angular-output-wiring.md)
 **Depends on:** [phase2-task1-set-output-path](./phase2-task1-set-output-path.md)
 **Status:** Not started
 

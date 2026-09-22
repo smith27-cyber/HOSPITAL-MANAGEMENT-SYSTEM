@@ -1,7 +1,7 @@
 # Task: Update architecture doc counts for the new module
 
-**Phase:** [Phase 5 — Documentation catch-up](../phases/phase-5-documentation-catchup.md)
-**Depends on:** [phase5-task1-promote-proposal-doc](../tasks/phase5-task1-promote-proposal-doc.md)
+**Phase:** [Phase 5 — Documentation catch-up](../../phases/phase-5-documentation-catchup.md)
+**Depends on:** [phase5-task1-promote-proposal-doc](./phase5-task1-promote-proposal-doc.md)
 **Status:** Not started
 
 Update `dev/architecture/old/SYSTEM_DESIGN.md` and

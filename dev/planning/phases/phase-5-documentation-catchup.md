@@ -6,6 +6,6 @@
 
 ## Tasks
 
-1. [Promote POM_STRUCTURE.md from proposal to current state](../tasks/phase5-task1-promote-proposal-doc.md)
-2. [Update root README.md for the new frontend workflow](../tasks/phase5-task2-update-readme.md)
-3. [Update architecture doc counts for the new module](../tasks/phase5-task3-update-architecture-counts.md)
+1. [Promote POM_STRUCTURE.md from proposal to current state](../tasks/todo/phase5-task1-promote-proposal-doc.md)
+2. [Update root README.md for the new frontend workflow](../tasks/todo/phase5-task2-update-readme.md)
+3. [Update architecture doc counts for the new module](../tasks/todo/phase5-task3-update-architecture-counts.md)

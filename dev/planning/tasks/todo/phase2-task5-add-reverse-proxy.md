@@ -1,7 +1,7 @@
 # Task: Add a Web API layer in `hms-webb` that forwards to the Backend API
 
-**Phase:** [Phase 2 — Wire Angular's build output directly into `static/`](../phases/phase-2-angular-output-wiring.md)
-**Depends on:** [phase1-task6-verify-boot](../tasks/phase1-task6-verify-boot.md)
+**Phase:** [Phase 2 — Wire Angular's build output directly into `static/`](../../phases/phase-2-angular-output-wiring.md)
+**Depends on:** [phase1-task6-verify-boot](../verify/phase1-task6-verify-boot.md)
 **Status:** Not started
 
 ## Naming
@@ -24,7 +24,7 @@ existing relative API calls resolve against `hms-webb`'s own origin, not
 ## Implementation
 
 Add the Web API forwarding layer in `hms-webb` (itself running on `8080`,
-per [phase4-task1](./phase4-task1-choose-port.md)) — any request under
+per [phase4-task1](../verify/phase4-task1-choose-port.md)) — any request under
 `/api/**` gets relayed to `hms-jar`'s Backend API at
 `http://localhost:8081`. Implementation options to pick between:
 - A `RestTemplate`/`WebClient`-based forwarding controller/filter in

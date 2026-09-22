@@ -1,6 +1,6 @@
 # Task: `hms-webb`'s port
 
-**Phase:** [Phase 4 — Cross-cutting config decisions](../phases/phase-4-cross-cutting-config.md)
+**Phase:** [Phase 4 — Cross-cutting config decisions](../../phases/phase-4-cross-cutting-config.md)
 **Status:** Resolved — **`8080`**
 
 ## Decision

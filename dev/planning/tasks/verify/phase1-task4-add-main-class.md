@@ -1,8 +1,8 @@
 # Task: Add `HmsWebbApplication` main class
 
-**Phase:** [Phase 1 — Scaffold the Spring Boot module](../phases/phase-1-scaffold-module.md)
+**Phase:** [Phase 1 — Scaffold the Spring Boot module](../../phases/phase-1-scaffold-module.md)
 **Depends on:** [phase1-task1-convert-packaging](./phase1-task1-convert-packaging.md)
-**Status:** Not started
+**Status:** Done
 
 Create `hms-webb/src/main/java/com/hms/webb/HmsWebbApplication.java`:
 

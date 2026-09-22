@@ -24,15 +24,50 @@
     <artifactId>hms-webb</artifactId>
     <version>1.0.0</version>
     <name>HMS Webb</name>
-    <description>Hospital Management System - Web UI Module Container</description>
-    <packaging>pom</packaging>
+    <description>Hospital Management System - Web UI Module (serves the Angular build as static content, forwards /api/** to hms-jar)</description>
+    <packaging>jar</packaging>
 
     <!-- =====================================================
          NOTE
          ===================================================== -->
 
-    <!-- hms-webb is a container module for web-related components.
-         Angular is built separately using npm and served independently.
-         This POM organizes the structure logically. -->
+    <!-- The Angular app lives in ./angular and is built independently
+         with npm/ng. `ng build` writes its output directly into
+         src/main/resources/static (see angular.json outputPath) —
+         there is no Maven copy step. This module serves that folder as
+         static content and forwards /api/** to hms-jar's Backend API. -->
+
+    <!-- =====================================================
+         DEPENDENCIES
+         ===================================================== -->
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+
+    </dependencies>
+
+    <!-- =====================================================
+         BUILD
+         ===================================================== -->
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

@@ -1,8 +1,8 @@
 # Task: Add Spring Boot dependencies to `hms-webb`
 
-**Phase:** [Phase 1 — Scaffold the Spring Boot module](../phases/phase-1-scaffold-module.md)
+**Phase:** [Phase 1 — Scaffold the Spring Boot module](../../phases/phase-1-scaffold-module.md)
 **Depends on:** [phase1-task1-convert-packaging](./phase1-task1-convert-packaging.md)
-**Status:** Not started
+**Status:** Done
 
 Add to `hms-webb/pom.xml`:
 - `spring-boot-starter-webmvc` — matches the starter name already used in

@@ -1,7 +1,7 @@
 # Task: Block CORS on `hms-jar` entirely — no cross-origin API access
 
-**Phase:** [Phase 4 — Cross-cutting config decisions](../phases/phase-4-cross-cutting-config.md)
-**Depends on:** [phase1-task7-add-ng-serve-proxy](../tasks/phase1-task7-add-ng-serve-proxy.md), [phase2-task5-add-reverse-proxy](../tasks/phase2-task5-add-reverse-proxy.md)
+**Phase:** [Phase 4 — Cross-cutting config decisions](../../phases/phase-4-cross-cutting-config.md)
+**Depends on:** [phase1-task7-add-ng-serve-proxy](../verify/phase1-task7-add-ng-serve-proxy.md), [phase2-task5-add-reverse-proxy](./phase2-task5-add-reverse-proxy.md)
 **Status:** Not started — **decision made**, this is now implementation
 
 ## Decision
@@ -10,7 +10,7 @@ CORS is blocked, full stop — not scoped to an allow-list, blocked
 entirely. The delivering server (`ng serve` in dev, `hms-webb`'s Web API
 layer when packaged) is the only thing the browser ever talks to; both
 forward `/api/**` to `hms-jar`'s Backend API server-side
-([phase1-task7](./phase1-task7-add-ng-serve-proxy.md),
+([phase1-task7](../verify/phase1-task7-add-ng-serve-proxy.md),
 [phase2-task5](./phase2-task5-add-reverse-proxy.md)). From the browser's
 side, whichever server delivered the page *is* the API — there is never a
 cross-origin request to the Backend API to allow.

@@ -1,7 +1,7 @@
 # Task: Set Angular's `outputPath` to write into `static/`
 
-**Phase:** [Phase 2 — Wire Angular's build output directly into `static/`](../phases/phase-2-angular-output-wiring.md)
-**Depends on:** [phase1-task6-verify-boot](../tasks/phase1-task6-verify-boot.md)
+**Phase:** [Phase 2 — Wire Angular's build output directly into `static/`](../../phases/phase-2-angular-output-wiring.md)
+**Depends on:** [phase1-task6-verify-boot](../verify/phase1-task6-verify-boot.md)
 **Status:** Not started
 
 Edit `hms-webb/angular/angular.json`,

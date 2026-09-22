@@ -1,7 +1,7 @@
 # Task: Remove all frontend-serving code from `hms-jar`
 
-**Phase:** [Phase 3 — Retire the stale manual copy in `hms-jar`](../phases/phase-3-retire-stale-copy.md)
-**Depends on:** [phase3-task1-confirm-dependency](./phase3-task1-confirm-dependency.md) (policy resolved) and [phase2-task3-verify-serving](./phase2-task3-verify-serving.md) (`hms-webb` must work first)
+**Phase:** [Phase 3 — Retire the stale manual copy in `hms-jar`](../../phases/phase-3-retire-stale-copy.md)
+**Depends on:** [phase3-task1-confirm-dependency](../verify/phase3-task1-confirm-dependency.md) (policy resolved) and [phase2-task3-verify-serving](./phase2-task3-verify-serving.md) (`hms-webb` must work first)
 **Status:** Not started
 
 Remove from `hms-jar` — both pieces, not just the static files:

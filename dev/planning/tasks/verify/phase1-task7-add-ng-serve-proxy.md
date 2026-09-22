@@ -1,7 +1,14 @@
 # Task: Add a dev-server proxy for `ng serve`
 
-**Phase:** [Phase 1 — Scaffold the Spring Boot module](../phases/phase-1-scaffold-module.md)
-**Status:** Not started — independent of `hms-webb`, fixes today's dev workflow
+**Phase:** [Phase 1 — Scaffold the Spring Boot module](../../phases/phase-1-scaffold-module.md)
+**Status:** Config done, end-to-end verification still pending. Added
+`hms-webb/angular/proxy.conf.json` (forwards `/api` to `http://localhost:8081`)
+and wired it into `angular.json`'s `serve.options.proxyConfig` — both
+files confirmed syntactically valid JSON. **Not yet verified against a
+real request**: this environment has no Docker/Postgres access, so
+`hms-jar` couldn't be started to confirm `ng serve` + a call to e.g.
+`/api/departments` actually reaches it and returns real data. Do that
+check manually before considering this task fully done.
 
 ## Decision
 
@@ -9,7 +16,7 @@ Neither `ng serve` nor `hms-webb` should need CORS. Both are proxies in
 front of `hms-jar`: from the browser's point of view, whichever server
 delivered the page also answers `/api/**` — the delivering server *is* the
 API, as far as any client can tell. `hms-jar` itself allows no
-cross-origin access at all ([phase4-task2](./phase4-task2-resolve-cors.md)).
+cross-origin access at all ([phase4-task2](../todo/phase4-task2-resolve-cors.md)).
 
 This also means the existing relative-URL pattern in every Angular
 service (`API_URL = '/api/departments'`, no host/port) is already correct

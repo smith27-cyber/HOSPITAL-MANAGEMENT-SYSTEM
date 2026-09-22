@@ -1,6 +1,6 @@
 # Task: Promote POM_STRUCTURE.md from proposal to current state
 
-**Phase:** [Phase 5 — Documentation catch-up](../phases/phase-5-documentation-catchup.md)
+**Phase:** [Phase 5 — Documentation catch-up](../../phases/phase-5-documentation-catchup.md)
 **Depends on:** all of Phase 1–4's tasks being actually done and verified
 **Status:** Not started
 

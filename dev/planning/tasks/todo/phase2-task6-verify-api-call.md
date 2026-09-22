@@ -1,6 +1,6 @@
 # Task: Verify a real API call succeeds through `hms-webb`
 
-**Phase:** [Phase 2 — Wire Angular's build output directly into `static/`](../phases/phase-2-angular-output-wiring.md)
+**Phase:** [Phase 2 — Wire Angular's build output directly into `static/`](../../phases/phase-2-angular-output-wiring.md)
 **Depends on:** [phase2-task3-verify-serving](./phase2-task3-verify-serving.md), [phase2-task5-add-reverse-proxy](./phase2-task5-add-reverse-proxy.md)
 **Status:** Not started
 

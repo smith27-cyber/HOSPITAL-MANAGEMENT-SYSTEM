@@ -1,7 +1,7 @@
 # Task: Convert `hms-webb` packaging to jar
 
-**Phase:** [Phase 1 — Scaffold the Spring Boot module](../phases/phase-1-scaffold-module.md)
-**Status:** Not started
+**Phase:** [Phase 1 — Scaffold the Spring Boot module](../../phases/phase-1-scaffold-module.md)
+**Status:** Done
 
 Change `hms-webb/pom.xml`: `<packaging>pom</packaging>` → `<packaging>jar</packaging>`.
 
