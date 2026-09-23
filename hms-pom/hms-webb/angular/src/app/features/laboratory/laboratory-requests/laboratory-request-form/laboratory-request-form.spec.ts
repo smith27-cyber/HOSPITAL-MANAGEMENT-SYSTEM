@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { LaboratoryRequestForm } from './laboratory-request-form';
 
@@ -9,6 +10,7 @@ describe('LaboratoryRequestForm', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LaboratoryRequestForm],
+      providers: [provideRouter([{ path: '**', children: [] }])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LaboratoryRequestForm);
