@@ -1,75 +1,121 @@
-# HMS E2E Testing with Code Coverage Instrumentation
+# HMS E2E Testing (Playwright)
 
-**Note:** `app.spec.ts` (the single coverage-collection smoke test below)
-is planned to be replaced by a full UI/user-flow test suite covering
-every feature module — see
-[dev/planning/playwright/playwright-plan.md](../../planning/playwright/playwright-plan.md).
-That plan's Phase 0 decided to **drop** this directory's Istanbul
-coverage-instrumentation tooling (`instrument-serve.js` hardcodes port
-4200 and has no `/api/**` proxying to `hms-jar`, so it can't coexist
-with the new suite's `ng serve` target) in favor of Playwright's
-built-in V8 coverage — see
-[task-0-5-decide-coverage-tooling](../../planning/playwright/tasks/todo/task-0-5-decide-coverage-tooling.md).
-This README (and the tooling it documents) still describes the old,
-soon-to-be-removed setup below.
+Full UI/user-flow test suite for the HMS Angular app, covering every
+feature module a real user sees. Planned and tracked in
+[dev/planning/playwright/](../../planning/playwright/) —
+[playwright-plan.md](../../planning/playwright/playwright-plan.md) is
+the top-level plan, [phases/](../../planning/playwright/phases/) breaks
+it into 11 phases, and [tasks/todo/](../../planning/playwright/tasks/todo/)
+tracks individual tasks one at a time.
 
-This directory contains Playwright E2E tests with **Istanbul code coverage instrumentation** enabled.
+This replaces the previous single-smoke-test + Istanbul-coverage setup
+(see **History** below).
 
-## Architecture
+## Prerequisites
 
-- **instrument-serve.js**: Node server that intercepts all JS files and instruments them with Istanbul coverage tracking
-- **app.spec.ts**: Test that verifies app loads and collects coverage data from `window.__coverage__`
-- **.nycrc.json**: NYC configuration for coverage reporting
-- **merge-coverage.js**: Merges coverage data from multiple test runs
+- Postgres running (`docker-compose.yml` at the repo root — the
+  `hms-postgres-dev` container).
+- Nothing else needs to be started manually: `hms-jar` and `ng serve`
+  are both launched automatically by Playwright's `webServer` config
+  (`playwright.config.ts`) when you run the suite, with
+  `HMS_DEV_LOGIN_ENABLED=true` set for `hms-jar` — required for
+  `auth.setup.ts` to work at all.
 
-## Quick Start
+## Running
 
-### 1. Start the Instrumented Server (in one terminal)
-```bash
-cd hms-pom/hms-webb/angular
-node instrument-serve.js
-```
-This starts a server on `http://localhost:4200` that serves all JS files with Istanbul instrumentation.
-
-### 2. Run Tests (in another terminal)
 ```bash
 cd dev/testing/playwright
 npm install
-npm run test:coverage
+npx playwright install chromium   # first time only
+npm test
 ```
 
-This will:
-1. Clear prior coverage data
-2. Run all Playwright tests
-3. Collect coverage from `window.__coverage__`
-4. Merge coverage files
-5. Generate HTML coverage report in `./coverage/`
+`npm test` runs `auth.setup.ts` first (Playwright's `setup` project
+dependency), then the rest of the suite.
 
-## Coverage Files
+To run just the auth setup (useful when debugging the fixtures
+themselves):
+```bash
+npx playwright test --project=setup
+```
 
-- `.nyc_output/`: Raw coverage data from Istanbul
-- `coverage/index.html`: HTML coverage report
+## Structure
 
-## How It Works
+- **`playwright.config.ts`** — base URL fixed to `ng serve`
+  (`http://localhost:4200`; the packaged `hms-webb` module is not a
+  test target — see
+  [task-0-1](../../planning/playwright/tasks/todo/task-0-1-decide-base-url.md)),
+  the two `webServer` entries, the `setup`/`chromium` project split,
+  and CI settings (retries, trace, screenshot — see
+  [task-0-6](../../planning/playwright/tasks/todo/task-0-6-decide-ci.md)).
+- **`fixtures/auth.ts`** — the 10 test identities (9 via dev-login, 1
+  via the real form — see **Auth fixtures** below) and the
+  `captureSession`/`restoreSession` helpers.
+- **`tests/auth.setup.ts`** — logs in as all 10 identities once per
+  suite run and saves each session.
+- **`tests/app.spec.ts`** — the original smoke test, still here.
+  Phase 1 replaces its content with the real login/app-shell tests;
+  nothing else in this directory depends on it.
+- **`tests/<module>/`** — one folder per feature module, added as each
+  phase in the plan is implemented. Not scaffolded ahead of time.
+- **`pages/`** — Page Object Model helpers, added alongside the first
+  module that needs one. Also not scaffolded ahead of time — see
+  [task-0-7](../../planning/playwright/tasks/todo/task-0-7-scaffold-suite-layout.md)
+  for why.
 
-1. **Instrumentation**: The `instrument-serve.js` server uses `istanbul-lib-instrument` to modify each JS file in real-time, adding coverage tracking code
-2. **Collection**: During tests, Istanbul populates `window.__coverage__` with statement, branch, and function coverage data
-3. **Export**: Tests read `window.__coverage__` via `page.evaluate()` and save JSON files to `.nyc_output/`
-4. **Merging**: `merge-coverage.js` combines all JSON files into one `coverage-final.json`
-5. **Reporting**: NYC generates HTML and text reports
+## Auth fixtures
 
-## Troubleshooting
+Every test needs to be logged in as *someone*, but logging in through
+the UI in every single test is slow and repeats the same setup
+constantly. `auth.setup.ts` logs in once per identity and saves the
+session so other tests can restore it instantly.
 
-### "No coverage data collected"
-- Verify instrument-serve.js is running on port 4200
-- Check browser console for any errors loading scripts
-- Ensure Istanbul is instrumenting: look for `window.__coverage__` in browser DevTools console
+**Identities** (see
+[task-0-4](../../planning/playwright/tasks/todo/task-0-4-decide-auth-reuse.md)):
+- 9 via `POST /api/auth/dev-login` (no password, gated server-side to
+  `hms.dev-login.enabled=true` + loopback-only callers): `thor`
+  (`SUPER_ADMIN`) and one `*-testuser` per RBAC role (`doc-testuser`,
+  `nurse-testuser`, `rec-testuser`, `pharm-testuser`, `lab-testuser`,
+  `acct-testuser`, `records-testuser`, `mgr-testuser`).
+- 1 via the real login form: `admin`/`admin123` (`ADMIN` — no
+  dev-login account exists for that role).
 
-### Server won't start
-- Port 4200 already in use? Kill it: `lsof -i :4200` then `kill -9 <PID>`
-- Missing dependencies? Run `npm install` in `hms-pom/hms-webb/angular/`
+**Why not Playwright's built-in `storageState()`:** verified live that
+it doesn't work for this app. `storageState()` only captures cookies
+and `localStorage`; this app's session (`hms_token`, `hms_user`) lives
+in `sessionStorage`, which it doesn't touch at all — it silently
+produces an empty, useless file. `fixtures/auth.ts` reads/writes
+`sessionStorage` directly instead:
+- `captureSession(page, identity)` — call after a successful login,
+  saves `sessionStorage` to `.auth/<identity>.json`.
+- `restoreSession(context, identity)` — call before navigating,
+  injects that saved data into a fresh context via
+  `context.addInitScript(...)` so the app finds a valid session
+  immediately on page load.
 
-### Coverage data is incomplete
-- Wait longer before collecting (coverage accumulates as code executes)
-- Run tests multiple times to cover more code paths
-- Check that all JS files are being served by instrument-serve.js (not using Angular dev server)
+`.auth/` is gitignored (real JWTs) and gets regenerated by
+`auth.setup.ts` on every run.
+
+**Usage in a spec file:**
+```ts
+import { test, expect } from '@playwright/test';
+import { restoreSession } from '../fixtures/auth';
+
+test('doctor sees their own patient list', async ({ context, page }) => {
+  await restoreSession(context, 'doc-testuser');
+  await page.goto('/patients');
+  // ...
+});
+```
+
+## History
+
+This directory previously ran a single smoke test
+(`app.spec.ts`) with Istanbul-based code coverage instrumentation
+(`instrument-serve.js`, `.nycrc.json`, `merge-coverage.js`). That
+tooling has been removed — see
+[task-0-5](../../planning/playwright/tasks/todo/task-0-5-decide-coverage-tooling.md)
+for why (it hardcoded port 4200 with no `/api/**` proxying to
+`hms-jar`, so it could never coexist with this suite's `ng serve`
+target). Frontend coverage, if wanted later, uses Playwright's
+built-in `page.coverage` (V8) instead.

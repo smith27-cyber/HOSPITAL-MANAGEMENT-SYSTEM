@@ -1,9 +1,11 @@
-# Task: Test: logout
+# Task: Test: logout — done
 
 **Phase:** [Phase 1 — Authentication & App Shell](../../phases/phase-1-auth-and-shell.md)
 **Depends on:** [task-1-3-login-input-validation](./task-1-3-login-input-validation.md)
-**Status:** Not started
+**Status:** Done — `dev/testing/playwright/tests/auth/login.spec.ts`
 
-Logout clears the stored token and redirects to `/login`; a subsequent
-back-navigation to a protected route doesn't show stale authenticated
+Confirmed: logout clears `sessionStorage` and redirects to `/login`
+using `router.navigate(['/login'], { replaceUrl: true })`, so the
+dashboard's history entry is replaced, not just covered — confirmed
+back-navigation after logout does not show stale authenticated
 content.

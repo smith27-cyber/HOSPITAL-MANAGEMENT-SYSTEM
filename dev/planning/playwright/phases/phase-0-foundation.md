@@ -2,7 +2,7 @@
 
 **Plan:** [playwright-plan.md](../playwright-plan.md)
 **Depends on:** nothing — this blocks everything else
-**Status:** Not started
+**Status:** Done — all 9 tasks resolved/implemented; Phase 1 can start
 
 Decisions and scaffolding needed before any real test scenario can be
 written. Getting these wrong means rewriting every test later, so they're
@@ -93,6 +93,8 @@ called out explicitly rather than assumed.
       [Phase 8](./phase-8-reports-settings.md) and the RBAC comparison
       tests in [Phase 9](./phase-9-rbac-and-error-handling.md). See
       [task-0-8-confirm-admin-login](../tasks/todo/task-0-8-confirm-admin-login.md).
-- [ ] Update `dev/testing/playwright/README.md` to describe the new
-      structure once it exists (it currently documents the
-      single-smoke-test setup being replaced).
+- [x] Rewrote `dev/testing/playwright/README.md` to describe the real
+      structure, how to run the suite, how the auth fixtures actually
+      work, and a **History** section on the removed Istanbul tooling.
+      See
+      [task-0-9-update-readme](../tasks/todo/task-0-9-update-readme.md).

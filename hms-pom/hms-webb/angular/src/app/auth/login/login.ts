@@ -311,6 +311,13 @@ export class Login {
 
           }
 
+          // HttpClient's fetch-based backend isn't reliably
+          // zone-patched here, so errorMessage wouldn't
+          // otherwise trigger a re-render on its own — found
+          // live: the error message never appeared at all.
+
+          this.changeDetectorRef.detectChanges();
+
         }
 
       });
@@ -396,6 +403,8 @@ export class Login {
           this.errorMessage =
             error?.error?.message ||
             'Dev login failed.';
+
+          this.changeDetectorRef.detectChanges();
 
         }
 

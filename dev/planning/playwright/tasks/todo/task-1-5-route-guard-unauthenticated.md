@@ -1,8 +1,8 @@
-# Task: Test: route guard blocks unauthenticated access
+# Task: Test: route guard blocks unauthenticated access — done
 
 **Phase:** [Phase 1 — Authentication & App Shell](../../phases/phase-1-auth-and-shell.md)
 **Depends on:** [task-1-4-logout](./task-1-4-logout.md)
-**Status:** Not started
+**Status:** Done — `dev/testing/playwright/tests/auth/login.spec.ts`
 
-Directly navigating to a protected route (e.g. `/patients`) with no
-session redirects to `/login`, not a blank page or a console error.
+Confirmed: navigating directly to `/patients` with no session redirects
+to `/login` (`authGuard`), not a blank page.

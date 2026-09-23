@@ -1,9 +1,9 @@
-# Task: Test: login with empty/malformed input
+# Task: Test: login with empty/malformed input — done
 
 **Phase:** [Phase 1 — Authentication & App Shell](../../phases/phase-1-auth-and-shell.md)
 **Depends on:** [task-1-2-login-invalid](./task-1-2-login-invalid.md)
-**Status:** Not started
+**Status:** Done — `dev/testing/playwright/tests/auth/login.spec.ts`
 
-Confirm whether client-side validation (empty username/password) blocks
-submission before a network call is even made, if that's how the form
-is built — confirm actual behavior rather than assuming either way.
+Confirmed: client-side `required` + template-driven `loginForm.invalid`
+keeps the submit button disabled until both fields are filled — no
+network call happens on an empty/partial submit.

@@ -18,7 +18,7 @@
    ↓
 5. Token returned to frontend
    ↓
-6. Frontend stores in localStorage
+6. Frontend stores in sessionStorage
    ↓
 7. AuthInterceptor adds to Authorization header
    ↓
