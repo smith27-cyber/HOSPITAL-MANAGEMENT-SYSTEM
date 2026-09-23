@@ -7,10 +7,6 @@ All items below were verified directly against source, not inferred from other d
 
 ## High priority
 
-- **`AUDIT_LOG_VIEW` permission is never seeded.** `AuditLogController` requires it on every endpoint;
-  neither `RbacDataInitializer` nor `PlatformPermissionInitializer` creates it (they create a
-  differently-named `PLATFORM_AUDIT_VIEW`, which nothing checks). Result: `/api/audit-logs` is
-  unreachable by any role, including SUPER_ADMIN. See [SECURITY.md](./SECURITY.md).
 - **Audit logging write coverage is effectively limited to pharmacy.** `AuditLogService.log(...)` is only
   called from `PharmacyPrescriptionServiceImpl` (verified by grep, 8 call sites). No other domain
   (billing, admissions, consultations, patients, users, tenant/platform actions) writes an audit entry,
@@ -87,6 +83,22 @@ All items below were verified directly against source, not inferred from other d
   [SECURITY.md](./SECURITY.md).
 - **Stray build artifacts at the repository root** (`index.html`, `main-V6MMLPDK.js`,
   `styles-4KNJEDFK.css`) — deleted as part of the same migration's cleanup.
+- **`AUDIT_LOG_VIEW` permission was never seeded**, making `/api/audit-logs` unreachable by any role.
+  Fixed by adding it to `RbacDataInitializer`'s permission definitions (`SUPER_ADMIN` and `ADMIN` get it
+  automatically, same as every other permission). Live-verified: `admin` now gets `200` from
+  `GET /api/audit-logs` (previously `403`).
+- **Every unnamed primitive/enum `@RequestParam` threw `500` at runtime** (`IllegalArgumentException:
+  Name for argument ... not specified ... compiler uses the '-parameters' flag`) — this was a systemic
+  gap, not isolated to one controller: `AuditLogController` (`page`/`size`), `PlatformUserController`
+  (`enabled`), `PlanController` (`value`), `SubscriptionController` (`value`), `InventoryController`
+  (`quantity`), `AdmissionController` (`status`, `ward`), `UserController` (`enabled`),
+  `BillingController`, `ReceiptController`, `ReportController` all had at least one occurrence. Most of
+  these were never actually exercised (no automated tests, and several were behind the
+  now-also-just-fixed `AUDIT_LOG_VIEW` gap or otherwise rarely called), so the bug sat latent. Fixed at
+  the root — added `<parameters>true</parameters>` to `hms-jar`'s `maven-compiler-plugin` config instead
+  of patching each occurrence individually. Live-verified on 3 previously-broken endpoints
+  (`GET /api/audit-logs`, `PATCH /api/platform/users/{id}/status`, `PATCH /api/platform/plans/{id}/active`)
+  — all now return `200`.
 
 ---
 
@@ -96,10 +108,11 @@ None of the items below are currently scheduled work — they're generic project
 revisiting once the higher-priority items above are addressed, in roughly this order:
 
 1. **Add a global exception handler** wired to the existing (currently dead) `ErrorResponse` shape.
-2. **Fix the `AUDIT_LOG_VIEW` gap** and decide whether audit logging should cover more than pharmacy.
+2. **Decide whether audit logging should cover more than pharmacy** — the permission gate is fixed, but
+   write coverage is still one feature deep.
 3. **Add automated backend tests** for the highest-risk services first (billing, pharmacy dispense,
    multi-tenancy/module gating) — see [TESTING_STATUS.md](./TESTING_STATUS.md) for why this is step 3,
-   not step 0.
+   not step 0. This would also have caught the `-parameters` gap far earlier than a manual audit did.
 4. **Security audit** — move secrets out of version control, decide on `application-{profile}` separation.
 5. **Performance work** — none of this has been measured yet; premature to prioritize specific
    optimizations before there's a workload to profile.

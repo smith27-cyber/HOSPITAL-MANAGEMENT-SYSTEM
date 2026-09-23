@@ -16,6 +16,13 @@ method-level except `UserController` (class-level). Full permission catalog in [
 returns it. Unhandled exceptions fall through to Spring Boot's default `/error` handler instead. See
 [KNOWN_ISSUES.md](./KNOWN_ISSUES.md). Swagger UI: `/swagger-ui.html`; OpenAPI JSON: `/api-docs`.
 
+**Fixed:** every endpoint below with an unnamed primitive/enum `@RequestParam` (`page`/`size` on
+`AuditLogController`, `enabled` on `PlatformUserController`/`UserController`, `value` on
+`PlanController`/`SubscriptionController`, `quantity` on `InventoryController`, `status`/`ward` on
+`AdmissionController`, and others on `BillingController`/`ReceiptController`/`ReportController`) used to
+throw `500` at runtime (`IllegalArgumentException: Name for argument ... not specified`) — a missing
+`-parameters` javac flag, not a per-endpoint bug. See [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) for the fix.
+
 **No pagination, filtering, or versioning exists** on any endpoint despite being commonly assumed REST
 conventions — see the "Proposed API Enhancements" section at the bottom of this document for what was
 once drafted here as an aspirational design, none of it implemented.
@@ -61,7 +68,7 @@ once drafted here as an aspirational design, none of it implemented.
 | `SubscriptionController` | `/api/platform/subscriptions` | list, `tenant/{tenantId}`, POST create, `PATCH {id}/status?value=`. |
 | `PlatformUserController` | `/api/platform/users` | list/`{id}`, `PATCH {id}/status?enabled=`, DELETE `{id}` (both block targeting a SUPER_ADMIN). Returns `PlatformUserResponse`. |
 | `TenantModuleController` | `/api/tenant/modules` | `GET` only — the caller's **own** tenant's enabled module list (used by the frontend sidebar to hide/show nav items). **No `@PreAuthorize`** — any authenticated user, any tenant. |
-| `AuditLogController` | `/api/audit-logs` | GET (paged, `page`/`size`≤100), `/action/{action}`, `/entity/{entityType}`. Requires `AUDIT_LOG_VIEW` — **a permission that is never seeded**, so every endpoint here is currently unreachable by any role. Returns `Page<AuditLog>` (entity, not DTO). |
+| `AuditLogController` | `/api/audit-logs` | GET (paged, `page`/`size`≤100), `/action/{action}`, `/entity/{entityType}`. Requires `AUDIT_LOG_VIEW` (seeded — `SUPER_ADMIN`/`ADMIN` reachable). Returns `Page<AuditLog>` (entity, not DTO); pages will mostly be empty since write coverage is limited to pharmacy — see [KNOWN_ISSUES.md](./KNOWN_ISSUES.md). |
 
 This section (`platform`/`tenant`/`audit`) did not exist in earlier drafts of this document — it's
 `paul`'s own multi-tenant SaaS layer, absent from the branch this doc set was originally written for.

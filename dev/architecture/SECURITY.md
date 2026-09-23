@@ -40,10 +40,11 @@ originally written against.
 - **`PlatformPermissionInitializer`** (`@Order(110)`) seeds 5 more permissions afterward:
   `PLATFORM_MODULE_MANAGE`, `PLATFORM_PLAN_MANAGE`, `PLATFORM_SUBSCRIPTION_MANAGE`,
   `PLATFORM_REPORT_VIEW`, `PLATFORM_AUDIT_VIEW`.
-- **Gap: `AUDIT_LOG_VIEW` is never seeded anywhere.** `AuditLogController` checks
-  `hasAuthority('AUDIT_LOG_VIEW')`, a string distinct from `PLATFORM_AUDIT_VIEW` (which *is* seeded but
-  checked nowhere). Result: the entire audit-log API is unreachable by any role, including SUPER_ADMIN,
-  until this is fixed. See [KNOWN_ISSUES.md](./KNOWN_ISSUES.md).
+- **`AUDIT_LOG_VIEW` is now seeded** (added to `RbacDataInitializer`'s definitions — `SUPER_ADMIN`/`ADMIN`
+  get it automatically, same as every other permission). It's still a string distinct from
+  `PLATFORM_AUDIT_VIEW` (seeded separately by `PlatformPermissionInitializer`, checked nowhere) — the two
+  were never meant to be the same thing, `PLATFORM_AUDIT_VIEW` just happened to look like a typo of it.
+  Live-verified: `admin` now gets `200` from `GET /api/audit-logs`. See [KNOWN_ISSUES.md](./KNOWN_ISSUES.md).
 - **Controllers with zero `@PreAuthorize` annotations** (reachable by any authenticated user regardless
   of role): `ReceiptController`, `SystemPreferencesController`, `TenantModuleController`. `HealthController`
   has none by design (`permitAll`).
@@ -110,4 +111,4 @@ set, so Boot defaults apply).
 - [DATA_FLOW.md](./DATA_FLOW.md) — concrete flow walkthroughs (login, tenant resolution, module gating)
 - [BACKEND_COMPONENTS.md](./BACKEND_COMPONENTS.md) — `SecurityConfig` and related config classes
 - [API_DESIGN.md](./API_DESIGN.md) — per-endpoint permission requirements
-- [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) — `AUDIT_LOG_VIEW` gap, module-gating gap, missing exception handler
+- [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) — module-gating gap, missing exception handler, and other open items

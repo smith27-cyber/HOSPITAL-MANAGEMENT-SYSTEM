@@ -28,7 +28,7 @@ and are corrected here: there is no logout endpoint (JWT is stateless), and "Sys
 | System preferences | Full CRUD (backend-backed) | Full UI | 1-row-per-tenant pattern |
 | Notification settings | Backend-backed, but via `SystemPreferences` | UI exists (`notification-settings` component) | Not a separate backend feature — the component calls `SettingsService.getSystemSettings()`/`updateSystemSettings()`, the same `/api/settings/system` endpoint as System Preferences, and edits its `enableNotifications`/`enableEmailNotifications`/`enableSmsNotifications` fields |
 | User management (tenant-scoped) | Full CRUD, class-level RBAC | Full UI | |
-| **Audit logging** | Entity + repo + service + controller exist | **None** | See below — effectively non-functional end-to-end |
+| **Audit logging** | Entity + repo + service + controller exist, reads reachable | **None** | See below — write coverage still partial, no frontend |
 | **Platform: Tenants** | Full CRUD + admin creation | Full UI | |
 | **Platform: Plans** | Full CRUD | Full UI | Concrete service, no interface |
 | **Platform: Subscriptions** | Full create/status-change, drives module entitlement | Full UI | Concrete service, no interface |
@@ -36,19 +36,22 @@ and are corrected here: there is no logout endpoint (JWT is stateless), and "Sys
 | **Platform: Users** | List/status/delete (no create endpoint) | Full UI | |
 | **Multi-tenant module gating** | Enforced per-request (`ModuleAccessFilter`) | Nav-item hiding only (`TenantModuleService`) | Frontend hiding is convenience, not security — backend filter is the real gate |
 
-## Audit logging: why it's effectively non-functional today
+## Audit logging: why it's still incomplete
 
-Three independent gaps compound:
+Two gaps remain (a third, the missing `AUDIT_LOG_VIEW` permission, was fixed — see
+[KNOWN_ISSUES.md](./KNOWN_ISSUES.md)):
 1. **Write coverage is partial** — `AuditLogService.log(...)` is only called from
    `PharmacyPrescriptionServiceImpl` (8 call sites). No other domain (billing, admissions, consultations,
    patients, users, tenants, platform actions) writes an audit entry.
-2. **Read is unreachable** — `AuditLogController` requires `AUDIT_LOG_VIEW`, which no RBAC initializer
-   ever seeds. No role, including SUPER_ADMIN, can currently call `/api/audit-logs`.
-3. **No frontend surface** — no component, service, or route in the Angular app (`hms-pom/hms-webb/angular`)
+2. **No frontend surface** — no component, service, or route in the Angular app (`hms-pom/hms-webb/angular`)
    references audit logs at all.
 
+Reads are no longer blocked: `AUDIT_LOG_VIEW` is now seeded (`SUPER_ADMIN`/`ADMIN` get it automatically),
+and `admin` gets a real `200` from `GET /api/audit-logs` — it's just an empty page today, since almost
+nothing writes to it.
+
 If audit logging is meant to be a real compliance/security feature rather than a partial, currently
-inert scaffold, all three gaps need addressing together. See
+inert scaffold, both remaining gaps need addressing together. See
 [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) and [DATA_FLOW.md](./DATA_FLOW.md).
 
 ## DTO consistency

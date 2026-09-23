@@ -20,7 +20,7 @@ its real lifecycle (schedule → complete → bill; admit → transfer →
 discharge), and see different things depending on role (RBAC).
 
 Grounded in what's actually in the codebase, not assumed:
-- **13 feature modules** ([FRONTEND_COMPONENTS.md](../../architecture/20260922/FRONTEND_COMPONENTS.md)): Dashboard, Patients, Doctors, Departments, Appointments, Consultations, Admissions, Pharmacy, Laboratory, Billing, Inventory, Reports, Settings.
+- **13 feature modules** ([FRONTEND_COMPONENTS.md](../../architecture/FRONTEND_COMPONENTS.md)): Dashboard, Patients, Doctors, Departments, Appointments, Consultations, Admissions, Pharmacy, Laboratory, Billing, Inventory, Reports, Settings.
 - **8 seeded RBAC test accounts** (`RbacDataInitializer.java`):
   `test_doctor`/`doctor123` (DOCTOR), `test_nurse`/`nurse123` (NURSE),
   `test_receptionist`/`receptionist123` (RECEPTIONIST),

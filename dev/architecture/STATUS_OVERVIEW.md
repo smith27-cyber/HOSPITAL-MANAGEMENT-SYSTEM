@@ -40,12 +40,13 @@ gap has since been closed in this document.
   [WEBB_MODULE.md](./WEBB_MODULE.md).
 - The frontend test suite compiles and passes (74/74) after this reconciliation pass fixed several
   broken/fictional spec files. See [TESTING_STATUS.md](./TESTING_STATUS.md).
+- `AUDIT_LOG_VIEW` is now seeded and a systemic `-parameters`-flag bug (unnamed `@RequestParam`s
+  500'ing across ~10 controllers) is fixed — both live-verified. See [KNOWN_ISSUES.md](./KNOWN_ISSUES.md).
 
 ## What's not solid
 
-- **Audit logging is a partial, currently non-functional scaffold** — writes only from one feature
-  (pharmacy), reads blocked by a missing permission, no frontend at all. See
-  [FEATURE_COMPLETENESS.md](./FEATURE_COMPLETENESS.md).
+- **Audit logging is a partial scaffold, though reads are unblocked now** — writes only from one feature
+  (pharmacy), no frontend at all. See [FEATURE_COMPLETENESS.md](./FEATURE_COMPLETENESS.md).
 - **No automated backend test coverage** beyond a smoke test per module, despite substantial, complex
   business logic. See [TESTING_STATUS.md](./TESTING_STATUS.md).
 - **No global exception handling**, plaintext secrets, and a handful of dead files/DTOs. See
@@ -76,8 +77,8 @@ Vitest (native Angular 22 test runner, not Karma).
 
 ## Where to look next
 
-- Fixing the audit-log permission gap and wiring `AuditLogService.log(...)` into more services is the
-  single highest-leverage, most self-contained fix.
+- Wiring `AuditLogService.log(...)` into more services (billing, admissions, consultations, users at
+  minimum) is the next highest-leverage step now that the permission gate and reads are fixed.
 - Adding a `@RestControllerAdvice` with a real `ErrorResponse` envelope would fix the exception-handling
   gap and make the already-built (but dead) `ErrorResponse` class useful.
 - Backend test coverage is the largest gap between "code exists" and "code is verified to work" — start

@@ -127,7 +127,7 @@ HMS/
 │           ├── package.json
 │           └── angular.json         # outputPath → ../src/main/resources/static
 │
-├── dev/architecture/20260922/            # As-built architecture documentation
+├── dev/architecture/            # As-built architecture documentation
 │   ├── README.md                   # Architecture overview
 │   ├── SYSTEM_DESIGN.md            # System design & patterns
 │   ├── BACKEND_COMPONENTS.md       # Backend component breakdown
@@ -917,7 +917,7 @@ GET    /billing/{id}            # Get invoice details
 POST   /billing/{id}/payments   # Record payment
 ```
 
-**[Complete API Documentation →](./dev/architecture/20260922/API_DESIGN.md)**
+**[Complete API Documentation →](./dev/architecture/API_DESIGN.md)**
 
 ---
 
@@ -1507,14 +1507,14 @@ without requiring a separate application codebase for each customer.
 | --------------------------------- | ---------------------------------- |
 | **What-Is-This-Good-For.md**              | Business value & use cases         |
 | **CLAUDE.md**                             | Project notes & guidance           |
-| **dev/architecture/20260922/README.md**        | Architecture overview & navigation |
-| **dev/architecture/20260922/SYSTEM_DESIGN.md** | System design & patterns           |
-| **dev/architecture/20260922/BACKEND_COMPONENTS.md** | Backend component breakdown   |
-| **dev/architecture/20260922/FRONTEND_COMPONENTS.md** | Frontend component breakdown |
-| **dev/architecture/20260922/API_DESIGN.md**    | API specification                  |
-| **dev/architecture/20260922/DATA_FLOW.md**     | Data flow patterns & workflows     |
-| **dev/architecture/20260922/STATUS_OVERVIEW.md** | Current project status           |
-| **dev/architecture/20260922/KNOWN_ISSUES.md**  | Verified defects and gaps          |
+| **dev/architecture/README.md**        | Architecture overview & navigation |
+| **dev/architecture/SYSTEM_DESIGN.md** | System design & patterns           |
+| **dev/architecture/BACKEND_COMPONENTS.md** | Backend component breakdown   |
+| **dev/architecture/FRONTEND_COMPONENTS.md** | Frontend component breakdown |
+| **dev/architecture/API_DESIGN.md**    | API specification                  |
+| **dev/architecture/DATA_FLOW.md**     | Data flow patterns & workflows     |
+| **dev/architecture/STATUS_OVERVIEW.md** | Current project status           |
+| **dev/architecture/KNOWN_ISSUES.md**  | Verified defects and gaps          |
 
 ---
 
@@ -1522,7 +1522,7 @@ without requiring a separate application codebase for each customer.
 
 ## Reporting Issues
 
-1. Check `dev/architecture/20260922/KNOWN_ISSUES.md` for known issues.
+1. Check `dev/architecture/KNOWN_ISSUES.md` for known issues.
 2. Check logs for error messages.
 3. Review `CLAUDE.md` for project notes.
 4. Check tenant/module configuration if the issue involves restricted functionality.
@@ -1555,7 +1555,7 @@ Built with modern technologies and best practices.
 * 🌐 **Frontend:** http://localhost:4200
 * 🔌 **Backend:** http://localhost:8081/api
 * 📚 **API Docs:** http://localhost:8081/swagger-ui/index.html
-* 📖 **Architecture:** [./dev/architecture/20260922/](./dev/architecture/20260922/)
+* 📖 **Architecture:** [./dev/architecture/](./dev/architecture/)
 * 💼 **About HMS:** [./What-Is-This-Good-For.md](./What-Is-This-Good-For.md)
 
 ---

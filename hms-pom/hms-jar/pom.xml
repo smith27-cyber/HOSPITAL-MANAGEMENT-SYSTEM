@@ -300,6 +300,21 @@
 
                 <artifactId>maven-compiler-plugin</artifactId>
 
+                <configuration>
+
+                    <!--
+                        Without this, Spring can't resolve unnamed
+                        @RequestParam/@PathVariable arguments via reflection
+                        at runtime (IllegalArgumentException: "Name for
+                        argument ... not specified"). Several controllers
+                        rely on this (e.g. AuditLogController's page/size,
+                        PlatformUserController's PATCH .../status?enabled=).
+                    -->
+
+                    <parameters>true</parameters>
+
+                </configuration>
+
                 <executions>
 
 

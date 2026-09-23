@@ -101,22 +101,23 @@ Waiting → (prepare) → Preparing → (send-to-billing) → Awaiting Payment
 All four workflow-advancing PATCHes (`prepare`, `send-to-billing`, `check-payment`, `dispense`) share the
 single `PHARMACY_DISPENSE` permission, distinct from `PHARMACY_PRESCRIPTION_CREATE`/`_UPDATE`/`_CANCEL`.
 
-### 7. Audit logging (write path exists but is only wired up for one feature; read path is unreachable)
+### 7. Audit logging (write path exists but is only wired up for one feature)
 
 ```
 AuditLogService.log(action, entityType, entityId, description[, oldValue, newValue])
   - captures tenant from TenantContext, user from SecurityContextHolder,
     IP from X-Forwarded-For (fallback getRemoteAddr()), User-Agent header
   - persists an AuditLog row
-GET /api/audit-logs  → requires AUDIT_LOG_VIEW, which is never seeded → always 403, no role can read this data back
+GET /api/audit-logs  → requires AUDIT_LOG_VIEW (now seeded) → 200 for SUPER_ADMIN/ADMIN, but the page is
+  almost always empty since write coverage below is so narrow
 ```
 
 **Verified by grep**: `AuditLogService.log(...)` is only ever called from
 `PharmacyPrescriptionServiceImpl` (8 call sites — create, prepare, cancel, dispense, and other status
 transitions). No other service — not `Billing`, `Admission`, `Consultation`, `Patient`, `User`,
-`Tenant`, or any platform service — writes an audit entry for its actions. Combined with the
-`AUDIT_LOG_VIEW` gap, the audit subsystem currently both under-writes (only pharmacy events) and
-cannot be read back by anyone. See [KNOWN_ISSUES.md](./KNOWN_ISSUES.md).
+`Tenant`, or any platform service — writes an audit entry for its actions. The read side is fixed
+(`AUDIT_LOG_VIEW` is seeded — see [KNOWN_ISSUES.md](./KNOWN_ISSUES.md)); the audit subsystem still
+under-writes (only pharmacy events), so there's rarely anything to read back yet.
 
 ---
 
