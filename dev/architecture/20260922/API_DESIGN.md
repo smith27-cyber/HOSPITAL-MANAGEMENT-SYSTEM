@@ -1,909 +1,119 @@
 # HMS API Design Specification
 
-**Version:** 1.1  
-**Last Updated:** 2026-09-22  
-**Base URL:** `http://localhost:8081/api`
+**Version:** 1.2
+**Last Updated:** 2026-09-23
+**Base URL:** `http://localhost:8081` (dev, `hms-jar` directly)
 
 ---
 
 ## API Overview
 
-The HMS API follows RESTful principles with JSON request/response payloads. All endpoints (except authentication) require JWT token authentication via `Authorization` header.
+All business endpoints live under `/api/**`; all except `/api/auth/**` and `/api/health` require a valid
+JWT (`Authorization: Bearer <token>`). RBAC is `@PreAuthorize("hasAuthority('PERMISSION_CODE')")`,
+method-level except `UserController` (class-level). Full permission catalog in [SECURITY.md](./SECURITY.md).
 
-**⚠️ Error responses throughout this document (the `Response (4xx/5xx)`
-examples on every endpoint below) describe the *intended* contract, not
-current behavior.** No global exception handling exists yet — see
-[Error Response Format](#error-response-format) for details.
+**No global error envelope exists.** `dto/ErrorResponse.java` is dead code — nothing constructs or
+returns it. Unhandled exceptions fall through to Spring Boot's default `/error` handler instead. See
+[KNOWN_ISSUES.md](./KNOWN_ISSUES.md). Swagger UI: `/swagger-ui.html`; OpenAPI JSON: `/api-docs`.
 
-### API Characteristics
-- **Style:** RESTful
-- **Format:** JSON
-- **Authentication:** JWT Bearer Tokens
-- **Versioning:** URL-based (api/v1, api/v2, etc.)
-- **Pagination:** Supported via query parameters
-- **Filtering:** Supported via query parameters
+**No pagination, filtering, or versioning exists** on any endpoint despite being commonly assumed REST
+conventions — see the "Proposed API Enhancements" section at the bottom of this document for what was
+once drafted here as an aspirational design, none of it implemented.
 
 ---
 
-## Authentication Endpoints
+## Core HMS domain
 
-### Login
-```
-POST /api/auth/login
-Content-Type: application/json
+| Controller | Base path | Endpoints |
+|---|---|---|
+| `PatientController` | `/api/patients` | CRUD, `PATCH {id}/status`. Binds `Patient` entity directly. |
+| `DoctorController` | `/api/doctors` | CRUD, `PATCH {id}/status`. Binds `Doctor` entity directly. |
+| `DepartmentController` | `/api/departments` | list, `/active`, `{id}`, POST, PUT `{id}`, DELETE `{id}`, `PATCH {id}/status`. Binds entity directly. |
+| `AppointmentController` | `/api/appointments` | CRUD, `PATCH {id}/status`, `PATCH {id}/cancel`. Uses `AppointmentRequest`/`Response` DTOs. |
+| `ConsultationController` | `/api/consultations` | list/`{id}`/`patient/{id}`/`doctor/{id}`/`appointment/{id}`, POST, PUT `{id}`, `PATCH {id}/status`, `{id}/review-laboratory-results`, `{id}/complete` (separate `CONSULTATION_COMPLETE` permission), `{id}/cancel`, DELETE `{id}`. Uses `ConsultationRequest`/`Response` DTOs. |
+| `AdmissionController` | `/api/admissions` | list/`{id}`/`patient/{id}`/`patient/{id}/active`/`status/{status}`/`doctor/{id}`/`department/{id}`/`ward/{ward}/active`, POST, PUT `{id}`, `PATCH {id}/status`, `{id}/discharge`, `{id}/transfer`, `{id}/cancel`, DELETE `{id}`, `GET statistics/count|active|discharged|transferred|cancelled`. Binds entity directly. DELETE reuses `ADMISSION_UPDATE` (no dedicated delete permission exists). All admission endpoints require one of `ADMISSION_VIEW`/`CREATE`/`UPDATE`/`DISCHARGE`/`TRANSFER`/`CANCEL`. |
+| `PharmacyPrescriptionController` | `/api/pharmacy/prescriptions` | list/`{id}`/`patient/{id}`/`consultation/{id}`/`consultation/{id}/current`/`status/{status}`, POST, PUT `{id}`, `PATCH {id}/prepare`, `{id}/send-to-billing`, `{id}/check-payment`, `{id}/dispense` (all `PHARMACY_DISPENSE`), `{id}/cancel`, DELETE `{id}` (reuses `PHARMACY_PRESCRIPTION_UPDATE`). Binds entity directly. |
+| `LaboratoryTestController` | `/api/laboratory/tests` | CRUD (catalog). Binds entity directly. |
+| `LaboratoryRequestController` | `/api/laboratory/requests` | list/`{id}`/`patient/{id}`/`consultation/{id}`/`status/{status}`/`patient/{id}/completed`/`consultation/{id}/completed`, POST, PUT `{id}`, `PATCH {id}/status`, `{id}/complete`, DELETE `{id}`. Binds entity directly. Only controller with inline try/catch exception translation (400/404). |
+| `BillingController` | `/api/billing` | list/`{id}`/`patient/{id}`/`patient/{id}/active`/`consultation/{id}`/`status/{status}`, POST create, `POST /patient/{id}/charge`, `POST /consultation/{id}/sync`, PUT `{id}`, DELETE `{id}`, `POST {id}/payment` (separate `BILLING_RECORD_PAYMENT` permission), `PATCH {id}/status`, `GET statistics/count|total|paid|balance`. DTOs for writes, raw entity on reads. |
+| `ReceiptController` | `/api/receipts` | list, `{id}`, `billing/{billingId}`, `number/{receiptNumber}`, `date-range?startDate&endDate`. **No `@PreAuthorize`.** Returns `ReceiptResponse`. |
+| `InventoryController` | `/api/inventory` | list, `{id}`, `/search?term=`, POST, PUT `{id}`, DELETE `{id}`, `PATCH {id}/status`, `PATCH {id}/quantity`. Binds entity directly. |
+| `ReportController` | `/api/reports` | `GET /dashboard?startDate&endDate` (both optional). No tenant param — always resolved server-side. Returns `ReportDashboardResponse`. |
+| `DashboardController` | `/api/dashboard` | `GET` only. |
+| `HospitalSettingsController` | `/api/settings/hospital` | GET, PUT, `POST /reset` (requires `SETTINGS_HOSPITAL_VIEW`/`_UPDATE`). Binds entity directly. |
+| `HealthController` | `/api` | `GET /health` → plain string, `permitAll()`, no auth. |
 
-Request Body:
-{
-  "username": "doctor@hospital.com",
-  "password": "securePassword123"
-}
+## Auth & users
 
-Response (200 OK):
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "type": "Bearer",
-  "expiresIn": 3600,
-  "user": {
-    "id": 1,
-    "username": "doctor@hospital.com",
-    "name": "Dr. John Smith",
-    "role": "doctor"
-  }
-}
+| Controller | Base path | Endpoints |
+|---|---|---|
+| `AuthController` | `/api/auth` | `POST /login` only, public, returns `LoginResponse`. **No registration endpoint, no logout endpoint exist** — JWT is stateless; the client just discards the token. |
+| `UserController` | `/api/users` | Class-level `@PreAuthorize("hasAuthority('SETTINGS_USER_MANAGE')")`. POST create, GET list/`{id}`, PUT `{id}`, `PATCH {id}/status?enabled=`, `PATCH {id}/password`, DELETE `{id}`. Uses `UserCreateRequest`/`UserUpdateRequest`/`ChangePasswordRequest`/`UserResponse` DTOs. |
+| `SystemPreferencesController` | `/api/settings/system` | GET, PUT, `POST /reset`. **No `@PreAuthorize`.** Binds entity directly. |
 
-Response (401 Unauthorized):
-{
-  "error": "Unauthorized",
-  "message": "Invalid credentials",
-  "status": 401
-}
-```
+## Platform / SaaS administration
 
-### Logout
-```
-POST /api/auth/logout
-Authorization: Bearer {token}
+| Controller | Base path | Endpoints |
+|---|---|---|
+| `TenantController` | `/api/tenants` | GET list/`{id}`, POST create, PUT `{id}`, `PATCH {id}/status`, `POST {id}/admin` (create tenant admin, always assigns role `ADMIN`). Uses tenant DTOs. |
+| `PlanController` | `/api/platform/plans` | GET list, POST create, `PATCH {id}/active?value=`, `PUT {id}/modules`. Returns raw `Object`. |
+| `PlatformModuleController` | `/api/platform/modules` | GET list, `GET tenant/{tenantId}`, `PUT tenant/{tenantId}/module/{moduleId}` (body `ModuleToggleRequest`). |
+| `SubscriptionController` | `/api/platform/subscriptions` | list, `tenant/{tenantId}`, POST create, `PATCH {id}/status?value=`. |
+| `PlatformUserController` | `/api/platform/users` | list/`{id}`, `PATCH {id}/status?enabled=`, DELETE `{id}` (both block targeting a SUPER_ADMIN). Returns `PlatformUserResponse`. |
+| `TenantModuleController` | `/api/tenant/modules` | `GET` only — the caller's **own** tenant's enabled module list (used by the frontend sidebar to hide/show nav items). **No `@PreAuthorize`** — any authenticated user, any tenant. |
+| `AuditLogController` | `/api/audit-logs` | GET (paged, `page`/`size`≤100), `/action/{action}`, `/entity/{entityType}`. Requires `AUDIT_LOG_VIEW` — **a permission that is never seeded**, so every endpoint here is currently unreachable by any role. Returns `Page<AuditLog>` (entity, not DTO). |
 
-Response (200 OK):
-{
-  "message": "Logged out successfully"
-}
-```
+This section (`platform`/`tenant`/`audit`) did not exist in earlier drafts of this document — it's
+`paul`'s own multi-tenant SaaS layer, absent from the branch this doc set was originally written for.
 
----
+## CORS notes
 
-## Patient Endpoints
-
-### List All Patients
-```
-GET /api/patients
-Authorization: Bearer {token}
-
-Query Parameters:
-- page: number (default: 0)
-- size: number (default: 20)
-- search: string (name/email search)
-- sort: string (default: id,desc)
-
-Response (200 OK):
-{
-  "content": [
-    {
-      "id": 1,
-      "name": "John Doe",
-      "email": "john@example.com",
-      "phoneNumber": "+1234567890",
-      "dateOfBirth": "1990-01-15",
-      "gender": "Male",
-      "address": "123 Main St",
-      "createdAt": "2026-09-01T10:00:00Z",
-      "updatedAt": "2026-09-01T10:00:00Z"
-    },
-    ...
-  ],
-  "totalElements": 150,
-  "totalPages": 8,
-  "currentPage": 0,
-  "size": 20
-}
-```
-
-### Get Patient By ID
-```
-GET /api/patients/{id}
-Authorization: Bearer {token}
-
-Response (200 OK):
-{
-  "id": 1,
-  "name": "John Doe",
-  "email": "john@example.com",
-  "phoneNumber": "+1234567890",
-  "dateOfBirth": "1990-01-15",
-  "gender": "Male",
-  "address": "123 Main St",
-  "medicalHistory": "Previous surgeries, allergies...",
-  "emergencyContact": "Jane Doe",
-  "emergencyPhone": "+1987654321",
-  "createdAt": "2026-09-01T10:00:00Z",
-  "updatedAt": "2026-09-01T10:00:00Z"
-}
-
-Response (404 Not Found):
-{
-  "error": "Not Found",
-  "message": "Patient with ID 999 not found",
-  "status": 404
-}
-```
-
-### Create Patient
-```
-POST /api/patients
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-  "name": "Jane Smith",
-  "email": "jane@example.com",
-  "phoneNumber": "+1234567890",
-  "dateOfBirth": "1992-05-20",
-  "gender": "Female",
-  "address": "456 Oak Ave",
-  "medicalHistory": "No known allergies",
-  "emergencyContact": "John Smith",
-  "emergencyPhone": "+1987654321"
-}
-
-Response (201 Created):
-{
-  "id": 150,
-  "name": "Jane Smith",
-  "email": "jane@example.com",
-  ...
-  "createdAt": "2026-09-03T14:30:00Z"
-}
-
-Response (400 Bad Request):
-{
-  "error": "Validation Error",
-  "message": "Email already exists",
-  "status": 400,
-  "field": "email"
-}
-```
-
-### Update Patient
-```
-PUT /api/patients/{id}
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-  "name": "Jane Smith",
-  "email": "jane.smith@example.com",
-  "phoneNumber": "+1234567890",
-  "address": "789 Elm St"
-}
-
-Response (200 OK):
-{
-  "id": 1,
-  "name": "Jane Smith",
-  ...
-  "updatedAt": "2026-09-03T14:30:00Z"
-}
-
-Response (404 Not Found):
-{
-  "error": "Not Found",
-  "message": "Patient with ID 999 not found",
-  "status": 404
-}
-```
-
-### Delete Patient
-```
-DELETE /api/patients/{id}
-Authorization: Bearer {token}
-
-Response (204 No Content):
-(Empty body)
-
-Response (404 Not Found):
-{
-  "error": "Not Found",
-  "message": "Patient with ID 999 not found",
-  "status": 404
-}
-```
+CORS is blocked entirely — no bean, no `@CrossOrigin` on any controller (removed as part of the
+`hms-jar`/`hms-webb` pom migration; `ConsultationController`'s former wildcard `@CrossOrigin(origins="*")`
+is gone along with the rest). The browser only ever talks to `ng serve`'s dev proxy or `hms-webb`'s
+API-forwarding layer, both of which reach `hms-jar` server-side. Full detail in
+[SECURITY.md](./SECURITY.md).
 
 ---
 
-## Doctor Endpoints
-
-### List All Doctors
-```
-GET /api/doctors
-Authorization: Bearer {token}
-
-Query Parameters:
-- page: number
-- size: number
-- department: string (filter by department)
-- specialization: string
-
-Response (200 OK):
-{
-  "content": [
-    {
-      "id": 1,
-      "name": "Dr. Robert Johnson",
-      "email": "robert@hospital.com",
-      "phoneNumber": "+1234567890",
-      "licenseNumber": "LIC123456",
-      "specialization": "Cardiology",
-      "departmentId": 2,
-      "departmentName": "Cardiology Department",
-      "qualifications": "MD, Board Certified",
-      "createdAt": "2026-09-01T10:00:00Z"
-    },
-    ...
-  ],
-  "totalElements": 45,
-  "totalPages": 3,
-  "currentPage": 0,
-  "size": 20
-}
-```
-
-### Create Doctor
-```
-POST /api/doctors
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-  "name": "Dr. Sarah Davis",
-  "email": "sarah@hospital.com",
-  "phoneNumber": "+1234567890",
-  "licenseNumber": "LIC789012",
-  "specialization": "Pediatrics",
-  "departmentId": 3,
-  "qualifications": "MD, PhD"
-}
-
-Response (201 Created):
-{
-  "id": 46,
-  "name": "Dr. Sarah Davis",
-  ...
-  "createdAt": "2026-09-03T14:30:00Z"
-}
-```
-
----
-
-## Appointment Endpoints
-
-### Schedule Appointment
-```
-POST /api/appointments
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-  "patientId": 1,
-  "doctorId": 2,
-  "dateTime": "2026-09-10T14:00:00Z",
-  "reason": "Regular checkup",
-  "notes": "Patient has mentioned chest pain"
-}
-
-Response (201 Created):
-{
-  "id": 50,
-  "patientId": 1,
-  "patientName": "John Doe",
-  "doctorId": 2,
-  "doctorName": "Dr. Robert Johnson",
-  "dateTime": "2026-09-10T14:00:00Z",
-  "status": "scheduled",
-  "reason": "Regular checkup",
-  "notes": "Patient has mentioned chest pain",
-  "createdAt": "2026-09-03T14:30:00Z"
-}
-
-Response (409 Conflict):
-{
-  "error": "Conflict",
-  "message": "Doctor is not available at this time",
-  "status": 409
-}
-```
-
-### Get Appointment Queue
-```
-GET /api/appointments/queue
-Authorization: Bearer {token}
-
-Response (200 OK):
-{
-  "content": [
-    {
-      "id": 50,
-      "patientName": "John Doe",
-      "doctorName": "Dr. Robert Johnson",
-      "dateTime": "2026-09-10T14:00:00Z",
-      "status": "scheduled",
-      "waitTime": "15 minutes",
-      "queuePosition": 1
-    },
-    ...
-  ],
-  "totalWaiting": 12,
-  "estimatedWaitTime": "2 hours"
-}
-```
-
-### Update Appointment Status
-```
-PUT /api/appointments/{id}/status
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-  "status": "completed"
-}
-
-Response (200 OK):
-{
-  "id": 50,
-  "status": "completed",
-  "updatedAt": "2026-09-10T14:30:00Z"
-}
-```
-
----
-
-## Consultation Endpoints
-
-### Create Consultation
-```
-POST /api/consultations
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-  "appointmentId": 50,
-  "patientId": 1,
-  "doctorId": 2,
-  "notes": "Patient presents with chest pain. EKG normal.",
-  "diagnosis": "Anxiety-related chest pain",
-  "treatmentPlan": "Prescribe beta-blockers, stress management counseling"
-}
-
-Response (201 Created):
-{
-  "id": 25,
-  "appointmentId": 50,
-  "patientId": 1,
-  "doctorId": 2,
-  "notes": "Patient presents with chest pain. EKG normal.",
-  "diagnosis": "Anxiety-related chest pain",
-  "treatmentPlan": "Prescribe beta-blockers, stress management counseling",
-  "createdAt": "2026-09-10T14:30:00Z"
-}
-```
-
-### Link Prescription to Consultation
-```
-POST /api/consultations/{id}/prescriptions
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-  "medications": [
-    {
-      "name": "Metoprolol",
-      "dosage": "25mg",
-      "frequency": "Once daily",
-      "duration": "30 days"
-    },
-    {
-      "name": "Sertraline",
-      "dosage": "50mg",
-      "frequency": "Once daily",
-      "duration": "90 days"
-    }
-  ]
-}
-
-Response (201 Created):
-{
-  "id": 15,
-  "consultationId": 25,
-  "medications": [...],
-  "createdAt": "2026-09-10T14:30:00Z"
-}
-```
-
----
-
-## Pharmacy Endpoints
-
-### Get Pharmacy Queue
-```
-GET /api/pharmacy/queue
-Authorization: Bearer {token}
-
-Response (200 OK):
-{
-  "content": [
-    {
-      "prescriptionId": 15,
-      "patientName": "John Doe",
-      "medications": ["Metoprolol", "Sertraline"],
-      "status": "pending",
-      "queuePosition": 1,
-      "estimatedTime": "15 minutes"
-    },
-    ...
-  ],
-  "totalPending": 8
-}
-```
-
-### Get Medication Stock
-```
-GET /api/pharmacy/stock
-Authorization: Bearer {token}
-
-Response (200 OK):
-{
-  "content": [
-    {
-      "id": 1,
-      "medicationName": "Metoprolol",
-      "dosage": "25mg",
-      "currentStock": 500,
-      "reorderLevel": 100,
-      "unit": "tablets",
-      "supplier": "MediSupply Inc",
-      "lastRestocked": "2026-09-01",
-      "status": "adequate"
-    },
-    {
-      "id": 2,
-      "medicationName": "Insulin",
-      "currentStock": 45,
-      "reorderLevel": 100,
-      "status": "low"
-    },
-    ...
-  ],
-  "totalItems": 156,
-  "lowStockItems": 12
-}
-```
-
----
-
-## Laboratory Endpoints
-
-### Submit Lab Request
-```
-POST /api/laboratory/requests
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-  "patientId": 1,
-  "consultationId": 25,
-  "tests": [
-    {
-      "testId": 1,
-      "testName": "Complete Blood Count"
-    },
-    {
-      "testId": 5,
-      "testName": "Liver Function Test"
-    }
-  ],
-  "urgency": "normal"
-}
-
-Response (201 Created):
-{
-  "id": 100,
-  "patientId": 1,
-  "consultationId": 25,
-  "tests": [...],
-  "status": "submitted",
-  "estimatedCompletion": "2026-09-05T10:00:00Z",
-  "createdAt": "2026-09-03T14:30:00Z"
-}
-```
-
-### Get Lab Results
-```
-GET /api/laboratory/requests/{id}
-Authorization: Bearer {token}
-
-Response (200 OK):
-{
-  "id": 100,
-  "patientId": 1,
-  "status": "completed",
-  "completedAt": "2026-09-05T10:00:00Z",
-  "results": [
-    {
-      "testName": "Complete Blood Count",
-      "result": "Normal",
-      "values": {
-        "hemoglobin": "13.5 g/dL",
-        "whiteBloodCells": "7.2 x10^9/L",
-        "platelets": "250 x10^9/L"
-      },
-      "referenceRange": "Normal range values"
-    },
-    ...
-  ]
-}
-```
-
----
-
-## Billing Endpoints
-
-### Create Billing Record
-```
-POST /api/billing
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-  "patientId": 1,
-  "consultationId": 25,
-  "items": [
-    {
-      "description": "Consultation Fee",
-      "amount": 50.00
-    },
-    {
-      "description": "EKG Test",
-      "amount": 75.00
-    },
-    {
-      "description": "Lab Tests",
-      "amount": 150.00
-    }
-  ],
-  "discount": 10.00,
-  "taxRate": 0.10
-}
-
-Response (201 Created):
-{
-  "id": 200,
-  "patientId": 1,
-  "invoiceNumber": "INV-2026-0200",
-  "items": [...],
-  "subtotal": 275.00,
-  "discount": 10.00,
-  "tax": 26.50,
-  "total": 291.50,
-  "status": "pending",
-  "createdAt": "2026-09-03T14:30:00Z"
-}
-```
-
-### Record Payment
-```
-POST /api/billing/{id}/payments
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-  "amount": 291.50,
-  "paymentMethod": "credit_card",
-  "transactionId": "TXN123456"
-}
-
-Response (201 Created):
-{
-  "id": 300,
-  "billingId": 200,
-  "amount": 291.50,
-  "paymentMethod": "credit_card",
-  "status": "completed",
-  "createdAt": "2026-09-03T14:35:00Z"
-}
-```
-
-### Get Billing Details
-```
-GET /api/billing/{id}
-Authorization: Bearer {token}
-
-Response (200 OK):
-{
-  "id": 200,
-  "patientId": 1,
-  "patientName": "John Doe",
-  "invoiceNumber": "INV-2026-0200",
-  "invoiceDate": "2026-09-03",
-  "items": [...],
-  "subtotal": 275.00,
-  "discount": 10.00,
-  "tax": 26.50,
-  "total": 291.50,
-  "paidAmount": 291.50,
-  "status": "paid",
-  "payments": [...]
-}
-```
-
----
-
-## Admission Endpoints
-
-### Admit Patient
-```
-POST /api/admissions
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-  "patientId": "1",
-  "patientName": "John Doe",
-  "doctorId": "2",
-  "doctorName": "Dr. Robert Johnson",
-  "departmentId": "3",
-  "departmentName": "Cardiology",
-  "ward": "GENERAL",
-  "bedNumber": "G-12",
-  "admissionType": "ROUTINE",
-  "reason": "Observation for chest pain"
-}
-
-Response (201 Created):
-{
-  "id": "adm-1001",
-  "patientId": "1",
-  "ward": "GENERAL",
-  "bedNumber": "G-12",
-  "admissionType": "ROUTINE",
-  "status": "ADMITTED",
-  "admissionDate": "2026-09-22T10:00:00Z",
-  "createdAt": "2026-09-22T10:00:00Z"
-}
-```
-
-### List / Filter Admissions
-```
-GET /api/admissions                              # All admissions
-GET /api/admissions/{id}                         # By ID
-GET /api/admissions/patient/{patientId}           # By patient
-GET /api/admissions/patient/{patientId}/active    # Active admission for patient
-GET /api/admissions/status/{status}               # By status (ADMITTED, DISCHARGED, TRANSFERRED, CANCELLED)
-GET /api/admissions/doctor/{doctorId}             # By doctor
-GET /api/admissions/department/{departmentId}     # By department
-GET /api/admissions/ward/{ward}/active             # Active admissions by ward
-```
-
-### Update, Transfer, Discharge, Cancel
-```
-PUT    /api/admissions/{id}                # Update admission record
-PATCH  /api/admissions/{id}/status         # Update status (?status=...)
-PATCH  /api/admissions/{id}/transfer       # Transfer ward/bed (?ward=...&bedNumber=...)
-PATCH  /api/admissions/{id}/discharge      # Discharge patient
-PATCH  /api/admissions/{id}/cancel         # Cancel admission
-DELETE /api/admissions/{id}                # Delete admission record
-```
-
-### Statistics
-```
-GET /api/admissions/statistics/count
-GET /api/admissions/statistics/active
-GET /api/admissions/statistics/discharged
-GET /api/admissions/statistics/transferred
-GET /api/admissions/statistics/cancelled
-```
-
-All admission endpoints require RBAC authorities: `ADMISSION_VIEW`, `ADMISSION_CREATE`, `ADMISSION_UPDATE`, `ADMISSION_DISCHARGE`, `ADMISSION_TRANSFER`, or `ADMISSION_CANCEL`.
-
----
-
-## Hospital Settings Endpoints
-
-```
-GET   /api/settings/hospital           # Get current settings (requires SETTINGS_HOSPITAL_VIEW)
-PUT   /api/settings/hospital           # Update settings (requires SETTINGS_HOSPITAL_UPDATE)
-POST  /api/settings/hospital/reset     # Reset to defaults (requires SETTINGS_HOSPITAL_UPDATE)
-```
-
----
-
-## Inventory Endpoints
-
-### List Inventory Items
-```
-GET /api/inventory
-Authorization: Bearer {token}
-
-Query Parameters:
-- category: string
-- lowStock: boolean
-- page: number
-- size: number
-
-Response (200 OK):
-{
-  "content": [
-    {
-      "id": 1,
-      "itemName": "Surgical Masks",
-      "category": "PPE",
-      "currentStock": 5000,
-      "minimumStock": 1000,
-      "reorderLevel": 2000,
-      "unitCost": 0.25,
-      "supplier": "MediSupply Inc",
-      "lastRestocked": "2026-09-01"
-    },
-    ...
-  ],
-  "totalItems": 500,
-  "lowStockCount": 15
-}
-```
-
-### Update Stock
-```
-PATCH /api/inventory/{id}/stock
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-  "quantity": 1000,
-  "operation": "add" // or "reduce"
-}
-
-Response (200 OK):
-{
-  "id": 1,
-  "itemName": "Surgical Masks",
-  "currentStock": 6000,
-  "lastUpdated": "2026-09-03T14:30:00Z"
-}
-```
-
----
-
-## Error Response Format
-
-**⚠️ Not yet implemented.** This section documents the *intended* error
-contract. There is currently no `@ExceptionHandler`/`@ControllerAdvice`
-anywhere in `hms-jar`, and `dto/ErrorResponse.java` (which models this
-shape) is never actually constructed or returned. Unhandled exceptions
-today fall through to Spring Boot's default error response instead of
-this shape. See [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) (P1).
-
-### General Error Response
-```json
-{
-  "timestamp": "2026-09-03T14:30:00Z",
-  "status": 400,
-  "error": "Bad Request",
-  "message": "Validation failed",
-  "path": "/api/patients",
-  "details": [
-    {
-      "field": "email",
-      "message": "Invalid email format"
-    },
-    {
-      "field": "dateOfBirth",
-      "message": "Date cannot be in the future"
-    }
-  ]
-}
-```
-
-### Common HTTP Status Codes
-
-| Code | Meaning | Use Case |
-|------|---------|----------|
-| 200 | OK | Successful GET, PUT, PATCH |
-| 201 | Created | Successful POST |
-| 204 | No Content | Successful DELETE |
-| 400 | Bad Request | Invalid request body/params |
-| 401 | Unauthorized | Missing/invalid token |
-| 403 | Forbidden | Insufficient permissions |
-| 404 | Not Found | Resource doesn't exist |
-| 409 | Conflict | Business rule violation |
-| 500 | Server Error | Internal server error |
-
----
-
-## Request/Response Headers
-
-### Request Headers
-```
-Authorization: Bearer {jwt_token}
-Content-Type: application/json
-Accept: application/json
-```
-
-### Response Headers
-```
-Content-Type: application/json
-X-Total-Count: {number}
-X-Total-Pages: {number}
-```
-
----
-
-## Pagination
-
-All list endpoints support pagination:
-
-```
-GET /api/patients?page=0&size=20&sort=name,asc
-
-Response includes:
-{
-  "content": [...],
-  "totalElements": 150,
-  "totalPages": 8,
-  "currentPage": 0,
-  "size": 20,
-  "numberOfElements": 20,
-  "first": true,
-  "last": false
-}
-```
-
----
-
-## Filtering & Searching
-
-Query string parameters for filtering:
-
-```
-GET /api/patients?search=john&gender=male&page=0&size=20
-
-GET /api/doctors?department=cardiology&specialization=cardiologist
-
-GET /api/appointments?status=scheduled&date=2026-09-10
-
-GET /api/laboratory/requests?status=completed&from=2026-09-01&to=2026-09-03
-```
-
----
-
-## Rate Limiting
-
-(Optional - future implementation)
-
-```
-X-RateLimit-Limit: 1000
-X-RateLimit-Remaining: 999
-X-RateLimit-Reset: 1693667400
-```
+## Proposed API Enhancements (Not Implemented)
+
+**None of what follows exists in the codebase.** An earlier draft of this document described these as if
+they were current behavior; they were never verified against the actual controllers and several are
+directly contradicted by them (a `POST /api/auth/logout` endpoint, pagination on `GET /api/patients`, and
+generic `{error, message, status}` response bodies were all checked directly against
+`hms-pom/hms-jar` and don't exist). Kept here, clearly marked, as design ideas someone drafted for a
+possible future API evolution — not a plan currently being executed, and not something to treat as a
+spec to implement without deciding it's actually wanted first.
+
+### Ideas drafted
+
+- **Pagination envelope** on list endpoints: `?page=&size=&sort=` query params, responses shaped like
+  `{content: [...], totalElements, totalPages, currentPage, size}`. Real list endpoints today return a
+  plain JSON array with no query-param support at all.
+- **A structured error envelope**: `{timestamp, status, error, message, path, details: [{field, message}]}`
+  for validation errors. This is close to (but not identical to) the shape `dto/ErrorResponse.java`
+  actually models — see [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) for why that class is dead code today.
+- **Filtering query params** per resource (e.g. `?department=cardiology&specialization=cardiologist` on
+  doctors, `?status=scheduled&date=...` on appointments) — none of the real list endpoints accept filter
+  query parameters; where filtering exists at all it's via dedicated path segments
+  (`/status/{status}`, `/ward/{ward}/active`, etc.), not query strings.
+- **A `POST /api/auth/logout` endpoint** returning a confirmation message — doesn't exist; nothing is
+  invalidated server-side on logout today, the frontend just discards the token from `sessionStorage`.
+- **URL-based API versioning** (`/api/v1`, `/api/v2`) — not used anywhere; there is exactly one,
+  unversioned `/api/**` surface.
+- **Rate limiting headers** (`X-RateLimit-Limit`/`-Remaining`/`-Reset`) — no rate limiting exists at any
+  layer.
+- **Richer response bodies** for several resources (e.g. a Doctor response including
+  `departmentName`/`qualifications`, an Appointment response including denormalized
+  `patientName`/`doctorName`, a Billing response including a computed `tax`/`discount` breakdown) — some
+  of this denormalization *does* happen in the real entities (e.g. `Appointment.patientName` /
+  `doctorName` are real fields), but the specific shapes drafted here were never checked field-by-field
+  against the real DTOs/entities and shouldn't be trusted as accurate without re-verifying.
+
+If this direction is ever picked up for real, the right first step is a fresh audit against
+`BACKEND_COMPONENTS.md`'s DTO Layer section (which documents exactly which controllers use a real DTO
+today vs. bind the entity directly) rather than resuming from these drafted examples as-is.
 
 ---
 
@@ -914,3 +124,4 @@ X-RateLimit-Reset: 1693667400
 - See [BACKEND_COMPONENTS.md](./BACKEND_COMPONENTS.md) and [FRONTEND_COMPONENTS.md](./FRONTEND_COMPONENTS.md) for component breakdowns
 - See [DATA_FLOW.md](./DATA_FLOW.md) for data flow patterns
 - See [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) for the error-response-format gap noted above
+- See [SECURITY.md](./SECURITY.md) for authentication, RBAC, and CORS

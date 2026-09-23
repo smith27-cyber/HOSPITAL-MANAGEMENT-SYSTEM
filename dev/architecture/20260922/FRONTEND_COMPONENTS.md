@@ -1,15 +1,16 @@
 # HMS Frontend Components
 
-**Version:** 1.1
-**Last Updated:** 2026-09-22
+**Version:** 1.2
+**Last Updated:** 2026-09-23 (added the platform/ SaaS admin area, corrected NotificationSettings)
 
 ---
 
 ## Component Overview
 
-13 major feature modules plus core infrastructure. Each feature is
-independently developed and integrated through services and shared
-utilities.
+13 major feature modules under `features/` (the tenant-facing HMS app) plus core infrastructure — **and
+a second, separate app area, `platform/`**, for SaaS administration (tenants, plans, subscriptions,
+module entitlement, platform users), absent from earlier drafts of this document since it postdates the
+branch this doc set was originally written for. See "Platform / SaaS Administration Modules" below.
 
 ---
 
@@ -63,6 +64,8 @@ utilities.
 | DashboardService | dashboard.service.ts | Analytics and metrics |
 | ReportService | report.service.ts | Report generation |
 | SettingsService | settings.service.ts | Hospital settings, system preferences (backed by `/api/settings/hospital`) |
+| TenantModuleService | `core/services/tenant/tenant-module.service.ts` | Loads *this tenant's* enabled module codes (`/api/tenant/modules`) into a `Set`; used by `sidebar.ts` to hide/show nav items — convenience only, not a security boundary |
+| PlatformDashboardService, TenantService (platform), PlatformUserService, PlanService, SubscriptionService, PlatformModuleService | `core/services/platform/*` | SUPER_ADMIN-side services for the `platform/` app area below — tenants, plans, subscriptions, platform users, platform modules |
 
 ### 3. Layout Module
 **Location:** `src/app/layout/`
@@ -498,8 +501,11 @@ utilities.
 
 **Sub-Components:**
 - `HospitalSettingsComponent` - Hospital configuration (backed by `HospitalSettingsController`/`HospitalSettingsService`)
-- `SystemPreferencesComponent` - System settings (frontend only)
-- `NotificationSettingsComponent` - Notification preferences (frontend only)
+- `SystemPreferencesComponent` - System settings (backed by `SystemPreferencesController` via `/api/settings/system`)
+- `NotificationSettingsComponent` - Notification preferences. **Backend-backed, not frontend-only** —
+  calls the same `SettingsService.getSystemSettings()`/`updateSystemSettings()` as `SystemPreferencesComponent`
+  (same `/api/settings/system` endpoint), editing the `enableNotifications`/`enableEmailNotifications`/
+  `enableSmsNotifications` fields on `SystemPreferences`. Not a separate backend feature.
 - `ProfileSettingsComponent` - User profile settings
 - `UserManagementComponent` - User/role administration (RBAC)
 
@@ -511,18 +517,41 @@ utilities.
 - `GET /settings/users`
 
 **Services Used:**
-- SettingsService (hospital settings — real backend calls)
+- SettingsService (hospital settings via `/api/settings/hospital`, system/notification preferences via `/api/settings/system` — all real backend calls)
 - UserService (user/role management)
-- None for system preferences / notification settings (frontend configuration only)
 
 **Settings Available:**
 - Hospital name, address, contact, operating hours (persisted via `GET/PUT /api/settings/hospital`, `POST /api/settings/hospital/reset`)
-- Department names
-- System preferences (frontend only)
-- Email notifications (frontend only)
+- Theme, date/time format, currency, language, timezone, and notification toggles (persisted via
+  `GET/PUT /api/settings/system`, `POST /api/settings/system/reset` — backs both `SystemPreferencesComponent`
+  and `NotificationSettingsComponent`)
 - User preferences
 
 ---
+
+## Platform / SaaS Administration Modules
+
+**Location:** `src/app/platform/` — a second, separate application area from `features/`, guarded by
+`[authGuard, platformGuard]` (the latter requires holding at least one of 8 hard-coded platform
+permissions). Not present in earlier drafts of this document.
+
+- **`dashboard/`** → `PlatformDashboard` — aggregates from tenants/plans/subscriptions/modules endpoints.
+- **`tenants/`** → `Tenants` (list), `tenants/create-tenant/` → `CreateTenant`, `tenants/tenant-admin/` →
+  `TenantAdmin` (create a tenant's admin user), `tenants/tenant-modules/` → `TenantModules` (per-tenant
+  module toggles).
+- **`users/`** → `Users` — platform-wide users, intentionally not nested under `tenants/` since they
+  aren't tenant-scoped.
+- **`plans/`** → `Plans`, plus `plans/create-plan/` → `CreatePlan`.
+- **`subscriptions/`** → `Subscriptions`, plus `subscriptions/create-subscription/` → `CreateSubscription`.
+- **`modules/`** → `Modules` — the `PlatformModule` catalog.
+
+Own layout shell: `layout/platform-header/`, `layout/platform-sidebar/`, `layout/platform-layout/`
+(parallel to the tenant-facing `layout/header/`, `layout/sidebar/`, `layout/main-layout/`).
+
+**No frontend surface exists for `audit/`** — no component, service, or route anywhere references audit
+logs, despite the backend `AuditLog` entity/service/controller existing. The only reference to "audit" in
+the whole frontend is an unused `PLATFORM_AUDIT_VIEW` permission string in `platform.guard.ts` that no
+route or component actually checks.
 
 ## Related Documentation
 

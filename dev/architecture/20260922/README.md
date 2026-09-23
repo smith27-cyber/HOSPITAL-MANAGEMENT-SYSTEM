@@ -1,8 +1,9 @@
 # HMS Architecture Documentation
 
-**Last Updated:** 2026-09-22
+**Last Updated:** 2026-09-23
 **Project:** Hospital Management System
-**Version:** 1.2 — split into concern-based documents
+**Version:** 1.3 — reconciled with `paul`'s real platform/tenant/audit layer and merged in the `old/`
+doc set that had accumulated alongside this one
 
 ---
 
@@ -14,6 +15,14 @@ mixed unrelated topics together. For proposed future changes not yet
 implemented, see `../future/` instead (currently empty — its last
 proposal, `hms-webb` becoming a real Spring Boot module, was implemented
 and promoted here; see [WEBB_MODULE.md](./WEBB_MODULE.md)).
+
+**A second doc set, `dev/architecture/old/`, existed alongside this one for a while** — it was written
+directly against `paul`'s code (including the `platform`/`tenant`/`audit` multi-tenant layer this set
+originally lacked) while this set was written for an earlier branch that later had the same `hms-jar`/
+`hms-webb` restructuring applied to it independently. Once both doc sets described the same module
+layout, keeping two was pure duplication risk, so `old/`'s verified content was merged into this set
+(this pass) and `old/` was retired. If you're reading a stale link to `dev/architecture/old/` somewhere,
+this is now the current location.
 
 ---
 
@@ -63,12 +72,12 @@ and promoted here; see [WEBB_MODULE.md](./WEBB_MODULE.md)).
 **Backend:** Spring Boot 4.1.1, Java 21, PostgreSQL, Spring Data JPA, Spring Security, JWT
 
 ### Key Statistics
-- **13** feature modules
-- **18** entity types (17 domain + 1 auth `User`; includes RBAC `Role`/`Permission`)
-- **16** services (13 domain + 3 auth)
-- **17** REST controllers in `hms-jar` (the Backend API)
-- **15** Angular services
-- **2** classes in `hms-webb` (the Web API / static-serving module) — see [WEBB_MODULE.md](./WEBB_MODULE.md)
+- **13** feature modules under `features/`, plus a separate **`platform/`** app area for SaaS administration
+- **24** table-backed entity types (spanning core clinical domain, auth/RBAC, and the `platform`/`tenant`/`audit` layer)
+- **25** backend service classes (20 interface+Impl pairs, 5 concrete-only)
+- **26** REST controllers in `hms-jar` (the Backend API)
+- **~20** Angular services across `core/services/`, `core/services/platform/`, `core/services/tenant/`
+- **3** classes in `hms-webb` (the Web API / static-serving module) — see [WEBB_MODULE.md](./WEBB_MODULE.md)
 
 See [DATA_MODEL.md](./DATA_MODEL.md) and [BACKEND_COMPONENTS.md](./BACKEND_COMPONENTS.md) for the detail behind these numbers.
 
@@ -113,15 +122,15 @@ npm start  # Runs on http://localhost:4200
 
 ### Backend
 ```bash
-cd hms-pom/hms-jar
-mvn clean install
-mvn spring-boot:run  # Runs on http://localhost:8081
+cd hms-pom
+./mvnw -pl hms-jar spring-boot:run  # Runs on http://localhost:8081
 ```
+The Maven wrapper (`./mvnw`) lives at the `hms-pom/` reactor root, not inside `hms-jar/`.
 
 ### Database
 ```
-PostgreSQL running on localhost:5432
-Default database: hms
+docker-compose up -d   # from repo root
+PostgreSQL on localhost:5432, database hms_database, user hms_user
 ```
 
 ---
@@ -182,6 +191,7 @@ history (see the root `CLAUDE.md` for that story).
 | 1.0 | 2026-09-03 | Initial architecture documentation complete |
 | 1.1 | 2026-09-22 | Reconciled docs with actual code (Admissions, RBAC, counts, paths, port) |
 | 1.2 | 2026-09-22 | Split ARCHITECTURE.md/COMPONENTS.md/PROJECT_STATE.md into 13 concern-based documents; found and documented CORS override, missing global error handling, undocumented OpenApiConfig, DTO layer mismatch |
+| 1.3 | 2026-09-23 | Merged in `dev/architecture/old/`'s verified content: the `platform`/`tenant`/`audit` multi-tenant layer (previously entirely undocumented), corrected entity/service/repository/controller counts (24/25/24/26), corrected two wrong claims (no logout endpoint; system/notification preferences are backend-backed, not frontend-only), marked several previously-presented-as-current sections (generic API pagination/error envelope, generic DTO/mapper flow examples) as explicitly proposed/not-implemented since they were never accurate, and confirmed the frontend test suite (74/74) actually passes after fixing real breakage found along the way. `old/` retired. |
 
 ---
 

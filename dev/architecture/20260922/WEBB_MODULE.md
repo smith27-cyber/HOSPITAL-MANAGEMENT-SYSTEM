@@ -1,7 +1,8 @@
 # HMS Webb Module — Frontend Spring Boot Module
 
-**Version:** 1.0
-**Last Updated:** 2026-09-22
+**Version:** 1.1
+**Last Updated:** 2026-09-23 (confirmed accurate against `paul`'s own hms-jar/hms-webb pom migration,
+which replicated this exact design)
 
 ---
 
@@ -95,7 +96,8 @@ subfolder by default, and Spring Boot needs `index.html` sitting directly
 under `static/`, not `static/browser/`.
 
 `ng build` (or `ng build --configuration production`) writes there
-directly. Running `hms-webb` (`mvn -pl hms-webb spring-boot:run`) does
+directly. Running `hms-webb` (`./mvnw -pl hms-webb spring-boot:run` from
+`hms-pom/` — the Maven wrapper lives at the reactor root) does
 **not** pick up a fresh build automatically — Maven's resource copy
 (`src/main/resources` → `target/classes`) is a one-time build step, not a
 background sync, and Spring Boot devtools watches `target/classes` for
@@ -117,4 +119,4 @@ in-memory dev server, completely independent of `outputPath`.
 - [SECURITY.md](./SECURITY.md) — the CORS decision this module implements
 - [BACKEND_COMPONENTS.md](./BACKEND_COMPONENTS.md) — `hms-jar`, the Backend API this forwards to
 - [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md) — overall architecture
-- [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) — what's still unverified
+- [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) — open issues elsewhere in the codebase (unrelated to this module)

@@ -1,7 +1,39 @@
-# HMS Operations — Error Handling, Performance, Monitoring, Deployment
+# HMS Operations — Running, Error Handling, Performance, Monitoring, Deployment
 
-**Version:** 1.1
-**Last Updated:** 2026-09-22
+**Version:** 1.2
+**Last Updated:** 2026-09-23
+
+---
+
+## Running locally
+
+1. **Database**: `docker-compose up -d` (root `docker-compose.yml`) — Postgres 15, `hms_database`/
+   `hms_user`, port 5432, with a healthcheck.
+2. **Backend API (`hms-jar`)**: `cd hms-pom && ./mvnw -pl hms-jar spring-boot:run` — Spring Boot 4.1.1,
+   Java 21, listens on `0.0.0.0:8081`. Schema is created/updated automatically at boot
+   (`ddl-auto=update`). `RbacDataInitializer`, `PlatformDataInitializer` (`@Order(100)`), and
+   `PlatformPermissionInitializer` (`@Order(110)`) all run automatically and are idempotent, so repeated
+   restarts are safe.
+3. **Frontend, dev loop**: `cd hms-pom/hms-webb/angular && npm start` (`ng serve`) — proxies `/api/**` to
+   `localhost:8081` via `proxy.conf.json`. Never touches `hms-webb`'s Java side or its `static/` output.
+4. **Frontend, packaged (`hms-webb`)**: `cd hms-pom/hms-webb/angular && npm run build` (writes into
+   `../src/main/resources/static`, gitignored), then `cd .. && ./mvnw spring-boot:run` — `hms-webb` serves
+   the bundle on 8080 and forwards `/api/**` to `hms-jar`. No hot-reload in this mode.
+
+Backend config: `hms-jar`'s `application.properties` (DB, JWT, Swagger) has no
+`application-{profile}.properties` — the same file, with plaintext DB password and JWT secret, is used
+everywhere. `hms-webb`'s own `application.properties` only sets `server.port=8080`.
+
+## CI/CD
+
+**No CI pipeline exists for this application.** `.github/` in this repo contains only
+`.github/modernize/java-upgrade/` (a Java-upgrade tooling scaffold), not a build/test/deploy workflow for
+HMS itself. Builds and tests are entirely manual (`./mvnw test`, `ng test`, `ng build`).
+
+## Backups / disaster recovery
+
+Not addressed anywhere in the codebase or config — no backup scripts, no documented restore procedure.
+Fine for a project at this stage, a real gap once deployed with actual tenant data.
 
 ---
 

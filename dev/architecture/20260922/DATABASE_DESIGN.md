@@ -1,66 +1,84 @@
 # HMS Database Design
 
-**Version:** 1.1
-**Last Updated:** 2026-09-22
+**Version:** 1.2
+**Last Updated:** 2026-09-23
 
 ---
 
-## Key Design Decisions
+## Engine & schema management
 
-1. **Surrogate Keys** - All entities use Long IDs
-2. **Timestamps** - created_at, updated_at on all entities
-3. **Soft Deletes** - Logical deletion where needed
-4. **Normalization** - 3NF applied throughout
-5. **Indexing** - Foreign keys and frequently searched fields indexed
-6. **Constraints** - NOT NULL, UNIQUE where appropriate
+- **PostgreSQL 15** (`postgres:15-alpine` in `docker-compose.yml`), database `hms_database`, user
+  `hms_user` — credentials are plaintext in both `docker-compose.yml` and
+  `hms-pom/hms-jar/src/main/resources/application.properties` (see [SECURITY.md](./SECURITY.md)).
+- **No Flyway or Liquibase.** Confirmed: no such dependency in `pom.xml`, no `db/migration` directory, no
+  file matching `*migration*`/`*flyway*`/`*liquibase*` anywhere under `src/main/resources`.
+- `spring.jpa.hibernate.ddl-auto=update` — the **entire schema is Hibernate-managed**. Every table,
+  column, index, and constraint is derived from `@Table`/`@Column`/`@Index`/`@UniqueConstraint`/
+  `@JoinColumn` annotations on the entities (see [DATA_MODEL.md](./DATA_MODEL.md)), and Hibernate
+  creates/alters tables automatically at boot based on the current DB state. `update` mode is additive
+  only — it adds missing columns/tables but never drops or safely renames existing ones, so a renamed
+  entity field leaves the old column behind as an orphan.
 
-See [DATA_MODEL.md](./DATA_MODEL.md) for the actual entity table and
-relationship diagrams.
+Earlier drafts of this document listed generic design decisions ("surrogate keys, all entities use Long
+IDs", "soft deletes where needed", "3NF normalization") that don't hold up against the real schema —
+corrected below.
+
+## Notable constraints
+
+- **Unique per-tenant, not globally**: `invoiceNumber` (`Billing`), `itemCode` (`Inventory`), `code`
+  (`Department`), `nationalId`/`licenseNumber`/`email` (`Doctor`), `nationalId` (`Patient`),
+  `receiptNumber` (`PaymentTransaction`), `prescriptionNumber` (`PharmacyPrescription`) — all scoped
+  `(tenant_id, <field>)`.
+- **Unique globally**: `username` (`User`), `code` (`Tenant`, `Plan`, `Permission` by different fields —
+  `Role.name`, `Permission.code`), `code` (`PlatformModule`, on the enum column).
+- **One-row-per-tenant tables**: `HospitalSettings` and `SystemPreferences` both enforce a unique
+  `tenant_id`, and both follow an identical "get-or-create-default, update re-resolves tenant from
+  context, reset restores hard-coded defaults" service pattern.
+- **`AuditLog`** carries 5 indexes: tenant, user, action, entity_type, created_at — the only entity with
+  explicit indexing beyond primary/foreign keys, since it's an append-heavy, query-by-filter table.
+- **ID strategy is inconsistent, not uniformly `Long`**: some entities use `Long` IDENTITY (`AuditLog`,
+  `BillingItem`, `LaboratoryRequest`, `LaboratoryTest`, `PharmacyPrescription`, `Permission`, `Role`,
+  `User`, and all of `platform`/`tenant`/`settings`), others use a plain `String` primary key populated by
+  application code (`Admission`, `Appointment`, `Consultation`, `Department`, `Doctor`, `Inventory`,
+  `Patient` — with `Department`/`Doctor` generating sequential IDs like `DEP-2026-001` via native SQL
+  queries in their repositories).
+- **No soft deletes anywhere.** `UserService.deleteUser` and similar are hard deletes (one comment notes
+  this may later be replaced with deactivation to preserve audit-trail integrity, but that's not the
+  current behavior).
+
+## Relationships summary
+
+See [DATA_MODEL.md](./DATA_MODEL.md) for the full entity table. In ER terms: `Tenant` is the root of
+nearly every foreign key in the schema; the only non-tenant-rooted object graphs are `User`↔`Role`↔
+`Permission` (RBAC) and `Plan`↔`PlatformModule` (catalog). Most clinical-domain relationships
+(patient↔doctor↔department↔appointment↔consultation↔billing) are **not** enforced at the database level —
+they're plain string/long ID references without foreign key constraints, so referential integrity between
+those tables depends entirely on application code being correct.
 
 ---
 
-## Scalability Considerations
+## Scalability Considerations (Aspirational — None of This Is Implemented)
 
 ### Current Implementation
 
-- Single database instance
-- Synchronous API calls
-- In-memory session storage
-- No caching layer
+- Single database instance, no read replicas
+- Synchronous API calls throughout
+- No caching layer (no Redis, no query-result cache, no HTTP cache)
+- No message queue / async processing anywhere
 
-### Future Improvements
+### Future Improvement Ideas (Not Planned Work, Just Ideas)
 
-1. **Database:**
-   - Read replicas for scaling queries
-   - Partitioning for large tables
-   - Query optimization and indexing
-
-2. **Caching:**
-   - Redis for session storage
-   - Database query result caching
-   - Frontend HTTP caching
-
-3. **Asynchronous Processing:**
-   - Message queues for heavy operations
-   - Async report generation
-   - Email notifications via queue
-
-4. **API:**
-   - API versioning support
-   - Rate limiting
-   - Request pagination
-   - Response compression
-
-5. **Frontend:**
-   - Build time optimization
-   - Tree-shaking
-   - Lazy component loading
-   - Service worker caching
-
----
+1. **Database:** read replicas for scaling queries, partitioning for large tables, query optimization.
+2. **Caching:** Redis for session storage, database query result caching, frontend HTTP caching.
+3. **Asynchronous processing:** message queues for heavy operations, async report generation, email
+   notifications via queue.
+4. **API:** versioning support, rate limiting, request pagination, response compression — see
+   [API_DESIGN.md](./API_DESIGN.md)'s "Proposed API Enhancements" section, none of which is implemented
+   either.
+5. **Frontend:** build-time optimization, tree-shaking, lazy component loading, service worker caching.
 
 ## Related Documentation
 
 - [DATA_MODEL.md](./DATA_MODEL.md) — entities and relationships
 - [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md) — overall architecture
-- [OPERATIONS.md](./OPERATIONS.md) — performance optimization strategy
+- [OPERATIONS.md](./OPERATIONS.md) — how the app actually runs today

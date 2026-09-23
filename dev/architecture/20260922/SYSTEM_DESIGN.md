@@ -1,7 +1,7 @@
 # HMS System Design
 
-**Version:** 1.1
-**Last Updated:** 2026-09-22
+**Version:** 1.2
+**Last Updated:** 2026-09-23 (reconciled with `paul`'s actual platform/tenant/audit layer and current entity/service/repository counts)
 
 ---
 
@@ -58,6 +58,15 @@ Angular build and forwards `/api/**` to `hms-jar`). The diagram above
 describes logical layers, not physical deployment — see
 [WEBB_MODULE.md](./WEBB_MODULE.md) for how the two processes fit
 together, and why `hms-jar` has no knowledge of the frontend at all.
+
+**This is also a multi-tenant system**, which the diagram above doesn't
+show: `hms-jar` serves both a tenant-facing HMS application (everything
+above) and a separate platform/SaaS administration surface for managing
+tenants, subscription plans, and per-tenant module entitlements. Tenant
+isolation and module access are enforced per-request by two additional
+servlet filters sitting in front of the business logic layer — see
+[SECURITY.md](./SECURITY.md) and [DATA_FLOW.md](./DATA_FLOW.md) for the
+full mechanics.
 
 ---
 
@@ -134,7 +143,7 @@ Endpoints:
 - Workflow orchestration
 
 **Key Components:**
-- Service classes (16 services)
+- Service classes (25 services — 20 interface+Impl pairs, 5 concrete no-interface services)
 - Business rule implementation
 - Data transformation
 - Transaction boundaries
@@ -164,8 +173,8 @@ See [BACKEND_COMPONENTS.md](./BACKEND_COMPONENTS.md) for the full breakdown.
 - Transaction coordination
 
 **Key Components:**
-- Repository interfaces (16 repositories)
-- JPA entity classes (18 entities)
+- Repository interfaces (24 repositories, one per entity)
+- JPA entity classes (24 table-backed entities, plus 5 enums and 1 `@Embeddable` also under `entity/`)
 - Custom query methods
 - Lazy/Eager loading strategies
 

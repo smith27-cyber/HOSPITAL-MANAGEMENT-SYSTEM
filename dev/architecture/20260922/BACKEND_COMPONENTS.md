@@ -1,221 +1,121 @@
 # HMS Backend Components
 
-**Version:** 1.1
-**Last Updated:** 2026-09-22
+**Version:** 1.2
+**Last Updated:** 2026-09-23
+**Verified by reading source directly** under `hms-pom/hms-jar/src/main/java/com/hms/backend/`.
+
+Package root contains exactly 11 subpackages plus one top-level class
+(`HmsBackendApplication.java`): **audit, auth, config, controller, dto, entity, platform, repository,
+service, settings, tenant**.
+
+## Headline counts
+
+| | Count | Notes |
+|---|---|---|
+| JPA `@Entity` classes (table-backed) | **24** | Excludes 5 pure enums, 1 `@Embeddable`, 1 dead empty file |
+| Repositories | **24** | One per entity, all `JpaRepository` |
+| Service classes | **25** | 20 interface+Impl pairs, plus 5 concrete no-interface services |
+| Controllers | **26** | All REST — `AngularForwardController` was retired in the hms-jar/hms-webb pom migration |
+| Enums (entity-adjacent) | **10** | `AdmissionStatus/Type`, `WardType`, `BillingType`, `PaymentMethod`, `BillingStatus`, `ConsultationStatus`, `BillingCycle`, `ModuleCode`, `SubscriptionStatus`, `TenantStatus`, `TenantType` |
+
+Earlier drafts of this document said 18 entities / 16 repositories / 16 services — that count was
+accurate for a different, earlier branch this doc set was originally written against. The gap is one
+whole subsystem this document now covers for the first time: `platform` (SaaS plans/subscriptions/module
+entitlement), `tenant`, `audit`, plus `PaymentTransaction`, `ReceiptController`/`Service`,
+`ReportController`/`Service`, and the backend half of `settings` (`SystemPreferences`).
 
 ---
 
-## Configuration Layer
+## Configuration layer (`config/`)
 
-### 1. SecurityConfig
-**File:** `src/main/java/com/hms/backend/config/SecurityConfig.java`
-**Responsibility:** Spring Security configuration
+3 classes:
 
-**Key Methods:**
-- Configure JWT filter
-- CORS — none. No `CorsConfigurationSource` bean, no `@CrossOrigin`
-  anywhere in the backend. See [SECURITY.md](./SECURITY.md) for why:
-  `ng serve` and `hms-webb` both forward `/api/**` server-side, so the
-  browser never makes a cross-origin request to `hms-jar` to allow.
-- Configure authorization rules
-- Configure password encoder
+- **`SecurityConfig`** — full filter chain, authorization rules. No CORS configuration at all (removed
+  as part of the hms-jar/hms-webb pom migration — see [WEBB_MODULE.md](./WEBB_MODULE.md)). See
+  [SECURITY.md](./SECURITY.md).
+- **`PasswordConfig`** — single bean, `BCryptPasswordEncoder`.
+- **`OpenApiConfig`** — Swagger/OpenAPI metadata. See [API_DESIGN.md](./API_DESIGN.md).
 
-**Security Rules:**
-- Public endpoints: `/api/auth/login`, `/api/auth/register`
-- Protected endpoints: All other `/api/**` paths require JWT
-- Role-based access control (`Role`/`Permission` entities, `RbacDataInitializer` seed data, `@PreAuthorize` authority checks per endpoint)
+(SPA deep-linking used to be a 4th class here, `AngularForwardController` — that responsibility now
+lives entirely in `hms-webb`'s `SpaWebConfig`, see [WEBB_MODULE.md](./WEBB_MODULE.md).)
 
-See [SECURITY.md](./SECURITY.md) for the full authentication/authorization picture.
+## Entity layer
 
-### 2. PasswordConfig
-**File:** `src/main/java/com/hms/backend/config/PasswordConfig.java`
-**Responsibility:** Password encoding configuration
+Full field/relationship detail in [DATA_MODEL.md](./DATA_MODEL.md). One dead file exists:
+`entity/BillingPayment.java` is **0 bytes** — no class body, no `@Entity`, referenced nowhere. Its
+functional role (individual payment-history rows against a `Billing`) is actually filled by
+`PaymentTransaction`.
 
-**Components:**
-- BCryptPasswordEncoder bean
-- Password encoding algorithm selection
+## Repository layer
 
-### 3. OpenApiConfig
-**File:** `src/main/java/com/hms/backend/config/OpenApiConfig.java`
-**Responsibility:** Swagger/OpenAPI documentation configuration (backs the
-`/swagger-ui/index.html` and `/api-docs` endpoints referenced in
-README.md's Quick Start)
+All 24 extend `JpaRepository`. Every tenant-scoped repository follows the same convention:
+`findAllByTenant_Id`, `findByIdAndTenant_Id`, plus domain-specific derived finders and, for reporting,
+custom `@Query` projections (e.g. `BillingRepository.getReportTotals` → `ReportBillingTotals`,
+`PharmacyPrescriptionRepository.getReportTotals`/`getTopMedicines` → `ReportPharmacyTotals`/`Object[]`).
+Two use native SQL for sequential ID generation: `DepartmentRepository.findMaxIdForCurrentYear()`
+(`DEP-<year>-%`) and `DoctorRepository.findMaxIdForCurrentYear()` (`DOC-<year>-%`).
 
----
+## Service layer
 
-## Entity Layer
+Pattern is interface + `XxxServiceImpl`, **except** `platform/service/PlanService`,
+`PlatformModuleService`, and `SubscriptionService`, which are concrete `@Service` classes with no
+interface — an inconsistency with the rest of the codebase. `auth/service/AuthService` and `JwtService`
+are also concrete-only.
 
-See [DATA_MODEL.md](./DATA_MODEL.md) for the full entity table and
-relationship diagrams — 18 JPA entities total.
+Largest implementations by line count: `PharmacyPrescriptionService` (2020 lines — full dispense
+workflow: Waiting → Preparing → Awaiting Payment → Ready for Pickup → Dispensed), `BillingService`
+(1685 lines), `LaboratoryRequestService` (1455 lines), `AdmissionService` (1027 lines),
+`ConsultationService` (1059 lines).
 
----
+Business-rule highlights:
+- `BillingService.syncConsultationInvoice` — idempotent: merges consultation + lab + pharmacy charges
+  into one invoice per consultation without completing it.
+- `ConsultationService.completeConsultation` — the only path allowed to move status to `COMPLETED`;
+  `updateStatus` explicitly rejects that transition.
+- `SubscriptionService.create`/`changeStatus` — computes trial/active period dates from the `Plan`, sets
+  `Tenant.status` accordingly, and calls `PlatformModuleService.enableOnly(...)` — this is the mechanism
+  by which a Plan's module set becomes a tenant's actual entitlements (see
+  [DATA_FLOW.md](./DATA_FLOW.md)).
+- `TenantService.updateTenantStatus` — hard-blocks suspending/cancelling/expiring the tenant coded
+  `OLIVES-DEFAULT`.
+- `ReceiptService`/`ReportService` — both resolve tenant **exclusively** from `TenantContext`, never from
+  a caller-supplied parameter, by explicit design.
 
-## Repository Layer
+## Controller layer
 
-16 Spring Data JPA repositories providing CRUD operations and custom queries:
+All controllers under `controller/` are prefixed `/api/...`; RBAC is via
+`@PreAuthorize("hasAuthority('X')")`, method-level except `UserController` (class-level, one permission
+for every action). Full endpoint list in [API_DESIGN.md](./API_DESIGN.md).
 
-**Pattern:**
-```java
-public interface PatientRepository extends JpaRepository<Patient, Long> {
-    List<Patient> findByNameContaining(String name);
-    Optional<Patient> findByEmail(String email);
-    // Auto-generated: findAll(), findById(), save(), delete()...
-}
-```
+**No `@PreAuthorize` at all** (protected only by the blanket "any authenticated user" rule):
+`HealthController` (intentionally `permitAll` anyway), `ReceiptController`, `SystemPreferencesController`,
+`TenantModuleController`. Any logged-in user of any role can call these three real endpoints.
 
-**Repositories:**
-- PatientRepository
-- DoctorRepository
-- DepartmentRepository
-- AppointmentRepository
-- ConsultationRepository
-- AdmissionRepository
-- PharmacyPrescriptionRepository
-- LaboratoryTestRepository
-- LaboratoryRequestRepository
-- BillingRepository
-- BillingItemRepository
-- InventoryRepository
-- HospitalSettingsRepository
-- RoleRepository
-- PermissionRepository
-- UserRepository (auth package)
+## DTO layer
 
----
+Inconsistently applied — most controllers bind `@RequestBody` directly to the JPA entity rather than a
+DTO. Naming pattern where DTOs exist: `<Entity>Request`/`<Entity>Response`.
 
-## Service Layer
+**Actually used:** `AppointmentRequest`/`Response`, `ConsultationRequest`/`Response`,
+`BillingRequest`/`BillingItemRequest`/`PaymentRequest`, `DashboardResponse`, `ReceiptResponse`,
+`ReportBillingTotals`, `ReportDashboardResponse`, `ReportPharmacyTotals` — plus all of `auth/dto/`,
+`platform/dto/`, `tenant/dto/`.
 
-16 business logic services:
+**Defined but dead (nothing constructs or references them outside their own file):**
+- `PatientRequest`/`PatientResponse` — `PatientController` binds the `Patient` entity directly.
+- `DoctorRequest` — `DoctorController` binds the `Doctor` entity directly.
+- `ErrorResponse` — see [KNOWN_ISSUES.md](./KNOWN_ISSUES.md); there is no `@ControllerAdvice` to construct
+  one.
 
-**PatientService**
-```java
-- createPatient(PatientDTO)
-- updatePatient(Long id, PatientDTO)
-- getPatient(Long id)
-- getAllPatients()
-- deletePatient(Long id)
-- searchPatient(String name)
-```
-
-**AppointmentService**
-```java
-- scheduleAppointment(AppointmentDTO)
-- cancelAppointment(Long id)
-- getAppointmentQueue()
-- updateAppointmentStatus()
-- getAppointmentsByPatient(Long patientId)
-```
-
-**BillingService**
-```java
-- createBilling(BillingDTO)
-- addBillingItem()
-- recordPayment()
-- updateBillingStatus()
-- getBillingByPatient()
-```
-
-**Similar patterns for other services:**
-- DoctorService
-- DepartmentService
-- ConsultationService
-- AdmissionService
-- PharmacyService
-- LaboratoryService
-- InventoryService
-- DashboardService
-- HospitalSettingsService
-- AuthService, JwtService, UserService (auth package)
-
----
-
-## Controller Layer
-
-REST controllers exposing API endpoints:
-
-**PatientController**
-```
-POST   /api/patients                  # Create
-GET    /api/patients                  # List all
-GET    /api/patients/{id}             # Get by ID
-PUT    /api/patients/{id}             # Update
-DELETE /api/patients/{id}             # Delete
-```
-
-**AppointmentController**
-```
-POST   /api/appointments              # Schedule
-GET    /api/appointments              # List
-GET    /api/appointments/queue        # Get queue
-GET    /api/appointments/{id}         # Get details
-PUT    /api/appointments/{id}         # Update
-DELETE /api/appointments/{id}         # Cancel
-```
-
-**Similar patterns for:**
-- DoctorController
-- DepartmentController
-- ConsultationController
-- BillingController
-- LaboratoryTestController
-- LaboratoryRequestController
-- AdmissionController
-- InventoryController
-- PharmacyPrescriptionController
-- HospitalSettingsController
-- DashboardController
-- HealthController
-- AuthController, LoginFormController, UserController (auth package)
-
-See [API_DESIGN.md](./API_DESIGN.md) for full endpoint specifications.
-
----
-
-## DTO Layer (Data Transfer Objects)
-
-**Inconsistently applied** — most controllers bind `@RequestBody` directly
-to the JPA entity, not a DTO. Only some request bodies actually go through
-a dedicated DTO. The naming pattern is `<Entity>Request` /
-`<Entity>Response` (not `<Entity>DTO`).
-
-**Actually used by a controller:**
-- `AppointmentRequest`/`AppointmentResponse` — used by `AppointmentController`
-- `ConsultationRequest`/`ConsultationResponse` — used by `ConsultationController`
-- `BillingRequest`/`BillingItemRequest`/`PaymentRequest` — used by `BillingController`
-- `DashboardResponse` — used by `DashboardController`
-
-**Defined in `dto/` but not referenced anywhere (dead code):**
-- `PatientRequest`, `PatientResponse` — `PatientController` binds
-  `@RequestBody Patient patient` directly instead
-- `DoctorRequest` — `DoctorController` binds the `Doctor` entity directly
-- `ErrorResponse` — see [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) (P1); no global
-  exception handling exists to construct one
-
-**No DTO at all — controller binds the JPA entity directly as the request
-body:** `DepartmentController`, `AdmissionController`, `InventoryController`,
-`PatientController`, `LaboratoryRequestController`, `DoctorController`,
-`LaboratoryTestController`, `HospitalSettingsController`,
-`PharmacyPrescriptionController`.
-
-**PatientRequest** (unused, but present)
-```java
-- String firstName
-- String lastName
-- String dateOfBirth
-- String gender
-- String phone
-- String email
-- String address
-- String nationalId
-- String emergencyContactName
-```
-
----
+**No DTO at all — controller binds the entity directly:** `AdmissionController`, `DepartmentController`,
+`DoctorController`, `InventoryController`, `LaboratoryRequestController`, `LaboratoryTestController`,
+`PatientController`, `HospitalSettingsController`, `PharmacyPrescriptionController`,
+`SystemPreferencesController`.
 
 ## Related Documentation
 
 - [DATA_MODEL.md](./DATA_MODEL.md) — entities and relationships
 - [FRONTEND_COMPONENTS.md](./FRONTEND_COMPONENTS.md) — what calls these components
-- [SECURITY.md](./SECURITY.md) — SecurityConfig details
+- [SECURITY.md](./SECURITY.md) — SecurityConfig, RBAC, tenant/module filters
 - [API_DESIGN.md](./API_DESIGN.md) — full endpoint specifications
-- [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) — CORS override, missing exception handling
+- [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) — dead code, missing permission, CORS inconsistency
