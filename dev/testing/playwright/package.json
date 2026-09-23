@@ -3,13 +3,11 @@
   "version": "1.0.0",
   "scripts": {
     "test": "playwright test",
-    "test:coverage": "rm -rf .nyc_output coverage && playwright test && npm run coverage:report",
-    "coverage:report": "node merge-coverage.js && nyc report --reporter=html --reporter=text-summary --reporter=lcov",
-    "server:instrumented": "cd ../../../hms-pom/hms-webb/angular && node instrument-serve.js"
+    "test:coverage": "rm -rf .temp-v8-coverage coverage-report && playwright test",
+    "coverage:clean": "rm -rf .temp-v8-coverage coverage-report"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",
-    "nyc": "^15.1.0",
-    "istanbul-lib-instrument": "^6.0.0"
+    "monocart-coverage-reports": "^2.13.0"
   }
 }

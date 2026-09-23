@@ -24,7 +24,9 @@ hms-pom/hms-jar/src/main/resources/static/
 # Test results and coverage
 test-results/
 coverage/
+dev/testing/playwright/coverage-report/
 .nyc_output/
+.temp-v8-coverage/
 .playwright/
 *.lcov
 
