@@ -127,14 +127,15 @@ HMS/
 │           ├── package.json
 │           └── angular.json         # outputPath → ../src/main/resources/static
 │
-├── architecture/                   # Comprehensive documentation
+├── dev/architecture/old/            # As-built architecture documentation
 │   ├── README.md                   # Architecture overview
-│   ├── ARCHITECTURE.md             # System design & patterns
-│   ├── COMPONENTS.md               # Detailed component breakdown
+│   ├── SYSTEM_DESIGN.md            # System design & patterns
+│   ├── BACKEND_COMPONENTS.md       # Backend component breakdown
+│   ├── FRONTEND_COMPONENTS.md      # Frontend component breakdown
 │   ├── DATA_FLOW.md                # Data flow patterns & workflows
 │   ├── API_DESIGN.md               # API specification
-│   ├── PROJECT_STATE.md             # Current status
-│   └── CLAUDE.md                   # Documentation fixes log
+│   ├── STATUS_OVERVIEW.md          # Current status
+│   └── KNOWN_ISSUES.md             # Verified defects and gaps
 │
 ├── docker-compose.yml              # PostgreSQL container setup
 ├── CLAUDE.md                       # Project-specific guidance
@@ -916,7 +917,7 @@ GET    /billing/{id}            # Get invoice details
 POST   /billing/{id}/payments   # Record payment
 ```
 
-**[Complete API Documentation →](./architecture/API_DESIGN.md)**
+**[Complete API Documentation →](./dev/architecture/old/API_DESIGN.md)**
 
 ---
 
@@ -1504,14 +1505,16 @@ without requiring a separate application codebase for each customer.
 
 | Document                          | Purpose                            |
 | --------------------------------- | ---------------------------------- |
-| **What-Is-This-Good-For.md**      | Business value & use cases         |
-| **CLAUDE.md**                     | Project notes & guidance           |
-| **architecture/README.md**        | Architecture overview & navigation |
-| **architecture/ARCHITECTURE.md**  | System design & patterns           |
-| **architecture/COMPONENTS.md**    | Detailed component breakdown       |
-| **architecture/API_DESIGN.md**    | API specification                  |
-| **architecture/DATA_FLOW.md**     | Data flow patterns & workflows     |
-| **architecture/PROJECT_STATE.md** | Current project status             |
+| **What-Is-This-Good-For.md**              | Business value & use cases         |
+| **CLAUDE.md**                             | Project notes & guidance           |
+| **dev/architecture/old/README.md**        | Architecture overview & navigation |
+| **dev/architecture/old/SYSTEM_DESIGN.md** | System design & patterns           |
+| **dev/architecture/old/BACKEND_COMPONENTS.md** | Backend component breakdown   |
+| **dev/architecture/old/FRONTEND_COMPONENTS.md** | Frontend component breakdown |
+| **dev/architecture/old/API_DESIGN.md**    | API specification                  |
+| **dev/architecture/old/DATA_FLOW.md**     | Data flow patterns & workflows     |
+| **dev/architecture/old/STATUS_OVERVIEW.md** | Current project status           |
+| **dev/architecture/old/KNOWN_ISSUES.md**  | Verified defects and gaps          |
 
 ---
 
@@ -1519,7 +1522,7 @@ without requiring a separate application codebase for each customer.
 
 ## Reporting Issues
 
-1. Check `architecture/PROJECT_STATE.md` for known issues.
+1. Check `dev/architecture/old/KNOWN_ISSUES.md` for known issues.
 2. Check logs for error messages.
 3. Review `CLAUDE.md` for project notes.
 4. Check tenant/module configuration if the issue involves restricted functionality.
@@ -1552,7 +1555,7 @@ Built with modern technologies and best practices.
 * 🌐 **Frontend:** http://localhost:4200
 * 🔌 **Backend:** http://localhost:8081/api
 * 📚 **API Docs:** http://localhost:8081/swagger-ui/index.html
-* 📖 **Architecture:** [./architecture/](./architecture/)
+* 📖 **Architecture:** [./dev/architecture/old/](./dev/architecture/old/)
 * 💼 **About HMS:** [./What-Is-This-Good-For.md](./What-Is-This-Good-For.md)
 
 ---

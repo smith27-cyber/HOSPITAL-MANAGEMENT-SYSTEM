@@ -22,12 +22,7 @@ hms-pom/hms-webb/src/main/resources/static/
 hms-pom/hms-jar/src/main/resources/static/
 
 # Test results and coverage
-/testing/node_modules
-/testing/test-results/
-/testing/playwright/test-results/
 test-results/
-/testing/.nyc_output
-/testing/coverage
 coverage/
 .nyc_output/
 .playwright/

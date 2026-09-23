@@ -63,12 +63,15 @@ checked manually (`curl`) during the migration's verification, not by an automat
 
 ## End-to-end (Playwright)
 
-`testing/playwright/` (top-level, outside `hms-pom/`) contains a Playwright + nyc
-coverage-merge setup (`playwright.config.ts`, `.nycrc.json`, `merge-coverage.js`) but **only one spec
-file**, `tests/app.spec.ts`. A much larger Playwright test plan exists as planning documents under
-`dev/planning/playwright/` (10 phases, dozens of task files) — but per this doc set's scope (architecture
-only, not planning), that plan describes intended future coverage, not current coverage. As of this
-branch, only the one smoke-level spec is implemented.
+`dev/testing/playwright/` contains a Playwright + nyc coverage-merge setup (`playwright.config.ts`,
+`.nycrc.json`, `merge-coverage.js`) but **only one spec file**, `tests/app.spec.ts`. It used to sit at
+top-level `testing/playwright/`, duplicated alongside an identical copy already living under
+`dev/testing/playwright/` (brought in from the `architecture/gsn-creating-a-new-pom-structure` reference
+branch alongside the Playwright plan below); the two were merged into this single location. A much
+larger Playwright test plan exists as planning documents under `dev/planning/playwright/` (10 phases,
+dozens of task files) — but per this doc set's scope (architecture only, not planning), that plan
+describes intended future coverage, not current coverage. As of this branch, only the one smoke-level
+spec is implemented.
 
 ## Net assessment
 
