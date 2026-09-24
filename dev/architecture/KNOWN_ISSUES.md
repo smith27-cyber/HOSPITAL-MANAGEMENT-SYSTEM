@@ -30,8 +30,41 @@ All items below were verified directly against source, not inferred from other d
   sourced from environment variables or a secrets manager.
 - **Four frontend services hardcode `http://localhost:8081`** (`report.service.ts`, `receipt.service.ts`,
   `tenant-module.service.ts`, `platform-user.service.ts`) instead of using the relative `/api/...` path
-  every other service uses. These will silently break in any environment where the backend isn't at that
-  exact host/port, while the rest of the app keeps working.
+  every other service uses. **This is not a theoretical "different environment" risk — it actively breaks
+  the standard `ng serve` dev workflow right now.** `TenantModuleService` calls its hardcoded URL directly,
+  and `hms-jar` has no CORS policy at all (removed deliberately during the pom migration — the browser is
+  only ever meant to reach it same-origin via `ng serve`'s dev proxy or `hms-webb`'s forward controller).
+  The result, reproduced directly via the browser's own console: every request is blocked
+  (`Access to fetch at 'http://localhost:8081/api/tenant/modules' from origin 'http://localhost:4300' has
+  been blocked by CORS policy`), `TenantModuleService.loadModules()` always fails into its `catchError`
+  branch, `hasModule()` is permanently false, and since every single nav item in `sidebar.html` is gated on
+  `hasModulePermission(module, permission)` (`hasModule(...) && hasPermission(...)`), **the entire
+  navigation sidebar renders completely empty for every user**, immediately after a successful login.
+  Verified end-to-end with a real Playwright test (`dev/testing/playwright/tests/auth/nav-visibility.spec.ts`,
+  currently marked `test.fail()` so the suite stays green until this is fixed).
+- **The login form gets permanently stuck after any failed login attempt.** After a wrong
+  password/username, `Login.login()`'s error handler runs correctly and updates component state exactly
+  as coded (`loading` becomes `false`, `errorMessage` is set to the right text) — confirmed directly by
+  reading the component's live internal state via Angular DevTools' `ng.getComponent()` API, not just
+  inferring it from the DOM. But **the view never re-renders**: the submit button and both inputs stay
+  `disabled` indefinitely (confirmed by polling for up to 30s with no change), and the `.login-error`
+  message never becomes visible, even though the underlying `errorMessage` string is genuinely set. The
+  user cannot retry logging in without a full page reload. Root cause not yet identified (a Zone.js /
+  change-detection scheduling gap is the leading suspect, but unconfirmed). Verified via
+  `dev/testing/playwright/tests/auth/login-invalid.spec.ts` (currently marked `test.fail()`).
+- **`SUPER_ADMIN`'s `PLATFORM_*` permissions silently disappeared from the database during ordinary app
+  usage this session — a live data-integrity bug, not a seed-time issue.** A fresh login as `superadmin`
+  right after `hms-jar` booted returned a JWT with 82 permissions including all 10 `PLATFORM_*` ones
+  (confirmed by decoding the JWT directly). After exercising the app normally through Playwright for a
+  while (no server restart), the same account's JWT dropped to 66 permissions with **zero** `PLATFORM_*`
+  ones — confirmed independently with a direct `role_permissions` query against Postgres, which shows
+  `SUPER_ADMIN` and `ADMIN` now have an *identical* 66-permission set. Since `platform.guard.ts` requires
+  at least one `PLATFORM_*` permission, `SUPER_ADMIN` can no longer reach `/platform/dashboard` at all —
+  `login.ts` still correctly decides to redirect there, but the guard immediately bounces back to
+  `/dashboard`. The trigger wasn't isolated (many login attempts and protected-route requests were made in
+  between); this needs a focused investigation, not a guess. Verified via
+  `dev/testing/playwright/tests/auth/login-valid.spec.ts`'s platform-admin-redirect test (currently marked
+  `test.fail()`).
 
 ## Medium priority
 

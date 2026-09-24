@@ -57,11 +57,41 @@ checked manually (`curl`) during the migration's verification, not by an automat
 
 ## End-to-end (Playwright)
 
-`dev/testing/playwright/` contains a Playwright + nyc coverage-merge setup (`playwright.config.ts`,
-`.nycrc.json`, `merge-coverage.js`) but **only one spec file**, `tests/app.spec.ts`, verifying the login
-page loads and collecting Istanbul code coverage — not a suite covering real user flows. A much larger
-Playwright test plan exists as planning documents under `dev/planning/playwright/` (10 phases, dozens of
-task files) describing intended future coverage, not current coverage.
+`dev/testing/playwright/` runs against a real `ng serve` instance (`playwright.config.ts`'s `webServer`),
+with code coverage collected via Playwright's native V8 coverage API and reported through
+`monocart-coverage-reports` (`fixtures/coverage.fixture.ts`, `global-teardown.ts`) — this replaced an
+earlier Istanbul/nyc instrumentation-server approach that turned out to be broken three separate ways
+(syntax-breaking IIFE wrapping of ES modules, wrong coverage-map keys, and only ever covering the minified
+production bundle rather than readable source). The current setup produces real, row-by-row coverage of
+the actual TypeScript source, because it reads `ng serve`'s dev output with real source maps.
+
+**8 spec files**, one per user-process concern, under `tests/auth/` (Phase 1 of the plan under
+`dev/planning/playwright/phases/phase-1-auth-and-shell.md`): `login-page`, `login-valid`, `login-invalid`,
+`login-validation`, `logout`, `route-guard`, `nav-visibility`. A much larger plan exists for later phases
+(patients, appointments, billing, etc.) as planning documents, describing intended future coverage, not
+current coverage.
+
+**Important environment gotcha, worth remembering:** port 4200 on this machine is not reliably HMS2's own
+`ng serve`. A sibling project (`Active/HMS`, no "2") runs its dev server on the same default port, and its
+component structure is similar enough (same package layout, same component names) that tests against it
+look completely plausible while testing the wrong app entirely — this happened for a large part of this
+session before being caught. The suite now pins `baseURL`/`webServer` to port 4300 specifically to avoid
+this.
+
+**Writing this suite for real (not just scaffolding it) surfaced three genuine, previously-undocumented
+bugs**, all in HMS2's own code, all verified directly rather than assumed — see
+[KNOWN_ISSUES.md](./KNOWN_ISSUES.md) for full detail:
+1. The login form gets permanently stuck after any failed login attempt — component state updates
+   correctly (confirmed via `ng.getComponent()`) but the view never re-renders.
+2. `TenantModuleService`'s hardcoded absolute backend URL gets CORS-blocked under the standard `ng serve`
+   workflow, leaving the entire navigation sidebar empty for every user.
+3. `SUPER_ADMIN`'s `PLATFORM_*` permissions were observed disappearing from the database during ordinary
+   app usage (confirmed via a direct `role_permissions` query, no server restart in between) — a live
+   data-integrity issue, not a seed-time one.
+
+Each is covered by a test asserting the *correct* behavior, marked `test.fail()` so the suite reports
+green until the underlying bug is fixed — Playwright will flag them as "unexpectedly passing" the moment
+that happens, which is the intended signal.
 
 ## Net assessment
 
